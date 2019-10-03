@@ -1,0 +1,108 @@
+Changes and New Features in 1.7 (2018-05-14):
+
+	* enhancement: multinomial BART rebased on probit BART for 
+	computational efficiency
+
+	* bug fix: several corrections in probit and logistic BART.  
+	Note that this may change your results for binary and 
+	time-to-event outcomes.  
+	For probit BART, the correction generally leads to a small 
+	change in the results.  However, the logistic BART
+	corrections may lead to more substantial changes.
+
+	* doc fix: correct docs for the binary case in pbart/mc.pbart, 
+	lbart and mbart; and correct docs for the numeric case in
+	wbart/mc.wbart
+
+	* enhancement: robust Gamma generation for small scale parameter
+
+	* enhancement: robust sparse Dirichlet prior implementation
+
+	* enhancement: binaryOffset=NULL specifies 
+	binaryOffset=qXXXX(mean(y.train)) for pbart/mc.pbart,
+	lbart/mc.lbart, mbart/mc.mbart, surv.bart/mc.surv.bart, 
+	recur.bart/mc.recur.bart, crisk.bart/mc.crisk.bart
+	and crisk2.bart/mc.crisk2.bart (note: competing 
+	cause 2 is handled analogously for binaryOffset2=NULL)
+
+Changes and New Features in 1.6 (2018-03-19):
+
+	* for binary outcomes, new default for ntree=50
+	  (change inadvertently omitted from v1.4 below)
+
+        * enhancement: recur.pre.bart, recur.bart and mc.recur.bart
+	  can now handle NA entries in the times and delta matrices
+
+	* enhancement: for time-to-event outcomes, new optional 
+	  K parameter which coarsens time per the quantiles
+          1/K, 2/K, ..., K/K.
+
+	* bug fix: x.test/x.test2 now properly transposed if needed
+	  for post-processing
+
+	* bug fix: sparse Dirichlet prior now corrected for 
+	  random theta update.  Thanks to Antonio Linero for
+	  the detailed bug report.
+
+Changes and New Features in 1.5 (2018-02-08):
+
+        * bug fix: ambiguous call of floor surrounding integer division
+
+	* bug fix: x.test is not an argument of recur.pre.bart
+
+Changes and New Features in 1.4 (2018-02-02):
+
+	* for binary outcomes, new default for ntree=50
+
+        * fixed library bloat on Linux with strip
+
+	* x.train and x.test can be supplied as data.frames
+	  which contain factors as stated in the documentation
+
+	* cutpoints now based on data itself, i.e., binary or
+	  ordinal covariates.  Similarly, you can request 
+	  quantiles via the usequants setting. 
+
+	* sparse variable selection now available with the
+	  sparse=TRUE argument; see the documentation
+
+	* new vignettes
+
+	* new function, mc.lbart, for Logistic BART in parallel
+
+	* mbart updated to equivalent functionality as other functions
+
+	* new function, mc.mbart, for Multinomial BART in parallel
+
+Changes and New Features in 1.3 (2017-09-18):
+
+        * new examples in demo directory
+
+	* return ndpost values rather ndpost/keepevery
+
+	* for calling BART directly from C++, you can
+	  now use the RNG provided by Rmath or the STL random class
+	  see the improved example in cxx-ex
+
+	* new predict S3 methods, see predict.wbart and other
+	  predict variants
+
+	* Added Geweke diagnostics for pbart, surv.bart, etc.
+	  See gewekediag which is adapted from the coda package
+
+	* Logistic BART added for binary outcomes; see lbart
+
+	* Multinomial BART added for categorical outcomes; see mbart
+
+Changes and New Features in 1.2 (2017-04-30):
+
+	* you can now call BART directly from C++ with the Rmath library 
+	  see new header rn.h and the example in cxx-ex
+
+Changes and New Features in 1.1 (2017-04-13):
+
+	* No user visible changes: bug-fix release
+
+Changes and New Features in 1.0 (2017-04-07):
+
+	* First release on CRAN

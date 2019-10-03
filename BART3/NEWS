@@ -1,0 +1,199 @@
+Changes and New Features in 2.6 (2019-07-24):
+	* updated vignette with typo corrections and additional info
+	
+Changes and New Features in 2.5 (2019-06-10):
+	* new feature: stratrs function now handles
+	continuous data as well categorical
+
+	* bug fix: bartModelMatrix now correctly handles
+	all-missing columns with numcut>0 and rm.const=T
+
+	* bug fix: fix gbart syntax error in LPML feature
+	
+	* bug fix: fix a mc.pbart error which failed
+	to recalculate prob.train.mean and prob.test.mean
+	based on all chains
+
+Changes and New Features in 2.4 (2019-04-10):
+	* change:  per CRAN policy, dynamic libraries are no 
+	longer "stripped" on Linux
+
+Changes and New Features in 2.3 (2019-03-27):
+	* new feature: adding arguments to surv.pre.bart, surv.bart
+	and mc.surv.bart to fine-tune grid of time points and 
+	automate creation of time dependent covariates.  These are
+	convenience features to make multi-state models easier to
+	handle; see new demo leuk
+
+	* change: arguments to rtnorm and rtgamma more user friendly
+
+	* new feature: re-organized vignettes into a single vignette
+
+	* new feature: gbart now calculates log pseudo-marginal
+	likelihood (LPML) for computing pseudo-Bayes factors
+
+	* new feature: new Generalized BART Mixed Models, see the
+	function gbmm
+
+Changes and New Features in 2.2 (2019-01-22):
+
+	* bug fix: fix typo in size of theta grid for sparse prior
+
+	* new feature: Multinomial BART, mbart2, (suitable for
+	cases with more categories) based on the original mbart
+	implementation but inspired by the logit transformation;
+	nevertheless, both logit and probit are available and, 
+	of course, probit is much faster
+
+Changes and New Features in 2.1 (2018-11-28):
+
+	* to meet current CRAN guidelines, replaced CXX1X and CXX1XSTD 
+	configure/autoconf macros with CXX11 and CXX11STD respectively
+
+Changes and New Features in 2.0 (2018-11-12):
+
+	* new feature: Multinomial BART, mbart, (suitable for cases
+	with relatively fewer categories) replaced with a new
+	conditional probability implementation which allows the user
+	to choose probit or logit BART; of course, probit BART is 
+	much faster
+
+	* new feature: if lambda is specified as 0, then sigma is
+	considered to be fixed and known at the value sigest 
+        and, therefore, not sampled
+
+	* bug fix: fixed single column x.test bug
+
+Changes and New Features in 1.9 (2018-08-17):
+
+	* bug fix: off by one error fixed in robust Gamma 
+	generator for sparse Dirichlet prior
+
+        * new feature: abart/mc.abart computes a variant
+	of the Accelerated Failue Time model based on BART
+
+	* new feature: for x.train/x.test with missing data elements, 
+	gbart will singly impute them with hot decking.  
+	Since mc.gbart runs multiple gbart threads in parallel, 
+	mc.gbart performs multiple imputation with hot decking, 
+	i.e., a separate imputation for each thread.
+
+Changes and New Features in 1.8 (2018-06-30):
+
+	* bug fix: fix typo in the recur.pwbart() which
+	prevented predict() from working when OpenMP
+	was not available
+
+Changes and New Features in 1.7 (2018-06-08):
+
+	* enhancement: generalized, or generic, BART: gbart/mc.gbart
+	unites continuous and binary BART in one function call
+	re-based time-to-event BARTs on gbart as well
+
+	* enhancement: binaryOffset=NULL specifies 
+	binaryOffset=qXXXX(mean(y.train)) for pbart/mc.pbart,
+	lbart/mc.lbart, mbart/mc.mbart; offset=NULL does the
+	same for gbart/mc.gbart, surv.bart/mc.surv.bart, 
+	recur.bart/mc.recur.bart, crisk.bart/mc.crisk.bart
+	and crisk2.bart/mc.crisk2.bart (note: competing 
+	cause 2 is handled analogously for offset2=NULL)
+
+	* enhancement: multinomial BART rebased on probit BART for 
+	computational efficiency
+
+	* bug fix: several corrections in probit and logit BART.
+	Note that this may change your results for binary and
+	time-to-event outcomes.  For probit BART, the correction
+	generally leads to a small change in the results.  However,
+	the logit BART correction may lead to more substantial
+	changes.
+
+	* doc fix: correct docs for the binary case in pbart/mc.pbart, 
+	lbart and mbart; and correct docs for the numeric case in
+	wbart/mc.wbart
+
+	* enhancement: robust Gamma generation for small scale parameter
+
+	* enhancement: more robust sparse Dirichlet prior implementation
+
+Changes and New Features in 1.6 (2018-03-19):
+
+	* for binary outcomes, new default for ntree=50
+	  (change inadvertently omitted from v1.4 below)
+
+        * enhancement: recur.pre.bart, recur.bart and mc.recur.bart
+	  can now handle NA entries in the times and delta matrices
+
+	* enhancement: for time-to-event outcomes, new optional 
+	  K parameter which coarsens time per the quantiles
+          1/K, 2/K, ..., K/K.
+
+	* bug fix: x.test/x.test2 now properly transposed if needed
+	  for post-processing
+
+	* bug fix: sparse Dirichlet prior now corrected for 
+	  random theta update.  Thanks to Antonio Linero for
+	  the detailed bug report.
+
+Changes and New Features in 1.5 (2018-02-08):
+
+        * bug fix: ambiguous call of floor surrounding integer division
+
+	* bug fix: x.test is not an argument of recur.pre.bart
+
+Changes and New Features in 1.4 (2018-02-02):
+
+	* for binary outcomes, new default for ntree=50
+
+        * fixed library bloat on Linux with strip
+
+	* x.train and x.test can be supplied as data.frames
+	  which contain factors as stated in the documentation
+
+	* cutpoints now based on data itself, i.e., binary or
+	  ordinal covariates.  Similarly, you can request 
+	  quantiles via the usequants setting. 
+
+	* sparse variable selection now available with the
+	  sparse=TRUE argument; see the documentation
+
+	* new vignettes
+
+	* new function, mc.lbart, for logit BART in parallel
+
+	* mbart updated to equivalent functionality as other functions
+
+	* new function, mc.mbart, for Multinomial BART in parallel
+
+Changes and New Features in 1.3 (2017-09-18):
+
+        * new examples in demo directory
+
+	* return ndpost values rather ndpost/keepevery
+
+	* for calling BART directly from C++, you can
+	  now use the RNG provided by Rmath or the STL random class
+	  see the improved example in cxx-ex
+
+	* new predict S3 methods, see predict.wbart and other
+	  predict variants
+
+	* Added Geweke diagnostics for pbart, surv.bart, etc.
+	  See gewekediag which is adapted from the coda package
+
+	* logit BART added for binary outcomes; see lbart
+
+	* Multinomial BART added for categorical outcomes; see mbart
+
+Changes and New Features in 1.2 (2017-04-30):
+
+	* you can now call BART directly from C++ with the Rmath library 
+	  see new header rn.h and the example in cxx-ex
+
+Changes and New Features in 1.1 (2017-04-13):
+
+	* No user visible changes: bug-fix release
+
+Changes and New Features in 1.0 (2017-04-07):
+
+	* First release on CRAN

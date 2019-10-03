@@ -1,0 +1,4 @@
+t1	   Cauchy example
+t1-50	   Cauchy example with 50% right censoring
+galaxy	   galaxy example
+rng	   test DPM::rng
