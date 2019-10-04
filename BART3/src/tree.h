@@ -91,11 +91,13 @@ public:
    char ntype(); //node type t:top, b:bot, n:no grandchildren i:interior (t can be b)
    bool isnog();
    size_t getbadcut(size_t v);
+
 #ifndef NoRcpp   
   Rcpp::List tree2list(xinfo& xi, double center=0., double scale=1.); // create an efficient list from a single tree
   //tree list2tree(Rcpp::List&, xinfo& xi); // create a tree from a list and an xinfo  
   Rcpp::IntegerVector tree2count(size_t nvar); // for one tree, count the number of branches for each variable
 #endif
+
 private:
    double theta; //univariate double parameter
    //rule: left if x[v] < xinfo[v][c]
