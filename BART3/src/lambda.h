@@ -21,7 +21,7 @@
 #ifndef GUARD_lambda
 #define GUARD_lambda
 
-#include "common.h"
+//#include "common.h"
 
 #ifdef NoRcpp
 using ::pnorm;

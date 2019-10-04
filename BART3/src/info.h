@@ -19,7 +19,9 @@
 
 #ifndef GUARD_info_h
 #define GUARD_info_h
-#include "common.h"
+
+//#include "common.h"
+
 //data
 class dinfo {
 public:

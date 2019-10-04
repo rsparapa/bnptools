@@ -1,4 +1,4 @@
-library(BART)
+library(BART3)
 library(MASS)
 
 ##options(figures='../vignettes/figures')
@@ -37,7 +37,7 @@ lines(x, apply(partial, 2, quantile, probs=0.025), lty=2, lwd=2)
 lines(x, apply(partial, 2, quantile, probs=0.975), lty=2, lwd=2)
 abline(h=c(0, 50), col='gray')
 ## uncomment for an ICE plot
-## for(i in seq(1, N, by=10)) 
+## for(i in seq(1, N, by=10))
 ##     lines(x, apply(pred[ , seq(i, N*L, by=N)], 2, mean), type='l',
 ##           lty=3, col='green')
 

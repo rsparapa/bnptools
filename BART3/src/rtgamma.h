@@ -20,7 +20,7 @@
 #ifndef GUARD_rtgamma
 #define GUARD_rtgamma
 
-#include "common.h"
+//#include "common.h"
 
 double rtgamma(double shape, double rate, double a, rn& gen);
 
