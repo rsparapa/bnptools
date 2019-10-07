@@ -275,7 +275,7 @@
     \examples{
     
     #Generate data from a probit model
-    library(BART)
+    
       N <- 1000
       gX <- NULL; fZ <- NULL; hX <- NULL
       X1 <- rnorm(N)
