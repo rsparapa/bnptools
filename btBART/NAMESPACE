@@ -1,4 +1,4 @@
-useDynLib('BART4', .registration=TRUE)
+useDynLib('btBART', .registration=TRUE)
 ##exportPattern("^[[:alpha:]]+")
 ##export(dpmbart, dpmwbart)
 export(wbart, mc.wbart, pwbart, mc.wbart.gse, mc.pwbart)
