@@ -17,7 +17,7 @@
  *  https://www.R-project.org/Licenses/GPL-2
  */
 
-#include "BART3.h"
+#include <BART3.h>
 
 #ifndef NoRcpp
 

@@ -2,6 +2,7 @@
 CXX_STD = CXX11
 PKG_CXXFLAGS = @OPENMP_CXXFLAGS@
 PKG_LIBS = @OPENMP_CXXFLAGS@
+PKG_CPPFLAGS = -I../inst/include/
 
 ## C++ especially with header libs like Rcpp generate large libs on Linux
 ## this will slim down the size of the libs considerably and make CRAN happy
