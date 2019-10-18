@@ -92,7 +92,6 @@
   Milwaukee, WI\ \ 53226, USA\\
   %E-mail: {rsparapa@mcw.edu}
 }
-%\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
 \maketitle
@@ -102,7 +101,9 @@ N.B.\ This vignette is largely based on our previous work
 package on CRAN that is frozen at version 2.6.  However, this vignette
 goes beyond that into the new developments found in the \pkg{BART3}
 \proglang{R} package that continues the legacy for version 3 and
-beyond on \pkg{github}.
+beyond on \pkg{github}.  Now, \pkg{BART3} is also a \proglang{C++} 
+header-only class library that can be linked with other \proglang{R} 
+packages via \code{Imports/LinkingTo} in the \code{DESCRIPTION} file.
 
 \clearpage
 
