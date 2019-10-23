@@ -8,8 +8,9 @@ library(lmeVarComp)
 
 #A1C DATA FROM THE PHI DIABETES STUDY
 ##path <- "/home/btuyishimire/Documents/PHI/TARIMA/manuscript3/illustrative_example/"
-##data <- read.csv(paste(path,"monthly_data12.csv",sep=""),header=TRUE)
-data <- read.csv("monthly_data12.csv",header=TRUE)
+path <-  system.file('dm', package='btBART')
+data <- read.csv(paste(path,"monthly_data12.csv",sep="/"),header=TRUE)
+##data <- read.csv("monthly_data12.csv",header=TRUE)
 data <- data[!is.na(data$A1C6),]
 
 #-------  1. Check additivity of health and demographic factors ------------#

@@ -12,6 +12,8 @@ x1 <- x[, 1L]; x2 <- x[, 2L]
 
 y <- 2*x1 + x2 + 10*x1*x2 + rnorm(100L)
 
+ndpost <- 1000; burn <- 100
+
 post1 <- wbart( x.train= x,
                 y.train  = y,   
                 ndpost   = ndpost, 
