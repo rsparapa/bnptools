@@ -204,5 +204,5 @@ par(mfrow=c(2,2))
  
   lines(lowess(data_full$A1C0,data_full$logA1C6), col="red",lwd=3)
 
-
+par(mfrow=c(1,1)) 
 
