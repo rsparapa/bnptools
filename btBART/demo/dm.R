@@ -4,7 +4,6 @@ library(btBART)
 library(BART3)
 library(BayesTree)
 library(lmeVarComp)
-source("lpml.R")
 ##source("/home/btuyishimire/allfiles/RESEARCH/Rfunctions/lpml.R")
 
 #A1C DATA FROM THE PHI DIABETES STUDY
