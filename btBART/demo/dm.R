@@ -1,9 +1,12 @@
 ## original file is/was ...
 ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.R
+## compare results with 
+## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.pdf
 library(btBART)
 library(BART3)
 library(BayesTree)
 library(lmeVarComp)
+library(mgcv)
 ##source("~btuyishimire/allfiles/RESEARCH/Rfunctions/lpml.R")
 
 ##A1C DATA FROM THE PHI DIABETES STUDY
@@ -63,8 +66,7 @@ mus2  <- post_2b$yhat.train
 out2  <- lpml(ytrain,mus2,sigs2) 
 mse2  <- mean((ytrain-post_2b$yhat.train.mean)^2)
 
-pbf_orig <- exp(out1$LPML-out2$LPML)
-pbf_orig
+(pbf_orig <- exp(out1$LPML-out2$LPML))
 
 ## log A1C
 ##----- First do analysis using data without treatment 
@@ -98,8 +100,7 @@ mus2  <- post_2b$yhat.train
 out2  <- lpml(ytrain,mus2,sigs2) 
 mse2  <- mean((ytrain-post_2b$yhat.train.mean)^2)
 
-pbf_log <- exp(out1$LPML-out2$LPML)
-pbf_log
+(pbf_log <- exp(out1$LPML-out2$LPML))
 
 ## A1C
 ytrain <- data_full$A1C6
@@ -126,17 +127,24 @@ mus2  <- post_2b$yhat.train
 out2  <- lpml(ytrain,mus2,sigs2) 
 mse2  <- mean((ytrain-post_2b$yhat.train.mean )^2)
 
-pbf_ageA1C0_ori <- exp(out1$LPML-out2$LPML)
-
 ##Normalize data
 agen <- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
 A1C0n <- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
 
 xx <- cbind(agen,A1C0n)
 
-addtest_ageA1C0_ori <- test.additivity(xx, ytrain)
-addtest_ageA1C0_ori 
-pbf_ageA1C0_ori 
+(addtest_ageA1C0_ori <- test.additivity(xx, ytrain))
+(pbf_ageA1C0_ori <- exp(out1$LPML-out2$LPML))
+
+ga1_s <- gam(ytrain~s(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+ga2_s <- gam(ytrain~s(data_full$age,bs="tp")+ s(data_full$A1C0,bs="tp"),method="REML")
+ga1_te <- gam(ytrain~te(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+ga2_te <- gam(ytrain~te(data_full$age,bs="tp")+ te(data_full$A1C0,bs="tp"),method="REML")
+
+AIC(ga1_s,ga2_s)
+AIC(ga1_te,ga2_te)
+anova.gam(ga1_s,ga2_s,test="F")
+anova(ga1_te,ga2_te,test="F")
 
 ## log A1C
 
@@ -164,17 +172,24 @@ mus2  <- post_2b$yhat.train
 out2  <- lpml(ytrain,mus2,sigs2) 
 mse2  <- mean((ytrain-post_2b$yhat.train.mean )^2)
 
-pbf_ageA1C0_log <- exp(out1$LPML-out2$LPML)
-
 ##Normalize data
 agen <- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
 A1C0n <- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
 
 xx <- cbind(agen,A1C0n)
 
-addtest_ageA1C0_log <- test.additivity(xx, ytrain)
-addtest_ageA1C0_log 
-pbf_ageA1C0_log 
+(addtest_ageA1C0_log <- test.additivity(xx, ytrain))
+(pbf_ageA1C0_log <- exp(out1$LPML-out2$LPML))
+
+ga1_s <- gam(ytrain~s(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+ga2_s <- gam(ytrain~s(data_full$age,bs="tp")+ s(data_full$A1C0,bs="tp"),method="REML")
+ga1_te <- gam(ytrain~te(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+ga2_te <- gam(ytrain~te(data_full$age,bs="tp")+ te(data_full$A1C0,bs="tp"),method="REML")
+
+AIC(ga1_s,ga2_s)
+AIC(ga1_te,ga2_te)
+anova.gam(ga1_s,ga2_s,test="F")
+anova.gam(ga1_te,ga2_te,test="F")
 
 ## plotting
 
@@ -210,4 +225,4 @@ par(mfrow=c(2,2))
 
 par(mfrow=c(1,1)) 
 
-##dev.copy2pdf(file='dm.pdf')
+dev.copy2pdf(file='dm.pdf')
