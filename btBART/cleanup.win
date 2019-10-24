@@ -1,21 +1,4 @@
 #!/bin/sh
 
-rm -rf src/Makevars.win
+rm -rf src/Makevars.win src/TAGS src/BROWSE 
 
-for i in README src/TAGS src/BROWSE demo/*.pdf \
-	 inst/cxx-ex/*.o inst/cxx-ex/*.out inst/cxx-ex/core* \
-	 demo/myeloid.multi.state.R vignettes/wbart.Rmd vignettes/jss.* \
-	 vignettes/Sweave.sty vignettes/jsslogo.* \
-	 vignettes/*.aux vignettes/*.bbl vignettes/*.blg \
-	 vignettes/*.log vignettes/*.out \
-	 vignettes/*.tex vignettes/*.tpt vignettes/*.pdf \
-	 vignettes/*.md  vignettes/*.html \
-	 R/dpm*bart.R man/dpm*bart.Rd src/*dp*.* inst/cxx-ex/*dp*.* \
-	 demo/fat.tail.dpm*.R \
-	 inst/bootcamp/* src/rtruncnorm.* \
-	 src/randomkit.* src/rand_draws.* src/latent.*
-do
-    if [ -f $i ]
-       then rm -rf $i
-    fi
-done
