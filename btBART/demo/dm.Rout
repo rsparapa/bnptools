@@ -24,6 +24,8 @@ Type 'q()' to quit R.
 + . + 
 > ## original file is/was ...
 > ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.R
+> ## compare results with 
+> ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.pdf
 > library(btBART)
 
 > library(BART3)
@@ -34,6 +36,16 @@ Loading required package: survival
 > library(BayesTree)
 
 > library(lmeVarComp)
+
+> library(mgcv)
+This is mgcv 1.8-23. For overview type 'help("mgcv-package")'.
+
+Attaching package: ‘mgcv’
+
+The following object is masked from ‘package:nnet’:
+
+    multinom
+
 
 > ##source("~btuyishimire/allfiles/RESEARCH/Rfunctions/lpml.R")
 > 
@@ -128,7 +140,7 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 +                     x.train2 = xtrain2,
 +                     y.train  = ytrain,   
 +                     ndpost   = ndpost, 
-+                     nskip    =  burn)
++                     nskip    = burn)
 *****Into main of twbarts
 *****Data:
 data:n,p1,p2,np: 2673, 19, 22
@@ -158,22 +170,20 @@ done 700 (out of 1100)
 done 800 (out of 1100)
 done 900 (out of 1100)
 done 1000 (out of 1100)
-time: 33s
+time: 32s
 check counts
 trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 
 > sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]  
 
-> mus2  <-  post_2b$yhat.train
+> mus2  <- post_2b$yhat.train
 
-> out2  <-  lpml(ytrain,mus2,sigs2) 
+> out2  <- lpml(ytrain,mus2,sigs2) 
 
-> mse2 <- mean((ytrain-post_2b$yhat.train.mean)^2)
+> mse2  <- mean((ytrain-post_2b$yhat.train.mean)^2)
 
-> pbf_orig   <- exp(out1$LPML-out2$LPML)
-
-> pbf_orig
-[1] 18498.08
+> (pbf_orig <- exp(out1$LPML-out2$LPML))
+[1] 42.14979
 
 > ## log A1C
 > ##----- First do analysis using data without treatment 
@@ -189,7 +199,7 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > post_1b <- wbart( x.train  = xtrain_all,
 +                   y.train  = ytrain,
 +                   ndpost   = ndpost,
-+                   nskip    =  burn)
++                   nskip    = burn)
 *****Into main of wbart
 *****Data:
 data:n,p,np: 2673, 41, 0
@@ -236,7 +246,7 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 +                     x.train2 = xtrain2,
 +                     y.train  = ytrain,   
 +                     ndpost   = ndpost, 
-+                     nskip    =  burn)
++                     nskip    = burn)
 *****Into main of twbarts
 *****Data:
 data:n,p1,p2,np: 2673, 19, 22
@@ -272,24 +282,22 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 
 > sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]  
 
-> mus2  <-  post_2b$yhat.train
+> mus2  <- post_2b$yhat.train
 
-> out2  <-  lpml(ytrain,mus2,sigs2) 
+> out2  <- lpml(ytrain,mus2,sigs2) 
 
-> mse2 <- mean((ytrain-post_2b$yhat.train.mean)^2)
+> mse2  <- mean((ytrain-post_2b$yhat.train.mean)^2)
 
-> pbf_log   <- exp(out1$LPML-out2$LPML)
-
-> pbf_log
-[1] 1113.701
+> (pbf_log <- exp(out1$LPML-out2$LPML))
+[1] 702.0424
 
 > ## A1C
 > ytrain <- data_full$A1C6
 
-> post_1b <- wbart( x.train  =  data_full[,c("age","A1C0")] ,
+> post_1b <- wbart( x.train  = data_full[,c("age","A1C0")] ,
 +                   y.train  = ytrain,
 +                   ndpost   = ndpost,
-+                   nskip    =  burn)
++                   nskip    = burn)
 *****Into main of wbart
 *****Data:
 data:n,p,np: 2673, 2, 0
@@ -334,7 +342,7 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 +                     x.train2 = data_full[,c("A1C0")],
 +                     y.train  = ytrain,   
 +                     ndpost   = ndpost, 
-+                     nskip    =  burn)  
++                     nskip    = burn)  
 *****Into main of twbarts
 *****Data:
 data:n,p1,p2,np: 2673, 1, 1
@@ -364,44 +372,80 @@ done 700 (out of 1100)
 done 800 (out of 1100)
 done 900 (out of 1100)
 done 1000 (out of 1100)
-time: 29s
+time: 30s
 check counts
 trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 
 > sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]   
 
-> mus2  <-  post_2b$yhat.train 
+> mus2  <- post_2b$yhat.train 
 
-> out2  <-  lpml(ytrain,mus2,sigs2) 
+> out2  <- lpml(ytrain,mus2,sigs2) 
 
-> mse2 <- mean((ytrain-post_2b$yhat.train.mean )^2)
-
-> pbf_ageA1C0_ori   <- exp(out1$LPML-out2$LPML)
+> mse2  <- mean((ytrain-post_2b$yhat.train.mean )^2)
 
 > ##Normalize data
-> agen<- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
+> agen <- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
 
-> A1C0n<- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
+> A1C0n <- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
 
 > xx <- cbind(agen,A1C0n)
 
-> addtest_ageA1C0_ori <- test.additivity(xx, ytrain)
-
-> addtest_ageA1C0_ori 
+> (addtest_ageA1C0_ori <- test.additivity(xx, ytrain))
 RLRT.stat.obs  RLRT.p.value  GFT.stat.obs   GFT.p.value 
      40.05916       0.00000      61.02354       0.00000 
 
-> pbf_ageA1C0_ori 
-[1] 4.52734e+11
+> (pbf_ageA1C0_ori <- exp(out1$LPML-out2$LPML))
+[1] 7.662938e+12
+
+> ga1_s <- gam(ytrain~s(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+
+> ga2_s <- gam(ytrain~s(data_full$age,bs="tp")+ s(data_full$A1C0,bs="tp"),method="REML")
+
+> ga1_te <- gam(ytrain~te(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+
+> ga2_te <- gam(ytrain~te(data_full$age,bs="tp")+ te(data_full$A1C0,bs="tp"),method="REML")
+
+> AIC(ga1_s,ga2_s)
+            df      AIC
+ga1_s 26.90580 9571.244
+ga2_s 10.20771 9621.960
+
+> AIC(ga1_te,ga2_te)
+              df      AIC
+ga1_te 19.988962 9567.868
+ga2_te  8.558211 9622.286
+
+> anova.gam(ga1_s,ga2_s,test="F")
+Analysis of Deviance Table
+
+Model 1: ytrain ~ s(data_full$age, data_full$A1C0, bs = "tp")
+Model 2: ytrain ~ s(data_full$age, bs = "tp") + s(data_full$A1C0, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    2643.8     5506.4                                      
+2    2662.1     5682.4 -18.321  -176.03 4.6196 2.618e-10 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> anova(ga1_te,ga2_te,test="F")
+Analysis of Deviance Table
+
+Model 1: ytrain ~ te(data_full$age, data_full$A1C0, bs = "tp")
+Model 2: ytrain ~ te(data_full$age, bs = "tp") + te(data_full$A1C0, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    2651.3     5528.0                                      
+2    2664.5     5690.1 -13.176  -162.15 5.9144 4.823e-11 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 > ## log A1C
 > 
 > ytrain <- data_full$logA1C6
 
-> post_1b <- wbart( x.train  =  data_full[,c("age","A1C0")] ,
+> post_1b <- wbart( x.train  = data_full[,c("age","A1C0")] ,
 +                   y.train  = ytrain,
 +                   ndpost   = ndpost,
-+                   nskip    =  burn)
++                   nskip    = burn)
 *****Into main of wbart
 *****Data:
 data:n,p,np: 2673, 2, 0
@@ -430,7 +474,7 @@ done 700 (out of 1100)
 done 800 (out of 1100)
 done 900 (out of 1100)
 done 1000 (out of 1100)
-time: 27s
+time: 28s
 check counts
 trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 
@@ -442,11 +486,11 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 
 > ##TWO BARTS
 > 
-> post_2b <- twbarts( x.train1  = data_full[,c("age")],
-+                     x.train2  =  data_full[,c("A1C0")],
+> post_2b <- twbarts( x.train1 = data_full[,c("age")],
++                     x.train2 = data_full[,c("A1C0")],
 +                     y.train  = ytrain,   
 +                     ndpost   = ndpost, 
-+                     nskip    =  burn)  
++                     nskip    = burn)  
 *****Into main of twbarts
 *****Data:
 data:n,p1,p2,np: 2673, 1, 1
@@ -482,29 +526,65 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 
 > sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]   
 
-> mus2  <-  post_2b$yhat.train 
+> mus2  <- post_2b$yhat.train 
 
-> out2  <-  lpml(ytrain,mus2,sigs2) 
+> out2  <- lpml(ytrain,mus2,sigs2) 
 
-> mse2 <- mean((ytrain-post_2b$yhat.train.mean )^2)
-
-> pbf_ageA1C0_log   <- exp(out1$LPML-out2$LPML)
+> mse2  <- mean((ytrain-post_2b$yhat.train.mean )^2)
 
 > ##Normalize data
-> agen<- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
+> agen <- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
 
-> A1C0n<- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
+> A1C0n <- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
 
 > xx <- cbind(agen,A1C0n)
 
-> addtest_ageA1C0_log <- test.additivity(xx, ytrain)
-
-> addtest_ageA1C0_log 
+> (addtest_ageA1C0_log <- test.additivity(xx, ytrain))
 RLRT.stat.obs  RLRT.p.value  GFT.stat.obs   GFT.p.value 
      26.32587       0.00000      43.40954       0.00000 
 
-> pbf_ageA1C0_log 
+> (pbf_ageA1C0_log <- exp(out1$LPML-out2$LPML))
 [1] 24418585
+
+> ga1_s <- gam(ytrain~s(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+
+> ga2_s <- gam(ytrain~s(data_full$age,bs="tp")+ s(data_full$A1C0,bs="tp"),method="REML")
+
+> ga1_te <- gam(ytrain~te(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+
+> ga2_te <- gam(ytrain~te(data_full$age,bs="tp")+ te(data_full$A1C0,bs="tp"),method="REML")
+
+> AIC(ga1_s,ga2_s)
+            df       AIC
+ga1_s 27.36520 -1911.910
+ga2_s 10.65301 -1879.859
+
+> AIC(ga1_te,ga2_te)
+              df       AIC
+ga1_te 18.979377 -1909.361
+ga2_te  8.663971 -1878.058
+
+> anova.gam(ga1_s,ga2_s,test="F")
+Analysis of Deviance Table
+
+Model 1: ytrain ~ s(data_full$age, data_full$A1C0, bs = "tp")
+Model 2: ytrain ~ s(data_full$age, bs = "tp") + s(data_full$A1C0, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    2643.6     74.989                                      
+2    2661.6     76.848 -18.041  -1.8595 3.6383 3.155e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> anova.gam(ga1_te,ga2_te,test="F")
+Analysis of Deviance Table
+
+Model 1: ytrain ~ te(data_full$age, data_full$A1C0, bs = "tp")
+Model 2: ytrain ~ te(data_full$age, bs = "tp") + te(data_full$A1C0, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    2652.2     75.533                                      
+2    2664.4     77.015 -12.254  -1.4819 4.2553 8.433e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 > ## plotting
 > 
@@ -546,10 +626,11 @@ lines(lowess(data_full$A1C0,data_full$A1C6), col="red",lwd=3)
 >  
  lines(lowess(data_full$A1C0,data_full$logA1C6), col="red",lwd=3)
 
-> par(mfrow=c(1,1))
+> par(mfrow=c(1,1)) 
+
 > dev.copy2pdf(file='dm.pdf')
 X11cairo 
        2 
 > q()
 
-Process R finished at Thu Oct 24 15:23:10 2019
+Process R finished at Thu Oct 24 17:31:01 2019

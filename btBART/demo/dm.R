@@ -225,4 +225,4 @@ par(mfrow=c(2,2))
 
 par(mfrow=c(1,1)) 
 
-dev.copy2pdf(file='dm.pdf')
+##dev.copy2pdf(file='dm.pdf')
