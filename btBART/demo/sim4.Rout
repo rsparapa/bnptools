@@ -1,0 +1,466 @@
+
+R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> options(width=77, length=99999)
+> if (identical(getOption('pager'), file.path(R.home('bin'), 'pager'))) options(pager='cat') # rather take the ESS one 
+> options(STERM='iESS', str.dendrogram.last="'", editor='emacsclient', show.error.locations=TRUE)
+> 
++ . + 
+> ## original file is/was ...
+> ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.R
+> ## compare results with 
+> ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.pdf
+> ##library(btBART)
+> ##library(BART3)
+> library(BART4)
+Loading required package: survival
+
+> library(lmeVarComp)
+
+> library(mgcv)
+Loading required package: nlme
+This is mgcv 1.8-23. For overview type 'help("mgcv-package")'.
+
+> ##source("~btuyishimire/allfiles/RESEARCH/Rfunctions/lpml.R")
+> source("../R/lpml.R")
+
+> set.seed(20L)
+
+> x <- matrix(runif(200L), 100L, 2L)
+
+> x1 <- x[, 1L]; x2 <- x[, 2L]
+
+> ## Non-additive model
+> y <- 2*x1 + x2 + 10*x1*x2 + rnorm(100L)
+
+> ndpost <- 1000; burn <- 100
+
+> post1 <- wbart( x.train  = x,
++                 y.train  = y,   
++                 ndpost   = ndpost, 
++                 nskip    = burn)
+*****Into main of wbart
+*****Data:
+data:n,p,np: 100, 2, 0
+y1,yn: 6.542189, -2.208308
+x1,x[n*p]: 0.877521, 0.668354
+*****Number of Trees: 200
+*****Number of Cut Points: 100 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.263595,3.000000,0.339897
+*****sigma: 1.320957
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 3s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs1 <- post1$sigma[(burn+1):(burn+ndpost)]
+
+> mus1 <- post1$yhat.train
+
+> out1 <- lpml(y,mus1,sigs1)
+
+> post2 <- twbarts( x.train1 = x1,
++                   x.train2 = x2,
++                   y.train  = y,   
++                   ndpost   = ndpost, 
++                   nskip    = burn)
+*****Into main of twbarts
+*****Data:
+data:n,p1,p2,np: 100, 1, 1
+y1,yn: 6.542189, -2.208308
+x11,x1[n*p1]: 0.877521, 0.034561
+x21,x2[n*p2]: 0.864211, 0.668354
+*****Number of Cut Points for BART 1 : 100 ... 100
+*****Number of Cut Points for BART 2: 100 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.263595,3.000000,0.339897
+*****sigma: 1.320957
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 2s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs2 <- post2$sigma[(burn+1):(burn+ndpost)]
+
+> mus2 <- post2$yhat.train
+
+> out2 <- lpml(y,mus2,sigs2)
+
+> (add_test1 <- test.additivity(x, y))
+RLRT.stat.obs  RLRT.p.value  GFT.stat.obs   GFT.p.value 
+     35.34596       0.00000      49.86899       0.00000 
+
+> (pbf_ex1 <- exp(out1$LPML - out2$LPML))
+[1] 16366900726
+
+> ga1_s <- gam(y~s(x1,x2,bs="tp"), method="REML")
+
+> ga2_s <- gam(y~s(x1,bs="tp")+ s(x2,bs="tp"),method="REML")
+
+> ga1_te <- gam(y~te(x1,x2,bs="tp"), method="REML")
+
+> ga2_te <- gam(y~te(x1,bs="tp")+ te(x2,bs="tp"),method="REML")
+
+> AIC(ga1_s,ga2_s)
+             df      AIC
+ga1_s 15.199506 293.7335
+ga2_s  4.000225 344.4135
+
+> AIC(ga1_te,ga2_te)
+             df      AIC
+ga1_te 7.673861 289.7205
+ga2_te 4.000179 344.4134
+
+> anova.gam(ga1_s,ga2_s,test="F")
+Analysis of Deviance Table
+
+Model 1: y ~ s(x1, x2, bs = "tp")
+Model 2: y ~ s(x1, bs = "tp") + s(x2, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    81.458     81.503                                      
+2    97.000    169.258 -15.542  -87.755 5.9963 2.448e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> anova.gam(ga1_te,ga2_te,test="F")
+Analysis of Deviance Table
+
+Model 1: y ~ te(x1, x2, bs = "tp")
+Model 2: y ~ te(x1, bs = "tp") + te(x2, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    92.484     91.015                                      
+2    97.000    169.258 -4.5158  -78.243 17.927 1.049e-11 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> set.seed(20L)
+
+> x <- matrix(runif(200L), 100L, 2L)
+
+> x1 <- x[, 1L]; x2 <- x[, 2L]
+
+> ## Additive model
+> y <- 2*x1 + x2  + rnorm(100L)
+
+> post1 <- wbart( x.train  = x,
++                 y.train  = y,   
++                 ndpost   = ndpost, 
++                 nskip    = burn)
+*****Into main of wbart
+*****Data:
+data:n,p,np: 100, 2, 0
+y1,yn: 1.598899, 0.201051
+x1,x[n*p]: 0.877521, 0.668354
+*****Number of Trees: 200
+*****Number of Cut Points: 100 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.103900,3.000000,0.196746
+*****sigma: 1.005005
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 2s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs1 <- post1$sigma[(burn+1):(burn+ndpost)]
+
+> mus1 <- post1$yhat.train
+
+> out1 <- lpml(y,mus1,sigs1)
+
+> post2 <- twbarts( x.train1 = x1,
++                   x.train2 = x2,
++                   y.train  = y,   
++                   ndpost   = ndpost, 
++                   nskip    = burn)
+*****Into main of twbarts
+*****Data:
+data:n,p1,p2,np: 100, 1, 1
+y1,yn: 1.598899, 0.201051
+x11,x1[n*p1]: 0.877521, 0.034561
+x21,x2[n*p2]: 0.864211, 0.668354
+*****Number of Cut Points for BART 1 : 100 ... 100
+*****Number of Cut Points for BART 2: 100 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.103900,3.000000,0.196746
+*****sigma: 1.005005
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 3s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs2 <- post2$sigma[(burn+1):(burn+ndpost)]
+
+> mus2 <- post2$yhat.train
+
+> out2 <- lpml(y,mus2,sigs2)
+
+> (add_test2 <- test.additivity(x, y))
+RLRT.stat.obs  RLRT.p.value  GFT.stat.obs   GFT.p.value 
+    0.0641543     0.4860000     1.2507041     0.4144000 
+
+> (pbf_ex2 <- exp(out1$LPML - out2$LPML))
+[1] 1.560042
+
+> ga1_s <- gam(y~s(x1,x2,bs="tp"), method="REML")
+
+> ga2_s <- gam(y~s(x1,bs="tp")+ s(x2,bs="tp"),method="REML")
+
+> ga1_te <- gam(y~te(x1,x2,bs="tp"), method="REML")
+
+> ga2_te <- gam(y~te(x1,bs="tp")+ te(x2,bs="tp"),method="REML")
+
+> AIC(ga1_s,ga2_s)
+            df      AIC
+ga1_s 6.358359 291.4609
+ga2_s 5.297824 289.2222
+
+> AIC(ga1_te,ga2_te)
+             df      AIC
+ga1_te 7.674240 289.7209
+ga2_te 5.237101 289.1395
+
+> anova.gam(ga1_s,ga2_s,test="F")
+Analysis of Deviance Table
+
+Model 1: y ~ s(x1, x2, bs = "tp")
+Model 2: y ~ s(x1, bs = "tp") + s(x2, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance F Pr(>F)
+1    93.585     95.082                          
+2    95.260     94.970 -1.6754   0.1118         
+
+> anova.gam(ga1_te,ga2_te,test="F")
+Analysis of Deviance Table
+
+Model 1: y ~ te(x1, x2, bs = "tp")
+Model 2: y ~ te(x1, bs = "tp") + te(x2, bs = "tp")
+  Resid. Df Resid. Dev     Df Deviance      F Pr(>F)
+1    92.483     91.014                              
+2    95.354     95.007 -2.871  -3.9923 1.4387 0.2376
+
+> ## LPML outperforms lmeVarComp
+> set.seed(20L)
+
+> x <- matrix(runif(200L), 100L, 2L)
+
+> x1 <- x[, 1L]; x2 <- x[, 2L]
+
+> y <- 2*x1 + x2 + 3*x1*x2 + rnorm(100L)
+
+> post1 <- wbart( x.train  = x,
++                 y.train  = y,   
++                 ndpost   = ndpost, 
++                 nskip    = burn)
+*****Into main of wbart
+*****Data:
+data:n,p,np: 100, 2, 0
+y1,yn: 3.081886, -0.521757
+x1,x[n*p]: 0.877521, 0.668354
+*****Number of Trees: 200
+*****Number of Cut Points: 100 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.150573,3.000000,0.205902
+*****sigma: 1.028125
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 2s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs1 <- post1$sigma[(burn+1):(burn+ndpost)]
+
+> mus1 <- post1$yhat.train
+
+> out1 <- lpml(y,mus1,sigs1)
+
+> post2 <- twbarts( x.train1 = x1,
++                   x.train2 = x2,
++                   y.train  = y,   
++                   ndpost   = ndpost, 
++                   nskip    = burn)
+*****Into main of twbarts
+*****Data:
+data:n,p1,p2,np: 100, 1, 1
+y1,yn: 3.081886, -0.521757
+x11,x1[n*p1]: 0.877521, 0.034561
+x21,x2[n*p2]: 0.864211, 0.668354
+*****Number of Cut Points for BART 1 : 100 ... 100
+*****Number of Cut Points for BART 2: 100 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.150573,3.000000,0.205902
+*****sigma: 1.028125
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 2s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs2 <- post2$sigma[(burn+1):(burn+ndpost)]
+
+> mus2 <- post2$yhat.train
+
+> out2 <- lpml(y,mus2,sigs2)
+
+> (add_test3 <- test.additivity(x, y))
+RLRT.stat.obs  RLRT.p.value  GFT.stat.obs   GFT.p.value 
+     1.889452      0.112800      4.470086      0.187000 
+
+> (pbf_ex3 <- exp(out1$LPML - out2$LPML))
+[1] 8.286765
+
+> ga1_s <- gam(y~s(x1,x2,bs="tp"), method="REML")
+
+> ga2_s <- gam(y~s(x1,bs="tp")+ s(x2,bs="tp"),method="REML")
+
+> ga1_te <- gam(y~te(x1,x2,bs="tp"), method="REML")
+
+> ga2_te <- gam(y~te(x1,bs="tp")+ te(x2,bs="tp"),method="REML")
+
+> AIC(ga1_s,ga2_s)
+            df      AIC
+ga1_s 9.540716 293.8835
+ga2_s 4.481973 294.6322
+
+> AIC(ga1_te,ga2_te)
+             df      AIC
+ga1_te 7.673222 289.7198
+ga2_te 4.476203 294.6230
+
+> anova.gam(ga1_s,ga2_s,test="F")
+Analysis of Deviance Table
+
+Model 1: y ~ s(x1, x2, bs = "tp")
+Model 2: y ~ s(x1, bs = "tp") + s(x2, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F Pr(>F)
+1    89.143     91.406                               
+2    96.302    101.898 -7.1595  -10.492 1.4934 0.1783
+
+> anova.gam(ga1_te,ga2_te,test="F")
+Analysis of Deviance Table
+
+Model 1: y ~ te(x1, x2, bs = "tp")
+Model 2: y ~ te(x1, bs = "tp") + te(x2, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F Pr(>F)  
+1    92.485     91.015                                 
+2    96.312    101.901 -3.8268  -10.886 2.9431 0.0262 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> q()
+
+Process R finished at Fri Oct 25 09:38:54 2019

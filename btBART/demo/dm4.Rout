@@ -1,0 +1,631 @@
+
+R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> options(width=77, length=99999)
+> if (identical(getOption('pager'), file.path(R.home('bin'), 'pager'))) options(pager='cat') # rather take the ESS one 
+> options(STERM='iESS', str.dendrogram.last="'", editor='emacsclient', show.error.locations=TRUE)
+> 
++ . + 
+> ## original file is/was ...
+> ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.R
+> ## compare results with 
+> ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.pdf
+> ## library(btBART)
+> ## library(BART3)
+> library(BART4)
+Loading required package: survival
+
+> library(BayesTree)
+
+> library(lmeVarComp)
+
+> library(mgcv)
+Loading required package: nlme
+This is mgcv 1.8-23. For overview type 'help("mgcv-package")'.
+
+> ##source("~btuyishimire/allfiles/RESEARCH/Rfunctions/lpml.R")
+> source("../R/lpml.R")
+
+> ##A1C DATA FROM THE PHI DIABETES STUDY
+> ##path="~btuyishimire/Documents/PHI/TARIMA/manuscript3/illustrative_example/"
+> path <- system.file('dm', package='btBART')
+
+> path <- '../inst/dm'
+
+> data <- read.csv(paste(path,"monthly_data12.csv",sep="/"),header=TRUE)
+
+> demograph <- c("age","Female","race_cat","new_insurance",
++                "marital_status_cat","religion_cat")
+
+> health <- c("A1C0","DEPRESS","HYPERTSN","bmicat","hdlcat","ldlcat",
++             "systolicbpcat","diastolicbpcat")
+
+> trt <- c("newcurr_insulin","neworder_insulin","newdisp_insulin",
++          "newcurr_met","neworder_met","newdisp_met")
+
+> ## data <- data[!is.na(data$A1C6), c('A1C6', 'logA1C6',
+> ##   demograph, health, trt)]
+> ## data$age <- pmax(21, pmin(floor(data$age), 85))
+> ## write.csv(data, file='../inst/dm/monthly_data12.csv', row.names=FALSE)
+> 
+> ##-------  1. Check additivity of health and demographic factors ----------- .... [TRUNCATED] 
+
+> n_full <- nrow(data_full)
+
+> ## data_notrt <- data[data$newcurr_insulin=="No or Unknown" & data$newcurr_met == "No or Unknown",]
+> ## n_notrt <- nrow(data_notrt)
+> 
+> ndpost <- 1000; burn <- 100
+
+> ## A1C
+> ##----- First do analysis using data without treatment 
+> 
+> xtrain1 <- makeind(data_full[,demograph])
+
+> xtrain2 <- makeind(data_full[,health])
+
+> xtrain_all <- cbind(xtrain1,xtrain2)
+
+> ytrain <- data_full$A1C6
+
+> post_1b <- wbart( x.train  = xtrain_all,
++                   y.train  = ytrain,
++                   ndpost   = ndpost,
++                   nskip    =  burn)
+*****Into main of wbart
+*****Data:
+data:n,p,np: 2673, 41, 0
+y1,yn: -1.267088, -0.028627
+x1,x[n*p]: 47.000000, 0.000000
+*****Number of Trees: 200
+*****Number of Cut Points: 64 ... 1
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.211543,3.000000,0.411906
+*****sigma: 1.454167
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,41,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 35s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> mse1 <- mean((ytrain-post_1b$yhat.train.mean)^2)
+
+> sigs1 <- post_1b$sigma[(burn+1):(burn+ndpost)]
+
+> mus1 <- post_1b$yhat.train
+
+> out1 <- lpml(ytrain,mus1,sigs1)
+
+> ##TWO BARTS
+> 
+> post_2b <- twbarts( x.train1 = xtrain1,
++                     x.train2 = xtrain2,
++                     y.train  = ytrain,   
++                     ndpost   = ndpost, 
++                     nskip    = burn)
+*****Into main of twbarts
+*****Data:
+data:n,p1,p2,np: 2673, 19, 22
+y1,yn: -1.267088, -0.028627
+x11,x1[n*p1]: 47.000000, 0.000000
+x21,x2[n*p2]: 7.800000, 0.000000
+*****Number of Cut Points for BART 1 : 64 ... 1
+*****Number of Cut Points for BART 2: 100 ... 1
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.211543,3.000000,0.411906
+*****sigma: 1.454167
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,41,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 33s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]  
+
+> mus2  <- post_2b$yhat.train
+
+> out2  <- lpml(ytrain,mus2,sigs2) 
+
+> mse2  <- mean((ytrain-post_2b$yhat.train.mean)^2)
+
+> (pbf_orig <- exp(out1$LPML-out2$LPML))
+[1] 54163052
+
+> ## log A1C
+> ##----- First do analysis using data without treatment 
+> 
+> xtrain1 <- makeind(data_full[,demograph])
+
+> xtrain2 <- makeind(data_full[,health])
+
+> xtrain_all <- cbind(xtrain1,xtrain2)
+
+> ytrain <- data_full$logA1C6
+
+> post_1b <- wbart( x.train  = xtrain_all,
++                   y.train  = ytrain,
++                   ndpost   = ndpost,
++                   nskip    = burn)
+*****Into main of wbart
+*****Data:
+data:n,p,np: 2673, 41, 0
+y1,yn: -0.149033, 0.016047
+x1,x[n*p]: 47.000000, 0.000000
+*****Number of Trees: 200
+*****Number of Cut Points: 64 ... 1
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.022651,3.000000,0.005609
+*****sigma: 0.169689
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,41,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 35s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> mse1 <- mean((ytrain-post_1b$yhat.train.mean)^2)
+
+> sigs1 <- post_1b$sigma[(burn+1):(burn+ndpost)]
+
+> mus1 <- post_1b$yhat.train
+
+> out1 <- lpml(ytrain,mus1,sigs1)
+
+> ##TWO BARTS
+> 
+> post_2b <- twbarts( x.train1 = xtrain1,
++                     x.train2 = xtrain2,
++                     y.train  = ytrain,   
++                     ndpost   = ndpost, 
++                     nskip    = burn)
+*****Into main of twbarts
+*****Data:
+data:n,p1,p2,np: 2673, 19, 22
+y1,yn: -0.149033, 0.016047
+x11,x1[n*p1]: 47.000000, 0.000000
+x21,x2[n*p2]: 7.800000, 0.000000
+*****Number of Cut Points for BART 1 : 64 ... 1
+*****Number of Cut Points for BART 2: 100 ... 1
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.022651,3.000000,0.005609
+*****sigma: 0.169689
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,41,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 33s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]  
+
+> mus2  <- post_2b$yhat.train
+
+> out2  <- lpml(ytrain,mus2,sigs2) 
+
+> mse2  <- mean((ytrain-post_2b$yhat.train.mean)^2)
+
+> (pbf_log <- exp(out1$LPML-out2$LPML))
+[1] 2555.972
+
+> ## A1C
+> ytrain <- data_full$A1C6
+
+> post_1b <- wbart( x.train  = data_full[,c("age","A1C0")] ,
++                   y.train  = ytrain,
++                   ndpost   = ndpost,
++                   nskip    = burn)
+*****Into main of wbart
+*****Data:
+data:n,p,np: 2673, 2, 0
+y1,yn: -1.267088, -0.028627
+x1,x[n*p]: 47.000000, 8.600000
+*****Number of Trees: 200
+*****Number of Cut Points: 64 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.211543,3.000000,0.426939
+*****sigma: 1.480464
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 29s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs1 <- post_1b$sigma[(burn+1):(burn+ndpost)]
+
+> mus1 <- post_1b$yhat.train
+
+> out1 <- lpml(ytrain,mus1,sigs1)
+
+> ##TWO BARTS
+> 
+> post_2b <- twbarts( x.train1 = data_full[,c("age")],
++                     x.train2 = data_full[,c("A1C0")],
++                     y.train  = ytrain,   
++                     ndpost   = ndpost, 
++                     nskip    = burn)  
+*****Into main of twbarts
+*****Data:
+data:n,p1,p2,np: 2673, 1, 1
+y1,yn: -1.267088, -0.028627
+x11,x1[n*p1]: 47.000000, 73.000000
+x21,x2[n*p2]: 7.800000, 8.600000
+*****Number of Cut Points for BART 1 : 64 ... 64
+*****Number of Cut Points for BART 2: 100 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.211543,3.000000,0.426939
+*****sigma: 1.480464
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 29s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]   
+
+> mus2  <- post_2b$yhat.train 
+
+> out2  <- lpml(ytrain,mus2,sigs2) 
+
+> mse2  <- mean((ytrain-post_2b$yhat.train.mean )^2)
+
+> ##Normalize data
+> agen <- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
+
+> A1C0n <- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
+
+> xx <- cbind(agen,A1C0n)
+
+> (addtest_ageA1C0_ori <- test.additivity(xx, ytrain))
+RLRT.stat.obs  RLRT.p.value  GFT.stat.obs   GFT.p.value 
+     40.05916       0.00000      61.02354       0.00000 
+
+> (pbf_ageA1C0_ori <- exp(out1$LPML-out2$LPML))
+[1] 1.565318e+13
+
+> ga1_s <- gam(ytrain~s(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+
+> ga2_s <- gam(ytrain~s(data_full$age,bs="tp")+ s(data_full$A1C0,bs="tp"),method="REML")
+
+> ga1_te <- gam(ytrain~te(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+
+> ga2_te <- gam(ytrain~te(data_full$age,bs="tp")+ te(data_full$A1C0,bs="tp"),method="REML")
+
+> AIC(ga1_s,ga2_s)
+            df      AIC
+ga1_s 26.90580 9571.244
+ga2_s 10.20771 9621.960
+
+> AIC(ga1_te,ga2_te)
+              df      AIC
+ga1_te 19.988962 9567.868
+ga2_te  8.558211 9622.286
+
+> anova.gam(ga1_s,ga2_s,test="F")
+Analysis of Deviance Table
+
+Model 1: ytrain ~ s(data_full$age, data_full$A1C0, bs = "tp")
+Model 2: ytrain ~ s(data_full$age, bs = "tp") + s(data_full$A1C0, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    2643.8     5506.4                                      
+2    2662.1     5682.4 -18.321  -176.03 4.6196 2.618e-10 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> anova(ga1_te,ga2_te,test="F")
+Analysis of Deviance Table
+
+Model 1: ytrain ~ te(data_full$age, data_full$A1C0, bs = "tp")
+Model 2: ytrain ~ te(data_full$age, bs = "tp") + te(data_full$A1C0, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    2651.3     5528.0                                      
+2    2664.5     5690.1 -13.176  -162.15 5.9144 4.823e-11 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> ## log A1C
+> 
+> ytrain <- data_full$logA1C6
+
+> post_1b <- wbart( x.train  = data_full[,c("age","A1C0")] ,
++                   y.train  = ytrain,
++                   ndpost   = ndpost,
++                   nskip    = burn)
+*****Into main of wbart
+*****Data:
+data:n,p,np: 2673, 2, 0
+y1,yn: -0.149033, 0.016047
+x1,x[n*p]: 47.000000, 8.600000
+*****Number of Trees: 200
+*****Number of Cut Points: 64 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.022651,3.000000,0.005830
+*****sigma: 0.172999
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 29s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs1 <- post_1b$sigma[(burn+1):(burn+ndpost)]
+
+> mus1 <- post_1b$yhat.train
+
+> out1 <- lpml(ytrain,mus1,sigs1)
+
+> ##TWO BARTS
+> 
+> post_2b <- twbarts( x.train1 = data_full[,c("age")],
++                     x.train2 = data_full[,c("A1C0")],
++                     y.train  = ytrain,   
++                     ndpost   = ndpost, 
++                     nskip    = burn)  
+*****Into main of twbarts
+*****Data:
+data:n,p1,p2,np: 2673, 1, 1
+y1,yn: -0.149033, 0.016047
+x11,x1[n*p1]: 47.000000, 73.000000
+x21,x2[n*p2]: 7.800000, 8.600000
+*****Number of Cut Points for BART 1 : 64 ... 64
+*****Number of Cut Points for BART 2: 100 ... 100
+*****burn and ndpost: 100, 1000
+*****Prior:beta,alpha,tau,nu,lambda: 2.000000,0.950000,0.022651,3.000000,0.005830
+*****sigma: 0.172999
+*****w (weights): 1.000000 ... 1.000000
+*****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,2,0
+*****nkeeptrain,nkeeptest,nkeeptestme,nkeeptreedraws: 1000,1000,1000,1000
+*****printevery: 100
+*****skiptr,skipte,skipteme,skiptreedraws: 1,1,1,1
+
+MCMC
+done 0 (out of 1100)
+done 100 (out of 1100)
+done 200 (out of 1100)
+done 300 (out of 1100)
+done 400 (out of 1100)
+done 500 (out of 1100)
+done 600 (out of 1100)
+done 700 (out of 1100)
+done 800 (out of 1100)
+done 900 (out of 1100)
+done 1000 (out of 1100)
+time: 29s
+check counts
+trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
+
+> sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]   
+
+> mus2  <- post_2b$yhat.train 
+
+> out2  <- lpml(ytrain,mus2,sigs2) 
+
+> mse2  <- mean((ytrain-post_2b$yhat.train.mean )^2)
+
+> ##Normalize data
+> agen <- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
+
+> A1C0n <- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
+
+> xx <- cbind(agen,A1C0n)
+
+> (addtest_ageA1C0_log <- test.additivity(xx, ytrain))
+RLRT.stat.obs  RLRT.p.value  GFT.stat.obs   GFT.p.value 
+     26.32587       0.00000      43.40954       0.00000 
+
+> (pbf_ageA1C0_log <- exp(out1$LPML-out2$LPML))
+[1] 24418585
+
+> ga1_s <- gam(ytrain~s(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+
+> ga2_s <- gam(ytrain~s(data_full$age,bs="tp")+ s(data_full$A1C0,bs="tp"),method="REML")
+
+> ga1_te <- gam(ytrain~te(data_full$age,data_full$A1C0,bs="tp"), method="REML")
+
+> ga2_te <- gam(ytrain~te(data_full$age,bs="tp")+ te(data_full$A1C0,bs="tp"),method="REML")
+
+> AIC(ga1_s,ga2_s)
+            df       AIC
+ga1_s 27.36520 -1911.910
+ga2_s 10.65301 -1879.859
+
+> AIC(ga1_te,ga2_te)
+              df       AIC
+ga1_te 18.979377 -1909.361
+ga2_te  8.663971 -1878.058
+
+> anova.gam(ga1_s,ga2_s,test="F")
+Analysis of Deviance Table
+
+Model 1: ytrain ~ s(data_full$age, data_full$A1C0, bs = "tp")
+Model 2: ytrain ~ s(data_full$age, bs = "tp") + s(data_full$A1C0, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    2643.6     74.989                                      
+2    2661.6     76.848 -18.041  -1.8595 3.6383 3.155e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> anova.gam(ga1_te,ga2_te,test="F")
+Analysis of Deviance Table
+
+Model 1: ytrain ~ te(data_full$age, data_full$A1C0, bs = "tp")
+Model 2: ytrain ~ te(data_full$age, bs = "tp") + te(data_full$A1C0, bs = "tp")
+  Resid. Df Resid. Dev      Df Deviance      F    Pr(>F)    
+1    2652.2     75.533                                      
+2    2664.4     77.015 -12.254  -1.4819 4.2553 8.433e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> ## plotting
+> 
+> par(mfrow=c(2,2))   
+
+>  
+ plot(data_full$age,data_full$A1C6,
++        ylab = "A1C6",
++        xlab = "age",cex=0.5,pch=20,
++        main="Age vs A1C6")
+
+>  
+ lines(lowess(data_full$age,data_full$A1C6), col="red",lwd=3)
+
+>  
+ plot(data_full$age,data_full$logA1C6,
++        ylab = "logA1C6",
++        xlab = "age",cex=0.5,pch=20,
++        main="Age vs logA1C6")
+
+>  
+ lines(lowess(data_full$age,data_full$logA1C6), col="red",lwd=3)
+
+>  
+  plot(data_full$A1C0,data_full$A1C6,
++        ylab = "A1C6",
++        xlab = "A1C0",cex=0.5,pch=20,
++        main="A1C0 vs A1C6")
+
+>  
+lines(lowess(data_full$A1C0,data_full$A1C6), col="red",lwd=3)
+
+>  
+ plot(data_full$A1C0,data_full$logA1C6,
++        ylab = "logA1C6",
++        xlab = "A1C0",cex=0.5,pch=20,
++        main="A1C0 vs logA1C6")
+
+>  
+ lines(lowess(data_full$A1C0,data_full$logA1C6), col="red",lwd=3)
+
+> par(mfrow=c(1,1)) 
+
+> ##dev.copy2pdf(file='dm.pdf')
+> dev.copy2pdf(file='dm4.pdf')
+X11cairo 
+       2 
+> q()
+
+Process R finished at Fri Oct 25 10:06:21 2019
