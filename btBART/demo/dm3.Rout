@@ -19,36 +19,15 @@ Type 'q()' to quit R.
 
 > setwd('/Users/rsparapa/git/bnptools/btBART/demo')
 options(width=80, length=99999)
-> > + + + + + + + + ## original file is/was ...
+> > + + + + + + + ## original file is/was ...
 > ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.R
 > ## compare results with
 > ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.pdf
-> library(BART4)
-Loading required package: survival
 > library(BART3)
 Loading required package: nlme
 Loading required package: nnet
-
-Attaching package: ‘nnet’
-
-The following object is masked from ‘package:BART4’:
-
-    class.ind
-
-
-Attaching package: ‘BART3’
-
-The following objects are masked from ‘package:BART4’:
-
-    bartModelMatrix, crisk.bart, crisk.pre.bart, crisk2.bart,
-    draw_lambda_i, gewekediag, lbart, mbart, mc.cores.openmp,
-    mc.crisk.bart, mc.crisk.pwbart, mc.crisk2.bart, mc.crisk2.pwbart,
-    mc.lbart, mc.mbart, mc.pbart, mc.pwbart, mc.recur.bart,
-    mc.recur.pwbart, mc.surv.bart, mc.surv.pwbart, mc.wbart,
-    mc.wbart.gse, pbart, pwbart, recur.bart, recur.pre.bart,
-    recur.pwbart, rs.pbart, rtnorm, spectrum0ar, stratrs, surv.bart,
-    surv.pre.bart, surv.pwbart, wbart
-
+Loading required package: survival
+> library(btBART)
 > library(lmeVarComp)
 > library(mgcv)
 This is mgcv 1.8-24. For overview type 'help("mgcv-package")'.
@@ -60,8 +39,6 @@ The following object is masked from ‘package:nnet’:
     multinom
 
 > ##source("~btuyishimire/allfiles/RESEARCH/Rfunctions/lpml.R")
-> source('../R/lpml.R')
-> source('../R/makeind.R')
 > set.seed(20L)
 > ##A1C DATA FROM THE PHI DIABETES STUDY
 > ##path="~btuyishimire/Documents/PHI/TARIMA/manuscript3/illustrative_example/"
@@ -124,7 +101,7 @@ done 700 (out of 1100)
 done 800 (out of 1100)
 done 900 (out of 1100)
 done 1000 (out of 1100)
-time: 19s
+time: 18s
 check counts
 trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > mse1 <- mean((ytrain-post_1b$yhat.train.mean)^2)
@@ -167,7 +144,7 @@ done 700 (out of 1100)
 done 800 (out of 1100)
 done 900 (out of 1100)
 done 1000 (out of 1100)
-time: 20s
+time: 18s
 check counts
 trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]
@@ -175,7 +152,7 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > out2  <- lpml(ytrain,mus2,sigs2)
 > mse2  <- mean((ytrain-post_2b$yhat.train.mean)^2)
 > (pbf_orig <- exp(out1$LPML-out2$LPML))
-[1] 302928914
+[1] 305757852502
 > ## log A1C
 > ##----- First do analysis using data without treatment
 > 
@@ -258,7 +235,7 @@ done 700 (out of 1100)
 done 800 (out of 1100)
 done 900 (out of 1100)
 done 1000 (out of 1100)
-time: 19s
+time: 18s
 check counts
 trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]
@@ -266,7 +243,7 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > out2  <- lpml(ytrain,mus2,sigs2)
 > mse2  <- mean((ytrain-post_2b$yhat.train.mean)^2)
 > (pbf_log <- exp(out1$LPML-out2$LPML))
-[1] 3579869
+[1] 153019.8
 > ## A1C
 > ytrain <- data_full$A1C6
 > post_1b <- wbart( x.train  = data_full[,c("age","A1C0")] ,
@@ -343,7 +320,7 @@ done 700 (out of 1100)
 done 800 (out of 1100)
 done 900 (out of 1100)
 done 1000 (out of 1100)
-time: 17s
+time: 14s
 check counts
 trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]
@@ -351,7 +328,7 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > out2  <- lpml(ytrain,mus2,sigs2)
 > mse2  <- mean((ytrain-post_2b$yhat.train.mean )^2)
 > (pbf_ageA1C0_ori <- exp(out1$LPML-out2$LPML))
-[1] 116131852034
+[1] 660781875460
 > ##Normalize data
 > agen <- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
 > A1C0n <- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
@@ -425,7 +402,7 @@ done 700 (out of 1100)
 done 800 (out of 1100)
 done 900 (out of 1100)
 done 1000 (out of 1100)
-time: 14s
+time: 15s
 check counts
 trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > sigs1 <- post_1b$sigma[(burn+1):(burn+ndpost)]
@@ -467,7 +444,7 @@ done 700 (out of 1100)
 done 800 (out of 1100)
 done 900 (out of 1100)
 done 1000 (out of 1100)
-time: 17s
+time: 14s
 check counts
 trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > sigs2 <- post_2b$sigma[(burn+1):(burn+ndpost)]
@@ -475,7 +452,7 @@ trcnt,tecnt,temecnt,treedrawscnt: 1000,0,0,1000
 > out2  <- lpml(ytrain,mus2,sigs2)
 > mse2  <- mean((ytrain-post_2b$yhat.train.mean )^2)
 > (pbf_ageA1C0_log <- exp(out1$LPML-out2$LPML))
-[1] 100450988
+[1] 5922607
 > ##Normalize data
 > agen <- (data_full$age-min(data_full$age))/(max(data_full$age)-min(data_full$age))
 > A1C0n <- (data_full$A1C0-min(data_full$A1C0))/(max(data_full$A1C0)-min(data_full$A1C0))
@@ -516,4 +493,4 @@ Model 2: ytrain ~ te(data_full$age, bs = "tp") + te(data_full$A1C0, bs = "tp")
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 > q()
 
-Process R finished at Thu Oct 31 02:11:29 2019
+Process R finished at Thu Oct 31 02:06:48 2019

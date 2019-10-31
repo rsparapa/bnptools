@@ -2,14 +2,11 @@
 ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.R
 ## compare results with
 ## ~btuyishimire/allfiles/RESEARCH/NEWBART/TEST/A1CDATA/a1cdata_full.pdf
-library(BART4)
 library(BART3)
+library(btBART)
 library(lmeVarComp)
 library(mgcv)
 ##source("~btuyishimire/allfiles/RESEARCH/Rfunctions/lpml.R")
-source('../R/lpml.R')
-source('../R/makeind.R')
-##source('../R/class.ind.R')
 set.seed(20L)
 ##A1C DATA FROM THE PHI DIABETES STUDY
 ##path="~btuyishimire/Documents/PHI/TARIMA/manuscript3/illustrative_example/"
