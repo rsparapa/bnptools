@@ -1,6 +1,6 @@
 useDynLib('btBART', .registration=TRUE)
 ##exportPattern("^[[:alpha:]]+")
-export(lpml, ptrtbart, ltrtbart, mc.ltrtbart, mc.ptrtbart, wtrtbart, twbarts, tpbarts, tlbarts)
+export(lpml, makeind, ptrtbart, ltrtbart, mc.ltrtbart, mc.ptrtbart, wtrtbart, twbarts, tpbarts, tlbarts)
 importFrom(Rcpp, evalCpp)
 importFrom(parallel, detectCores)
 importFrom(stats, ar, cor, lm, predict, pnorm, qnorm, qchisq, plogis, qlogis, quantile, residuals, runif, sd)
