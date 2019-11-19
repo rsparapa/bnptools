@@ -78,10 +78,44 @@ mutau <-
     a=proc.time()[c(1, 3)]-a[c(1, 3)]
     print(c(seconds=a, minutes=a/60))
 
-    fit[[1]]$offset=offset
-    fit[[1]]$scale=scale
-    fit[[1]]$prior=prior
-    fit[[1]]$mcmc=mcmc
+    ## fit[[1]]$offset=offset
+    ## fit[[1]]$scale=scale
+    ## fit[[1]]$prior=prior
+    ## fit[[1]]$mcmc=mcmc
+    ## return(fit)
+    
+    ret = list()
 
-    return(fit)
+    ret$C = t(rbind(sapply(fit, function(a) a$C)))
+    Cmax = max(c(ret$C))
+    ret$states = t(rbind(sapply(fit, function(a) a$states)))
+    check = 1:Cmax
+    ##check = which(apply(ret$states, 2, sum)>0)
+    ret$states = ret$states[ , check]
+
+    ret$phi = array(dim=c(keep, Cmax, 2),
+                    dimnames=list(NULL, NULL, dimnames(fit[[1]]$phi)[[2]]))
+    for(i in 1:keep) {
+        ret$phi[i, , 1]=fit[[i]]$phi[check, 1]
+        ret$phi[i, , 2]=fit[[i]]$phi[check, 2]
+    }
+    
+    if(alpha.draw==1)
+        ret$alpha=sapply(fit, function(a) a$hyper$alpha)
+    else ret$alpha = alpha
+
+    if(k0.draw==1)
+        ret$k0=sapply(fit, function(a) a$hyper$k0)
+    else ret$k0 = k0
+
+    if(b0.draw==1)
+        ret$b0=sapply(fit, function(a) a$hyper$b0)
+    else ret$b0 = b0
+
+    ret$offset=offset
+    ret$scale=scale
+    ret$prior=prior
+    ret$mcmc=mcmc                     
+
+    return(ret)
 }
