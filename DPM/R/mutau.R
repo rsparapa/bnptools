@@ -20,7 +20,7 @@ mutau <-
     function(y, delta=rep(1, N), states=c(N, rep(0, N-1)), C=rep(1, N),
              phi=matrix(c(mean(y), 1/var(y)),
                         nrow=N+neal.m, ncol=2, byrow=TRUE),
-             neal.m=1, m0=0, k0=0.2, k0.a=1.5, k0.b=7.5, k0.draw=1,
+             neal.m=2, m0=0, k0=0.2, k0.a=1.5, k0.b=7.5, k0.draw=1,
              a0=1.5, b0=0.5, b0.a=0.5, b0.b=1, b0.draw=1,
              alpha=1, alpha.a=0.1, alpha.b=0.1, alpha.draw=1,
              burn=500, keep=2000, thin=10, standard=FALSE,
