@@ -11,8 +11,8 @@ y = rt(M,    4)*SD+seq(135, 150, length.out=M)
 
 z = c(x, y)
 
-##set.seed(21); fit <- mutau(z)
-set.seed(21); fit <- mutau(z, b0.draw=0, b0=10000*SD^2)
+set.seed(21); fit <- mutau(z)
+##set.seed(21); fit <- mutau(z, b0.draw=0, b0=10000*SD^2)
 
 plot(fit$Cmax, type='l')
 table(fit$Cmax)/fit$mcmc$keep
@@ -33,4 +33,5 @@ density. <- function(x) {
 hist(z, xlim=c(100, 160), breaks=25, freq=FALSE)
 curve(density., add=TRUE, xlim=c(100, 160), n=201)
 
-##dev.copy2pdf(file='dpmlio-galaxy.pdf')
+##dev.copy2pdf(file='htn-good.pdf')
+##dev.copy2pdf(file='htn-bad.pdf')
