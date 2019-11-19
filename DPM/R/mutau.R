@@ -82,23 +82,31 @@ mutau <-
     ## fit[[1]]$scale=scale
     ## fit[[1]]$prior=prior
     ## fit[[1]]$mcmc=mcmc
-    ## return(fit)
+    ##return(fit)
     
     ret = list()
 
     ret$C = t(rbind(sapply(fit, function(a) a$C)))
     ret$Cmax = apply(ret$C, 1, max)
     Cmaxmax = max(c(ret$Cmax))
-    ret$states = t(rbind(sapply(fit, function(a) a$states)))
-    check = 1:Cmaxmax
-    ##check = which(apply(ret$states, 2, sum)>0)
-    ret$states = ret$states[ , check]
+    h = 1:Cmaxmax
+
+    if(Cmaxmax==1) ret$states = matrix(N, ncol=1, nrow=keep)
+    else {
+        ret$states = t(rbind(sapply(fit,
+                                    function(a)
+                                        c(a$states,
+                                          rep(0,
+                                              Cmaxmax-length(a$states))))))
+        ret$states = ret$states[ , h]
+    }
 
     ret$phi = array(dim=c(keep, Cmaxmax, 2),
                     dimnames=list(NULL, NULL, dimnames(fit[[1]]$phi)[[2]]))
     for(i in 1:keep) {
-        ret$phi[i, , 1]=fit[[i]]$phi[check, 1]
-        ret$phi[i, , 2]=fit[[i]]$phi[check, 2]
+        k = nrow(fit[[i]]$phi)
+        ret$phi[i, , 1]=c(fit[[i]]$phi[ , 1], rep(0, Cmaxmax-k))[h]
+        ret$phi[i, , 2]=c(fit[[i]]$phi[ , 2], rep(0, Cmaxmax-k))[h]
     }
     
     if(alpha.draw==1)
