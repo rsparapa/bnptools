@@ -87,13 +87,14 @@ mutau <-
     ret = list()
 
     ret$C = t(rbind(sapply(fit, function(a) a$C)))
-    Cmax = max(c(ret$C))
+    ret$Cmax = apply(ret$C, 1, max)
+    Cmaxmax = max(c(ret$Cmax))
     ret$states = t(rbind(sapply(fit, function(a) a$states)))
-    check = 1:Cmax
+    check = 1:Cmaxmax
     ##check = which(apply(ret$states, 2, sum)>0)
     ret$states = ret$states[ , check]
 
-    ret$phi = array(dim=c(keep, Cmax, 2),
+    ret$phi = array(dim=c(keep, Cmaxmax, 2),
                     dimnames=list(NULL, NULL, dimnames(fit[[1]]$phi)[[2]]))
     for(i in 1:keep) {
         ret$phi[i, , 1]=fit[[i]]$phi[check, 1]
