@@ -1,8 +1,8 @@
 Package: DPM
 Type: Package
 Title: Dirichlet Process Mixtures With Low Information Omnibus Prior
-Version: 1.1
-Date: 2019-11-19
+Version: 1.2
+Date: 2019-11-25
 Author: rsparapa
 Maintainer: rsparapa <rsparapa@mcw.edu>
 Description: Dirichlet Process Mixtures With Low Information Omnibus Prior
