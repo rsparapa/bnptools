@@ -4,11 +4,11 @@
 \alias{bladder1}
 \alias{bladder2}
 \title{Bladder Cancer Recurrences}
-\usage{
-bladder
+%\usage{
+%bladder
 %bladder1
 %bladder2
-}
+%}
 \description{
   
 This interesting example is from a clinical trial conducted by the
