@@ -18,8 +18,9 @@ plot(pfit[4,], xscale=7, xmax=735, col=1:3, lwd=2, ylim=c(0, 1),
 
 delta <- (as.numeric(transplant$event)-1)
 ## recode so that delta=1 is cause of interest; delta=2 otherwise
-#delta[delta==1] <- 4
-#delta[delta==2] <- 1
+delta[delta==1] <- 4 ## death
+delta[delta==2] <- 1 ## ltx 
+delta[delta==4] <- 2 ## death
 ##delta[delta>1] <- 2
 table(delta, transplant$event)
 
@@ -40,27 +41,45 @@ dimnames(x.test)[[2]] <- dimnames(x.train)[[2]]
 
 ## run one long MCMC chain in one process
 ## set.seed(99)
-post <- crisk2.mbart(x.train=x.train, times=times, delta=delta, x.test=x.test)
+##post <- crisk2.mbart(x.train=x.train, times=times, delta=delta,
+##                     x.test=x.test)
 
 ## in the interest of time, consider speeding it up by parallel processing
 ## run "mc.cores" number of shorter MCMC chains in parallel processes
-## post <- mc.crisk.bart(x.train=x.train, times=times, delta=delta,
-##                       x.test=x.test, seed=99, mc.cores=B)
+post <- mc.crisk2.mbart(x.train=x.train, times=times, delta=delta,
+                        x.test=x.test, mc.cores=B, seed=99, seed2=9)
 
 K <- post$K
+H <- post$H
+h <- seq(1, K*H, H)
 
 typeO.cif.mean <- apply(post$cif.test, 2, mean)
 typeO.cif.025 <- apply(post$cif.test, 2, quantile, probs=0.025)
 typeO.cif.975 <- apply(post$cif.test, 2, quantile, probs=0.975)
 
-plot(pfit[4,], xscale=7, xmax=735, col=1:3, lwd=2, ylim=c(0, 0.8),
+plot(pfit[4,], xscale=7, xmax=735, col=1:3, lwd=2, ylim=c(0, 1),
        xlab='t (weeks)', ylab='CI(t)')
-points(c(0, post$times)*7, c(0, typeO.cif.mean), col=4, type='s', lwd=2)
-points(c(0, post$times)*7, c(0, typeO.cif.025), col=4, type='s', lwd=2, lty=2)
-points(c(0, post$times)*7, c(0, typeO.cif.975), col=4, type='s', lwd=2, lty=2)
-     legend(450, .4, c("Transplant(BART)", "Transplant(AJ)",
+lines(c(0, post$times)*7, c(0, typeO.cif.mean[h]),
+      col=2, type='s', lwd=2, lty=2)
+lines(c(0, post$times)*7, c(0, typeO.cif.025[h]),
+      col=2, type='s', lwd=2, lty=2)
+lines(c(0, post$times)*7, c(0, typeO.cif.975[h]),
+      col=2, type='s', lwd=2, lty=2)
+lines(c(0, post$times)*7, c(0, typeO.cif.mean[h+1]),
+      col=1, type='s', lwd=2, lty=2)
+lines(c(0, post$times)*7, c(0, typeO.cif.025[h+1]),
+      col=1, type='s', lwd=2, lty=2)
+lines(c(0, post$times)*7, c(0, typeO.cif.975[h+1]),
+      col=1, type='s', lwd=2, lty=2)
+lines(c(0, post$times)*7, c(0, typeO.cif.mean[h+2]),
+      col=3, type='s', lwd=2, lty=2)
+lines(c(0, post$times)*7, c(0, typeO.cif.025[h+2]),
+      col=3, type='s', lwd=2, lty=2)
+lines(c(0, post$times)*7, c(0, typeO.cif.975[h+2]),
+      col=3, type='s', lwd=2, lty=2)
+     legend('topleft', c("Transplant(BART)", "Transplant(AJ)",
                        "Death(AJ)", "Withdrawal(AJ)"),
-            col=c(4, 2, 1, 3), lwd=2)
+            col=c(2, 2, 1, 3), lwd=2, lty=c(2, 1, 1, 1))
 if(figures!='NONE')
     dev.copy2pdf(file=paste(figures, 'liver-BART.pdf', sep='/'))
 
