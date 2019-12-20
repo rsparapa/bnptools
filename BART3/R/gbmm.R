@@ -51,6 +51,10 @@ gbmm=function(
 
     c.train=integer(n) ## changing from R/arbitrary indexing to C/0
     r.train=unique(u.train)
+    ## for(i in 1:n) {
+    ##     print(c(i=i, u.train=u.train[i]))
+    ##     c.train[i]=which(u.train[i]==r.train)-1
+    ## }
     for(i in 1:n) c.train[i]=which(u.train[i]==r.train)-1
     r.train=unique(c.train)
     L=length(r.train)
