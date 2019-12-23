@@ -50,68 +50,33 @@ post <- crisk3.bart(x.train=x.train, times=times, delta=delta, x.test=x.test)
 
 K <- post$K
 
-typeO.cif.mean <- apply(post$cif.test, 2, mean)
-typeO.cif.025 <- apply(post$cif.test, 2, quantile, probs=0.025)
-typeO.cif.975 <- apply(post$cif.test, 2, quantile, probs=0.975)
+typeO.ltx.mean <- apply(post$cif.test, 2, mean)
+typeO.ltx.025 <- apply(post$cif.test, 2, quantile, probs=0.025)
+typeO.ltx.975 <- apply(post$cif.test, 2, quantile, probs=0.975)
+
+typeO.dth.mean <- apply(post$cif.test2, 2, mean)
+typeO.dth.025 <- apply(post$cif.test2, 2, quantile, probs=0.025)
+typeO.dth.975 <- apply(post$cif.test2, 2, quantile, probs=0.975)
+
+typeO.wth.mean <- apply(post$cif.test3, 2, mean)
+typeO.wth.025 <- apply(post$cif.test3, 2, quantile, probs=0.025)
+typeO.wth.975 <- apply(post$cif.test3, 2, quantile, probs=0.975)
 
 plot(pfit[4,], xscale=7, xmax=735, col=1:3, lwd=2, ylim=c(0, 0.8),
-       xlab='t (weeks)', ylab='CI(t)')
-points(c(0, post$times)*7, c(0, typeO.cif.mean), col=4, type='s', lwd=2)
-points(c(0, post$times)*7, c(0, typeO.cif.025), col=4, type='s', lwd=2, lty=2)
-points(c(0, post$times)*7, c(0, typeO.cif.975), col=4, type='s', lwd=2, lty=2)
+       xlab='t (weeks)', ylab='CI(t)', lty=3)
+points(c(0, post$times)*7, c(0, typeO.ltx.mean), col=2, type='s', lwd=2)
+points(c(0, post$times)*7, c(0, typeO.ltx.025), col=2, type='s', lwd=2, lty=2)
+points(c(0, post$times)*7, c(0, typeO.ltx.975), col=2, type='s', lwd=2, lty=2)
+points(c(0, post$times)*7, c(0, typeO.dth.mean), col=1, type='s', lwd=2)
+points(c(0, post$times)*7, c(0, typeO.dth.025), col=1, type='s', lwd=2, lty=2)
+points(c(0, post$times)*7, c(0, typeO.dth.975), col=1, type='s', lwd=2, lty=2)
+points(c(0, post$times)*7, c(0, typeO.wth.mean), col=3, type='s', lwd=2)
+points(c(0, post$times)*7, c(0, typeO.wth.025), col=3, type='s', lwd=2, lty=2)
+points(c(0, post$times)*7, c(0, typeO.wth.975), col=3, type='s', lwd=2, lty=2)
      legend(450, .4, c("Transplant(BART)", "Transplant(AJ)",
                        "Death(AJ)", "Withdrawal(AJ)"),
-            col=c(4, 2, 1, 3), lwd=2)
+            col=c(2, 2, 1, 3), lwd=2, lty=c(1, 3, 3, 3))
 if(figures!='NONE')
-    dev.copy2pdf(file=paste(figures, 'liver-BART.pdf', sep='/'))
+    dev.copy2pdf(file=paste(figures, 'liver3-BART.pdf', sep='/'))
 
-## plot(pfit[4,], xscale=30.5, xmax=735, col=1:3, lwd=2, ylim=c(0, 0.8),
-##        xlab='t (months)', ylab='CI(t)')
-## points(c(0, post$times)*30.5, c(0, typeO.cif.mean), col=4, type='s', lwd=2)
-## points(c(0, post$times)*30.5, c(0, typeO.cif.025), col=4, type='s', lwd=2, lty=2)
-## points(c(0, post$times)*30.5, c(0, typeO.cif.975), col=4, type='s', lwd=2, lty=2)
-##      legend(450, .4, c("Transplant(BART)", "Transplant(AJ)",
-##                        "Death(AJ)", "Withdrawal(AJ)"),
-##             col=c(4, 2, 1, 3), lwd=2)
-
-## check <- predict(post, newdata=post$tx.test, newdata2=post$tx.test2,
-##                  mc.cores=B)
-
-## print(c(post$surv.test.mean[1], check$surv.test.mean[1],
-##         post$surv.test.mean[1]-check$surv.test.mean[1]), digits=22)
-
-## print(all(round(post$surv.test.mean, digits=9)==
-##     round(check$surv.test.mean, digits=9)))
-
-## print(c(post$cif.test.mean[1], check$cif.test.mean[1],
-##         post$cif.test.mean[1]-check$cif.test.mean[1]), digits=22)
-
-## print(all(round(post$cif.test.mean, digits=9)==
-##     round(check$cif.test.mean, digits=9)))
-
-## print(c(post$cif.test2.mean[1], check$cif.test2.mean[1],
-##         post$cif.test2.mean[1]-check$cif.test2.mean[1]), digits=22)
-
-## print(all(round(post$cif.test2.mean, digits=9)==
-##     round(check$cif.test2.mean, digits=9)))
-
-## typeO.cif.mean <- apply(check$cif.test, 2, mean)
-## typeO.cif.025 <- apply(check$cif.test, 2, quantile, probs=0.025)
-## typeO.cif.975 <- apply(check$cif.test, 2, quantile, probs=0.975)
-
-## plot(pfit[4,], xscale=7, xmax=735, col=1:3, lwd=2, ylim=c(0, 0.8),
-##        xlab='t (weeks)', ylab='CI(t)')
-## points(c(0, post$times)*7, c(0, typeO.cif.mean), col=4, type='s', lwd=2)
-## points(c(0, post$times)*7, c(0, typeO.cif.025), col=4, type='s', lwd=2, lty=2)
-## points(c(0, post$times)*7, c(0, typeO.cif.975), col=4, type='s', lwd=2, lty=2)
-##      legend(450, .4, c("Transplant(BART)", "Transplant(AJ)",
-##                        "Death(AJ)", "Withdrawal(AJ)"),
-##             col=c(4, 2, 1, 3), lwd=2)
-
-## cor(post$cif.test.mean, check$cif.test.mean)
-## plot(post$cif.test.mean, check$cif.test.mean)
-## abline(a=0, b=1)
-
-## cor(post$cif.test2.mean, check$cif.test2.mean)
-## plot(post$cif.test2.mean, check$cif.test2.mean)
-## abline(a=0, b=1)
+##    dev.copy2pdf(file='liver3-BART.pdf')
