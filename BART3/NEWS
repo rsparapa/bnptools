@@ -2,6 +2,8 @@ Changes and New Features in 3.2 (2019-12-15):
 	* adding crisk2.mbart to extend competing risks
 	to more than two causes (formerly, cause of interest
 	vs. all others) via Multinomial BART (mbart)
+ 
+	* adding surv.gbmm to extend the BART mixed model to survival
 
 Changes and New Features in 3.1 (2019-12-04):
 	* addressing new behavior of class function
