@@ -88,6 +88,10 @@ pre <- crisk3.pre.bart(x.train=x.train, times=times, delta=delta,
 pred <- predict(post, pre$tx.test, pre$tx.test, pre$tx.test)
 K <- pred$K
 
+max(post$cif.test-pred$cif.test)
+max(post$cif.test2-pred$cif.test2)
+max(post$cif.test3-pred$cif.test3)
+
 typeO.ltx.mean <- apply(pred$cif.test, 2, mean)
 typeO.ltx.025 <- apply(pred$cif.test, 2, quantile, probs=0.025)
 typeO.ltx.975 <- apply(pred$cif.test, 2, quantile, probs=0.975)
