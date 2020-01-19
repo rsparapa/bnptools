@@ -1,3 +1,9 @@
+Changes and New Features in 3.3 (2020-01-19):
+	* still debugging crisk2.mbart
+
+	* however, crisk3.bart (based on crisk.bart) for
+	three causes is now working
+
 Changes and New Features in 3.2 (2019-12-15):
 	* adding crisk2.mbart to extend competing risks
 	to more than two causes (formerly, cause of interest
