@@ -52,104 +52,112 @@ mc.crisk3.bart <- function(
     if(is.na(ntype) || ntype==1)
         stop("type argument must be set to either 'pbart' or 'lbart'")
 
-    x.train3 <- bartModelMatrix(x.train3)
-    x.test3 <- bartModelMatrix(x.test3)
-    x.train2 <- bartModelMatrix(x.train2)
-    x.test2 <- bartModelMatrix(x.test2)
-    x.train <- bartModelMatrix(x.train)
-    x.test <- bartModelMatrix(x.test)
+    ## x.train3 <- bartModelMatrix(x.train3)
+    ## x.test3 <- bartModelMatrix(x.test3)
+    ## x.train2 <- bartModelMatrix(x.train2)
+    ## x.test2 <- bartModelMatrix(x.test2)
+    ## x.train <- bartModelMatrix(x.train)
+    ## x.test <- bartModelMatrix(x.test)
 
-    if(length(rho)==0) rho=ncol(x.train)
-    if(length(rho2)==0) rho2=ncol(x.train2)
-    if(length(rho3)==0) rho3=ncol(x.train3)
+    ## if(length(rho)==0) rho=ncol(x.train)
+    ## if(length(rho2)==0) rho2=ncol(x.train2)
+    ## if(length(rho3)==0) rho3=ncol(x.train3)
 
+    ## if(length(y.train)==0) {
+    ##     pre <- crisk3.pre.bart(times, delta, x.train, x.test,
+    ##                           x.train2, x.test2, x.train3, x.test3,
+    ##                           K=K, events=events)
+
+    ##     y.train <- pre$y.train
+    ##     x.train <- pre$tx.train
+    ##     x.test  <- pre$tx.test
+    ##     y.train2 <- pre$y.train2
+    ##     x.train2 <- pre$tx.train2
+    ##     x.test2  <- pre$tx.test2
+    ##     y.train3 <- pre$y.train3
+    ##     x.train3 <- pre$tx.train3
+    ##     x.test3  <- pre$tx.test3
+
+    ##     times   <- pre$times
+    ##     K       <- pre$K
+
+    ##     if(length(cond)==0) cond <- pre$cond
+    ##     if(length(cond2)==0) cond2 <- pre$cond2
+    ## }
+    ## else {
+    ##     if(length(x.train)>0 & length(x.train2)>0 &
+    ##        nrow(x.train)!=nrow(x.train2))
+    ##         stop('number of rows in x.train and x.train2 must be equal')
+
+    ##     if(length(x.test)>0 & length(x.test2)>0 &
+    ##        nrow(x.test)!=nrow(x.test2))
+    ##         stop('number of rows in x.test and x.test2 must be equal')
+
+    ##     times <- unique(sort(x.train[ , 1]))
+    ##     K     <- length(times)
+    ## }
+
+    ## if(length(xinfo)==0) {
+    ##     temp = bartModelMatrix(x.train3[cond2, ], numcut, usequants=usequants,
+    ##                            xinfo=xinfo, rm.const=rm.const)
+    ##     x.train3 = t(temp$X)
+    ##     numcut3 = temp$numcut
+    ##     xinfo3 = temp$xinfo
+    ##     if(length(x.test3)>0) {
+    ##         x.test3 = bartModelMatrix(x.test3)
+    ##         x.test3 = t(x.test3[ , temp$rm.const])
+    ##     }
+    ##     rm.const3 <- temp$rm.const
+    ##     rm(temp)
+
+    ##     temp = bartModelMatrix(x.train2[cond, ], numcut, usequants=usequants,
+    ##                            xinfo=xinfo, rm.const=rm.const)
+    ##     x.train2 = t(temp$X)
+    ##     numcut2 = temp$numcut
+    ##     xinfo2 = temp$xinfo
+    ##     if(length(x.test2)>0) {
+    ##         x.test2 = bartModelMatrix(x.test2)
+    ##         x.test2 = t(x.test2[ , temp$rm.const])
+    ##     }
+    ##     rm.const2 <- temp$rm.const
+    ##     rm(temp)
+
+    ##     temp = bartModelMatrix(x.train, numcut, usequants=usequants,
+    ##                            xinfo=xinfo, rm.const=rm.const)
+    ##     x.train = t(temp$X)
+    ##     numcut = temp$numcut
+    ##     xinfo = temp$xinfo
+    ##     if(length(x.test)>0) {
+    ##         x.test = bartModelMatrix(x.test)
+    ##         x.test = t(x.test[ , temp$rm.const])
+    ##     }
+    ##     rm.const <- temp$rm.const
+    ##     rm(temp)
+
+    ##     xinfo2[1, ] <- xinfo[1, ] ## same time grid
+    ##     xinfo3[1, ] <- xinfo[1, ] ## same time grid
+    ##     transposed <- TRUE
+    ## }
+    ## else {
+    ##     x.train3=as.matrix(x.train3[cond2, ])
+    ##     x.train2=as.matrix(x.train2[cond, ])
+    ##     rm.const <- 1:ncol(x.train)
+    ##     rm.const2 <- 1:ncol(x.train2)
+    ##     rm.const3 <- 1:ncol(x.train3)
+    ##     transposed <- FALSE
+    ## }
+
+    H <- 1
+    Mx <- 2^31-1
+    
     if(length(y.train)==0) {
         pre <- crisk3.pre.bart(times, delta, x.train, x.test,
                               x.train2, x.test2, x.train3, x.test3,
                               K=K, events=events)
-
-        y.train <- pre$y.train
-        x.train <- pre$tx.train
-        x.test  <- pre$tx.test
-        y.train2 <- pre$y.train2
-        x.train2 <- pre$tx.train2
-        x.test2  <- pre$tx.test2
-        y.train3 <- pre$y.train3
-        x.train3 <- pre$tx.train3
-        x.test3  <- pre$tx.test3
-
-        times   <- pre$times
-        K       <- pre$K
-
-        if(length(cond)==0) cond <- pre$cond
-        if(length(cond2)==0) cond2 <- pre$cond2
+        Nx <- 2*max(nrow(pre$tx.train), nrow(pre$tx.test))
+    } else {
+        Nx <- 2*max(nrow(x.train), nrow(x.test))
     }
-    else {
-        if(length(x.train)>0 & length(x.train2)>0 &
-           nrow(x.train)!=nrow(x.train2))
-            stop('number of rows in x.train and x.train2 must be equal')
-
-        if(length(x.test)>0 & length(x.test2)>0 &
-           nrow(x.test)!=nrow(x.test2))
-            stop('number of rows in x.test and x.test2 must be equal')
-
-        times <- unique(sort(x.train[ , 1]))
-        K     <- length(times)
-    }
-
-    if(length(xinfo)==0) {
-        temp = bartModelMatrix(x.train3[cond2, ], numcut, usequants=usequants,
-                               xinfo=xinfo, rm.const=rm.const)
-        x.train3 = t(temp$X)
-        numcut3 = temp$numcut
-        xinfo3 = temp$xinfo
-        if(length(x.test3)>0) {
-            x.test3 = bartModelMatrix(x.test3)
-            x.test3 = t(x.test3[ , temp$rm.const])
-        }
-        rm.const3 <- temp$rm.const
-        rm(temp)
-
-        temp = bartModelMatrix(x.train2[cond, ], numcut, usequants=usequants,
-                               xinfo=xinfo, rm.const=rm.const)
-        x.train2 = t(temp$X)
-        numcut2 = temp$numcut
-        xinfo2 = temp$xinfo
-        if(length(x.test2)>0) {
-            x.test2 = bartModelMatrix(x.test2)
-            x.test2 = t(x.test2[ , temp$rm.const])
-        }
-        rm.const2 <- temp$rm.const
-        rm(temp)
-
-        temp = bartModelMatrix(x.train, numcut, usequants=usequants,
-                               xinfo=xinfo, rm.const=rm.const)
-        x.train = t(temp$X)
-        numcut = temp$numcut
-        xinfo = temp$xinfo
-        if(length(x.test)>0) {
-            x.test = bartModelMatrix(x.test)
-            x.test = t(x.test[ , temp$rm.const])
-        }
-        rm.const <- temp$rm.const
-        rm(temp)
-
-        xinfo2[1, ] <- xinfo[1, ] ## same time grid
-        xinfo3[1, ] <- xinfo[1, ] ## same time grid
-        transposed <- TRUE
-    }
-    else {
-        x.train3=as.matrix(x.train3[cond2, ])
-        x.train2=as.matrix(x.train2[cond, ])
-        rm.const <- 1:ncol(x.train)
-        rm.const2 <- 1:ncol(x.train2)
-        rm.const3 <- 1:ncol(x.train3)
-        transposed <- FALSE
-    }
-
-    H <- 1
-    Mx <- 2^31-1
-    Nx <- 2*max(nrow(x.train), nrow(x.test))
 
     if(Nx>Mx%/%ndpost) {
         H <- ceiling(ndpost / (Mx %/% Nx))
@@ -177,6 +185,7 @@ mc.crisk3.bart <- function(
               crisk3.bart(x.train=x.train, y.train=y.train,
                          x.train2=x.train2, y.train2=y.train2,
                          x.train3=x.train3, y.train3=y.train3,
+                         times=times, delta=delta, K=K, events=events,
                          x.test=x.test, x.test2=x.test2, x.test3=x.test3,
                          cond=cond, cond2=cond2,
                          sparse=sparse, theta=theta, omega=omega,
