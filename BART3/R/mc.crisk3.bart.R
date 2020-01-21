@@ -52,6 +52,9 @@ mc.crisk3.bart <- function(
     if(is.na(ntype) || ntype==1)
         stop("type argument must be set to either 'pbart' or 'lbart'")
 
+    ## handling rm.const bug by turning it off unless explicitly set
+    if(class(rm.const)[1]=='logical') rm.const <- FALSE
+
     H <- 1
     Mx <- 2^31-1
     
@@ -59,8 +62,12 @@ mc.crisk3.bart <- function(
         pre <- crisk3.pre.bart(times, delta, x.train, x.test,
                               x.train2, x.test2, x.train3, x.test3,
                               K=K, events=events)
+        if(class(rm.const)[1]=='logical') p <- ncol(pre$tx.train)
+        else p <- ncol(pre$tx.train[ , post$rm.const])
         Nx <- 2*max(nrow(pre$tx.train), nrow(pre$tx.test))
     } else {
+        if(class(rm.const)[1]=='logical') p <- ncol(x.train)
+        else p <- ncol(x.train[ , post$rm.const])
         Nx <- 2*max(nrow(x.train), nrow(x.test))
     }
 
@@ -112,14 +119,13 @@ mc.crisk3.bart <- function(
         post.list[[h]] <- parallel::mccollect()
     }
 
-    if((H==1 & mc.cores==1) | attr(post.list[[1]][[1]], 'class')!='criskbart')
+    if((H==1 & mc.cores==1) | attr(post.list[[1]][[1]], 'class')!='crisk3bart')
         return(post.list[[1]][[1]])
     else {
         for(h in 1:H) for(i in mc.cores:1) {
             if(h==1 & i==mc.cores) {
                 post <- post.list[[1]][[mc.cores]]
                 post$ndpost <- H*mc.cores*mc.ndpost
-                p <- ncol(x.train[ , post$rm.const])
 
                 old.text <- paste0(as.character(mc.ndpost), ' ',
                                    as.character(ntree), ' ', as.character(p))
@@ -131,7 +137,6 @@ mc.crisk3.bart <- function(
                                                    ' ', as.character(p)),
                                             post$treedraws$trees)
 
-                p <- ncol(x.train2[ , post$rm.const2])
                 old.text <- paste0(as.character(mc.ndpost), ' ',
                                    as.character(ntree), ' ', as.character(p))
                 old.stop2 <- nchar(old.text)
@@ -142,7 +147,6 @@ mc.crisk3.bart <- function(
                                                    ' ', as.character(p)),
                                             post$treedraws2$trees)
 
-                p <- ncol(x.train3[ , post$rm.const3])
                 old.text <- paste0(as.character(mc.ndpost), ' ',
                                    as.character(ntree), ' ', as.character(p))
                 old.stop3 <- nchar(old.text)
