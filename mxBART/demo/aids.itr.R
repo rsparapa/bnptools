@@ -111,39 +111,3 @@ plt2 <- xyplot(all.diff2[,1]~seq(0,1,length.out=1104),type='l',col='black',lwd=1
 #grid.text(c('(a) ddl + AZT Combined vs. AZT Monotherapy','(b) ddl Monotherapy vs. AZT Monotherapy'),x=.9,y=c(.95,.45),just='right',
 #          gp=gpar(fontsize=6,fontfamily='Times'))
 #dev.off()
-
-all.diff1 <- all.diff1[order(all.diff1[,4]),]
-train2 <- train[seq(1,nrow(train),2),]
-train2$drugs <- as.factor(train2$drugs)
-levels(train2$drugs) <- c('No','Yes')
-rrdf <- cbind(out=all.diff1[,1],train2)
-colnames(rrdf)[10] <- 'Age'
-colnames(rrdf)[14] <- 'IV_User'
-colnames(rrdf)[22] <- 'Baseline_CD4'
-
-all.diff2 <- all.diff2[order(all.diff2[,4]),]
-rrdf2 <- cbind(out=all.diff2[,1],train2)
-colnames(rrdf2)[10] <- 'Age'
-colnames(rrdf2)[14] <- 'IV_User'
-colnames(rrdf2)[22] <- 'Baseline_CD4'
-
-frm1 <- as.formula(paste0('out~',paste0('',names(rrdf)[-c(1:9,23:26)],collapse='+')))
-rr1 <- rpart(frm1,method='anova',control=rpart.control(cp=.1),data=rrdf)
-rr2 <- rpart(frm1,method='anova',control=rpart.control(cp=.1),data=rrdf2)
-print(rr1)
-print(rr2)
-
-## TO output or view plot (Figure 6), uncomment this
-## png('Fig6.png',height=4.5,width=3,units='in',res=800)
-## layout(matrix(1:2,ncol=1),heights=c(1,1))
-## par(family='',font=1,cex=.8)
-## prp(rr1,,cex=.8,
-##     fallen.leaves = FALSE, type=4, extra=1, varlen=-14, faclen=0, yesno.yshift=-1)
-## par(family='Times',font=1,cex=4)
-## mtext(side=1,line=4,text='(a) ddl + AZT Combined vs. AZT Monotherapy',cex=.5)
-## par(family='',font=1,cex=.8)
-## prp(rr2,,cex=.8,
-##     fallen.leaves = FALSE, type=4, extra=1, varlen=-14, faclen=0, yesno.yshift=-1)
-## par(family='Times',font=1,cex=.4)
-## mtext(side=1,line=4,text='(b) ddl Monotherapy vs. AZT Monotherapy',cex=.5)
-## dev.off()
