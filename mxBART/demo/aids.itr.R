@@ -1,12 +1,6 @@
 ### AIDS EXAMPLE
 library(mxBART)
 library(lattice)
-library(rpart)
-library(rpart.plot)
-library(magrittr)
-library(lme4)
-library(grid)
-library(gridExtra)
 data(ACTG175)
 
 nd <- 2000 ## number of posterior draws
@@ -106,6 +100,8 @@ plt2 <- xyplot(all.diff2[,1]~seq(0,1,length.out=1104),type='l',col='black',lwd=1
                })
 
 ## TO output or view plot (Figure 5), uncomment this
+#library(grid)
+#library(gridExtra)
 #png('Fig5.png',height=4.5,width=3,units='in',res=800)
 #grid.arrange(grobs=list(plt1,plt2),ncol=1)
 #grid.text(c('(a) ddl + AZT Combined vs. AZT Monotherapy','(b) ddl Monotherapy vs. AZT Monotherapy'),x=.9,y=c(.95,.45),just='right',
