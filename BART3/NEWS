@@ -1,3 +1,8 @@
+Changes and New Features in 3.4 (2020-01-27):
+	* removing our early, naive version of gbmm from the NAMESPACE
+	a more comprehensive version is available in our sub-directory
+	https://github.com/rsparapa/bnptools/mxBART
+	
 Changes and New Features in 3.3 (2020-01-19):
 	* still debugging crisk2.mbart
 
@@ -10,6 +15,7 @@ Changes and New Features in 3.2 (2019-12-15):
 	vs. all others) via Multinomial BART (mbart)
  
 	* adding surv.gbmm to extend the BART mixed model to survival
+	(results questionable: since removed from NAMESPACE in v3.4)
 
 Changes and New Features in 3.1 (2019-12-04):
 	* addressing new behavior of class function

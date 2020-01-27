@@ -769,6 +769,7 @@ if(type==1) {
 
 }
 
+/*
 #ifndef NoRcpp
 
 #define TRDRAW(a, b) trdraw(a, b)
@@ -968,43 +969,6 @@ RcppExport SEXP cgbmm(
   bart bm(m);
 #endif
 
-  /* multiple imputation hot deck implementation
-     this will cause trouble for multiple threads
-     so it must be done prior to calling C++ */
-  /*
-    bool hotdeck=false;
-
-    std::vector<int> _missing(n*p);
-    std::vector<int*> missing(n);
-    std::vector<double*> x(n);
-    Rcpp::NumericMatrix X(n, p); 
-
-    for(size_t i=0; i<n; ++i) {
-    missing[i]=&_missing[i*p];
-    x[i]=&ix[i*p];
-    for(size_t j=0; j<p; ++j) 
-    if(x[i][j]!=x[i][j]) {
-    hotdeck=true;
-    missing[i][j]=1;
-    }
-    else missing[i][j]=0;
-    }     
-
-    if(hotdeck) {
-    for(size_t i=0; i<n; ++i) {
-    for(size_t j=0; j<p; ++j) { 
-    if(missing[i][j]==1) {
-    while(x[i][j]!=x[i][j]) {
-    size_t k=n*gen.uniform();
-    x[i][j]=x[k][j];
-    }
-    }
-    X(i, j)=x[i][j]; 
-    }
-    }    
-    } 
-  */
-
   std::stringstream treess;  //string stream to write trees to
   treess.precision(10);
   treess << nkeeptreedraws << " " << m << " " << p << endl;
@@ -1012,15 +976,6 @@ RcppExport SEXP cgbmm(
   printf("*****Calling gbmm: type=%d\n", type);
 
   size_t skiptr=thin, skipte=thin, skiptreedraws=thin;
-  /*
-    size_t skiptr,skipte,skipteme,skiptreedraws;
-    if(nkeeptrain) {skiptr=nd/nkeeptrain;}
-    else skiptr = nd+1;
-    if(nkeeptest) {skipte=nd/nkeeptest;}
-    else skipte=nd+1;
-    if(nkeeptreedraws) {skiptreedraws = nd/nkeeptreedraws;}
-    else skiptreedraws=nd+1;
-  */
 
   //--------------------------------------------------
   //print args
@@ -1127,17 +1082,6 @@ RcppExport SEXP cgbmm(
       for(size_t k=0; k<n; k++) 
 	z[k]= sign[k]*rtnorm(sign[k]*bm.f(k), 
 			     -sign[k]*(Offset+u[u_train[k]]), sigma, gen);
-    /*
-      for(size_t k=0; k<n; k++) {
-      if(type==1) svec[k]=sigma;
-      //svec[k]=iw[k]*sigma;
-      else {
-      z[k]= sign[k]*rtnorm(sign[k]*bm.f(k), -sign[k]*(Offset+u[u_train[k]]), sigma, gen);
-      if(type==3) 
-      svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), sign[k]*bm.f(k), 1000, 1, gen));
-      }
-      }
-    */
 
     // draw tau_u
     double sum_u2;
@@ -1164,19 +1108,6 @@ RcppExport SEXP cgbmm(
     }
 
     sdudraw[i]=pow(tau_u, -0.5);
-    /*
-      if(hotdeck) {
-      //draw x
-      for(size_t h=0; h<n; ++h) {
-      for(size_t j=0; j<p; ++j) {
-      if(missing[h][j]==1) {
-      size_t k=n*gen.uniform();
-      x[h][j]=x[k][j];
-      }
-      }
-      }    
-      } 
-    */
 
     if(i>=burn) {
       if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {
@@ -1251,6 +1182,7 @@ RcppExport SEXP cgbmm(
 #endif
 
 }
+*/
 
 #ifndef NoRcpp
 
