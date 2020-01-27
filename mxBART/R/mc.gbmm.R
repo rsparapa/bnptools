@@ -97,7 +97,7 @@ mc.gbmm <- function(
                  sigest=sigest, sigdf=sigdf, sigquant=sigquant,
                  k=k, power=power, base=base,
                  ##sigmaf=sigmaf,
-                 mixed.prior.settings=mixed.prior.settings,
+                 mxps=mxps,
                  lambda=lambda, tau.num=tau.num,
                  ##tau.interval=tau.interval,
                  offset=offset, ##w=w,

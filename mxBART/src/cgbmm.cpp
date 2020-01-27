@@ -17,6 +17,7 @@
  *  https://www.R-project.org/Licenses/GPL-2
  */
 
+/*
 #include <ctime>
 #include "common.h"
 #include "tree.h"
@@ -30,6 +31,9 @@
 #include "rtnorm.h"
 #include "rtgamma.h"
 #include "lambda.h"
+*/
+#include <BART3.h>
+#include "mixedbart.h"
 #include "RcppEigen.h"
 
 typedef std::vector<double> v1d;
@@ -59,7 +63,7 @@ RcppExport SEXP cgbmm(
 		      SEXP _iL,
 		      SEXP _ipriorNo, //prior of sigma^2_u
 		      SEXP _ipriorDf,    //df value for prior parameter
-		      SEXP _ipriorScale, //scale value for prior parameter
+		      SEXP _ipriorScale,
 		      SEXP _im,      //number of trees
 		      SEXP _inc,     //number of cut points
 		      SEXP _ind,     //number of kept draws (except thinnning)
@@ -149,7 +153,6 @@ RcppExport SEXP cgbmm(
   if(Rcpp::as<int>(_iaug)==1) aug=true;
   else aug=false;
   double theta = Rcpp::as<double>(_itheta);
-  size_t thetaDraw = Rcpp::as<int>(_ithetadraw);
   double omega = Rcpp::as<double>(_iomega);
   Rcpp::IntegerVector _grp(_igrp);
   int *grp = &_grp[0];
@@ -468,7 +471,8 @@ RcppExport SEXP cgbmm(
 
   //set up BART model
   bm.setprior(alpha,mybeta,tau);
-  bm.setdata(p,n,ix,z,theta,thetaDraw,a,b,rho,numcut);
+  bm.setdata(p,n,ix,z,numcut);
+  bm.setdart(a,b,rho,aug,useDart);
 
   // dartth iterations
   v1d ivarprb (p,0.);
@@ -494,7 +498,7 @@ RcppExport SEXP cgbmm(
   for(size_t i=0;i<total;i++) {
     if(i%printevery==0) printf("done %zu (out of %lu)\n",i,nd+burn);
     //if(i%printevery==0) printf("%22zu/%zu\r",i,total);
-    if(useDart&i==(size_t)burn/2) {
+    if(useDart&(i==(size_t)burn/2)) {
       bm.startdart();
     }
     //draw bart
@@ -600,7 +604,7 @@ RcppExport SEXP cgbmm(
     if(i>=burn) {
       if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {
 	sdraw[trcnt]=sigma;
-	thetadraws[trcnt]=bm.getdart().gettheta();
+	thetadraws[trcnt]=bm.gettheta();
 	for(size_t k=0;k<n;k++) TRDRAW(trcnt,k)=Offset+bm.f(k);
 	for(size_t lev=0;lev<id_train_no;lev++){
 	  redraws[lev][trcnt]=current_randomEffects[lev];
@@ -621,16 +625,16 @@ RcppExport SEXP cgbmm(
 
 
 #ifndef NoRcpp
-	  ivarcnt=bm.getdart().getnv();
-	  ivarprb=bm.getdart().getpv();
+	  ivarcnt=bm.getnv();
+	  ivarprb=bm.getpv();
 	  size_t k=(i-burn)/skiptreedraws;
 	  for(size_t j=0;j<p;j++){
 	    varcnt(k,j)=ivarcnt[j];
 	    varprb(k,j)=ivarprb[j];
 	  }
 #else
-	  varcnt.push_back(bm.getdart().getnv());
-	  varprb.push_back(bm.getdart().getpv());
+	  varcnt.push_back(bm.getnv());
+	  varprb.push_back(bm.getpv());
 #endif
 	}
       }

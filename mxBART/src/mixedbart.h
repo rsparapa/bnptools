@@ -17,7 +17,8 @@
  *  https://www.R-project.org/Licenses/GPL-2
  */
 
-#include "rn.h"
+#include "Rcpp.h"
+#include <BART3/rn.h>
 #include "RcppEigen.h"
 
 typedef std::vector<double> v1d;
