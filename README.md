@@ -1,2 +1,2 @@
 # bnptools
-R packages for Bayesian Nonparametrics
+R packages for Bayesian nonparametrics
