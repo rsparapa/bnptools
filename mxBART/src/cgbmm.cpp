@@ -79,7 +79,6 @@ RcppExport SEXP cgbmm(
 		      //   SEXP _iw,
 		      SEXP _idart,   //dart prior: true(1)=yes, false(0)=no
 		      SEXP _itheta,  //value of sparsity parameter
-		      SEXP _ithetadraw, // type of theta draw
 		      SEXP _iomega,
 		      SEXP _igrp,
 		      SEXP _ia,      //param a for sparsity prior
@@ -165,9 +164,9 @@ RcppExport SEXP cgbmm(
   redraws.resize(id_train_no);
   varcovdraws.resize(id_train_no);
   for(size_t lev=0;lev<id_train_no;lev++) {
-    redraws[lev].resize(nd);
-    varcovdraws[lev].resize(nd);
-    for(size_t i=0;i<nd;i++) {
+    redraws[lev].resize(nkeeptrain);
+    varcovdraws[lev].resize(nkeeptrain);
+    for(size_t i=0;i<nkeeptrain;i++) {
       redraws[lev][i].resize(L[lev],z_cols[lev]);
       varcovdraws[lev][i].resize(z_cols[lev],z_cols[lev]);
     }
@@ -175,8 +174,8 @@ RcppExport SEXP cgbmm(
   Rcpp::NumericMatrix varprb(nkeeptreedraws,p);
   Rcpp::IntegerMatrix varcnt(nkeeptreedraws,p);
   Rcpp::NumericMatrix Xinfo(_Xinfo);
-  Rcpp::NumericVector sdraw(nd);
-  Rcpp::NumericVector thetadraws(nd);
+  Rcpp::NumericVector sdraw(nkeeptrain);
+  Rcpp::NumericVector thetadraws(nkeeptrain);
   Rcpp::NumericMatrix trdraw(nkeeptrain,n);
   Rcpp::NumericMatrix tedraw(nkeeptest,np);
 
@@ -216,7 +215,7 @@ RcppExport SEXP cgbmm(
 	     int *z_cols,
 	     int id_train_no,
 	     int *n_train,
-	     inr *L,
+	     int *L,
 	     size_t m,	  //number of trees
 	     int *numcut, //number of cut points
 	     size_t nd,	  //number of kept draws (except for thinnning ..)
@@ -655,8 +654,8 @@ RcppExport SEXP cgbmm(
   Rcpp::List ret;
   //   ret["X"]=X; 
   if(type1sigest) ret["sigma"]=sdraw;
-  ret["yhat.train"]=trdraw;
-  ret["yhat.test"]=tedraw;
+  ret["fhat.train"]=trdraw;
+  ret["fhat.test"]=tedraw;
   ret["varcount"]=varcnt;
   ret["varprob"]=varprb;
   ret["re.train"]=redraws;

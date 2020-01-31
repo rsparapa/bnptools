@@ -45,19 +45,19 @@ post <- gbmm(y.train=cd4,
              sparse=FALSE,ntree=nt,
              ndpost=nd,nskip=nb,keepevery=ke)
 
-trt0 <- seq(1,ncol(post$yhat.test),4)
+trt0 <- seq(1,ncol(post$fhat.test),4)
 trt1 <- trt0+1
 trt2 <- trt0+2
 trt3 <- trt0+3
 
-all.diff1 <- cbind(colMeans(post$yhat.test[,trt1]-post$yhat.test[,trt0]),
-                  apply(post$yhat.test[,trt1]-post$yhat.test[,trt0],2,quantile,.25),
-                  apply(post$yhat.test[,trt1]-post$yhat.test[,trt0],2,quantile,.75),
+all.diff1 <- cbind(colMeans(post$fhat.test[,trt1]-post$fhat.test[,trt0]),
+                  apply(post$fhat.test[,trt1]-post$fhat.test[,trt0],2,quantile,.25),
+                  apply(post$fhat.test[,trt1]-post$fhat.test[,trt0],2,quantile,.75),
                   1:1104
                   )
-all.diff2 <- cbind(colMeans(post$yhat.test[,trt3]-post$yhat.test[,trt0]),
-                   apply(post$yhat.test[,trt3]-post$yhat.test[,trt0],2,quantile,.25),
-                   apply(post$yhat.test[,trt3]-post$yhat.test[,trt0],2,quantile,.75),
+all.diff2 <- cbind(colMeans(post$fhat.test[,trt3]-post$fhat.test[,trt0]),
+                   apply(post$fhat.test[,trt3]-post$fhat.test[,trt0],2,quantile,.25),
+                   apply(post$fhat.test[,trt3]-post$fhat.test[,trt0],2,quantile,.75),
                    1:1104
                    )
 all.diff1 <- all.diff1[order(all.diff1[,1]),]

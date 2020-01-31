@@ -31,8 +31,8 @@ mc.gbmm <- function(
                sigest=NA, sigdf=3, sigquant=0.90,
                k=2, power=2, base=0.95,
                ##sigmaf=NA,
-               mixed.prior.settings=NULL,
                lambda=NA, tau.num=c(NA, 3, 6)[ntype],
+               mxps=NULL,
                offset=NULL, ##w=rep(1, length(y.train)),
                ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
                ndpost=1000L, nskip=100L,
@@ -64,7 +64,7 @@ mc.gbmm <- function(
     parallel::mc.reset.stream()
 
     if(!transposed) {
-        temp = bartModelMatrix(x.train, numcut, usequants=usequants,
+        temp = BART3::bartModelMatrix(x.train, numcut, usequants=usequants,
                                xinfo=xinfo, rm.const=rm.const)
         x.train = t(temp$X)
         numcut = temp$numcut
@@ -72,21 +72,21 @@ mc.gbmm <- function(
         ## if(length(x.test)>0)
         ##     x.test = t(bartModelMatrix(x.test[ , temp$rm.const]))
         if(length(x.test)>0) {
-            x.test = bartModelMatrix(x.test)
+            x.test = BART3::bartModelMatrix(x.test)
             x.test = t(x.test[ , temp$rm.const])
         }
         rm.const <- temp$rm.const
         rm(temp)
     }
 
-    mc.cores.detected <- detectCores()
+    mc.cores.detected <- parallel::detectCores()
 
     if(mc.cores>mc.cores.detected) mc.cores <- mc.cores.detected
 
     mc.ndpost <- ceiling(ndpost/mc.cores)
 
     for(i in 1:mc.cores) {
-        parallel::mcparallel({psnice(value=nice);
+        parallel::mcparallel({tools::psnice(value=nice);
             gbmm(x.train=x.train, y.train=y.train,
                  x.test=x.test, type=type, ntype=ntype,
                  id.train=id.train, z.train=z.train,                  
@@ -114,7 +114,7 @@ mc.gbmm <- function(
 
     post <- post.list[[1]]
 
-    if(mc.cores==1 | attr(post, 'class')!=type) return(post)
+    if(mc.cores==1 | attr(post, 'class')!='gbmm') return(post)
     else {
         if(class(rm.const)!='logical') post$rm.const <- rm.const
 
@@ -137,21 +137,20 @@ mc.gbmm <- function(
         for(i in 2:mc.cores) {
             post$hostname[i] <- post.list[[i]]$hostname
 
-            print(dim(post.list[[i]]$yhat.train))
-            post$yhat.train <- rbind(post$yhat.train,
-                                     post.list[[i]]$yhat.train)
+            post$fhat.train <- rbind(post$fhat.train,
+                                     post.list[[i]]$fhat.train)
 
-            if(keeptest) post$yhat.test <- rbind(post$yhat.test,
-                                                 post.list[[i]]$yhat.test)
+            if(keeptest) post$fhat.test <- rbind(post$fhat.test,
+                                                 post.list[[i]]$fhat.test)
 
             for(lev in 1:NCOL(id.train)){
-                res$re.varcov[[lev]] <- abind(res$re.varcov[[lev]],
+                post$re.varcov[[lev]] <- abind::abind(post$re.varcov[[lev]],
                                               post.list[[i]]$re.varcov[[lev]],
                                               along=3)
-                res$re.train[[lev]] <- abind(res$re.train[[lev]],
+                post$re.train[[lev]] <- abind::abind(post$re.train[[lev]],
                                              post.list[[i]]$re.train[[lev]],
                                              along=3)
-                res$u.corr[[lev]] <- abind(res$re.corr[[lev]],
+                post$re.corr[[lev]] <- abind::abind(post$re.corr[[lev]],
                                            post.list[[i]]$re.corr[[lev]],
                                            along=3)
             }
@@ -159,7 +158,6 @@ mc.gbmm <- function(
 
             if(type=='wbart') {
                 post$sigma <- cbind(post$sigma, post.list[[i]]$sigma)
-                post$sigma <- post$sigma[-c(1:nskip)]
             }
 
             post$varcount <- rbind(post$varcount, post.list[[i]]$varcount)
@@ -178,19 +176,18 @@ mc.gbmm <- function(
                     post$proc.time[j] <- post$proc.time[j]+post.list[[i]]$proc.time[j]
         }
 
-        post$an.train <- apply(post$yhat.train, 1, function(x) !any(is.nan(x)))
+        post$an.train <- apply(post$fhat.train, 1, function(x) !any(is.nan(x)))
 
         if(type=='wbart') {
-            post$yhat.train.mean <-
-                apply(post$yhat.train[post$an.train, ], 2, mean)
-            post$re.varcov.mean <-
-                apply(post$re.varcov, 2:3, mean)
-            post$re.corr.mean <-
-                apply(post$re.corr, 2:3, mean)
-
+            post$fhat.train.mean <-
+                apply(post$fhat.train[post$an.train, ], 2, mean)
+            for(lev in 1:NCOL(id.train)){
+                post$re.varcov.mean[[lev]] <- apply(post$re.varcov[[lev]],2:3,mean)
+                post$re.corr[[lev]] <- apply(post$re.corr[[lev]],2:3,mean)
+            }
             if(keeptest)
-                post$yhat.test.mean <-
-                    apply(post$yhat.test[post$an.train, ], 2, mean)
+                post$fhat.test.mean <-
+                    apply(post$fhat.test[post$an.train, ], 2, mean)
         } else {
             post$prob.train.mean <-
                 apply(post$prob.train[post$an.train, ], 2, mean)
@@ -204,9 +201,8 @@ mc.gbmm <- function(
         post$varprob.mean <- apply(post$varprob, 2, mean)
         post$z.cols <- post.list[[1]]$z.cols
         if(all(post$an.train)) post$an.train <- NULL ## no NAs
-        
         attr(post, 'class') <- 'gbmm'
-
+        
         return(post)
     }
 }
