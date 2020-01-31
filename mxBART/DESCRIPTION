@@ -1,25 +1,29 @@
 Package: mxBART
 Type: Package
-Title: mixed Bayesian Additive Regression Trees
+Title: Bayesian Additive Regression Trees with Mixed Effects
 Version: 1.0
-Date: 2020-01-26
-Authors@R: c(person('Robert', 'McCulloch', role='aut'),
-  person('Rodney', 'Sparapani', role=c('aut', 'cre'), 
-  email='rsparapa@mcw.edu'),
-  person('Robert', 'Gramacy', role='aut'),
-  person('Charles', 'Spanbauer', role='aut'),
-  person('Matthew', 'Pratola', role='aut'),
-  person('Martyn', 'Plummer', role='ctb'), 
-  person('Nicky', 'Best', role='ctb'),
-  person('Kate', 'Cowles', role='ctb'), 
-  person('Karen', 'Vines', role='ctb'))
-Description: Fits Bayesian Additive Regression Trees (BART) models with a parametric random effect term(s) specified. This package allows for a general random effect design vector to be specified as well as multiple levels of hierarchy. This package is based on the 'BART' R package.
+Date: 2020-01-31
+Authors@R: c(person('Charles', 'Spanbauer', role=c('aut','cre'),
+  email='cspanbauer@mcw.edu'),
+  person('Rodney', 'Sparapani', role='aut'))
+Description: Fits Bayesian Additive Regression Trees (BART) models
+    with a parametric random effect term(s) specified, extending BART for
+    non-independent data. General random effect design vectors and multiple
+    levels of hierarchy are allowed. It is based on the 'BART3' R package
+    package.
 License: GPL (>= 2)
 Depends: R (>= 2.10)
-Imports: Rcpp (>= 0.12.3), BART3, parallel, tools, RcppEigen
-LinkingTo: Rcpp, RcppEigen, BART3
-Suggests: MASS, knitr, rmarkdown, sbart
+Imports: abind,
+	 BART3,
+	 methods,
+	 Rcpp (>= 0.12.3),
+	 parallel,
+	 stats,
+	 tools 
+LinkingTo: BART3,
+	   Rcpp,
+	   RcppEigen
+Suggests: MASS, knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged:
-
+Packaged: 

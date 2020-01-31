@@ -23,7 +23,7 @@ gbmm=function(
                ntype=as.integer(
                    factor(type, levels=c('wbart', 'pbart'))),
                    ##factor(type, levels=c('wbart', 'pbart', 'lbart'))),
-               sparse=FALSE, theta=0, thetaDraw=2, omega=1,
+               sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho=NULL,
                xinfo=matrix(0,0,0), usequants=FALSE,
                rm.const=TRUE,
@@ -37,8 +37,7 @@ gbmm=function(
                ndpost=1000L, nskip=100L,
                keepevery=c(1L, 10L, 10L)[ntype],
                printevery=100L, transposed=FALSE,
-               hostname=FALSE,
-               mc.cores = 1L, nice = 19L, seed = 99L
+               hostname=FALSE
                )
 {
     
@@ -50,17 +49,17 @@ gbmm=function(
         stop("the random effects indices must be provided")
     #### Process id.train; want i passed as an n x (l-1) matrix where 'l' is the number of level
     ## id.train is passed as list
-    if(is(id.train,'list')) {
+    if(methods::is(id.train,'list')) {
         id.train.no <- length(id.train)
         id.train <- do.call(cbind,id.train)
     }
     ## id.train is passed as matrix
-    else if(is(id.train,'matrix')) {
+    else if(methods::is(id.train,'matrix')) {
         id.train.no <- NCOL(id.train)
         if(nrow(id.train)!=n) stop('id.train passed as a matrix must have the same number of rows as elements of y.train')
     }
     ## id.train is passed as vector (2-level model)
-    else if(is(id.train,'vector')) {
+    else if(methods::is(id.train,'vector')) {
         id.train.no <- 1
         if(length(id.train)!=n) stop('id.train passed as a vector must have the same number of elements as y.train')
     }
@@ -72,9 +71,9 @@ gbmm=function(
     ## 3+ level models
     if(id.train.no!=1){
         ## z.train isn't passed as a list
-        if(!is(z.train,'list')) stop("z.train must be passed as a list for 3+ level models")
+        if(!methods::is(z.train,'list')) stop("z.train must be passed as a list for 3+ level models")
         ## z.train is passed as a list
-        else if(is(z.train,'list')){
+        else if(methods::is(z.train,'list')){
             z.cols <- sapply(z.train,NCOL)
             if(length(z.train)!=id.train.no) stop("the number of elements in z.train must be the same as the number of elements in id.train (if list) or as the number of columns in id.train (if matrix)")
             z.train <- do.call(cbind,z.train)
@@ -82,7 +81,7 @@ gbmm=function(
     }
     ## 2-level model
     else{
-        if(is(z.train,'list')){
+        if(methods::is(z.train,'list')){
             if(length(z.train)!=1) stop("the number of elements in z.train must be the same as the number of elements in id.train (if list) or as the number of columns in id.train (if matrix)")
             z.train <- z.train[[1]]
         }
@@ -130,7 +129,7 @@ gbmm=function(
     }
     mixed.prior.scale <- unlist(mixed.prior.scale)
     if(!transposed) {
-        temp = bartModelMatrix(x.train, numcut, usequants=usequants,
+        temp = BART3::bartModelMatrix(x.train, numcut, usequants=usequants,
                                xinfo=xinfo, rm.const=rm.const)
         x.train = t(temp$X)
         numcut = temp$numcut
@@ -138,7 +137,7 @@ gbmm=function(
         ## if(length(x.test)>0)
         ##     x.test = t(bartModelMatrix(x.test[ , temp$rm.const]))
         if(length(x.test)>0) {
-            x.test = bartModelMatrix(x.test)
+            x.test = BART3::bartModelMatrix(x.test)
             x.test = t(x.test[ , temp$rm.const])
         }
         rm.const <- temp$rm.const
@@ -174,7 +173,7 @@ gbmm=function(
 
     if(length(offset)==0) {
         if(type=='wbart') offset=mean(y.train)
-        if(type=='pbart') offset=qnorm(mean(y.train))
+        if(type=='pbart') offset=stats::qnorm(mean(y.train))
         ##else if(type=='lbart') offset=qlogis(offset)
     }
     if(type=='wbart') {
@@ -189,27 +188,27 @@ gbmm=function(
             if(is.na(sigest)) {
                 if(p < n) {
                     tx.train <- t(x.train)
-                    tmp.lmer <- lm(y.train~tx.train)
+                    tmp.lmer <- stats::lm(y.train~tx.train)
                     sdu.est <- attr(summary(tmp.lmer)$varcor[[1]],'stddev')
                     sigest <- summary(tmp.lmer)$sigma
-                } else sigest = sd(y.train)
+                } else sigest = stats::sd(y.train)
             }
-            qchi = qchisq(sigquant, sigdf)
+            qchi = stats::qchisq(sigquant, sigdf)
             lambda = (sigest^2)*qchi/sigdf #lambda parameter for sigma prior
         }
         else {
             sigest=sqrt(lambda)
         }
     }
-    else {
-        tau <- 3/(k*sqrt(ntree))
-        if(p<n) {
-            tx.train <- t(x.train)
-            con <- glmerControl(optimizer='nloptwrap',optCtrl=list(maxfun=1000000))
-            tmp.glmer <- glmer(y.train~tx.train+(1|id.train),family=binomial("probit"),control=con,nAGQ=0)
-            sdu.est <- attr(summary(tmp.glmer)$varcor[[1]],'stddev')
-        }
-    }
+    ## else {
+    ##     tau <- 3/(k*sqrt(ntree))
+    ##     if(p<n) {
+    ##         tx.train <- t(x.train)
+    ##         con <- glmerControl(optimizer='nloptwrap',optCtrl=list(maxfun=1000000))
+    ##         tmp.glmer <- glmer(y.train~tx.train+(1|id.train),family=binomial("probit"),control=con,nAGQ=0)
+    ##         sdu.est <- attr(summary(tmp.glmer)$varcor[[1]],'stddev')
+    ##     }
+    ## }
             ## tau=1-tau.interval
 
             ## if(type=='pbart')
@@ -283,7 +282,6 @@ gbmm=function(
                 ##w,
                 sparse,
                 theta,
-                thetaDraw,
                 omega,
                 grp,
                 a,
@@ -304,7 +302,7 @@ gbmm=function(
     for(i in 1:id.train.no){
         tmp.varcov[[i]] <- aperm(array(unlist(res$re.varcov[[i]]),dim=c(z.cols[i],z.cols[i],ndpost)),c(3,1,2))
         tmp.varcov.mean[[i]] <- apply(tmp.varcov[[i]],2:3,mean)
-        tmp.corr[[i]] <- aperm(array(apply(tmp.varcov[[i]],1,cov2cor),dim=c(z.cols[i],z.cols[i],ndpost)),c(3,1,2))
+        tmp.corr[[i]] <- aperm(array(apply(tmp.varcov[[i]],1,stats::cov2cor),dim=c(z.cols[i],z.cols[i],ndpost)),c(3,1,2))
         tmp.corr.mean[[i]] <- apply(tmp.corr[[i]],2:3,mean)
     }
     res$re.varcov <- tmp.varcov
@@ -323,9 +321,9 @@ gbmm=function(
 
     
     if(type=='wbart')
-        res$yhat.train.mean <- apply(res$yhat.train, 2, mean)
+        res$fhat.train.mean <- apply(res$fhat.train, 2, mean)
     else {
-        if(type=='pbart') res$prob.train = pnorm(res$yhat.train)
+        if(type=='pbart') res$prob.train = stats::pnorm(res$yhat.train)
         ##else if(type=='lbart') res$prob.train = plogis(res$yhat.train)
 
         res$prob.train.mean <- apply(res$prob.train, 2, mean)
@@ -333,9 +331,9 @@ gbmm=function(
 
     if(np>0) {
         if(type=='wbart')
-            res$yhat.test.mean <- apply(res$yhat.test, 2, mean)
+            res$fhat.test.mean <- apply(res$fhat.test, 2, mean)
         else {
-            if(type=='pbart') res$prob.test = pnorm(res$yhat.test)
+            if(type=='pbart') res$prob.test = stats::pnorm(res$yhat.test)
             ##else if(type=='lbart') res$prob.test = plogis(res$yhat.test)
 
             res$prob.test.mean <- apply(res$prob.test, 2, mean)
@@ -372,6 +370,19 @@ gbmm=function(
     res$rm.const <- rm.const
     res$sigest <- sigest
     res$z.cols <- z.cols
+    if(!sparse) {
+        res <- res[c('fhat.train','fhat.train.mean','fhat.test','fhat.test.mean','sigma',
+                       're.train','re.train.mean','re.varcov','re.varcov.mean',
+                       're.corr','re.corr.mean','z.cols','offset','sigest',
+                       'varprob','varprob.mean','varcount','varcount.mean',
+                       'rm.const','hostname','proc.time')]
+    }
+    else
+        res <- res[c('fhat.train','fhat.train.mean','fhat.test','fhat.test.mean','sigma',
+                       're.train','re.train.mean','re.varcov','re.varcov.mean',
+                       're.corr','re.corr.mean','z.cols','offset','sigest',
+                       'varprob','varprob.mean','varcount','varcount.mean','theta.train',
+                       'rm.const','hostname','proc.time')]
     attr(res, 'class') <- 'gbmm'
     return(res)
 }

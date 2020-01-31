@@ -1,6 +1,6 @@
-\name{gbmm}
+\name{mc.gbmm}
 \title{Generalized BART Mixed Model for continuous and binary outcomes}
-\alias{gbmm}
+\alias{mc.gbmm}
 \description{
   BART is a Bayesian \dQuote{sum-of-trees} model, while mixed BART extends
   BART to non-independent outcomes.\cr
@@ -23,27 +23,29 @@ in one overall model. This function currently estimates
 continuous outcomes \eqn{y} only.
 }
 \usage{
-gbmm(
-      x.train, y.train,
-      x.test=matrix(0,0,0), type='wbart',
-      id.train=NULL, z.train=NULL,
-      ntype=as.integer(
-          factor(type, levels=c('wbart', 'pbart'))),
-      sparse=FALSE, theta=0, omega=1,
-      a=0.5, b=1, augment=FALSE, rho=NULL,
-      xinfo=matrix(0,0,0), usequants=FALSE,
-      rm.const=TRUE,
-      sigest=NA, sigdf=3, sigquant=0.90,
-      k=2, power=2, base=0.95,
-      lambda=NA, tau.num=c(NA, 3, 6)[ntype],
-      mxps=NULL,
-      offset=NULL, 
-      ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
-      ndpost=1000L, nskip=100L, %keepevery=1L,
-      keepevery=c(1L, 10L, 10L)[ntype],
-      printevery=100L, transposed=FALSE,
-      hostname=FALSE
+mc.gbmm(
+         x.train, y.train,
+         x.test=matrix(0,0,0), type='wbart',
+         id.train=NULL, z.train=NULL,
+         ntype=as.integer(
+             factor(type, levels=c('wbart', 'pbart'))),
+         sparse=FALSE, theta=0, omega=1,
+         a=0.5, b=1, augment=FALSE, rho=NULL,
+         xinfo=matrix(0,0,0), usequants=FALSE,
+         rm.const=TRUE,
+         sigest=NA, sigdf=3, sigquant=0.90,
+         k=2, power=2, base=0.95,
+         lambda=NA, tau.num=c(NA, 3, 6)[ntype],
+         mxps=NULL,
+         offset=NULL, 
+         ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
+         ndpost=1000L, nskip=100L, %keepevery=1L,
+         keepevery=c(1L, 10L, 10L)[ntype],
+         printevery=100L, transposed=FALSE,
+         hostname=FALSE,
+         mc.cores = 1L, nice = 19L, seed = 99L
 )
+
 }
 
 \arguments{
@@ -222,6 +224,17 @@ gbmm(
    to track on which node each chain is running; to do so
    set this argument to \code{TRUE}.
  }
+ 
+   \item{mc.cores}{ Number of cores to employ in parallel.
+   }
+
+   \item{nice}{ Set the job niceness.  The default
+     niceness is 19: niceness goes from 0 (highest) to 19 (lowest).
+   }
+
+   \item{seed}{ Setting the seed required for reproducible MCMC.
+   }
+
 }
 \details{
    BART is a Bayesian MCMC method. This function extends BART by

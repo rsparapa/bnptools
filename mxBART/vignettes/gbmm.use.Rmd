@@ -1,0 +1,186 @@
+---
+title: "gbmm Tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Put the title of your vignette here}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+This vignette will explain how to fit various mixed BART models using the function gbmm. How to pass a generalized random effect design vector as well as multiple levels of hierarchy are shown. Additionally, how to pass options to the variance component prior parameters and how to pass MCMC sampling options such as the number of posterior draws and burn-in amount.
+
+First, some toy data is simulated. Let $x_{ij}\sim\text{Unif}(0,1)$ for
+$i=1,\cdots,1000$ and $j=1,\cdots,10$. Then the random effects are
+simulated as $u\sim\text{N}(0,1)$ and $v\sim\text{N}(0,1)$. The outcome
+$y$ is simulated as the 5-dimensional non-linear test function from
+Friedman (1991) as a fixed effect and $u$ and $v$ as random effects. The
+within-subjects variance $\sigma^2=1$. Note that the three level model
+with a random intercept at each level is the correct model.
+
+```{R simulate_data}
+library(mxBART)
+set.seed(7171)
+
+x <- matrix(runif(10000),ncol=10)
+u <- rep(rnorm(100),each=10)
+v <- rep(rnorm(50),each=20)
+id2 <- rep(1:100,each=10)
+id3 <- rep(1:50,each=20)
+y <- 3*(sin(pi*x[,1]*x[,2])+2*(x[,3]-.5)^2+x[,4]+.5*x[,5])+u+v+rnorm(1000)
+```
+# Two level random intercept model
+First, a 2-level random intercept model is fit. The function prints out some of the information for mixed BART including the number of random effect units (for example: patients in a longitudinal study), the number of random effects, and the variance component prior settings.
+
+```{R ri2}
+ri2.fit <- gbmm(y.train=y,
+                x.train=x,
+                id.train=id2,
+		printevery=500)
+```
+Here is the dimensionality of some of the mixed BART values
+returned. The first dimension holds the posterior draws of both
+arrays. Note that by default, the package produces 1,000 posterior draws
+with 100 burn-in draws. Only the posterior draws are returned.
+```{R ri2_value}
+dim(ri2.fit$re.train[[1]])
+dim(ri2.fit$re.varcov[[1]])
+ri2.fit$re.varcov.mean
+```
+# Two level random slope model
+Now, a random slope of $x_1$ is fit using the option z.train which should be a matrix with $N=1000$ rows and $M=2$ columns.
+
+```{R rs2}
+rs2.fit <- gbmm(y.train=y,
+                x.train=x,
+                id.train=id2,
+		z.train=cbind(1,x[,1]),
+		printevery=500)
+```
+Note how the lengths of the dimensions change. There is now a random intercept and
+random slope term in the third dimension.
+```{R rs2_value}
+dim(rs2.fit$re.train[[1]])
+dim(rs2.fit$re.varcov[[1]])
+rs2.fit$re.varcov.mean
+```
+# Three level random intercept model
+There are two ways to fit a 3 level model with random intercepts at each
+level. The first is to specify the levels by combining the ids at each
+level by column and passing that to id.train. A more verbose (and
+ultimately redundant) way to specify this is through the use of
+singleton 1's. A singleton 1 passed as an element of the list is a
+shortcut for a random intercept at that level. Note that this is the correct model.
+```{R ri3}
+ri3a.fit <- gbmm(y.train=y,
+                x.train=x,
+                id.train=cbind(id2,id3),
+		printevery=500)
+ri3b.fit <- gbmm(y.train=y,
+                x.train=x,
+                id.train=cbind(id2,id3),
+                z.train=list(1,1),
+		printevery=500)
+```
+Now, objects are returned as a list, with each list element referring to a level.
+```{R ri3_value}
+dim(ri3a.fit$re.train[[1]])
+dim(ri3a.fit$re.varcov[[1]])
+ri3a.fit$re.varcov.mean
+dim(ri3b.fit$re.train[[1]])
+dim(ri3b.fit$re.varcov[[1]])
+ri3b.fit$re.varcov.mean
+```
+
+```{R rs3}
+rs3.fit <- gbmm(y.train=y,
+                x.train=x,
+                id.train=cbind(id2,id3),
+                z.train=list(1,cbind(1,x[,1])),
+		printevery=500)
+```
+Again, here is some of the output.
+```{R rs3_values}
+dim(rs3.fit$re.train[[1]])
+dim(rs3.fit$re.varcov[[1]])
+rs3.fit$re.varcov.mean
+```
+# Variance component prior settings
+To pass different settings, specify the options in a list passed to mxps
+consisting of elements prior, df, and scale. Here, we will pass what is
+essentially a flat prior by specifying a large scale parameter on the
+half-t disribution (actually half-Cauchy because of the df). For multiple levels of hierarchy, pass this as a list of lists.
+```{R setts}
+flat.fit <- gbmm(y.train=y,
+                 x.train=x,
+                 id.train=cbind(id2,id3),
+                 mxps=list(list(prior=1,df=1,scale=1000),
+                           list(prior=1,df=1,scale=1000)))
+flat.fit$re.varcov.mean			   
+```
+# MCMC and BART settings
+To specify the psoterior draw amount, burn-in amount, thinning value,
+and number of trees, use \texttt{ndpost}, \texttt{nskip}, \texttt{keepevery}, and \texttt{ntree}
+respectively.
+
+```{R BART_setts}
+long.fit <- gbmm(y.train=y,
+                 x.train=x,
+                 id.train=cbind(id2,id3),
+		 ntree=100,ndpost=2500,
+		 nskip=500,keepevery=3,
+		 printevery=1000)
+```
+This lead to $3(2500)+500=8000$ total draws from the posterior, though
+only $2500$ of them are kept obviously. Here's a plot of the samples of
+$\sigma$ over the course of the MCMC sampling.
+
+```{R chain, fig=TRUE}
+plot(1:2500,long.fit$sigma,
+     type='l',
+     col='grey',
+     xlab='Posterior Draw',
+     ylab=expression(sigma))
+```
+# Partial dependence function
+To get the partial dependence function along $x_3$, use the parameter
+x.test to pass the requisite matrix. The function gives the estimate
+of $\hat{f}$ for those values of $x$. Processing the results, we can
+compute the partial dependence function.
+
+```{R pdf}
+smth <- 101
+x.tes <- x[rep(1:nrow(x),each=smth),]
+x.s <- seq(0,1,length.out=smth)
+x.tes[,3] <- rep(x.s,nrow(x))
+print(x[1:2,1:5])
+print(x.tes[1:5,1:5])
+print(x.tes[102:106,1:5])
+long2.fit <- gbmm(y.train=y,
+                  x.train=x,
+                  x.test=x.tes,
+                  id.train=cbind(id2,id3),
+		  ntree=100,ndpost=2500,
+		  nskip=500,keepevery=3,
+		  printevery=1000)
+partdep <- as.numeric(by(long2.fit$fhat.test.mean,rep(1:smth,nrow(x)),mean))
+partdep.lo <- apply(long2.fit$fhat.test,2,quantile,.025)
+partdep.hi <- apply(long2.fit$fhat.test,2,quantile,.975)
+partdep.lo <- as.numeric(by(partdep.lo,rep(1:smth,each=nrow(x)),mean))
+partdep.hi <- as.numeric(by(partdep.hi,rep(1:smth,each=nrow(x)),mean))
+
+```
+Here is the partial dependence function as estimated by the mixed BART
+model fit. Remember that in terms of $x_3$, the function $f$ defines a
+quadratic $2(x_3-.5)^2$ so the parabolic shape of the partial dependence
+function is unsurprising.
+shape for $x_3$ makes se
+```{R pdfPl,fig=TRUE}
+plot(x.s,partdep,
+     type='l',
+     col='grey',
+     ylim=c(2.6,6.4),
+     xlab=expression(x[3]),
+     ylab=bquote(paste('Partial Dependence Function of ',x[3])),
+     lwd=3)
+       
+```
