@@ -97,8 +97,8 @@
 \maketitle
 
 N.B.\ This vignette is largely based on our previous work
-\citep{SparSpan19} which corresponds to the \pkg{BART} \proglang{R}
-package on CRAN that is frozen at version 2.6.  However, this vignette
+\citep{SparSpan20} which corresponds to the \pkg{BART} \proglang{R}
+package on CRAN that is frozen at version 2.7.  However, this vignette
 goes beyond that into the new developments found in the \pkg{BART3}
 \proglang{R} package that continues the legacy for version 3 and
 beyond on \pkg{github}.  Now, \pkg{BART3} is also a \proglang{C++} 
