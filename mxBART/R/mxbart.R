@@ -16,7 +16,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-gbmm=function(
+mxbart=function(
                x.train, y.train,
                x.test=matrix(0,0,0), type='wbart',
                id.train=NULL,z.train=NULL,
@@ -121,7 +121,7 @@ gbmm=function(
         if(length(mxps[[i]]$scale)==0) mixed.prior.scale[[i]] <- 1
         else mixed.prior.scale[[i]] <- mxps[[i]]$scale
         if(length(mixed.prior.scale[[i]])!=z.cols[i]) mixed.prior.scale[[i]] <- rep(mixed.prior.scale[[i]][1],z.cols[i])
-        ## cgbmm.cpp uses an Inverse-Gamma distribution instead of a Scaled-Inverse ChiSquare so the parameters need to be converted.
+        ## cmxbart.cpp uses an Inverse-Gamma distribution instead of a Scaled-Inverse ChiSquare so the parameters need to be converted.
         if(mixed.prior[i]==2){
             mixed.prior.df[i] <- .5*mixed.prior.df[i]
             mixed.prior.scale[[i]] <- mixed.prior.df[i]*mixed.prior.scale[[i]]
@@ -250,7 +250,7 @@ gbmm=function(
 
     ptm <- proc.time()
     
-    res = .Call("cgbmm",
+    res = .Call("cmxbart",
                 ntype, ##as.integer(factor(type, levels=check))-1,
                 n,  #number of observations in training data
                 p,  #dimension of x
@@ -383,6 +383,6 @@ gbmm=function(
                        're.corr','re.corr.mean','z.cols','offset','sigest',
                        'varprob','varprob.mean','varcount','varcount.mean','theta.train',
                        'rm.const','hostname','proc.time')]
-    attr(res, 'class') <- 'gbmm'
+    attr(res, 'class') <- 'mxbart'
     return(res)
 }

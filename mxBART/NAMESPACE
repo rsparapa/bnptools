@@ -1,2 +1,2 @@
 useDynLib(mxBART, .registration=TRUE)
-export("gbmm","mc.gbmm")
+export("mxbart","mc.mxbart")

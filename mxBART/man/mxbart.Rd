@@ -1,9 +1,10 @@
-\name{mc.gbmm}
+\name{mxbart}
 \title{Generalized BART Mixed Model for continuous and binary outcomes}
-\alias{mc.gbmm}
+\alias{mxbart}
+\alias{mc.mxbart}
 \description{
-  BART is a Bayesian \dQuote{sum-of-trees} model, while mixed BART extends
-  BART to non-independent outcomes.\cr
+BART is a Bayesian \dQuote{sum-of-trees} model, while mixed BART extends
+BART to non-independent outcomes.\cr
 For a numeric response \eqn{y}, we have
 \eqn{y = f(x) + Z\alpha + \epsilon}{y = f(x) + Za + e},
 where \eqn{\epsilon \sim N(0,\sigma^2)}{e ~ N(0,sigma^2)},
@@ -23,27 +24,49 @@ in one overall model. This function currently estimates
 continuous outcomes \eqn{y} only.
 }
 \usage{
-mc.gbmm(
+mxbart(
+      x.train, y.train,
+      x.test=matrix(0,0,0), type='wbart',
+      id.train=NULL, z.train=NULL,
+      ntype=as.integer(
+          factor(type, levels=c('wbart', 'pbart'))),
+      sparse=FALSE, theta=0, omega=1,
+      a=0.5, b=1, augment=FALSE, rho=NULL,
+      xinfo=matrix(0,0,0), usequants=FALSE,
+      rm.const=TRUE,
+      sigest=NA, sigdf=3, sigquant=0.90,
+      k=2, power=2, base=0.95,
+      lambda=NA, tau.num=c(NA, 3, 6)[ntype],
+      mxps=NULL,
+      offset=NULL, 
+      ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
+      ndpost=1000L, nskip=100L, %keepevery=1L,
+      keepevery=c(1L, 10L, 10L)[ntype],
+      printevery=100L, transposed=FALSE,
+      hostname=FALSE
+)
+
+mc.mxbart(
          x.train, y.train,
          x.test=matrix(0,0,0), type='wbart',
          id.train=NULL, z.train=NULL,
-         ntype=as.integer(
-             factor(type, levels=c('wbart', 'pbart'))),
-         sparse=FALSE, theta=0, omega=1,
-         a=0.5, b=1, augment=FALSE, rho=NULL,
-         xinfo=matrix(0,0,0), usequants=FALSE,
-         rm.const=TRUE,
-         sigest=NA, sigdf=3, sigquant=0.90,
-         k=2, power=2, base=0.95,
-         lambda=NA, tau.num=c(NA, 3, 6)[ntype],
-         mxps=NULL,
-         offset=NULL, 
-         ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
-         ndpost=1000L, nskip=100L, %keepevery=1L,
-         keepevery=c(1L, 10L, 10L)[ntype],
-         printevery=100L, transposed=FALSE,
-         hostname=FALSE,
-         mc.cores = 1L, nice = 19L, seed = 99L
+      ntype=as.integer(
+          factor(type, levels=c('wbart', 'pbart'))),
+      sparse=FALSE, theta=0, omega=1,
+      a=0.5, b=1, augment=FALSE, rho=NULL,
+      xinfo=matrix(0,0,0), usequants=FALSE,
+      rm.const=TRUE,
+      sigest=NA, sigdf=3, sigquant=0.90,
+      k=2, power=2, base=0.95,
+      lambda=NA, tau.num=c(NA, 3, 6)[ntype],
+      mxps=NULL,
+      offset=NULL, 
+      ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
+      ndpost=1000L, nskip=100L, %keepevery=1L,
+      keepevery=c(1L, 10L, 10L)[ntype],
+      printevery=100L, transposed=FALSE,
+      hostname=FALSE,
+      mc.cores = 1L, nice = 19L, seed = 99L    
 )
 
 }
@@ -56,7 +79,7 @@ mc.gbmm(
     variable is a factor in a data frame, it is replaced with dummies.
     Note that \eqn{q} dummies are created if \eqn{q>2} and one dummy
     created if \eqn{q=2} where \eqn{q} is the number of levels of the
-    factor.  \code{gbmm} will generate draws of \eqn{f(x)} for each
+    factor.  \code{mxbart} will generate draws of \eqn{f(x)} for each
     \eqn{x} which is a row of \code{x.train}.  }
 
    \item{y.train}{ Continuous variable for training (in sample) data
@@ -65,7 +88,7 @@ mc.gbmm(
 
    \item{x.test}{ Explanatory variables for test (out of sample)
    data. Should have same structure as \code{x.train}. Function
-   \code{gbmm} will generate draws of \eqn{f(x)} for each \eqn{x} which
+   \code{mxbart} will generate draws of \eqn{f(x)} for each \eqn{x} which
    is a row of \code{x.test}.  }
  
    \item{id.train}{ For a two level model, \code{id.train} should be a vector of group
@@ -88,11 +111,11 @@ mc.gbmm(
    \item{type}{ You can use this argument to specify the type of outcome.
      \code{'wbart'} for continuous outcomes and \code{'pbart'} for
      probit link binary outcomes.
-   Note: currently \code{'cgbmm'} only allows continuous outcomes so this
+   Note: currently \code{'cmxbart'} only allows continuous outcomes so this
    parameter has no effect.}
 
  \item{ntype}{ The integer equivalent of \code{type} where
-  \code{'wbart'} is 1 and \code{'pbart'} is 2. Note: currently \code{'gbmm'}
+  \code{'wbart'} is 1 and \code{'pbart'} is 2. Note: currently \code{'mxbart'}
   only allows continuous outcomes so this parameter has no effects.}
 
    \item{sparse}{ Whether to perform variable selection based on a
@@ -215,27 +238,30 @@ mc.gbmm(
    %% the current draw of \eqn{f}.
    }
 
-   \item{transposed}{ When running \code{gbmm} in parallel, it is more memory-efficient
+   \item{transposed}{ When running \code{mxbart} in parallel, it is more memory-efficient
    to transpose \code{x.train} and \code{x.test}, if any, prior to
-   calling \code{mc.gbmm}.
+   calling \code{mc.mxbart}.
  }
 
  \item{hostname}{ When running on a cluster occasionally it is useful
    to track on which node each chain is running; to do so
    set this argument to \code{TRUE}.
  }
- 
-   \item{mc.cores}{ Number of cores to employ in parallel.
+
+   \item{mc.cores}{
+     Number of cores to employ in parallel.
    }
 
-   \item{nice}{ Set the job niceness.  The default
+   \item{nice}{
+     Set the job niceness.  The default
      niceness is 19: niceness goes from 0 (highest) to 19 (lowest).
    }
 
-   \item{seed}{ Setting the seed required for reproducible MCMC.
+   \item{seed}{
+     Setting the seed required for reproducible MCMC.
    }
-
-}
+ }
+ 
 \details{
    BART is a Bayesian MCMC method. This function extends BART by
    allowing for data with non-independent outcomes to be modelled with
@@ -252,17 +278,17 @@ mc.gbmm(
    The output consists of values \eqn{f^*(x)}{f*(x)} (and
    \eqn{\sigma^*}{sigma*} in the numeric case) where * denotes a
    particular draw.  The \eqn{x} is either a row from the training data,
-   \code{x.train} or the test data, \code{x.test}. In the case of {gbmm}
+   \code{x.train} or the test data, \code{x.test}. In the case of {mxbart}
    it also produces the MCMC draws of the random effect terms and their
    variance components.
 
-   For \code{x.train}/{x.test} with missing data elements, \code{gbmm}
+   For \code{x.train}/{x.test} with missing data elements, \code{mxbart}
    will singly impute them with hot decking. For one or more missing
    covariates, record-level hot-decking imputation \cite{deWaPann11} is
    employed that is biased towards the null, i.e., nonmissing values
    from another record are randomly selected regardless of the
-   outcome. Since \code{mc.gbmm} runs multiple \code{gbmm} threads in
-   parallel, \code{mc.gbmm} performs multiple imputation with hot
+   outcome. Since \code{mc.mxbart} runs multiple \code{mxbart} threads in
+   parallel, \code{mc.mxbart} performs multiple imputation with hot
    decking, i.e., a separate imputation for each thread.  This
    record-level hot-decking imputation is biased towards the null, i.e.,
    nonmissing values from another record are randomly selected
@@ -278,7 +304,7 @@ mc.gbmm(
    %% The second plot has \eqn{y} on the horizontal axis and posterior intervals for
    %% the corresponding \eqn{f(x)} on the vertical axis.
 
-   \code{gbmm} returns an object of type \code{gbmm} which is
+   \code{mxbart} returns an object of type \code{mxbart} which is
    essentially a list. % assigned class \sQuote{bart}.
    This list has components:
 
@@ -351,6 +377,7 @@ Linero, A.R. (2018)
 }
 \examples{
 library(mxBART)
+
 ## Covariates
 x <- matrix(runif(10000),ncol=10)
 ## Random effects
@@ -364,15 +391,22 @@ id3 <- rep(1:50,each=20)
 y <- sin(pi*x[,1]*x[,2])+2*(x[,3]-.5)^2+x[,4]+.5*x[,5]+u+v+rnorm(1000,sd=.5)
 
 ## Random intercept three level model
-ri3a.fit <- gbmm(y.train=y,
-                x.train=x,
-                id.train=cbind(id2,id3))
-mean(ri3a.fit$sigma)
-ri3a.fit$re.varcov.mean
+## Few MCMC samples to ensure proper installation
+ri.fit <- mxbart(y.train=y,
+                 x.train=x,
+                 id.train=cbind(id2,id3),
+                 nskip=50,ndpost=100)
+\dontrun{
+## Consider using more cores to speed up processing speed
+ri.fit2 <- mc.mxbart(y.train=y,
+                     x.train=x,
+                     id.train=cbind(id2,id3),
+                     nskip=50,ndpost=100,
+                     mc.cores=2)
 }
-
-\keyword{nonparametric}
-\keyword{tree}
-\keyword{regression}
+}
+\keyword{Bayesian nonparametric}
+\keyword{regression tree}
 \keyword{random effects}
-\keyword{nonlinear}
+\keyword{repeated measures}
+\keyword{nonlinear regression}

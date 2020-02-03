@@ -17,7 +17,7 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 
-mc.gbmm <- function(
+mc.mxbart <- function(
                x.train, y.train,
                x.test=matrix(0,0,0), type='wbart',
                id.train=NULL,z.train=NULL,
@@ -87,7 +87,7 @@ mc.gbmm <- function(
 
     for(i in 1:mc.cores) {
         parallel::mcparallel({tools::psnice(value=nice);
-            gbmm(x.train=x.train, y.train=y.train,
+            mxbart(x.train=x.train, y.train=y.train,
                  x.test=x.test, type=type, ntype=ntype,
                  id.train=id.train, z.train=z.train,                  
                  sparse=sparse, theta=theta, omega=omega,
@@ -114,7 +114,7 @@ mc.gbmm <- function(
 
     post <- post.list[[1]]
 
-    if(mc.cores==1 | attr(post, 'class')!='gbmm') return(post)
+    if(mc.cores==1 | attr(post, 'class')!='mxbart') return(post)
     else {
         if(class(rm.const)!='logical') post$rm.const <- rm.const
 
@@ -201,7 +201,7 @@ mc.gbmm <- function(
         post$varprob.mean <- apply(post$varprob, 2, mean)
         post$z.cols <- post.list[[1]]$z.cols
         if(all(post$an.train)) post$an.train <- NULL ## no NAs
-        attr(post, 'class') <- 'gbmm'
+        attr(post, 'class') <- 'mxbart'
         
         return(post)
     }

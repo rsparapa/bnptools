@@ -45,7 +45,7 @@ typedef std::vector<v2d> v3d;
 #define TRDRAW(a, b) trdraw(a, b)
 #define TEDRAW(a, b) tedraw(a, b)
 
-RcppExport SEXP cgbmm(
+RcppExport SEXP cmxbart(
 		      SEXP _type,    //1:wbart, 2:pbart, 3:lbart
 		      SEXP _in,      //number of observations in training data
 		      SEXP _ip,      //dimension of x
@@ -200,7 +200,7 @@ RcppExport SEXP cgbmm(
 #define TRDRAW(a, b) trdraw[a][b]
 #define TEDRAW(a, b) tedraw[a][b]
 
-  void cgbmm(
+  void cmxbart(
 	     int type,    //1:wbart, 2:pbart, 3:lbart
 	     size_t n,    //number of observations in training data
 	     size_t p,	  //dimension of x

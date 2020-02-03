@@ -37,13 +37,13 @@ re.sd <- summary(lmer(frm))$sigma
 setts <- list(list(prior=1,df=1,scale=re.sd/qt(.95,df=1)))
 
 ## Run mixedBART
-post <- gbmm(y.train=cd4,
-             x.train=train[,-c(1:8,22:23)],
-             x.test=test[,-c(1:8,22:23)],
-             id.train=list(train$pidnum),
-             mxps=setts,
-             sparse=FALSE,ntree=nt,
-             ndpost=nd,nskip=nb,keepevery=ke)
+post <- mxbart(y.train=cd4,
+               x.train=train[,-c(1:8,22:23)],
+               x.test=test[,-c(1:8,22:23)],
+               id.train=list(train$pidnum),
+               mxps=setts,
+               sparse=FALSE,ntree=nt,
+               ndpost=nd,nskip=nb,keepevery=ke)
 
 trt0 <- seq(1,ncol(post$fhat.test),4)
 trt1 <- trt0+1

@@ -1,0 +1,218 @@
+---
+title: "mxbart Tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{mxBART Tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+This vignette will explain how to fit various mixed BART models using the function <tt>mxbart</tt>.
+How to pass a generalized random effect design vector is shown as well as how to pass
+multiple levels of hierarchy. Additionally, how to pass options to the variance component
+prior parameters and how to pass MCMC sampling options such as the number of posterior and burn-in
+draws is shown. In addition, how to use the <tt>mc.mxbart</tt> function for parallel processing
+is also demonstrated.
+
+First, some toy data is simulated. Let $x_{ij}\sim\text{Unif}(0,1)$ for
+$i=1,\dots,1000$ and $j=1,\dots,10$. Then, the random effects are
+simulated as $u\sim\text{N}(0,1)$ and $v\sim\text{N}(0,1)$. The outcome
+$y$ is simulated from the 5-dimensional non-linear test function found in 
+Friedman (1991) as a fixed effect and $u$ and $v$ as random effects. The
+variance of the random noise is $\sigma^2=1$. Note that the three level model
+with a random intercept at each level is the correct model.
+
+```{R simulate_data}
+library(mxBART)
+set.seed(12717121)
+
+x <- matrix(runif(10000),ncol=10)
+u <- rep(rnorm(100),each=10)
+v <- rep(rnorm(50),each=20)
+id2 <- rep(1:100,each=10)
+id3 <- rep(1:50,each=20)
+y <- sin(pi*x[,1]*x[,2])+2*(x[,3]-.5)^2+x[,4]+.5*x[,5]+u+v+rnorm(1000)
+```
+# Two level models
+A two level model implies that we are only taking into account one
+level of hierarchy beyond the unit of observation. For example, this
+could be a repeated measures experiment where multiple observations
+are taken on the same subject, such as a patient. The first level
+consists of the patients and the second level consists of the repeated
+observations.
+
+## Random intercept
+To fit a two-level model with a random intercept only, <tt>id.train</tt> is
+the only required option beyond the usual <tt>y.train</tt> and <tt>x.train</tt> of
+BART. Note that by default a message is printed every 100 MCMC iterations, but
+this vignette is using 500 (and 1,000 later) for conciseness.
+```{R ri2}
+ri2.fit <- mxbart(y.train=y,
+                  x.train=x,
+                  id.train=id2,
+	          printevery=500)
+```
+Below, the dimensionality of some of the mixed BART values
+returned is shown. The elements are returned as a list, where each element
+refers to a different level. In this case, it is a two-level model so
+the list has length $1$, referring to the $u$ random effect.
+The first dimension holds the posterior draws of both arrays.
+Note that by default, the package produces 1,000 posterior draws
+with 100 burn-in draws. Only the posterior draws are returned and not
+the burn-in draws. Since there are 100 unique ids for $u$,
+the second dimension is of the same length. The third dimension is of length
+$1$ because there is only one random effect: the random intercept.
+
+```{R ri2_value}
+dim(ri2.fit$re.train[[1]])
+dim(ri2.fit$re.varcov[[1]])
+ri2.fit$re.varcov.mean
+```
+## Random slope
+Now, a random slope of $x_1$ is fit using the option <tt>z.train</tt> which should be
+a matrix with $N=1000$ rows and $M=2$ columns. 
+
+```{R rs2}
+rs2.fit <- mxbart(y.train=y,
+                  x.train=x,
+                  id.train=id2,
+		  z.train=cbind(1,x[,1]),
+		  printevery=500)
+```
+Note how the lengths of the dimensions change. There is now two elements in the third
+dimension, referring to the random intercept and random slope term in the third
+dimension. Again, because this is a two-level model, a list with only one element is
+returned for the mixed BART output, referring to the $u$ level.
+```{R rs2_value}
+dim(rs2.fit$re.train[[1]])
+dim(rs2.fit$re.varcov[[1]])
+rs2.fit$re.varcov.mean
+```
+# Three level model
+Fitting a three level model usually consists of passing a list to different arguments
+such as <tt>z.train</tt>, and <tt>id.train</tt> with each list element referring to a
+specific level. In our case, both $u$ and $v$ will be used. This situation could be
+described by multiple observations within patients and multiple patients within hospitals.
+
+## Random intercept
+There are two ways to fit a 3 level model with random intercepts at each
+level. The first is to specify the levels by combining the ids at each
+level by column and passing the result to id.train. A more verbose (and
+ultimately redundant) way to specify this is through the use of
+singleton 1's. A singleton 1 passed as an element of the list is a
+shortcut for a random intercept at that level. Note that this is the
+correct model. Both of these are demonstrated here:
+```{R ri3}
+ri3a.fit <- mxbart(y.train=y,
+                   x.train=x,
+                   id.train=cbind(id2,id3),
+	           printevery=500)
+ri3b.fit <- mxbart(y.train=y,
+                   x.train=x,
+                   id.train=list(id2,id3),
+                   z.train=list(1,1),
+		   printevery=500)
+```
+Now, the objects returned as a list have two elements, with each list element referring
+to the levels $u$ and $v$ respectively. Note that the values are identical for both model
+fits.
+```{R ri3_value}
+dim(ri3a.fit$re.train[[1]])
+dim(ri3a.fit$re.train[[2]])
+dim(ri3a.fit$re.varcov[[1]])
+dim(ri3a.fit$re.varcov[[2]])
+ri3a.fit$re.varcov.mean
+dim(ri3b.fit$re.train[[1]])
+```
+## Random slope
+For a three-level model with a generalized random effect matrix at each level,
+pass a list to z.train of length $2$. The following specification will fit
+a random intercept model to random effect $u$ and a random slope of $x_1$ to
+random effect $v$.
+```{R rs3}
+rs3.fit <- mc.mxbart(y.train=y,
+                     x.train=x,
+                     id.train=cbind(id2,id3),
+		     printevery=500)
+```
+# Variance component prior settings
+To pass different settings, specify the options in a list passed to mxps
+consisting of elements <tt>prior</tt>, <tt>df</tt>, and <tt>scale</tt>.
+Here, we will pass what is essentially a flat prior by specifying a large
+scale parameter on the half-t disribution (actually half-Cauchy because
+of the df). For multiple levels of hierarchy, pass this as a list of lists.
+```{R prior_setts}
+flat.fit <- mxbart(y.train=y,
+                   x.train=x,
+                   id.train=cbind(id2,id3),
+                   mxps=list(list(prior=1,df=1,scale=1000),
+                             list(prior=1,df=1,scale=1000)),
+	           printevery=500)
+flat.fit$re.varcov.mean			   
+```
+# MCMC and BART settings
+To specify the psoterior draw amount, burn-in amount, thinning value,
+and number of trees, use <tt>ndpost</tt>, <tt>nskip</tt>, <tt>keepevery</tt>,
+and <tt>ntree</tt> respectively.
+
+```{R BART_setts}
+long.fit <- mxbart(y.train=y,
+                   x.train=x,
+                   id.train=cbind(id2,id3),
+		   ntree=100,ndpost=2500,
+		   nskip=500,keepevery=3,
+		   printevery=1000)
+```
+This lead to $3(2500)+500=8000$ total draws from the posterior, though
+only $2500$ of them are kept obviously. Here is the plot of the MCMC draws
+of the first variance component.
+
+```{R MCMCplt, fig=TRUE, fig.width=6}
+plot(x=1:2500,
+     y=long.fit$re.varcov[[1]],
+     type='l',
+     ylab=expression(sigma[u]^2),
+     xlab='MCMC Draw')
+```
+# Partial dependence function
+To get the partial dependence function along $x_3$, use the parameter
+<tt>x.test</tt> to pass the requisite matrix. The function gives the
+estimate of $\hat{f}$ for those values of $x$. Processing the results,
+we can compute the partial dependence function.
+
+Also, consider using parallel processing to speed up processing time.
+In the following example, two cores are used in parallel by specifying
+the <tt>mc.mxbart</tt> function with the <tt>mc.cores</tt> argument.
+
+```{R pdf}
+smth <- 101
+x.tes <- x[rep(1:nrow(x),each=smth),]
+x.s <- seq(0,1,length.out=smth)
+x.tes[,3] <- rep(x.s,nrow(x))
+print(x[1:2,1:5])
+print(x.tes[1:5,1:5])
+print(x.tes[102:106,1:5])
+long2.fit <- mc.mxbart(y.train=y,
+                       x.train=x,
+                       x.test=x.tes,
+                       id.train=cbind(id2,id3),
+	               ntree=100,ndpost=2500,
+		       nskip=500,keepevery=3,
+		       printevery=1000,
+		       mc.cores=2)
+partdep <- as.numeric(by(long2.fit$fhat.test.mean,rep(1:smth,nrow(x)),mean))
+```
+Here is the partial dependence function as estimated by the mixed BART
+model fit. Remember that in terms of $x_3$, the function $f$ defines a
+quadratic $2(x_3-.5)^2$ so the parabolic shape of the partial dependence
+function is unsurprising.
+```{R pdfPl,fig=TRUE, fig.width=6}
+plot(x=x.s,
+     y=partdep,
+     type='l',
+     col='grey',
+     ylim=c(.9,1.8),
+     xlab=expression(x[3]),
+     ylab=expression(y),
+     lwd=2)     
+```
