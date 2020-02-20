@@ -25,11 +25,12 @@
 //data
 class dinfo {
 public:
-   dinfo() {p=0;n=0;x=0;y=0;}
+   dinfo() {p=0;n=0;x=0;y=0;q=0;}
    size_t p;  //number of vars
    size_t n;  //number of observations
    double *x; // jth var of ith obs is *(x + p*i+j)
    double *y; // ith y is *(y+i) or y[i]
+   int *q;
 };
 //prior and mcmc
 class pinfo
