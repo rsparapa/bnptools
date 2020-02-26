@@ -119,6 +119,7 @@ double getpb(tree& t, xinfo& xi, pinfo& pi, tree::npv& goodbots)
 }
 //--------------------------------------------------
 //compute n and \sum y_i for left and right give bot and v,c
+//for birth proposal
 void getsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo& di, size_t& nl, double& syl, size_t& nr, double& syr)
 {
    double *xx;//current x
@@ -159,6 +160,7 @@ double pgrow(tree::tree_p n, xinfo& xi, pinfo& pi)
 }
 //--------------------------------------------------
 //compute n and \sum y_i for left and right bots
+//for death proposal
 void getsuff(tree& x, tree::tree_p l, tree::tree_p r, xinfo& xi, dinfo& di, size_t& nl, double& syl, size_t& nr, double& syr)
 {
    double *xx;//current x
