@@ -1,7 +1,7 @@
 #ifndef GUARD_QBART_h
 #define GUARD_QBART_h
 
-#include "bart.h"
+#include "BART3/bart.h"
 #include "qbartfuns.h"
 #include "qbd.h"
 

@@ -1,9 +1,9 @@
 #ifndef GUARD_QBD_h
 #define GUARD_QBD_h
 
-#include "info.h"
-#include "tree.h"
-#include "treefuns.h"
+#include "BART3/info.h"
+#include "BART3/tree.h"
+#include "BART3/treefuns.h"
 #include "qbartfuns.h"
 
 bool qbd(tree& x, xinfo& xi, dinfo& di, pinfo& pi, double sigma,

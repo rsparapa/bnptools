@@ -1,9 +1,9 @@
 #ifndef GUARD_QFUNS_h
 #define GUARD_QFUNS_h
 
-#include "tree.h"
-#include "treefuns.h"
-#include "info.h"
+#include "BART3/tree.h"
+#include "BART3/treefuns.h"
+#include "BART3/info.h"
 
 //compute n and \sum y_i for left and right give bot and v,c
 void qgetsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo& di, size_t& nl, double& syl, size_t& nr, double& syr);
