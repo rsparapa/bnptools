@@ -237,17 +237,18 @@ if(type==1) {
    //create temporaries
    double df=n+nu;
    double *z = new double[n]; 
-   double *svec = new double[n]; 
+   //double *svec = new double[n]; 
+   
    double *sign;
    if(type!=1) sign = new double[n]; 
 
    for(size_t i=0; i<n; i++) {
      if(type==1) {
-       svec[i] = iw[i]*sigma; 
+       //svec[i] = iw[i]*sigma; 
        z[i]=iy[i]; 
      }
      else {
-       svec[i] = 1.;
+       //svec[i] = 1.;
        if(iy[i]==0) sign[i] = -1.;
        else sign[i] = 1.;
        z[i] = sign[i];
@@ -285,7 +286,7 @@ if(type==1) {
       //if(i%printevery==0) printf("%22zu/%zu\r",i,total);
       if(i==(burn/2)&&dart) bm.startdart();
       //draw bart
-      bm.draw(svec,gen);
+      bm.draw(sigma,gen);
 
       if(type==1) {
       //draw sigma
@@ -297,13 +298,13 @@ if(type==1) {
 
       for(size_t k=0; k<n; k++) {
 	if(type==1) {
-	  svec[k]=iw[k]*sigma;
-	  if(delta[k]==0) z[k]= rtnorm(bm.f(k), iy[k], svec[k], gen);
+	  //svec[k]=iw[k]*sigma;
+	  if(delta[k]==0) z[k]= rtnorm(bm.f(k), iy[k], sigma, gen);
 	}
 	else {
-	  z[k]= sign[k]*rtnorm(sign[k]*bm.f(k), -sign[k]*Offset, svec[k], gen);
-	  if(type==3) 
-	    svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), sign[k]*bm.f(k), 1000, 1, gen));
+	  z[k]= sign[k]*rtnorm(sign[k]*bm.f(k), -sign[k]*Offset, sigma, gen);
+	  //if(type==3) 
+	    //svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), sign[k]*bm.f(k), 1000, 1, gen));
 	  }
       }
       if(i>=burn) {
@@ -344,7 +345,7 @@ if(type==1) {
 
    if(fhattest) delete[] fhattest;
    delete[] z;
-   delete[] svec;
+   //delete[] svec;
    if(type!=1) delete[] sign;
 
 #ifndef NoRcpp

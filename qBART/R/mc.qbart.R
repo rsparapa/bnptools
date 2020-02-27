@@ -17,7 +17,7 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 
-mc.abart <- function(
+mc.qbart <- function(
                      x.train, times, delta, q,
                      x.test=matrix(0,0,0), K=100,
                      type='abart', ntype=1,

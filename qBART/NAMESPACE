@@ -1,3 +1,6 @@
 useDynLib(qBART, .registration=TRUE)
-exportPattern("^[[:alpha:]]+")
+#exportPattern("^[[:alpha:]]+")
+export(qbart, mc.qbart)
 importFrom(Rcpp, evalCpp)
+importFrom(parallel, detectCores)
+importFrom(tools, psnice)

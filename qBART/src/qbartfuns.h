@@ -19,13 +19,13 @@ void qdrmu(tree& t, xinfo& xi, dinfo& di, pinfo& pi, double sigma, rn& gen);
 
 
 //compute n and \sum y_i for left and right give bot and v,c
-void getsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo& di, size_t& nl, double& syl, size_t& nr, double& syr)
+void qgetsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo& di, size_t& nl, double& syl, size_t& nr, double& syr)
 {
    double *xx;//current x
    nl=0; syl=0.0;
    nr=0; syr=0.0;
 
-   for(size_t i=0;i<di.n;i++) if(di.q == 1) {
+   for(size_t i=0;i<di.n;i++) if(di.q[i] == 1) {
       xx = di.x + i*di.p;
       if(nx==x.bn(xx,xi)) { //does the bottom node = xx's bottom node
          if(xx[v] < xi[v][c]) {
@@ -47,7 +47,7 @@ void qgetsuff(tree& x, tree::tree_p l, tree::tree_p r, xinfo& xi, dinfo& di, siz
    nl=0; syl=0.0;
    nr=0; syr=0.0;
 
-   for(size_t i=0;i<di.n;i++) if(di.q == 1) {
+   for(size_t i=0;i<di.n;i++) if(di.q[i] == 1) {
       xx = di.x + i*di.p;
       tree::tree_cp bn = x.bn(xx,xi);
       if(bn==l) {
@@ -80,7 +80,7 @@ void qallsuff(tree& x, xinfo& xi, dinfo& di, tree::npv& bnv, std::vector<size_t>
    std::map<tree::tree_cp,size_t> bnmap;
    for(bvsz i=0;i!=bnv.size();i++) {bnmap[bnv[i]]=i;nv[i]=0;syv[i]=0.0;}
 
-   for(size_t i=0;i<di.n;i++) if(di.q == 1) {
+   for(size_t i=0;i<di.n;i++) if(di.q[i] == 1) {
       xx = di.x + i*di.p;
       tbn = x.bn(xx,xi);
       ni = bnmap[tbn];

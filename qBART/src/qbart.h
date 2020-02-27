@@ -54,14 +54,14 @@ void qbart::draw(double sigma, rn& gen)
 {
    for(size_t j=0;j<m;j++) {
       fit(t[j],xi,p,n,x,ftemp);
-      for(size_t k=0;k<n;k++) if(q == 1) {
+      for(size_t k=0;k<n;k++) if(q[k] == 1) {
          allfit[k] = allfit[k]-ftemp[k];
          r[k] = y[k]-allfit[k];
       }
       qbd(t[j],xi,di,pi,sigma,nv,pv,aug,gen);
       qdrmu(t[j],xi,di,pi,sigma,gen);
       fit(t[j],xi,p,n,x,ftemp);
-      for(size_t k=0;k<n;k++) if(q == 1) allfit[k] += ftemp[k];
+      for(size_t k=0;k<n;k++) if(q[k] == 1) allfit[k] += ftemp[k];
    }
    if(dartOn) {
      draw_s(nv,lpv,theta,gen);
