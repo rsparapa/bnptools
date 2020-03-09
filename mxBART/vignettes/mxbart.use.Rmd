@@ -23,6 +23,7 @@ variance of the random noise is $\sigma^2=1$. Note that the three level model
 with a random intercept at each level is the correct model.
 
 ```{R simulate_data}
+library(BART3)
 library(mxBART)
 set.seed(12717121)
 
