@@ -1780,10 +1780,15 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-CXX11=`"${R_HOME}/bin/R" CMD config CXX11`
-CXX11STD=`"${R_HOME}/bin/R" CMD config CXX11STD`
-CXX="${CXX11} ${CXX11STD}"
-CXXFLAGS=`"${R_HOME}/bin/R" CMD config CXX11FLAGS`
+
+CXX11FLAGS=`R CMD config CXX11FLAGS`
+CXX11=`R CMD config CXX11`
+CXX11STD=`R CMD config CXX11STD`
+LDFLAGS=`R CMD config LDFLAGS`
+
+CXX="${CXX11}"
+CXXFLAGS="${CXXFLAGS} ${CXX11STD} ${CXX11FLAGS}"
+CPPFLAGS="${CPPFLAGS} -D_OPENMP"
 
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'

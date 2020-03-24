@@ -7,8 +7,7 @@ dnl Autoconf Configure Script Exception, version 3.0.
 
 AC_PREREQ(2.62)
 
-dnl AC_INIT([ARTP2],[0.9.30],[],[ARTP2],[])
-dnl derived from the ARTP2 R package v 0.9.30
+dnl derived from the BART R package v 2.3
 AC_INIT([BART],[2.3],[],[],[])
 
 dnl CXX1X=`"${R_HOME}/bin/R" CMD config CXX1X`
@@ -16,10 +15,21 @@ dnl CXX1XSTD=`"${R_HOME}/bin/R" CMD config CXX1XSTD`
 dnl CXX="${CXX1X} ${CXX1XSTD}"
 dnl CXXFLAGS=`"${R_HOME}/bin/R" CMD config CXX1XFLAGS`
 
-CXX11=`"${R_HOME}/bin/R" CMD config CXX11`
-CXX11STD=`"${R_HOME}/bin/R" CMD config CXX11STD`
-CXX="${CXX11} ${CXX11STD}"
-CXXFLAGS=`"${R_HOME}/bin/R" CMD config CXX11FLAGS`
+dnl DYLIB_LDFLAGS=`"${R_HOME}/bin/R" CMD config DYLIB_LDFLAGS | tail -1`
+dnl LDFLAGS="${DYLIB_LDFLAGS} ${LDFLAGS}"
+
+dnl CXX11FLAGS=`"${R_HOME}/bin/R" CMD config CXX11FLAGS | tail -1`
+dnl CXX11=`"${R_HOME}/bin/R" CMD config CXX11 | tail -1`
+dnl CXX11STD=`"${R_HOME}/bin/R" CMD config CXX11STD | tail -1`
+dnl LDFLAGS=`"${R_HOME}/bin/R" CMD config LDFLAGS | tail -1`
+CXX11FLAGS=`R CMD config CXX11FLAGS`
+CXX11=`R CMD config CXX11`
+CXX11STD=`R CMD config CXX11STD`
+LDFLAGS=`R CMD config LDFLAGS`
+
+CXX="${CXX11}"
+CXXFLAGS="${CXXFLAGS} ${CXX11STD} ${CXX11FLAGS}"
+CPPFLAGS="${CPPFLAGS} -D_OPENMP"
 
 AC_LANG(C++)
 dnl the meat of R's m4/openmp.m4
