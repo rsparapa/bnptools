@@ -5,20 +5,34 @@ dnl which in turn is based on autoconf's openmp.m4,
 dnl with is licensed under GPL-3 with the 
 dnl Autoconf Configure Script Exception, version 3.0.
 
-
 AC_PREREQ(2.62)
 
-dnl AC_INIT([ARTP2],[0.9.30],[],[ARTP2],[])
-dnl derived from the ARTP2 R package v 0.9.30
-AC_INIT([BART],[1.0],[],[],[])
+dnl derived from the BART R package v 2.3
+AC_INIT([BART],[2.3],[],[],[])
 
-CXX1X=`"${R_HOME}/bin/R" CMD config CXX1X`
-CXX1XSTD=`"${R_HOME}/bin/R" CMD config CXX1XSTD`
-CXX="${CXX1X} ${CXX1XSTD}"
-CXXFLAGS=`"${R_HOME}/bin/R" CMD config CXX1XFLAGS`
+dnl CXX1X=`"${R_HOME}/bin/R" CMD config CXX1X`
+dnl CXX1XSTD=`"${R_HOME}/bin/R" CMD config CXX1XSTD`
+dnl CXX="${CXX1X} ${CXX1XSTD}"
+dnl CXXFLAGS=`"${R_HOME}/bin/R" CMD config CXX1XFLAGS`
+
+dnl DYLIB_LDFLAGS=`"${R_HOME}/bin/R" CMD config DYLIB_LDFLAGS | tail -1`
+dnl LDFLAGS="${DYLIB_LDFLAGS} ${LDFLAGS}"
+
+dnl CXX11FLAGS=`"${R_HOME}/bin/R" CMD config CXX11FLAGS | tail -1`
+dnl CXX11=`"${R_HOME}/bin/R" CMD config CXX11 | tail -1`
+dnl CXX11STD=`"${R_HOME}/bin/R" CMD config CXX11STD | tail -1`
+dnl LDFLAGS=`"${R_HOME}/bin/R" CMD config LDFLAGS | tail -1`
+CXX11FLAGS=`R CMD config CXX11FLAGS`
+CXX11=`R CMD config CXX11`
+CXX11STD=`R CMD config CXX11STD`
+LDFLAGS=`R CMD config LDFLAGS`
+
+CXX="${CXX11}"
+CXXFLAGS="${CXXFLAGS} ${CXX11STD} ${CXX11FLAGS}"
+CPPFLAGS="${CPPFLAGS} -D_OPENMP"
 
 AC_LANG(C++)
-dnl this the meat of R's m4/openmp.m4
+dnl the meat of R's m4/openmp.m4
   OPENMP_[]_AC_LANG_PREFIX[]FLAGS=
   AC_ARG_ENABLE([openmp],
     [AS_HELP_STRING([--disable-openmp], [do not use OpenMP])])
@@ -28,7 +42,7 @@ dnl this the meat of R's m4/openmp.m4
       [AC_LINK_IFELSE([_AC_LANG_OPENMP],
 	 [ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp='none needed'],
 	 [ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp='unsupported'
-	  for ac_option in -fopenmp -xopenmp -qopenmp \
+	  for ac_option in -xopenmp -fopenmp -qopenmp \
                            -openmp -mp -omp -qsmp=omp -homp \
 			   -fopenmp=libomp \
                            -Popenmp --openmp; do

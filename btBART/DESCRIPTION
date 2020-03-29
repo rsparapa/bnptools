@@ -3,15 +3,15 @@ Type: Package
 Title: Bonifride Tuyishimire Bayesian Additive Regression Trees
 Version: 2.0
 Date: 2019-10-23
-Authors@R: c(person('Robert', 'McCulloch', role='aut'),
-  person('Rodney', 'Sparapani', role=c('aut', 'cre'), 
-  email='rsparapa@mcw.edu'),
-  person('Robert', 'Gramacy', role='aut'),
-  person('Charles', 'Spanbauer', role='aut'),
-  person('Bonifride', 'Tuyishimire', role='aut'),
-  person('Matthew', 'Pratola', role='aut'),
+Authors@R: c(person('Bonifride', 'Tuyishimire', role='aut'),
+  person('Rodney', 'Sparapani', role=c('aut', 'cre'), email='rsparapa@mcw.edu'),
   person('Bill', 'Venables', role='ctb'),
   person('Brian', 'Ripley', role='ctb'))
+Authors: Bonifride Tuyishimire [aut],
+  Rodney Sparapani [aut, cre], 
+  Bill Venables [ctb],
+  Brian Ripley [ctb]
+Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
 Description: Bayesian Additive Regression Trees (BART) provide flexible nonparametric modeling of covariates for continuous, binary, categorical and time-to-event outcomes.  For more information on BART, see Chipman, George and McCulloch (2010) <doi:10.1214/09-AOAS285> and Sparapani, Logan, McCulloch and Laud (2016) <doi:10.1002/sim.6893>.
 License: GPL (>= 2)
 Depends: R (>= 2.10)
