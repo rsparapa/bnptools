@@ -45,10 +45,10 @@ surv.pre.bart <- function(
                       ## if specified, then use events for time grid
 
                       ztimes=NULL,
-                      zdelta=NULL,
+                      zdelta=NULL
                       ## column numbers of (ztimes, zdelta) time-dependent pairs
 
-                      u.train=NULL
+                      ##u.train=NULL
                       ## shared cluster identifiers
                       ) {
     ## currently does not handle time dependent Xs
@@ -103,14 +103,14 @@ surv.pre.bart <- function(
 
     ##binaryOffset <- qnorm(mean(y.train))
 
-    if(length(u.train)>0) {
-        makeU = TRUE
-        U.train <- integer(m)
-    }
-    else {
-        makeU = FALSE
-        U.train = NULL
-    }
+    ## if(length(u.train)>0) {
+    ##     makeU = TRUE
+    ##     U.train <- integer(m)
+    ## }
+    ## else {
+    ##     makeU = FALSE
+    ##     U.train = NULL
+    ## }
 
     if(length(x.train)==0) {
         p <- 0
@@ -132,7 +132,7 @@ surv.pre.bart <- function(
     k <- 1
 
     for(i in 1:N) for(j in 1:K) if(events[j] <= times[i]) {
-        if(makeU) U.train[k] <- u.train[i] 
+        ##if(makeU) U.train[k] <- u.train[i] 
         if(p==0) X.train[k, ] <- c(events[j])
         else X.train[k, ] <- c(events[j], x.train[i, ])
 
@@ -166,6 +166,6 @@ surv.pre.bart <- function(
     }
         
     return(list(y.train=y.train, tx.train=X.train, tx.test=X.test,
-                times=events, K=K, u.train=U.train))
-                ##binaryOffset=binaryOffset))
+                times=events, K=K))
+    ##, u.train=U.train ##binaryOffset=binaryOffset
 }

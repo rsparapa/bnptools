@@ -24,8 +24,9 @@ for i in README src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
 	 vignettes/time-to-event.Rnw vignettes/hwbart.Rmd \
 	 data/datafromsection13.txt data/leukemia.R \
 	 src/DpBase.* src/DpMuTau.* src/cdpgbart.cpp \
-	 R/dpgbart.R demo/cube.dpgbart.R
-##	 R/gbmm.R R/mc.gbmm.R man/gbmm.Rd src/cgbmm.cpp
+	 R/dpgbart.R demo/cube.dpgbart.R R/surv.gbmm.R \
+	 R/gbmm.R R/mc.gbmm.R man/gbmm.Rd src/cgbmm.cpp \
+	 demo/check.mbart.R
 do
     if [ -f $i ]
        then rm -rf $i

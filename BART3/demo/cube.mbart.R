@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 N = 1000
 P = 5       #number of covariates
@@ -18,7 +18,7 @@ table(y.train)
 ##              ndpost=10, nskip=nskip)
 
 ##run BART with C cores in parallel
-post = mc.mbart(x.train, y.train, mc.cores=C,
+post = mc.mbart(x.train, y.train, mc.cores=C, type='lbart',
                 seed=99, ndpost=ndpost, nskip=nskip)
 
 M <- 11

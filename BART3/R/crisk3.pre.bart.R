@@ -68,8 +68,9 @@ crisk3.pre.bart <- function(
     C <- length(check)
 
     ## with gap times, there is no censoring per se, only 1s and 2s
-    if(!(C %in% 2:4) || (C==4 && !all(check==0:3)) ||
-       (C==3 && !all(check==0:2)) || (C==2 && !all(check==1:2)))
+    ## if(!(C %in% 2:4) || (C==4 && !all(check==0:3)) ||
+    ##    (C==3 && !all(check==0:2)) || (C==2 && !all(check==1:2)))
+    if((C==4 && !all(check==0:3)) || (C==3 && !all(check==1:3)))
 stop('delta must be encoded: 0(censored), 1(cause 1), 2(cause 2) or 3(cause 3)')
 
     if(length(x.train)>0 && length(x.train2)>0 && length(x.train3)>0 &&
@@ -79,6 +80,10 @@ stop('delta must be encoded: 0(censored), 1(cause 1), 2(cause 2) or 3(cause 3)')
     if(length(x.test)>0 && length(x.test2)>0 && length(x.test3)>0 &&
        nrow(x.test)!=nrow(x.test2) && nrow(x.test)!=nrow(x.test3))
         stop('number of rows in x.test, x.test2 and x.test3 must be equal')
+
+    N <- length(times)
+    if(N!=length(delta))
+        stop('The length of times and delta must be identical')
 
     pre <- surv.pre.bart(times=times, 1*(delta==1), K=K, events=events,
                          x.train=x.train, x.test=x.test)

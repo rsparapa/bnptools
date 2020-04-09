@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 ##simulate from Friedman's five-dimensional test function
 ##Friedman JH. Multivariate adaptive regression splines
@@ -32,7 +32,7 @@ table(y.train)
 ## set.seed(99)
 ## post = mbart(x.train, y.train, x.train)
 
-post = mc.mbart(x.train, y.train, x.train, mc.cores=8, seed=99)
+post = mc.mbart(x.train, y.train, x.train, mc.cores=8, seed=99, type='lbart')
 
 h <- seq(1, K*N, by=K)
 
