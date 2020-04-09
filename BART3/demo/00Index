@@ -29,7 +29,7 @@ inform.alt.gbart   Specifying an informative alternative hypothesis prior with B
 dm.recur.bart	   Diabetes and hospital admission example for recurrent events with BART
 leuk		   Multi-state model example with leukemia data set
 liver.crisk.bart   Liver transplant example for competing risks with BART
-liver.crisk2.bart   Liver transplant example for competing risks with BART: experimental
+liver.crisk2.mbart   Liver transplant example for competing risks with Multinomial BART
 liver.crisk3.bart   Liver transplant example for competing risks with BART for 3 causes
 liver50.crisk.bart   Liver transplant example setting K=50 for competing risks with BART
 lung.surv.bart	   Lung cancer example for survival analysis with probit BART
