@@ -37,6 +37,7 @@ mc.gbart <- function(
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
+                     keeptestfits = NULL,
                      hostname=FALSE,
                      mc.cores = 2L, nice = 19L, seed = 99L
                      )
@@ -82,6 +83,8 @@ mc.gbart <- function(
 
     mc.ndpost <- ceiling(ndpost/mc.cores)
 
+    if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
+
     for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);
             gbart(x.train=x.train, y.train=y.train,
@@ -99,7 +102,8 @@ mc.gbart <- function(
                   w=w, ntree=ntree, numcut=numcut,
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery, printevery=printevery,
-                  transposed=TRUE, hostname=hostname)},
+                  transposed=TRUE, keeptestfits=keeptestfits,
+                  hostname=hostname)},
             silent=(i!=1))
         ## to avoid duplication of output
         ## capture stdout from first posterior only
@@ -127,7 +131,7 @@ mc.gbart <- function(
                                            as.character(p)),
                                     post$treedraws$trees)
 
-        keeptest <- length(x.test)>0
+        ##keeptest <- length(x.test)>0
 
         if(type=='wbart') sigma <- post$sigma[-(1:nskip)]
         
@@ -137,7 +141,7 @@ mc.gbart <- function(
             post$yhat.train <- rbind(post$yhat.train,
                                      post.list[[i]]$yhat.train)
 
-            if(keeptest) post$yhat.test <- rbind(post$yhat.test,
+            if(keeptestfits) post$yhat.test <- rbind(post$yhat.test,
                                                  post.list[[i]]$yhat.test)
 
             if(type=='wbart') {
@@ -173,14 +177,14 @@ mc.gbart <- function(
             log.pdf=dnorm(Y, post$yhat.train, SD, TRUE)
             post$sigma.mean=mean(SD[ , 1])
             
-            if(keeptest)
+            if(keeptestfits)
                 post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
         } else {
             post$prob.train.mean <- apply(post$prob.train, 2, mean)
             ##CPO=1/apply(1/dbinom(Y, 1, post$prob.train), 2, mean)
             log.pdf=dbinom(Y, 1, post$prob.train, TRUE)
 
-            if(keeptest)
+            if(keeptestfits)
                 post$prob.test.mean <- apply(post$prob.test, 2, mean)
         }
 

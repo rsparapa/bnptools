@@ -36,6 +36,7 @@ crisk3.bart <- function(
     ntree = 50L, numcut = 100L,
     ndpost = 1000L, nskip = 250L,
     keepevery = 10L, printevery=100L,
+    keeptestfits = NULL,
     id = NULL,
     seed=99,    ## mc.crisk.bart only
     mc.cores=2, ## mc.crisk.bart only
@@ -52,6 +53,7 @@ crisk3.bart <- function(
     x.train <- bartModelMatrix(x.train)
     x.test <- bartModelMatrix(x.test)
 
+    if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
     if(length(rho)==0) rho=ncol(x.train)
     if(length(rho2)==0) rho2=ncol(x.train2)
     if(length(rho3)==0) rho3=ncol(x.train3)
@@ -152,7 +154,8 @@ crisk3.bart <- function(
                   ndpost=ndpost, nskip=nskip,
                   keepevery=keepevery,
                   printevery=printevery,
-                  transposed=transposed) 
+                  transposed=transposed,
+                  keeptestfits=keeptestfits) 
 
     if(type!=attr(post, 'class')) return(post)
 
@@ -168,7 +171,8 @@ crisk3.bart <- function(
                    ndpost=ndpost, nskip=nskip,
                    keepevery=keepevery,
                    printevery=printevery,
-                   transposed=transposed) 
+                   transposed=transposed,
+                  keeptestfits=keeptestfits) 
 
     if(type!=attr(post2, 'class')) return(post2)
 
@@ -184,7 +188,8 @@ crisk3.bart <- function(
                    ndpost=ndpost, nskip=nskip,
                    keepevery=keepevery,
                    printevery=printevery,
-                   transposed=transposed) 
+                   transposed=transposed,
+                  keeptestfits=keeptestfits) 
 
     if(type!=attr(post3, 'class')) return(post3)
 
@@ -225,7 +230,7 @@ crisk3.bart <- function(
     post$yhat.train <- NULL
     post$yhat.train.mean <- NULL
 
-    if(length(x.test)>0) {
+    if(keeptestfits) {
         if(!transposed) {
             post$tx.test <- x.test
             post$tx.test2 <- x.test2

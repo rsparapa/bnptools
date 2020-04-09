@@ -1,3 +1,6 @@
+Changes and New Features in 3.5 (2020-04-09):
+	* fixing bugs in crisk3.bart
+
 Changes and New Features in 3.4 (2020-01-27):
 	* removing our early, naive version of gbmm from the NAMESPACE
 	a more comprehensive version is available in our sub-directory

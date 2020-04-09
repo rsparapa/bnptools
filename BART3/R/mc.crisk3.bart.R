@@ -36,6 +36,7 @@ mc.crisk3.bart <- function(
     ntree = 50L, numcut = 100L,
     ndpost = 1000L, nskip = 250L,
     keepevery = 10L, printevery=100L,
+    keeptestfits = NULL,
     id = NULL,
     seed=99,    ## mc.crisk3.bart only
     mc.cores=2, ## mc.crisk3.bart only
@@ -89,6 +90,8 @@ mc.crisk3.bart <- function(
 
     mc.ndpost <- ceiling(ndpost/mc.cores)
 
+    if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
+ 
     post.list <- list()
 
     for(h in 1:H) {
@@ -110,7 +113,8 @@ mc.crisk3.bart <- function(
                          offset=offset, offset2=offset2, offset3=offset3,
                          tau.num=tau.num, ntree=ntree, numcut=numcut,
                          ndpost=mc.ndpost, nskip=nskip, id=id,
-                         keepevery = keepevery, printevery=printevery)},
+                         keepevery = keepevery, printevery=printevery,
+                         keeptestfits = keeptestfits)},
               silent=(i!=1))
               ## to avoid duplication of output
               ## capture stdout from first posterior only
@@ -159,7 +163,7 @@ mc.crisk3.bart <- function(
 
             }
             else {
-                if(length(x.test)>0) {
+                if(keeptestfits) {
                     post$yhat.test <- rbind(post$yhat.test,
                                             post.list[[h]][[i]]$yhat.test)
                     post$yhat.test2 <- rbind(post$yhat.test2,
@@ -211,7 +215,7 @@ mc.crisk3.bart <- function(
             post.list[[h]][[i]] <- NULL
             }
 
-        if(length(x.test)>0) {
+        if(keeptestfits) {
             post$prob.test.mean <- apply(post$prob.test, 2, mean)
             post$prob.test2.mean <- apply(post$prob.test2, 2, mean)
             post$prob.test3.mean <- apply(post$prob.test3, 2, mean)
