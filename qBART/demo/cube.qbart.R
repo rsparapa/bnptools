@@ -22,25 +22,23 @@ C=rexp(N, 0.05)  #censoring time: exponential
 delta=(T<C)*1  #event indicator
 table(delta)/N  
 times=(T*delta+C*(1-delta))  #observed time
-#q = sample(0:1, N, replace=TRUE)  #cure status
-q = rep(1, N)
+q = sample(0:1, N, replace=TRUE)  #cure status
+#q = rep(1, N)
 x.train = cbind(x.train,q)
 new.train = x.train[which(x.train[,"q"]==1),]  #uncured subset
+new.test = cbind(x.test, q=1)
 
-post1 = mc.abart(new.train, times[q==1], delta[q==1], new.train,
+post1 = mc.abart(new.train, times[q==1], delta[q==1], x.test,
                  mc.cores=M, seed=99, ndpost=ndpost)
 
 library(qBART)
-post2 = mc.qbart(x.train, times, delta, q, x.train,
+post2 = mc.qbart(x.train, times, delta, q, new.test,
                  mc.cores=M, seed=99, ndpost=ndpost)
 
 
+Z=2
 
-
-Z=8
-
-plot(post2$yhat.train.mean, post1$yhat.train.mean, asp=1,
-     xlim=c(-Z, Z), ylim=c(-Z, Z))
+plot(post2$yhat.test.mean, post1$yhat.test.mean, asp=1)
 abline(a=0, b=1)
 
 ## plot(mu, post2$yhat.train.mean, asp=1,

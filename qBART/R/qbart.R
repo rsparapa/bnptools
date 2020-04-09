@@ -17,20 +17,22 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 qbart=function(
-               x.train, times, delta, q,
-               x.test=matrix(0,0,0), K=100,
-               type='abart', ntype=1,
+               x.train1=NULL, x.train2, times, delta,
+               x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
+               ## type='abart',
+               ntype=1,
                sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho=NULL,
-               xinfo=matrix(0,0,0), usequants=FALSE,
+               x1info=matrix(0,0,0), x2info=matrix(0,0,0),  usequants=FALSE,
                rm.const=TRUE,
                sigest=NA, sigdf=3, sigquant=0.90,
                k=2, power=2, base=0.95,
                ##sigmaf=NA,
                lambda=NA, tau.num=c(NA, 3, 6)[ntype],
                ##tau.interval=0.9973,
-               offset=NULL, w=rep(1, length(times)),
-               ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
+               ## offset=NULL,
+               w=rep(1, length(times)),
+               ntree=c(200L, 50L, 50L)[ntype], numcut1=100L, numcut2=100L,
                ndpost=1000L, nskip=100L,
                keepevery=c(1L, 10L, 10L)[ntype],
                printevery=100L, transposed=FALSE,
@@ -38,7 +40,7 @@ qbart=function(
                )
 {
 
-    if(type!='abart') stop('type must be "abart"')
+    ## if(type!='abart') stop('type must be "abart"')
     if(ntype!=1) stop('ntype must be 1')
 
     y.train=log(times)
@@ -49,50 +51,84 @@ qbart=function(
        stop("length of times and delta must be equal")
 
     delta=as.integer(delta)
-    q=as.integer(q)
+
+    ## sort data by delta; censoring obs first
+    if(length(x.train1)==0) x.train1 = x.train2
+    newd <- cbind(y.train, delta, x.train1, x.train2)
+    fulld <- newd[order(delta),]
+    y.train = fulld[, 1]
+    delta = fulld[, 2]
+    x.train1 = fulld[, 3:(2+ncol(x.train1))]
+    x.train2 = fulld[, (3+ncol(x.train1)):ncol(fulld)]
+    cn = sum(delta == 0)  #total number of censored
 
     if(!transposed) {
-        temp = bartModelMatrix(x.train, numcut, usequants=usequants,
-                               xinfo=xinfo, rm.const=rm.const)
-        x.train = t(temp$X)
-        numcut = temp$numcut
-        xinfo = temp$xinfo
+        temp1 = bartModelMatrix(x.train1, numcut1, usequants=usequants,
+                               xinfo=x1info, rm.const=rm.const)
+        x.train1 = t(temp1$X)
+        numcut1 = temp1$numcut
+        x1info = temp1$xinfo
         ## if(length(x.test)>0)
         ##     x.test = t(bartModelMatrix(x.test[ , temp$rm.const]))
-        if(length(x.test)>0) {
-            x.test = bartModelMatrix(x.test)
-            x.test = t(x.test[ , temp$rm.const])
+        temp2 = bartModelMatrix(x.train2, numcut2, usequants=usequants,
+                               xinfo=x2info, rm.const=rm.const)
+        x.train2 = t(temp2$X)
+        numcut2 = temp2$numcut
+        x2info = temp2$xinfo
+        if(length(x.test1)>0) {
+            x.test1 = bartModelMatrix(x.test1)
+            x.test1 = t(x.test1[ , temp1$rm.const])
         }
-        rm.const <- temp$rm.const
-        grp <- temp$grp
-        rm(temp)
+        if(length(x.test2)>0){
+            x.test2 = bartModelMatrix(x.test2)
+            x.test2 = t(x.test2[ , temp2$rm.const])
+        }
+        rm.const <- temp1$rm.const
+        ## grp <- temp1$grp
+        rm(c(temp1, temp2))
     }
     else {
         rm.const <- NULL
-        grp <- NULL
+        ## grp <- NULL
     }
 
-    if(n!=ncol(x.train))
+    if(n!=ncol(x.train1))
         stop('The length of times and the number of rows in x.train must be identical')
 
-    p = nrow(x.train)
-    np = ncol(x.test)
+    if(length(x.train1)==0) x.train1 = x.train2
+    if(length(x.test1)==0) x.test1 = x.test2
+    p1 = nrow(x.train1); p2 = nrow(x.train2)
+    np = ncol(x.test1)
     if(length(rho)==0) rho=p
     if(length(rm.const)==0) rm.const <- 1:p
-    if(length(grp)==0) grp <- 1:p
+    ## if(length(grp)==0) grp <- 1:p
 
-    if(length(offset)==0) {
-        offset=mean(y.train)
+    library(flexsurvcure)
+    tempd = data.frame(y=times, event=delta, x=t(x.train2))
+    formula <- paste0("meanlog(x.", 1:p2, ")", collapse = "+")
+    fit0 <- flexsurvcure(Surv(y, delta) ~ formula, data = tempd, dist = "lnorm")
+    binoffset <- 1 - fit0$res[1]  #initial guess of noncured rate
+    offset <- fit0$res[2]  #cov-adjusted center of log(times)
+    sigma <- fit0$res[3]  #initial guess of sigma
+    beta <- fit0$res[4:(3+p2)]
+
+    pb <- NULL
+    for (i in 1:n){
+        if (delta[i] == 0){
+            s <- pnorm(y.train[i], x.train2[])
+            pb <- 
+        }
     }
+    
+    q0 = rbinom(1, 1, prob = pb)
+    rm(c(tempd, fit0))
 
     if(type=='abart') {
         y.train = y.train-offset
 
         if(is.na(lambda)) {
             if(is.na(sigest)) {
-                if(p < n)
-                    sigest = summary(lm(y.train~.,
-                                        data.frame(t(x.train),y.train)))$sigma
+                if(p2 < n) sigest = sigma
                 else sigest = sd(y.train)
             }
             qchi = qchisq(1-sigquant, sigdf)
@@ -121,22 +157,28 @@ qbart=function(
     ptm <- proc.time()
 
     res = .Call("cqbart",
-                ntype, ##as.integer(factor(type, levels=check))-1,
+                ## ntype,
+                ##as.integer(factor(type, levels=check))-1,
                 n,  #number of observations in training data
-                p,  #dimension of x
+                p1,  #dimension of x1
+                p2,  #dimension of x2
                 np, #number of observations in test data
-                x.train,   #pxn training data x
-                y.train,   #pxn training data x
+                x.train1,   #pxn training data for cure status
+                x.train2,   #pxn training data for y
+                y.train,   #training data log(time)
                 delta,     ## censoring indicator
-                q,
-                x.test,    #p*np test data x
+                q0,        ##initial guess of cure status
+                x.test1,    #p*np test data for cure status
+                x.test2,    #p*np test data for y
                 ntree,
-                numcut,
+                numcut1,
+                numcut2,
                 ndpost*keepevery,
                 nskip,
                 keepevery,
                 power,
                 base,
+                binoffset,
                 offset,
                 tau,
                 sigdf,
@@ -146,13 +188,14 @@ qbart=function(
                 sparse,
                 theta,
                 omega,
-                grp,
+                ## grp,
                 a,
                 b,
                 rho,
                 augment,
                 printevery,
-                xinfo
+                x1info,
+                x2info
                 )
 
     res$proc.time <- proc.time()-ptm

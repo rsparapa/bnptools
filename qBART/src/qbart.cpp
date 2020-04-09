@@ -20,29 +20,35 @@
 #include <BART3.h>
 #include "qbart.h"
 
+
 #ifndef NoRcpp
 
 #define TRDRAW(a, b) trdraw(a, b)
 #define TEDRAW(a, b) tedraw(a, b)
 
 RcppExport SEXP cqbart(
-   SEXP _type,          //1:wbart, 2:pbart, 3:lbart
+   //SEXP _type,          //1:wbart, 2:pbart, 3:lbart
    SEXP _in,            //number of observations in training data
-   SEXP _ip,            //dimension of x
+   SEXP _ip1,            //dimension of x1
+   SEXP _ip2,            //dimension of x2
    SEXP _inp,           //number of observations in test data
-   SEXP _ix,            //x, train,  pxn (transposed so rows are contiguous in memory)
+   SEXP _ix1,            //x1, train for cure status,  pxn (transposed so rows are contiguous in memory)
+   SEXP _ix2,           //x2, train for y
    SEXP _iy,            //y, train,  nx1
    SEXP _idelta,        //censoring indicator
-   SEXP _iq,             //cure status indicator
-   SEXP _ixp,           //x, test, pxnp (transposed so rows are contiguous in memory)
+   SEXP _iq0,             //initial cure status
+   SEXP _ixp1,           //x, test1, pxnp (transposed so rows are contiguous in memory)
+   SEXP _ixp2,           //x, test2 for y
    SEXP _im,            //number of trees
-   SEXP _inc,           //number of cut points
+   SEXP _inc1,           //number of cut points for x1
+   SEXP _inc2,           //number of cut points for x2
    SEXP _ind,           //number of kept draws (except for thinnning ..)
    SEXP _iburn,         //number of burn-in draws skipped
    SEXP _ithin,         //thinning
    SEXP _ipower,
    SEXP _ibase,
-   SEXP _Offset,
+   SEXP _binaryOffset,  //center of uncured rate
+   SEXP _Offset,        //center of log(time)
    SEXP _itau,
    SEXP _inu,
    SEXP _ilambda,
@@ -51,38 +57,47 @@ RcppExport SEXP cqbart(
    SEXP _idart,         //dart prior: true(1)=yes, false(0)=no
    SEXP _itheta,
    SEXP _iomega,
-   SEXP _igrp,
+   //SEXP _igrp,
    SEXP _ia,            //param a for sparsity prior
    SEXP _ib,            //param b for sparsity prior
    SEXP _irho,          //param rho for sparsity prior (default to p)
    SEXP _iaug,          //categorical strategy: true(1)=data augment false(0)=degenerate trees
    SEXP _inprintevery,
-   SEXP _Xinfo
+   SEXP _X1info,
+   SEXP _X2info
 )
 {
    //process args
-   int type = Rcpp::as<int>(_type);
+   //int type = Rcpp::as<int>(_type);
    size_t n = Rcpp::as<int>(_in);
-   size_t p = Rcpp::as<int>(_ip);
+   size_t p1 = Rcpp::as<int>(_ip1);
+   size_t p2 = Rcpp::as<int>(_ip2);
    size_t np = Rcpp::as<int>(_inp);
-   Rcpp::NumericVector  xv(_ix);
-   double *ix = &xv[0];
+   Rcpp::NumericVector  xv1(_ix1);
+   double *ix1 = &xv1[0];
+   Rcpp::NumericVector  xv2(_ix2);
+   double *ix2 = &xv2[0];
    Rcpp::NumericVector  yv(_iy); 
    double *iy = &yv[0];
    Rcpp::IntegerVector  deltav(_idelta); 
    int *delta = &deltav[0];
-   Rcpp::IntegerVector  qv(_iq); 
-   int *q = &qv[0];
-   Rcpp::NumericVector  xpv(_ixp);
-   double *ixp = &xpv[0];
+   Rcpp::IntegerVector  qv(_iq0); 
+   int *q0 = &qv[0];
+   Rcpp::NumericVector  xpv1(_ixp1);
+   double *ixp1 = &xpv1[0];
+   Rcpp::NumericVector  xpv2(_ixp2);
+   double *ixp2 = &xpv2[0];
    size_t m = Rcpp::as<int>(_im);
-   Rcpp::IntegerVector _nc(_inc);
-   int *numcut = &_nc[0];
+   Rcpp::IntegerVector _nc1(_inc1);
+   int *numcut1 = &_nc1[0];
+   Rcpp::IntegerVector _nc2(_inc2);
+   int *numcut2 = &_nc2[0];
    size_t nd = Rcpp::as<int>(_ind);
    size_t burn = Rcpp::as<int>(_iburn);
    size_t thin = Rcpp::as<int>(_ithin);
    double mybeta = Rcpp::as<double>(_ipower);
    double alpha = Rcpp::as<double>(_ibase);
+   double binaryOffset = Rcpp::as<double>(_binaryOffset);
    double Offset = Rcpp::as<double>(_Offset);
    double tau = Rcpp::as<double>(_itau);
    double nu = Rcpp::as<double>(_inu);
@@ -101,15 +116,18 @@ RcppExport SEXP cqbart(
    else aug=false;
    double theta = Rcpp::as<double>(_itheta);
    double omega = Rcpp::as<double>(_iomega);
-   Rcpp::IntegerVector _grp(_igrp);
-   int *grp = &_grp[0];
+   //Rcpp::IntegerVector _grp(_igrp);
+   //int *grp = &_grp[0];
    size_t nkeeptrain = nd/thin;     //Rcpp::as<int>(_inkeeptrain);
    size_t nkeeptest = nd/thin;      //Rcpp::as<int>(_inkeeptest);
    size_t nkeeptreedraws = nd/thin; //Rcpp::as<int>(_inkeeptreedraws);
    size_t printevery = Rcpp::as<int>(_inprintevery);
-   Rcpp::NumericMatrix varprb(nkeeptreedraws,p);
-   Rcpp::IntegerMatrix varcnt(nkeeptreedraws,p);
-   Rcpp::NumericMatrix Xinfo(_Xinfo);
+   Rcpp::NumericMatrix varprb1(nkeeptreedraws,p1);
+   Rcpp::IntegerMatrix varcnt1(nkeeptreedraws,p1);
+   Rcpp::NumericMatrix varprb2(nkeeptreedraws,p2);
+   Rcpp::IntegerMatrix varcnt2(nkeeptreedraws,p2);
+   Rcpp::NumericMatrix X1info(_X1info);
+   Rcpp::NumericMatrix X2info(_X2info);
    Rcpp::NumericVector sdraw(nd+burn);
    Rcpp::NumericMatrix trdraw(nkeeptrain,n);
    Rcpp::NumericMatrix tedraw(nkeeptest,np);
@@ -117,16 +135,30 @@ RcppExport SEXP cqbart(
    //random number generation
    arn gen;
 
-   qbart bm(m);
+   //probit BART for cure status
+   bart bm1(m);
 
-   if(Xinfo.size()>0) {
-     xinfo _xi;
-     _xi.resize(p);
-     for(size_t i=0;i<p;i++) {
-       _xi[i].resize(numcut[i]);
-       for(size_t j=0;j<numcut[i];j++) _xi[i][j]=Xinfo(i, j);
+   if(X1info.size()>0) {
+     xinfo _x1i;
+     _x1i.resize(p1);
+     for(size_t i=0;i<p1;i++) {
+       _x1i[i].resize(numcut1[i]);
+       for(size_t j=0;j<numcut1[i];j++) _x1i[i][j]=X1info(i, j);
      }
-     bm.setxinfo(_xi);
+     bm1.setxinfo(_x1i);
+   }
+
+   //log-normal BART for y
+   qbart bm2(m);
+
+   if(X2info.size()>0) {
+     xinfo _x2i;
+     _x2i.resize(p2);
+     for(size_t i=0;i<p2;i++) {
+       _x2i[i].resize(numcut2[i]);
+       for(size_t j=0;j<numcut2[i];j++) _x2i[i][j]=X2info(i, j);
+     }
+     bm2.setxinfo(_x2i);
    }
 #else
 
@@ -134,22 +166,27 @@ RcppExport SEXP cqbart(
 #define TEDRAW(a, b) tedraw[a][b]
 
 void cqbart(
-   int type,            //1:wbart, 2:pbart, 3:lbart
+   //int type,            //1:wbart, 2:pbart, 3:lbart
    size_t n,            //number of observations in training data
-   size_t p,		//dimension of x
+   size_t p1,		//dimension of x1
+   size_t p2,           //dimension of x2
    size_t np,		//number of observations in test data
-   double* ix,		//x, train,  pxn (transposed so rows are contiguous in memory)
+   double* ix1,		//x1, train for cure status,  pxn (transposed so rows are contiguous in memory)
+   double* ix2,         //x2, train for y
    double* iy,		//y, train,  nx1
    int* delta,          //censoring indicator
-   int* q,              //cure status indicator
-   double* ixp,		//x, test, pxnp (transposed so rows are contiguous in memory)
+   int* q0,              //initial cure status
+   double* ixp1,		//x, test1, pxnp (transposed so rows are contiguous in memory)
+   double* ixp2,           //x, test2 for y
    size_t m,		//number of trees
-   int *numcut,		//number of cut points
+   int *numcut1,		//number of cut points for x1
+   int* numcut2,           //number of cut points for x2
    size_t nd,		//number of kept draws (except for thinnning ..)
    size_t burn,		//number of burn-in draws skipped
    size_t thin,		//thinning
    double mybeta,
    double alpha,
+   double binaryOffset,
    double Offset,
    double tau,
    double nu,
@@ -159,10 +196,10 @@ void cqbart(
    bool dart,           //dart prior: true(1)=yes, false(0)=no   
    double theta,
    double omega, 
-   int* grp,
-   double a,		//param a for sparsity prior                                          
-   double b,		//param b for sparsity prior                                          
-   double rho,		//param rho for sparsity prior (default to p)                         
+   //int* grp,
+   double a,		//param a for sparsity prior   
+   double b,		//param b for sparsity prior          
+   double rho,		//param rho for sparsity prior (default to p)   
    bool aug,		//categorical strategy: true(1)=data augment false(0)=degenerate trees
 //   size_t nkeeptrain, //   size_t nkeeptest, //   size_t nkeeptreedraws,
    size_t printevery,
@@ -182,20 +219,23 @@ void cqbart(
    for(size_t i=0; i<nkeeptest; ++i) tedraw[i]=&_tedraw[i*np];
 
    //matrix to return dart posteriors (counts and probs)
-   std::vector< std::vector<size_t> > varcnt;
-   std::vector< std::vector<double> > varprb;
+   std::vector< std::vector<size_t> > varcnt1;
+   std::vector< std::vector<double> > varprb1;
+   std::vector< std::vector<size_t> > varcnt2;
+   std::vector< std::vector<double> > varprb2;
 
    //random number generation
    arn gen(n1, n2);
 
-   qbart bm(m);
+   bart bm1(m);
+   qbart bm2(m);
 #endif
 
    std::stringstream treess;  //string stream to write trees to
    treess.precision(10);
    treess << nkeeptreedraws << " " << m << " " << p << endl;
 
-   printf("*****Calling abart: type=%d\n", type);
+   printf("*****Calling qbart: \n");
 
    size_t skiptr=thin, skipte=thin, skiptreedraws=thin;
 /*
@@ -211,22 +251,25 @@ void cqbart(
    //--------------------------------------------------
    //print args
    printf("*****Data:\n");
-   printf("data:n,p,np: %zu, %zu, %zu\n",n,p,np);
+   printf("data:n,p1,p2,np: %zu, %zu, %zu, %zu\n",n,p1,p2,np);
    printf("y1,yn: %lf, %lf\n",iy[0],iy[n-1]);
-   printf("x1,x[n*p]: %lf, %lf\n",ix[0],ix[n*p-1]);
-   if(np) printf("xp1,xp[np*p]: %lf, %lf\n",ixp[0],ixp[np*p-1]);
+   printf("x11,x1[n*p1]: %lf, %lf\n",ix1[0],ix1[n*p1-1]);
+   printf("x21,x2[n*p2]: %lf, %lf\n",ix2[0],ix2[n*p2-1]);
+   if(np1) printf("xp11,xp1[np*p1]: %lf, %lf\n",ixp1[0],ixp1[np*p1-1]);
+   if(np2) printf("xp21,xp2[np*p2]: %lf, %lf\n",ixp2[0],ixp2[np*p2-1]);
    printf("*****Number of Trees: %zu\n",m);
-   printf("*****Number of Cut Points: %d ... %d\n", numcut[0], numcut[p-1]);
+   printf("*****Number of Cut Points for BART1: %d ... %d\n", numcut1[0], numcut1[p1-1]);
+   printf("*****Number of Cut Points for BART2: %d ... %d\n", numcut2[0], numcut2[p2-1]);
    printf("*****burn,nd,thin: %zu,%zu,%zu\n",burn,nd,thin);
 // printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
 //                    mybeta,alpha,tau,nu,lambda,Offset);
    cout << "*****Prior:beta,alpha,tau,nu,lambda,offset: " 
 	<< mybeta << ',' << alpha << ',' << tau << ',' 
         << nu << ',' << lambda << ',' << Offset << endl;
-if(type==1) {
-   printf("*****sigma: %lf\n",sigma);
-   printf("*****w (weights): %lf ... %lf\n",iw[0],iw[n-1]);
-}
+//if(type==1) {
+//   printf("*****sigma: %lf\n",sigma);
+//   printf("*****w (weights): %lf ... %lf\n",iw[0],iw[n-1]);
+//}
    cout << "*****Dirichlet:sparse,theta,omega,a,b,rho,augment: " 
 	<< dart << ',' << theta << ',' << omega << ',' << a << ',' 
 	<< b << ',' << rho << ',' << aug << endl;
@@ -236,33 +279,39 @@ if(type==1) {
    //--------------------------------------------------
    //create temporaries
    double df=n+nu;
-   double *z = new double[n]; 
+   double *z1 = new double[n];
+   double *z2 = new double[n];
+   int *q = new int[n];
+   double *pz1 = new double[n];
+   double *pt = new double[n];
    //double *svec = new double[n]; 
    
-   double *sign;
-   if(type!=1) sign = new double[n]; 
+   //double *sign;
+   //if(type!=1) sign = new double[n]; 
 
-   for(size_t i=0; i<n; i++) {
-     if(type==1) {
-       //svec[i] = iw[i]*sigma; 
-       z[i]=iy[i]; 
-     }
-     else {
-       //svec[i] = 1.;
-       if(iy[i]==0) sign[i] = -1.;
-       else sign[i] = 1.;
-       z[i] = sign[i];
-     }
+   for(size_t k=0; k<n; k++) {
+     //if(delta[k]==0) z1[k] = -rtnorm(0., binaryOffset, 1., gen);
+     z1[k] = rtnorm(0., -binaryOffset, 1., gen);
+     z2[k] = iy[k]; 
+     q[k] = 
    }
    //--------------------------------------------------
-   //set up BART model
-   bm.setprior(alpha,mybeta,tau);
-   bm.setdata(p,n,ix,z,q,numcut);
-   bm.setdart(a,b,rho,aug,dart);
+   //set up BART1 model
+   bm1.setprior(alpha,mybeta,tau);
+   bm1.setdata(p1,n,ix1,z1,numcut1);
+   bm1.setdart(a,b,rho,aug,dart);
+
+   
+   //set up BART2 model
+   bm2.setprior(alpha,mybeta,tau);
+   bm2.setdata(p2,n,ix2,z2,q,numcut2);
+   bm2.setdart(a,b,rho,aug,dart);
 
    // dart iterations
-   std::vector<double> ivarprb (p,0.);
-   std::vector<size_t> ivarcnt (p,0);
+   std::vector<double> ivarprb1 (p,0.);
+   std::vector<size_t> ivarcnt1 (p,0);
+   std::vector<double> ivarprb2 (p,0.);
+   std::vector<size_t> ivarcnt2 (p,0);
    //--------------------------------------------------
    //temporary storage
    //out of sample fit
@@ -279,34 +328,49 @@ if(type==1) {
 
    time_t tp;
    int time1 = time(&tp), total=nd+burn;
-   xinfo& xi = bm.getxinfo();
+   xinfo& xi1 = bm1.getxinfo();
 
    for(size_t i=0;i<total;i++) {
-      if(i%printevery==0) printf("done %zu (out of %lu)\n",i,nd+burn);
+      if(i%printevery==0) printf("done %zu (out of %lu)\n",i,total);
       //if(i%printevery==0) printf("%22zu/%zu\r",i,total);
-      if(i==(burn/2)&&dart) bm.startdart();
-      //draw bart
-      bm.draw(sigma,gen);
+      if(i==(burn/2)&&dart) bm1.startdart();
+      //draw bart1
+      
+      bm2.draw(sigma, gen);
+      bm1.draw(1.,gen);
 
-      if(type==1) {
+      for (size_t k=0; k<n; k++){
+	if (q[k]==0) z1[k] = -rtnorm(-bm1.f(k), binaryOffset, 1., gen);
+	else {
+	  z1[k] = rtnorm(bm1.f(k), -binaryOffset, 1., gen);
+	}
+	#ifndef NoRcpp
+	pz1[k] = R::pnorm(z1[k]+binaryOffset,0,1,1,0);
+	#else
+	pz1[k] = ::pnorm(z1[k]+binaryOffset,0,1,1,0);
+	#endif
+	if (delta[k]==0) pt[k] = pt[k]*
+      }
+
+      //if(type==1) {
       //draw sigma
 	double rss=0.;
 	for(size_t k=0;k<n;k++) rss += pow((iy[k]-bm.f(k))/(iw[k]), 2.); 
 	sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
 	sdraw[i]=sigma;
-      }
+      //}
 
-      for(size_t k=0; k<n; k++) {
-	if(type==1) {
+      //for(size_t k=0; k<n; k++) {
+	//if(type==1) {
 	  //svec[k]=iw[k]*sigma;
 	  if(delta[k]==0) z[k]= rtnorm(bm.f(k), iy[k], sigma, gen);
-	}
-	else {
-	  z[k]= sign[k]*rtnorm(sign[k]*bm.f(k), -sign[k]*Offset, sigma, gen);
+	//}
+	//else {
+	  //z[k]= sign[k]*rtnorm(sign[k]*bm.f(k), -sign[k]*Offset, sigma, gen);
 	  //if(type==3) 
 	    //svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), sign[k]*bm.f(k), 1000, 1, gen));
-	  }
-      }
+	  //}
+      //}
       if(i>=burn) {
          if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {
             for(size_t k=0;k<n;k++) TRDRAW(trcnt,k)=Offset+bm.f(k);
