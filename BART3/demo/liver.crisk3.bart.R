@@ -41,12 +41,12 @@ dimnames(x.test)[[2]] <- dimnames(x.train)[[2]]
 
 ## run one long MCMC chain in one process
 ## set.seed(99)
-post <- crisk3.bart(x.train=x.train, times=times, delta=delta, x.test=x.test)
+## post <- crisk3.bart(x.train=x.train, times=times, delta=delta, x.test=x.test)
 
 ## in the interest of time, consider speeding it up by parallel processing
 ## run "mc.cores" number of shorter MCMC chains in parallel processes
-## post <- mc.crisk3.bart(x.train=x.train, times=times, delta=delta,
-##                       x.test=x.test, seed=99, mc.cores=B)
+post <- mc.crisk3.bart(x.train=x.train, times=times, delta=delta,
+                       x.test=x.test, seed=99, mc.cores=B)
 
 K <- post$K
 
