@@ -35,7 +35,7 @@ gbart=function(
                ndpost=1000L, nskip=100L,
                keepevery=c(1L, 10L, 10L)[ntype],
                printevery=100L, transposed=FALSE,
-               keeptestfits = NULL,
+               ##keeptestfits = NULL,
                hostname=FALSE,
                mc.cores = 1L, nice = 19L, seed = 99L
                )
@@ -161,11 +161,11 @@ gbart=function(
 
     ## if(hotdeck) ## warnings are suppressed with mc.gbart anyways
     ##     warning('missing elements of x imputed with hot decking')
-    
+
     if(.Platform$OS.type!='unix') hostname <- FALSE
     else if(hostname)
         hostname <- system('hostname', intern=TRUE)
-    
+
     ptm <- proc.time()
 
     res = .Call("cgbart",
@@ -226,12 +226,13 @@ gbart=function(
     min.log.pdf=t(matrix(apply(log.pdf, 2, min), nrow=n, ncol=ndpost))
     log.CPO=log(ndpost)+min.log.pdf[1, ]-
         log(apply(exp(min.log.pdf-log.pdf), 2, sum))
-    res$LPML=sum(log.CPO) 
-    ##res$CPO=exp(log.CPO) 
+    res$LPML=sum(log.CPO)
+    ##res$CPO=exp(log.CPO)
     ##res$LPML=sum(log(CPO))
 
-    if(length(keeptestfits)==0) keeptestfits <- (np>0)
-    
+    keeptestfits <- (np>0)
+    ##if(length(keeptestfits)==0) keeptestfits <- (np>0)
+
     if(keeptestfits) {
         if(type=='wbart')
             res$yhat.test.mean <- apply(res$yhat.test, 2, mean)

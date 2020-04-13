@@ -36,7 +36,7 @@ gbart(
       ndpost=1000L, nskip=100L, %keepevery=1L,
       keepevery=c(1L, 10L, 10L)[ntype],
       printevery=100L, transposed=FALSE,
-      keeptestfits=NULL,
+      %keeptestfits=NULL,
       hostname=FALSE,
       mc.cores = 1L, ## mc.gbart only
       nice = 19L,    ## mc.gbart only
@@ -62,7 +62,7 @@ mc.gbart(
          ndpost=1000L, nskip=100L, %keepevery=1L,
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
-         keeptestfits=NULL,
+         %keeptestfits=NULL,
          hostname=FALSE,
          mc.cores = 2L, nice = 19L, seed = 99L
 )
@@ -228,10 +228,10 @@ argument \code{type} to specify a logit BART model.
    calling \code{mc.gbart}.
  }
 
-   \item{keeptestfits}{
-     Only needed in edge cases such as when \code{gbart} is being
-     called from \code{crisk3.bart} with no covariates besides time.
-   }
+   %% \item{keeptestfits}{
+   %%   Only needed in edge cases such as when \code{gbart} is being
+   %%   called from \code{crisk3.bart} with no covariates besides time.
+   %% }
    
  \item{hostname}{
    When running on a cluster occasionally it is useful

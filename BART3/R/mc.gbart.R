@@ -37,7 +37,7 @@ mc.gbart <- function(
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
-                     keeptestfits = NULL,
+                     ##keeptestfits = NULL,
                      hostname=FALSE,
                      mc.cores = 2L, nice = 19L, seed = 99L
                      )
@@ -83,7 +83,8 @@ mc.gbart <- function(
 
     mc.ndpost <- ceiling(ndpost/mc.cores)
 
-    if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
+    keeptestfits <- (length(x.test)>0)
+    ##if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
 
     for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);
@@ -102,7 +103,7 @@ mc.gbart <- function(
                   w=w, ntree=ntree, numcut=numcut,
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery, printevery=printevery,
-                  transposed=TRUE, keeptestfits=keeptestfits,
+                  transposed=TRUE, ##keeptestfits=keeptestfits,
                   hostname=hostname)},
             silent=(i!=1))
         ## to avoid duplication of output
@@ -134,10 +135,10 @@ mc.gbart <- function(
         ##keeptest <- length(x.test)>0
 
         if(type=='wbart') sigma <- post$sigma[-(1:nskip)]
-        
+
         for(i in 2:mc.cores) {
             post$hostname[i] <- post.list[[i]]$hostname
-            
+
             post$yhat.train <- rbind(post$yhat.train,
                                      post.list[[i]]$yhat.train)
 
@@ -166,17 +167,17 @@ mc.gbart <- function(
                     post$proc.time[j] <-
                         post$proc.time[j]+post.list[[i]]$proc.time[j]
         }
-        
+
         n=length(y.train)
         Y=t(matrix(y.train, nrow=n, ncol=post$ndpost))
-        
+
         if(type=='wbart') {
             post$yhat.train.mean <- apply(post$yhat.train, 2, mean)
             SD=matrix(sigma, nrow=post$ndpost, ncol=n)
             ##CPO=1/apply(1/dnorm(Y, post$yhat.train, SD), 2, mean)
             log.pdf=dnorm(Y, post$yhat.train, SD, TRUE)
             post$sigma.mean=mean(SD[ , 1])
-            
+
             if(keeptestfits)
                 post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
         } else {
@@ -193,7 +194,7 @@ mc.gbart <- function(
         log.CPO=log(post$ndpost)+min.log.pdf[1, ]-
             log(apply(exp(min.log.pdf-log.pdf), 2, sum))
 
-        post$LPML=sum(log.CPO) 
+        post$LPML=sum(log.CPO)
         ##post$LPML=sum(log(CPO))
 
         post$varcount.mean <- apply(post$varcount, 2, mean)

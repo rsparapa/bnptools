@@ -36,7 +36,7 @@ mc.crisk3.bart <- function(
     ntree = 50L, numcut = 100L,
     ndpost = 1000L, nskip = 250L,
     keepevery = 10L, printevery=100L,
-    keeptestfits = NULL,
+    ## keeptestfits = NULL,
     id = NULL,
     seed=99,    ## mc.crisk3.bart only
     mc.cores=2, ## mc.crisk3.bart only
@@ -58,7 +58,7 @@ mc.crisk3.bart <- function(
 
     H <- 1
     Mx <- 2^31-1
-    
+
     if(length(y.train)==0) {
         pre <- crisk3.pre.bart(times, delta, x.train, x.test,
                               x.train2, x.test2, x.train3, x.test3,
@@ -66,10 +66,12 @@ mc.crisk3.bart <- function(
         if(class(rm.const)[1]=='logical') p <- ncol(pre$tx.train)
         else p <- ncol(pre$tx.train[ , post$rm.const])
         Nx <- 2*max(nrow(pre$tx.train), nrow(pre$tx.test))
+        keeptestfits <- (length(pre$tx.test)>0)
     } else {
         if(class(rm.const)[1]=='logical') p <- ncol(x.train)
         else p <- ncol(x.train[ , post$rm.const])
         Nx <- 2*max(nrow(x.train), nrow(x.test))
+        keeptestfits <- (length(x.test)>0)
     }
 
     if(Nx>Mx%/%ndpost) {
@@ -90,8 +92,8 @@ mc.crisk3.bart <- function(
 
     mc.ndpost <- ceiling(ndpost/mc.cores)
 
-    if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
- 
+    ##if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
+
     post.list <- list()
 
     for(h in 1:H) {
@@ -113,8 +115,8 @@ mc.crisk3.bart <- function(
                          offset=offset, offset2=offset2, offset3=offset3,
                          tau.num=tau.num, ntree=ntree, numcut=numcut,
                          ndpost=mc.ndpost, nskip=nskip, id=id,
-                         keepevery = keepevery, printevery=printevery,
-                         keeptestfits = keeptestfits)},
+                         keepevery = keepevery, printevery=printevery)},
+                         ## keeptestfits = keeptestfits,
               silent=(i!=1))
               ## to avoid duplication of output
               ## capture stdout from first posterior only

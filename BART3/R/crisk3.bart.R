@@ -32,11 +32,11 @@ crisk3.bart <- function(
     k = 2, ## BEWARE: do NOT use k for other purposes below
     power = 2, base = 0.95,
     offset = NULL, offset2 = NULL, offset3 = NULL,
-    tau.num=c(NA, 3, 6)[ntype], 
+    tau.num=c(NA, 3, 6)[ntype],
     ntree = 50L, numcut = 100L,
     ndpost = 1000L, nskip = 250L,
     keepevery = 10L, printevery=100L,
-    keeptestfits = NULL,
+    ##keeptestfits = NULL,
     id = NULL,
     seed=99,    ## mc.crisk.bart only
     mc.cores=2, ## mc.crisk.bart only
@@ -53,7 +53,7 @@ crisk3.bart <- function(
     x.train <- bartModelMatrix(x.train)
     x.test <- bartModelMatrix(x.test)
 
-    if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
+    ##if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
     if(length(rho)==0) rho=ncol(x.train)
     if(length(rho2)==0) rho2=ncol(x.train2)
     if(length(rho3)==0) rho3=ncol(x.train3)
@@ -91,6 +91,8 @@ crisk3.bart <- function(
         times <- unique(sort(x.train[ , 1]))
         K     <- length(times)
     }
+
+    keeptestfits <- (length(x.test)>0)
 
     if(length(xinfo)==0) {
         temp = bartModelMatrix(x.train3[cond2, ], numcut, usequants=usequants,
@@ -154,8 +156,8 @@ crisk3.bart <- function(
                   ndpost=ndpost, nskip=nskip,
                   keepevery=keepevery,
                   printevery=printevery,
-                  transposed=transposed,
-                  keeptestfits=keeptestfits) 
+                  transposed=transposed)
+                  ##keeptestfits=keeptestfits
 
     if(type!=attr(post, 'class')) return(post)
 
@@ -171,8 +173,8 @@ crisk3.bart <- function(
                    ndpost=ndpost, nskip=nskip,
                    keepevery=keepevery,
                    printevery=printevery,
-                   transposed=transposed,
-                  keeptestfits=keeptestfits) 
+                   transposed=transposed)
+                  ##keeptestfits=keeptestfits
 
     if(type!=attr(post2, 'class')) return(post2)
 
@@ -188,8 +190,8 @@ crisk3.bart <- function(
                    ndpost=ndpost, nskip=nskip,
                    keepevery=keepevery,
                    printevery=printevery,
-                   transposed=transposed,
-                  keeptestfits=keeptestfits) 
+                   transposed=transposed)
+                  ##keeptestfits=keeptestfits
 
     if(type!=attr(post3, 'class')) return(post3)
 
@@ -223,7 +225,7 @@ crisk3.bart <- function(
     post$varcount3.mean <- post3$varcount.mean
     post$varprob3 <- post3$varprob
     post$varprob3.mean <- post3$varprob.mean
-    
+
     post$rm.const <- rm.const
     post$rm.const2 <- rm.const2
     post$rm.const3 <- rm.const3
