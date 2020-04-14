@@ -54,7 +54,7 @@ mc.crisk3.bart <- function(
         stop("type argument must be set to either 'pbart' or 'lbart'")
 
     ## handling rm.const bug by turning it off unless explicitly set
-    if(class(rm.const)[1]=='logical') rm.const <- FALSE
+    ## if(class(rm.const)[1]=='logical') rm.const <- FALSE
 
     H <- 1
     Mx <- 2^31-1
@@ -63,13 +63,15 @@ mc.crisk3.bart <- function(
         pre <- crisk3.pre.bart(times, delta, x.train, x.test,
                               x.train2, x.test2, x.train3, x.test3,
                               K=K, events=events)
-        if(class(rm.const)[1]=='logical') p <- ncol(pre$tx.train)
-        else p <- ncol(pre$tx.train[ , post$rm.const])
+        ## if(class(rm.const)[1]=='logical' && !rm.const) p <- ncol(pre$tx.train)
+        ## else p <- ncol(pre$tx.train[ , rm.const])
+        ## p <- ncol(pre$tx.train)
         Nx <- 2*max(nrow(pre$tx.train), nrow(pre$tx.test))
         keeptestfits <- (length(pre$tx.test)>0)
     } else {
-        if(class(rm.const)[1]=='logical') p <- ncol(x.train)
-        else p <- ncol(x.train[ , post$rm.const])
+        ## if(class(rm.const)[1]=='logical' && !rm.const) p <- ncol(x.train)
+        ## else p <- ncol(x.train[ , rm.const])
+        ## p <- ncol(x.train)
         Nx <- 2*max(nrow(x.train), nrow(x.test))
         keeptestfits <- (length(x.test)>0)
     }
@@ -128,6 +130,7 @@ mc.crisk3.bart <- function(
     if((H==1 & mc.cores==1) | attr(post.list[[1]][[1]], 'class')!='crisk3bart')
         return(post.list[[1]][[1]])
     else {
+        p <- ncol(post.list[[1]][[1]]$tx.train)
         for(h in 1:H) for(i in mc.cores:1) {
             if(h==1 & i==mc.cores) {
                 post <- post.list[[1]][[mc.cores]]

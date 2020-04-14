@@ -1,5 +1,7 @@
-Changes and New Features in 3.5 (2020-04-09):
-	* fixing bugs in crisk3.bart
+Changes and New Features in 3.5 (2020-04-14):
+	* fixing bugs in crisk3.bart, mc.crisk3.bart and gbart
+	most of these revolve around rm.const and its misuse
+	there is a possibility that these issues exist elsewhere
 
 Changes and New Features in 3.4 (2020-01-27):
 	* removing our early, naive version of gbmm from the NAMESPACE

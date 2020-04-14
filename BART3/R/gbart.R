@@ -54,8 +54,9 @@ gbart=function(
         ## if(length(x.test)>0)
         ##     x.test = t(bartModelMatrix(x.test[ , temp$rm.const]))
         if(length(x.test)>0) {
-            x.test = bartModelMatrix(x.test)
-            x.test = t(x.test[ , temp$rm.const])
+            x.test = t(bartModelMatrix(x.test))
+            if(class(rm.const)[1]=='logical' && rm.const)
+                x.test = x.test[temp$rm.const, ]
         }
         rm.const <- temp$rm.const
         grp <- temp$grp
@@ -71,6 +72,10 @@ gbart=function(
 
     p = nrow(x.train)
     np = ncol(x.test)
+
+    if(np>0 && p!=nrow(x.test))
+        stop('The number of columns in x.train and x.test must be identical')
+
     if(length(rho)==0) rho=p
     if(length(rm.const)==0) rm.const <- 1:p
     if(length(grp)==0) grp <- 1:p

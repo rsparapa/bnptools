@@ -101,10 +101,11 @@ crisk3.bart <- function(
         numcut3 = temp$numcut
         xinfo3 = temp$xinfo
         if(length(x.test3)>0) {
-            x.test3 = bartModelMatrix(x.test3)
-            x.test3 = t(x.test3[ , temp$rm.const])
+            x.test3 = t(bartModelMatrix(x.test3))
+            if(class(rm.const)[1]=='logical' && rm.const)
+                x.test3 = x.test3[temp$rm.const, ]
         }
-        rm.const3 <- temp$rm.const
+        ##rm.const3 <- temp$rm.const
         rm(temp)
 
         temp = bartModelMatrix(x.train2[cond, ], numcut, usequants=usequants,
@@ -113,10 +114,11 @@ crisk3.bart <- function(
         numcut2 = temp$numcut
         xinfo2 = temp$xinfo
         if(length(x.test2)>0) {
-            x.test2 = bartModelMatrix(x.test2)
-            x.test2 = t(x.test2[ , temp$rm.const])
+            x.test2 = t(bartModelMatrix(x.test2))
+            if(class(rm.const)[1]=='logical' && rm.const)
+                x.test2 = x.test2[temp$rm.const, ]
         }
-        rm.const2 <- temp$rm.const
+        ##rm.const2 <- temp$rm.const
         rm(temp)
 
         temp = bartModelMatrix(x.train, numcut, usequants=usequants,
@@ -125,10 +127,11 @@ crisk3.bart <- function(
         numcut = temp$numcut
         xinfo = temp$xinfo
         if(length(x.test)>0) {
-            x.test = bartModelMatrix(x.test)
-            x.test = t(x.test[ , temp$rm.const])
+            x.test = t(bartModelMatrix(x.test))
+            if(class(rm.const)[1]=='logical' && rm.const)
+                x.test = x.test[temp$rm.const, ]
         }
-        rm.const <- temp$rm.const
+        ##rm.const <- temp$rm.const
         rm(temp)
 
         xinfo2[1, ] <- xinfo[1, ] ## same time grid
@@ -138,9 +141,9 @@ crisk3.bart <- function(
     else {
         x.train3=as.matrix(x.train3[cond2, ])
         x.train2=as.matrix(x.train2[cond, ])
-        rm.const <- 1:ncol(x.train)
-        rm.const2 <- 1:ncol(x.train2)
-        rm.const3 <- 1:ncol(x.train3)
+        ##rm.const <- 1:ncol(x.train)
+        ##rm.const2 <- 1:ncol(x.train2)
+        ##rm.const3 <- 1:ncol(x.train3)
         transposed <- FALSE
     }
 
@@ -227,8 +230,8 @@ crisk3.bart <- function(
     post$varprob3.mean <- post3$varprob.mean
 
     post$rm.const <- rm.const
-    post$rm.const2 <- rm.const2
-    post$rm.const3 <- rm.const3
+    ## post$rm.const2 <- rm.const2
+    ## post$rm.const3 <- rm.const3
     post$yhat.train <- NULL
     post$yhat.train.mean <- NULL
 
