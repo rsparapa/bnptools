@@ -109,7 +109,7 @@ qbart=function(
     library(flexsurvcure)
     tempd = data.frame(y=times, event=delta, x=t(x.train2))
     formula <- paste0("meanlog(x.", 1:p2, ")", collapse = "+")
-    fit0 <- flexsurvcure(Surv(y, delta) ~ formula, data = tempd, dist = "lnorm")
+    fit0 <- flexsurvcure::flexsurvcure(Surv(y, delta) ~ formula, data = tempd, dist = "lnorm")
     binoffset <- 1 - fit0$res[1]  #initial guess of noncured rate
     offset <- fit0$res[2]  #cov-adjusted center of log(times)
     sigma <- fit0$res[3]  #initial guess of sigma
@@ -128,37 +128,25 @@ qbart=function(
     q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
     rm(c(tempd, fit0))
 
-    if(type=='abart') {
-        y.train = y.train-offset
-
-        if(is.na(lambda)) {
-            if(is.na(sigest)) {
-                if(p2 < n) sigest = sigma
-                else sigest = sd(y.train)
-            }
-            qchi = qchisq(1-sigquant, sigdf)
-            lambda = (sigest^2)*qchi/sigdf #lambda parameter for sigma prior
-        } else {
-            sigest=sqrt(lambda)
+    ## y.train = y.train-offset
+    
+    if(is.na(lambda)) {
+        if(is.na(sigest)) {
+            if(p2 < n) sigest = sigma
+            else sigest = sd(y.train)
         }
-
-        if(is.na(tau.num)) {
-            tau=(max(y.train)-min(y.train))/(2*k*sqrt(ntree))
-        } else {
-            tau=tau.num/(k*sqrt(ntree))
-        }
+        qchi = qchisq(1-sigquant, sigdf)
+        lambda = (sigest^2)*qchi/sigdf #lambda parameter for sigma prior
     } else {
-        lambda=1
-        sigest=1
-        tau=tau.num/(k*sqrt(ntree))
-        ## tau=1-tau.interval
-
-        ## if(type=='pbart')
-        ##     tau=qnorm(1-0.5*tau)/(k*sqrt(ntree))
-        ## else if(type=='lbart')
-        ##     tau=qlogis(1-0.5*tau)/(k*sqrt(ntree))
+        sigest=sqrt(lambda)
     }
-
+    
+    if(is.na(tau.num)) {
+        tau=(max(y.train)-min(y.train))/(2*k*sqrt(ntree))
+    } else {
+        tau=tau.num/(k*sqrt(ntree))
+    }
+    
     ptm <- proc.time()
 
     res = .Call("cqbart",
@@ -206,71 +194,56 @@ qbart=function(
 
     res$proc.time <- proc.time()-ptm
 
-    K <- min(n, K)
-    events=unique(sort(times))
-    if(length(events)>K) {
-        events <- unique(quantile(times, probs=(1:K)/K))
-        attr(events, 'names') <- NULL
-    }
-    K <- length(events)
+    ## K <- min(n, K)
+    ## events=unique(sort(times))
+    ## if(length(events)>K) {
+    ##     events <- unique(quantile(times, probs=(1:K)/K))
+    ##     attr(events, 'names') <- NULL
+    ## }
+    ## K <- length(events)
 
-    if(type=='abart') {
-        res$surv.train <- matrix(nrow=ndpost, ncol=n*K)
+    ## res$surv.train <- matrix(nrow=ndpost, ncol=n*K)
+    
+    ## for(i in 1:n)
+    ##     for(j in 1:K) {
+    ##         h <- (i-1)*K+j
+    ##         res$surv.train[ , h] <-
+    ##             pnorm(log(events[j]),
+    ##                   mean=res$yhat.train[ , i],
+    ##                   sd=res$sigma[-(1:nskip)],
+    ##                   lower.tail=FALSE)
+    ##     }
+    
+    ## res$yhat.train.mean <- apply(res$yhat.train, 2, mean)
+    ## res$surv.train.mean <- apply(res$surv.train, 2, mean)
+    
+    ## if(np>0) {
+    ##     res$surv.test <- matrix(nrow=ndpost, ncol=np*K)
 
-        for(i in 1:n)
-            for(j in 1:K) {
-                h <- (i-1)*K+j
-                res$surv.train[ , h] <-
-                    pnorm(log(events[j]),
-                          mean=res$yhat.train[ , i],
-                          sd=res$sigma[-(1:nskip)],
-                          lower.tail=FALSE)
-            }
+    ##     for(i in 1:np)
+    ##         for(j in 1:K) {
+    ##             h <- (i-1)*K+j
+    ##             res$surv.test[ , h] <-
+    ##                 pnorm(log(events[j]),
+    ##                       mean=res$yhat.test[ , i],
+    ##                       sd=res$sigma[-(1:nskip)],
+    ##                       lower.tail=FALSE)
+    ##         }
+        
+    ##     res$yhat.test.mean <- apply(res$yhat.test, 2, mean)
+    ##     res$surv.test.mean <- apply(res$surv.test, 2, mean)
+        
+    ## }
 
-        res$yhat.train.mean <- apply(res$yhat.train, 2, mean)
-        res$surv.train.mean <- apply(res$surv.train, 2, mean)
-    }
-    else {
-        if(type=='pbart') res$prob.train = pnorm(res$yhat.train)
-        else if(type=='lbart') res$prob.train = plogis(res$yhat.train)
-
-        res$prob.train.mean <- apply(res$prob.train, 2, mean)
-    }
-
-    if(np>0) {
-        if(type=='abart') {
-            res$surv.test <- matrix(nrow=ndpost, ncol=np*K)
-
-            for(i in 1:np)
-                for(j in 1:K) {
-                    h <- (i-1)*K+j
-                    res$surv.test[ , h] <-
-                        pnorm(log(events[j]),
-                              mean=res$yhat.test[ , i],
-                              sd=res$sigma[-(1:nskip)],
-                              lower.tail=FALSE)
-                }
-
-            res$yhat.test.mean <- apply(res$yhat.test, 2, mean)
-            res$surv.test.mean <- apply(res$surv.test, 2, mean)
-        }
-        else {
-            if(type=='pbart') res$prob.test = pnorm(res$yhat.test)
-            else if(type=='lbart') res$prob.test = plogis(res$yhat.test)
-
-            res$prob.test.mean <- apply(res$prob.test, 2, mean)
-        }
-    }
-
-    res$times = events
-    res$K = K
-    res$offset = offset
-    names(res$treedraws$cutpoints) = dimnames(x.train)[[1]]
-    dimnames(res$varcount)[[2]] = as.list(dimnames(x.train)[[1]])
-    dimnames(res$varprob)[[2]] = as.list(dimnames(x.train)[[1]])
-    res$varcount.mean <- apply(res$varcount, 2, mean)
-    res$varprob.mean <- apply(res$varprob, 2, mean)
-    res$rm.const <- rm.const
-    attr(res, 'class') <- type
+    ## res$times = events
+    ## res$K = K
+    ## res$offset = offset
+    ## names(res$treedraws$cutpoints) = dimnames(x.train)[[1]]
+    ## dimnames(res$varcount)[[2]] = as.list(dimnames(x.train)[[1]])
+    ## dimnames(res$varprob)[[2]] = as.list(dimnames(x.train)[[1]])
+    ## res$varcount.mean <- apply(res$varcount, 2, mean)
+    ## res$varprob.mean <- apply(res$varprob, 2, mean)
+    ## res$rm.const <- rm.const
+    ## attr(res, 'class') <- type
     return(res)
 }
