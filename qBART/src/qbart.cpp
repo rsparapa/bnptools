@@ -60,7 +60,8 @@ RcppExport SEXP cqbart(
    //SEXP _igrp,
    SEXP _ia,            //param a for sparsity prior
    SEXP _ib,            //param b for sparsity prior
-   SEXP _irho,          //param rho for sparsity prior (default to p)
+   SEXP _irho1,          //param rho1 for sparsity prior (default to p1)
+   SEXP _irho2,          //param rho2 for sparsity prior (default to p2)
    SEXP _iaug,          //categorical strategy: true(1)=data augment false(0)=degenerate trees
    SEXP _inprintevery,
    SEXP _X1info,
@@ -110,7 +111,8 @@ RcppExport SEXP cqbart(
    else dart=false;
    double a = Rcpp::as<double>(_ia);
    double b = Rcpp::as<double>(_ib);
-   double rho = Rcpp::as<double>(_irho);
+   double rho1 = Rcpp::as<double>(_irho1);
+   double rho2 = Rcpp::as<double>(_irho2);
    bool aug;
    if(Rcpp::as<int>(_iaug)==1) aug=true;
    else aug=false;
@@ -199,7 +201,8 @@ void cqbart(
    //int* grp,
    double a,		//param a for sparsity prior   
    double b,		//param b for sparsity prior          
-   double rho,		//param rho for sparsity prior (default to p)   
+   double rho1,		//param rho1 for sparsity prior (default to p1)  
+   double rho2,		//param rho2 for sparsity prior (default to p2)
    bool aug,		//categorical strategy: true(1)=data augment false(0)=degenerate trees
 //   size_t nkeeptrain, //   size_t nkeeptest, //   size_t nkeeptreedraws,
    size_t printevery,
@@ -272,7 +275,7 @@ void cqbart(
 //}
    cout << "*****Dirichlet:sparse,theta,omega,a,b,rho,augment: " 
 	<< dart << ',' << theta << ',' << omega << ',' << a << ',' 
-	<< b << ',' << rho << ',' << aug << endl;
+	<< b << ',' << rho1 << ',' << rho2 << ',' << aug << endl;
    //printf("*****nkeeptrain,nkeeptest: %zu, %zu\n",nkeeptrain,nkeeptest);
    printf("*****printevery: %zu\n",printevery);
 
@@ -293,19 +296,19 @@ void cqbart(
      //if(delta[k]==0) z1[k] = -rtnorm(0., binaryOffset, 1., gen);
      z1[k] = rtnorm(0., -binaryOffset, 1., gen);
      z2[k] = iy[k]; 
-     q[k] = 
+     q[k] = q0[k];
    }
    //--------------------------------------------------
    //set up BART1 model
    bm1.setprior(alpha,mybeta,tau);
    bm1.setdata(p1,n,ix1,z1,numcut1);
-   bm1.setdart(a,b,rho,aug,dart);
+   bm1.setdart(a,b,rho1,aug,dart);
 
    
    //set up BART2 model
    bm2.setprior(alpha,mybeta,tau);
    bm2.setdata(p2,n,ix2,z2,q,numcut2);
-   bm2.setdart(a,b,rho,aug,dart);
+   bm2.setdart(a,b,rho2,aug,dart);
 
    // dart iterations
    std::vector<double> ivarprb1 (p,0.);
@@ -329,16 +332,23 @@ void cqbart(
    time_t tp;
    int time1 = time(&tp), total=nd+burn;
    xinfo& xi1 = bm1.getxinfo();
+   xinfo& xi2 = bm2.getxinfo();
 
    for(size_t i=0;i<total;i++) {
       if(i%printevery==0) printf("done %zu (out of %lu)\n",i,total);
       //if(i%printevery==0) printf("%22zu/%zu\r",i,total);
-      if(i==(burn/2)&&dart) bm1.startdart();
-      //draw bart1
+      if(i==(burn/2)&&dart) {bm1.startdart(); bm2.startdart();}
       
+      //draw bart2
       bm2.draw(sigma, gen);
-      bm1.draw(1.,gen);
 
+      //draw sigma
+      double rss=0.;
+      for(size_t k=0;k<n;k++) rss += pow((iy[k]-bm2.f(k))/(iw[k]), 2.); 
+      sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
+      sdraw[i]=sigma;
+
+      //
       for (size_t k=0; k<n; k++){
 	if (q[k]==0) z1[k] = -rtnorm(-bm1.f(k), binaryOffset, 1., gen);
 	else {
@@ -351,14 +361,6 @@ void cqbart(
 	#endif
 	if (delta[k]==0) pt[k] = pt[k]*
       }
-
-      //if(type==1) {
-      //draw sigma
-	double rss=0.;
-	for(size_t k=0;k<n;k++) rss += pow((iy[k]-bm.f(k))/(iw[k]), 2.); 
-	sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
-	sdraw[i]=sigma;
-      //}
 
       //for(size_t k=0; k<n; k++) {
 	//if(type==1) {
@@ -402,6 +404,8 @@ void cqbart(
 	    }
          }
       }
+
+      bm1.draw(1.,gen);
    }
    int time2 = time(&tp);
    printf("time: %ds\n",time2-time1);

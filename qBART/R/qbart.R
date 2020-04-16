@@ -22,7 +22,7 @@ qbart=function(
                ## type='abart',
                ntype=1,
                sparse=FALSE, theta=0, omega=1,
-               a=0.5, b=1, augment=FALSE, rho=NULL,
+               a=0.5, b=1, augment=FALSE, rho1=NULL, rho2=NULL,
                x1info=matrix(0,0,0), x2info=matrix(0,0,0),  usequants=FALSE,
                rm.const=TRUE,
                sigest=NA, sigdf=3, sigquant=0.90,
@@ -52,15 +52,15 @@ qbart=function(
 
     delta=as.integer(delta)
 
-    ## sort data by delta; censoring obs first
-    if(length(x.train1)==0) x.train1 = x.train2
-    newd <- cbind(y.train, delta, x.train1, x.train2)
-    fulld <- newd[order(delta),]
-    y.train = fulld[, 1]
-    delta = fulld[, 2]
-    x.train1 = fulld[, 3:(2+ncol(x.train1))]
-    x.train2 = fulld[, (3+ncol(x.train1)):ncol(fulld)]
-    cn = sum(delta == 0)  #total number of censored
+    ## ## sort data by delta; censoring obs first
+    ## if(length(x.train1)==0) x.train1 = x.train2
+    ## newd <- cbind(y.train, delta, x.train1, x.train2)
+    ## fulld <- newd[order(delta),]
+    ## y.train = fulld[, 1]
+    ## delta = fulld[, 2]
+    ## x.train1 = fulld[, 3:(2+ncol(x.train1))]
+    ## x.train2 = fulld[, (3+ncol(x.train1)):ncol(fulld)]
+    ## cn = sum(delta == 0)  #total number of censored
 
     if(!transposed) {
         temp1 = bartModelMatrix(x.train1, numcut1, usequants=usequants,
@@ -83,12 +83,13 @@ qbart=function(
             x.test2 = bartModelMatrix(x.test2)
             x.test2 = t(x.test2[ , temp2$rm.const])
         }
-        rm.const <- temp1$rm.const
+        rm.const1 <- temp1$rm.const
+        rm.const2 <- temp2$rm.const
         ## grp <- temp1$grp
         rm(c(temp1, temp2))
     }
     else {
-        rm.const <- NULL
+        rm.const1 <- rm.const2 <- NULL
         ## grp <- NULL
     }
 
@@ -99,8 +100,10 @@ qbart=function(
     if(length(x.test1)==0) x.test1 = x.test2
     p1 = nrow(x.train1); p2 = nrow(x.train2)
     np = ncol(x.test1)
-    if(length(rho)==0) rho=p
-    if(length(rm.const)==0) rm.const <- 1:p
+    if(length(rho1)==0) rho1=p1
+    if(length(rho2)==0) rho2=p2
+    if(length(rm.const1)==0) rm.const1 <- 1:p1
+    if(length(rm.const2)==0) rm.const2 <- 1:p2
     ## if(length(grp)==0) grp <- 1:p
 
     library(flexsurvcure)
@@ -114,13 +117,15 @@ qbart=function(
 
     pb <- NULL
     for (i in 1:n){
-        if (delta[i] == 0){
-            s <- pnorm(y.train[i], x.train2[])
-            pb <- 
+        if (delta[i] == 0){  #if censored
+            s <- pnorm(y.train[i], mean = x.train2[,i]*beta, sd = sigma, lower.tail = FALSE)
+            p <- binoffset*s/(1-binoffset+binoffset*s)
+            pb <- c(pb, p)
         }
+        else pb <- c(pb, 1)  #else not cured
     }
     
-    q0 = rbinom(1, 1, prob = pb)
+    q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
     rm(c(tempd, fit0))
 
     if(type=='abart') {
@@ -191,7 +196,8 @@ qbart=function(
                 ## grp,
                 a,
                 b,
-                rho,
+                rho1,
+                rho2,
                 augment,
                 printevery,
                 x1info,
