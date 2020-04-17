@@ -97,7 +97,7 @@ mc.crisk3.bart <- function(
     ##if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
 
     post.list <- list()
-
+    print(paste0('Parallel BART with mc.cores=', mc.cores))
     for(h in 1:H) {
         for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);
