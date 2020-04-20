@@ -18,7 +18,7 @@
 
 bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
                          rm.const=FALSE, cont=FALSE, xinfo=NULL) {
-    
+
     X.class = class(X)[1]
 
     if(X.class=='factor') {
@@ -76,7 +76,7 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
                      nc[j] <- 1
                      if(k==0) xs <- NA
                 }
-                else if(cont) 
+                else if(cont)
                     xs <- seq(xs[1], xs[k], length.out=numcut+2)[-c(1, numcut+2)]
                 ## if(cont) {
                 ##     if(k==1) xs <-
@@ -121,12 +121,16 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
 
     xinfo <- xinfo.
 
-    if(rm.const & length(rm.vars)>0) {
+    if(rm.const && length(rm.vars)>0 && !all((1:p)==(-rm.vars))) {
         X <- X[ , rm.vars]
         nc <- nc[rm.vars]
         xinfo <- xinfo[rm.vars, ]
     }
-    else if(length(rm.vars)==0) rm.vars <- 1:p
+    else if(length(rm.vars)==0 || all((1:p)==(-rm.vars)))
+        rm.vars <- 1:p
+
+    ## if(p==1 && rm.vars==1)
+    ##     stop('X has one column and it is constant: set rm.const=FALSE')
 
     dimnames(xinfo) <- list(dimnames(X)[[2]], NULL)
     ##dimnames(xinfo)[[1]] <- dimnames(X)[[2]]
