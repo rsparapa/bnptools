@@ -70,8 +70,12 @@ surv.pre.bart <- function(
     if(L!=length(zdelta))
         stop('The length of ztimes and zdelta, if any, must be identical')
 
-    if(length(K)>0) {
-        events <- unique(quantile(times, probs=(1:K)/K))
+    if(length(K)>0 || length(events)>0) {
+        if(length(events)==0)
+            events <- unique(quantile(times, probs=(1:K)/K))
+        else if(!all(events==unique(events)))
+            stop(paste0('events must be unique: ', events))
+
         attr(events, 'names') <- NULL
 
         for(i in 1:N) {
@@ -79,7 +83,7 @@ surv.pre.bart <- function(
             times[i] <- events[k]
         }
     }
-    else if(length(events)==0) {
+    else {
         events <- unique(sort(times))
         ## time grid of events including censoring times
     }
@@ -132,7 +136,7 @@ surv.pre.bart <- function(
     k <- 1
 
     for(i in 1:N) for(j in 1:K) if(events[j] <= times[i]) {
-        ##if(makeU) U.train[k] <- u.train[i] 
+        ##if(makeU) U.train[k] <- u.train[i]
         if(p==0) X.train[k, ] <- c(events[j])
         else X.train[k, ] <- c(events[j], x.train[i, ])
 
@@ -164,7 +168,7 @@ surv.pre.bart <- function(
             }
         }
     }
-        
+
     return(list(y.train=y.train, tx.train=X.train, tx.test=X.test,
                 times=events, K=K))
     ##, u.train=U.train ##binaryOffset=binaryOffset

@@ -108,6 +108,7 @@ surv.bart <- function(
     post$times <- times
     post$K <- K
     post$tx.train <- x.train
+    post$y.train <- y.train
     post$type <- type
 
     ## if(keeptrainfits) {
