@@ -56,7 +56,9 @@ predict.crisk3bart <- function(object, newdata,
     miss=apply(is.na(newdata), 2, sum)
     miss2=apply(is.na(newdata2), 2, sum)
     miss3=apply(is.na(newdata3), 2, sum)
-
+    names(miss)=names(object$treedraws$cutpoints)
+    names(miss2)=names(object$treedraws2$cutpoints)
+    names(miss3)=names(object$treedraws3$cutpoints)
     miss.=((sum(miss)+sum(miss2)+sum(miss3))>0)
 
     if(!miss.) mult.impute=1
