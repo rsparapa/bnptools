@@ -16,8 +16,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-qbart=function(
-               x.train1=NULL, x.train2, times, delta,
+qbart=function(x.train1=NULL, x.train2, times, delta,
                x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
                ## type='abart',
                ntype=1,
@@ -39,8 +38,6 @@ qbart=function(
                mc.cores = 1L, nice = 19L, seed = 99L
                )
 {
-
-    ## if(type!='abart') stop('type must be "abart"')
     if(ntype!=1) stop('ntype must be 1')
 
     y.train=log(times)
@@ -51,6 +48,8 @@ qbart=function(
        stop("length of times and delta must be equal")
 
     delta=as.integer(delta)
+
+    if(length(x.train1)==0) x.train1 = x.train2
 
     ## ## sort data by delta; censoring obs first
     ## if(length(x.train1)==0) x.train1 = x.train2
@@ -68,8 +67,6 @@ qbart=function(
         x.train1 = t(temp1$X)
         numcut1 = temp1$numcut
         x1info = temp1$xinfo
-        ## if(length(x.test)>0)
-        ##     x.test = t(bartModelMatrix(x.test[ , temp$rm.const]))
         temp2 = bartModelMatrix(x.train2, numcut2, usequants=usequants,
                                xinfo=x2info, rm.const=rm.const)
         x.train2 = t(temp2$X)
@@ -85,18 +82,15 @@ qbart=function(
         }
         rm.const1 <- temp1$rm.const
         rm.const2 <- temp2$rm.const
-        ## grp <- temp1$grp
-        rm(c(temp1, temp2))
+        rm(temp1,temp2)
     }
     else {
         rm.const1 <- rm.const2 <- NULL
-        ## grp <- NULL
     }
-
+    
     if(n!=ncol(x.train1))
         stop('The length of times and the number of rows in x.train must be identical')
-
-    if(length(x.train1)==0) x.train1 = x.train2
+    
     if(length(x.test1)==0) x.test1 = x.test2
     p1 = nrow(x.train1); p2 = nrow(x.train2)
     np = ncol(x.test1)
@@ -104,12 +98,11 @@ qbart=function(
     if(length(rho2)==0) rho2=p2
     if(length(rm.const1)==0) rm.const1 <- 1:p1
     if(length(rm.const2)==0) rm.const2 <- 1:p2
-    ## if(length(grp)==0) grp <- 1:p
 
-    library(flexsurvcure)
     tempd = data.frame(y=times, event=delta, x=t(x.train2))
-    formula <- paste0("meanlog(x.", 1:p2, ")", collapse = "+")
-    fit0 <- flexsurvcure::flexsurvcure(Surv(y, delta) ~ formula, data = tempd, dist = "lnorm")
+    formula <- as.formula(paste("Surv(y,event) ~", paste0("meanlog(", names(tempd)[-(1:2)], ")", collapse = "+")))
+    ## fit0 <- eval(parse(text=paste0("flexsurvcure(Surv(y, event) ~", formula,", data = tempd, dist = 'lnorm')")))
+    fit0 <- flexsurvcure(formula, data = tempd, dist = "lnorm")
     binoffset <- 1 - fit0$res[1]  #initial guess of noncured rate
     offset <- fit0$res[2]  #cov-adjusted center of log(times)
     sigma <- fit0$res[3]  #initial guess of sigma
@@ -126,7 +119,7 @@ qbart=function(
     }
     
     q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
-    rm(c(tempd, fit0))
+    rm(tempd)
 
     ## y.train = y.train-offset
     
@@ -194,56 +187,71 @@ qbart=function(
 
     res$proc.time <- proc.time()-ptm
 
-    ## K <- min(n, K)
-    ## events=unique(sort(times))
-    ## if(length(events)>K) {
-    ##     events <- unique(quantile(times, probs=(1:K)/K))
-    ##     attr(events, 'names') <- NULL
-    ## }
-    ## K <- length(events)
+    res$prob.train = pnorm(res$y1hat.train)
+    res$prob.train.mean <- apply(res$prob.train, 2, mean)
+    
+    K <- min(n, K)
+    events=unique(sort(times))
+    if(length(events)>K) {
+        events <- unique(quantile(times, probs=(1:K)/K))
+        attr(events, 'names') <- NULL
+    }
+    K <- length(events)
 
-    ## res$surv.train <- matrix(nrow=ndpost, ncol=n*K)
+    res$surv.train <- matrix(nrow=ndpost, ncol=n*K)
     
-    ## for(i in 1:n)
-    ##     for(j in 1:K) {
-    ##         h <- (i-1)*K+j
-    ##         res$surv.train[ , h] <-
-    ##             pnorm(log(events[j]),
-    ##                   mean=res$yhat.train[ , i],
-    ##                   sd=res$sigma[-(1:nskip)],
-    ##                   lower.tail=FALSE)
-    ##     }
+    for(i in 1:n)
+        for(j in 1:K) {
+            h <- (i-1)*K+j
+            surv.ncure <- pnorm(log(events[j]),
+                      mean=res$y2hat.train[ , i],
+                      sd=res$sigma[-(1:nskip)],
+                      lower.tail=FALSE)
+            res$surv.train[ , h] <- 1-res$prob.train[, i] + res$prob.train[ ,i]*surv.ncure
+        }
     
-    ## res$yhat.train.mean <- apply(res$yhat.train, 2, mean)
-    ## res$surv.train.mean <- apply(res$surv.train, 2, mean)
+    res$y2hat.train.mean <- apply(res$y2hat.train, 2, mean)
+    res$surv.train.mean <- apply(res$surv.train, 2, mean)
     
-    ## if(np>0) {
-    ##     res$surv.test <- matrix(nrow=ndpost, ncol=np*K)
+    if(np>0) {
+        res$prob.test = pnorm(res$y1hat.test)
+        res$prob.test.mean <- apply(res$prob.test, 2, mean)
+        res$surv.test <- matrix(nrow=ndpost, ncol=np*K)
 
-    ##     for(i in 1:np)
-    ##         for(j in 1:K) {
-    ##             h <- (i-1)*K+j
-    ##             res$surv.test[ , h] <-
-    ##                 pnorm(log(events[j]),
-    ##                       mean=res$yhat.test[ , i],
-    ##                       sd=res$sigma[-(1:nskip)],
-    ##                       lower.tail=FALSE)
-    ##         }
+        for(i in 1:np)
+            for(j in 1:K) {
+                h <- (i-1)*K+j
+                surv.ncure <- pnorm(log(events[j]),
+                          mean=res$y2hat.test[ , i],
+                          sd=res$sigma[-(1:nskip)],
+                          lower.tail=FALSE)
+                res$surv.test[ , h] <- 1-res$prob.test[, i] + res$prob.test[, i]*surv.ncure
+            }
         
-    ##     res$yhat.test.mean <- apply(res$yhat.test, 2, mean)
-    ##     res$surv.test.mean <- apply(res$surv.test, 2, mean)
+        res$y2hat.test.mean <- apply(res$y2hat.test, 2, mean)
+        res$surv.test.mean <- apply(res$surv.test, 2, mean)
         
-    ## }
+    }
 
-    ## res$times = events
-    ## res$K = K
-    ## res$offset = offset
+    res$times = events
+    res$K = K
+    res$binaryoffset = binoffset
+    res$offset = offset
     ## names(res$treedraws$cutpoints) = dimnames(x.train)[[1]]
-    ## dimnames(res$varcount)[[2]] = as.list(dimnames(x.train)[[1]])
-    ## dimnames(res$varprob)[[2]] = as.list(dimnames(x.train)[[1]])
-    ## res$varcount.mean <- apply(res$varcount, 2, mean)
-    ## res$varprob.mean <- apply(res$varprob, 2, mean)
-    ## res$rm.const <- rm.const
-    ## attr(res, 'class') <- type
+    
+    dimnames(res$varcount1)[[2]] = as.list(dimnames(x.train1)[[1]])
+    dimnames(res$varprob1)[[2]] = as.list(dimnames(x.train1)[[1]])
+    res$varcount1.mean <- apply(res$varcount1, 2, mean)
+    res$varprob1.mean <- apply(res$varprob1, 2, mean)
+    dimnames(res$varcount2)[[2]] = as.list(dimnames(x.train2)[[1]])
+    dimnames(res$varprob2)[[2]] = as.list(dimnames(x.train2)[[1]])
+    res$varcount2.mean <- apply(res$varcount2, 2, mean)
+    res$varprob2.mean <- apply(res$varprob2, 2, mean)
+    res$rm.const <- rm.const
+    res$x.train1 <- x.train1
+    res$x.train2 <- x.train2
+    res$fit <- fit0
+    res$pb <- pb
+    attr(res, 'class') <- 'qbart'
     return(res)
 }
