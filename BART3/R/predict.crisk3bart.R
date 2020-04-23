@@ -164,21 +164,31 @@ predict.crisk3bart <- function(object, newdata,
                 pred[[1]]$prob.test =pred[[1]]$prob.test/mult.impute
                 pred[[1]]$prob.test2=pred[[1]]$prob.test2/mult.impute
                 pred[[1]]$prob.test3=pred[[1]]$prob.test3/mult.impute
-                pred[[1]]$surv.test=pred[[1]]$surv.test/mult.impute
-                pred[[1]]$cif.test =pred[[1]]$cif.test/mult.impute
-                pred[[1]]$cif.test2=pred[[1]]$cif.test2/mult.impute
-                pred[[1]]$cif.test3=pred[[1]]$cif.test3/mult.impute
+                pred[[1]]$surv.test =pred[[1]]$surv.test/mult.impute
+                pred[[1]]$cif.test  =pred[[1]]$cif.test/mult.impute
+                pred[[1]]$cif.test2 =pred[[1]]$cif.test2/mult.impute
+                pred[[1]]$cif.test3 =pred[[1]]$cif.test3/mult.impute
             } else {
                 pred[[1]]$yhat.test =pred[[1]]$yhat.test +pred[[k]]$yhat.test /mult.impute
+                pred[[k]]$yhat.test =NULL
                 pred[[1]]$yhat.test2=pred[[1]]$yhat.test2+pred[[k]]$yhat.test2/mult.impute
+                pred[[k]]$yhat.test2=NULL
                 pred[[1]]$yhat.test3=pred[[1]]$yhat.test3+pred[[k]]$yhat.test3/mult.impute
+                pred[[k]]$yhat.test3=NULL
                 pred[[1]]$prob.test =pred[[1]]$prob.test +pred[[k]]$prob.test /mult.impute
+                pred[[k]]$prob.test =NULL
                 pred[[1]]$prob.test2=pred[[1]]$prob.test2+pred[[k]]$prob.test2/mult.impute
+                pred[[k]]$prob.test2=NULL
                 pred[[1]]$prob.test3=pred[[1]]$prob.test3+pred[[k]]$prob.test3/mult.impute
+                pred[[k]]$prob.test3=NULL
                 pred[[1]]$surv.test =pred[[1]]$surv.test +pred[[k]]$surv.test /mult.impute
+                pred[[k]]$surv.test =NULL
                 pred[[1]]$cif.test  =pred[[1]]$cif.test  +pred[[k]]$cif.test  /mult.impute
+                pred[[k]]$cif.test  =NULL
                 pred[[1]]$cif.test2 =pred[[1]]$cif.test2 +pred[[k]]$cif.test2 /mult.impute
+                pred[[k]]$cif.test2 =NULL
                 pred[[1]]$cif.test3 =pred[[1]]$cif.test3 +pred[[k]]$cif.test3 /mult.impute
+                pred[[k]]$cif.test3 =NULL
             }
 
             tx.test[[k]]=pred[[k]]$tx.test
@@ -196,7 +206,7 @@ predict.crisk3bart <- function(object, newdata,
     pred[[1]]$miss3=miss3
 
     if(mult.impute>1) {
-        pred[[1]]$cif.test.mean = apply(pred[[1]]$cif.test, 2, mean)
+        pred[[1]]$cif.test.mean  = apply(pred[[1]]$cif.test, 2, mean)
         pred[[1]]$cif.test2.mean = apply(pred[[1]]$cif.test2, 2, mean)
         pred[[1]]$cif.test3.mean = apply(pred[[1]]$cif.test3, 2, mean)
         pred[[1]]$surv.test.mean = apply(pred[[1]]$surv.test, 2, mean)
