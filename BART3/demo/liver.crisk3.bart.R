@@ -1,6 +1,8 @@
 
 library(BART3)
 
+##options(mc.cores=8)
+
 B <- getOption('mc.cores', 1)
 figures = getOption('figures', default='NONE')
 
@@ -81,11 +83,11 @@ if(figures!='NONE')
 
 ##    dev.copy2pdf(file='liver3-BART.pdf')
 
-## checking predict function
+## checking predict function, but no missing data here
 pre <- crisk3.pre.bart(x.train=x.train, times=times, delta=delta,
                        x.test=x.test)
 
-pred <- predict(post, pre$tx.test, pre$tx.test, pre$tx.test)
+pred <- predict(post, pre$tx.test, mc.cores=B)
 K <- pred$K
 
 max(post$cif.test-pred$cif.test)

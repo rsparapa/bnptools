@@ -56,7 +56,7 @@ gbart=function(
         if(length(x.test)>0) {
             x.test = t(bartModelMatrix(x.test))
             if(class(rm.const)[1]=='logical' && rm.const)
-                x.test = x.test[temp$rm.const, ]
+                x.test = rbind(x.test[temp$rm.const, ])
         }
         rm.const <- temp$rm.const
         grp <- temp$grp

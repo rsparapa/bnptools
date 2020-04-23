@@ -62,6 +62,7 @@ mc.crisk3.pwbart <- function(
     K <- ncol(x.test)
     k <- K%/%mc.cores
     j <- K
+    print(paste0('Parallel predict with mc.cores=', mc.cores))
     for(i in 1:mc.cores) {
         if(i==mc.cores) h <- 1
         else h <- j-k
@@ -162,7 +163,7 @@ mc.crisk3.pwbart <- function(
             pred$surv.test[ , l] <- pred$surv.test[ , l-1]*
                 pred$surv.test[ , l]
         }
-    
+
     pred$cif.test.mean <- apply(pred$cif.test, 2, mean)
     pred$cif.test2.mean <- apply(pred$cif.test2, 2, mean)
     pred$cif.test3.mean <- apply(pred$cif.test3, 2, mean)
