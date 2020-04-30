@@ -152,7 +152,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
 
     ## initialize offsets
     tempx <- cbind(1, t(x.train2))
-    depx <- svd(tempx)$d < 1e-10
+    depx <- abs(svd(tempx)$d) < 1e-10
     tempd = data.frame(y=times, event=delta, x=t(x.train2)[,!depx[-1]])
     formula <- as.formula(paste("Surv(y,event) ~", paste0("meanlog(", names(tempd)[-(1:2)], ")", collapse = "+")))
     ## fit0 <- eval(parse(text=paste0("flexsurvcure(Surv(y, event) ~", formula,", data = tempd, dist = 'lnorm')")))
