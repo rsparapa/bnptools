@@ -1,4 +1,3 @@
-
 library(qBART)
 
 set.seed(33120)
@@ -24,7 +23,18 @@ x.train <- simcure[,c("age", "gender")]
 times <- simcure$obstime
 delta <- simcure$event
 
-post1 <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, x.test1=x.train)
+post1 <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta)
+str(post1)
+K <- post1$K
+total.surv.train <- matrix(0,nrow=n,ncol=K)
+for (i in 1:n){
+    total.surv.train[i,] <- post1$surv.train.mean[(i-1)*K+(1:K)]
+}
+total.surv.mean <- apply(total.surv.train, 2, mean)
+par(mfrow=c(1,2))
+plot(c(0,post1$times),c(1,total.surv.mean),type='s')
+kmfit1 <- survfit(Surv(times, delta)~1)
+plot(kmfit1)
 
 library(flexsurvcure)
 
@@ -34,10 +44,9 @@ bcd <- bc$censrec
 postbc <- qbart(x.train1=bcx, x.train2=bcx, times=bct, delta=bcd)
 str(postbc)
 mean(postbc$prob.train)
-
-str(t(postbc$x.train1))
-temp <- cbind(bc,t(postbc$x.train1))
-mix1 <- flexsurvcure(Surv(rectime,censrec)~ X2 + X3 + meanlog(X2) + meanlog(X3), data=temp, dist="lnorm", link="logistic", mixture = T)
+plot(postbc$times, postbc$surv.train.mean[1:K], type='s')
+sfit <- survfit(Surv(rectime, censrec)~1, data=bc)
+plot(sfit)
 
 mixture = flexsurvcure(Surv(rectime,censrec)~ group + meanlog(group), data=bc, dist="lnorm", link="logistic", mixture = T)
 print(mixture)
@@ -47,6 +56,9 @@ lx <- lung[,-(1:3)]
 lt <- lung$time
 ld <- lung$status-1
 postl <- qbart(x.train1=lx, x.train2=lx, times=lt, delta=ld)
+str(postl)
+mean(postl$prob.train)
+## mix <- flexsurvcure(Surv(time, status) ~ age + sex + ph.ecog + ph.karno + pat.karno + meal.cal + wt.loss, data=lung, dist="lnorm")
 
 plot(postl$times, postl$surv.train.mean[1:K], type='s')
 

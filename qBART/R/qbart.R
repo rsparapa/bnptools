@@ -99,19 +99,73 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     if(length(rm.const1)==0) rm.const1 <- 1:p1
     if(length(rm.const2)==0) rm.const2 <- 1:p2
 
-    tempd = data.frame(y=times, event=delta, x=t(x.train2))
+
+    ## hot deck missing imputation
+    ## must be conducted here since it would
+    ## cause trouble with multi-threading on the C++ side
+
+    check1=check2=(np>0 && np==n)
+
+    for(i in 1:n)
+        for(j in 1:p1) {
+            if(check1) check1=((is.na(x.train1[j, i]) && is.na(x.test1[j, i])) ||
+                             (!is.na(x.train1[j, i]) && !is.na(x.test1[j, i]) &&
+                              x.train1[j, i]==x.test1[j, i]))
+            
+            while(is.na(x.train1[j, i])) {
+                h=sample.int(n, 1)
+                x.train1[j, i]=x.train1[j, h]
+            }
+        }
+
+    if(check1) x.test1=x.train1
+    else if(np>0) {
+        for(i in 1:np)
+            for(j in 1:p1)
+                while(is.na(x.test1[j, i])) {
+                    h=sample.int(np, 1)
+                    x.test1[j, i]=x.test1[j, h]
+                }
+    }
+
+    for(i in 1:n)
+        for(j in 1:p2) {
+            if(check2) check2=((is.na(x.train2[j, i]) && is.na(x.test2[j, i])) ||
+                             (!is.na(x.train2[j, i]) && !is.na(x.test2[j, i]) &&
+                              x.train2[j, i]==x.test2[j, i]))
+            
+            while(is.na(x.train2[j, i])) {
+                h=sample.int(n, 1)
+                x.train2[j, i]=x.train2[j, h]
+            }
+        }
+
+    if(check2) x.test2=x.train2
+    else if(np>0) {
+        for(i in 1:np)
+            for(j in 1:p2)
+                while(is.na(x.test2[j, i])) {
+                    h=sample.int(np, 1)
+                    x.test2[j, i]=x.test2[j, h]
+                }
+    }
+
+    ## initialize offsets
+    tempx <- cbind(1, t(x.train2))
+    depx <- svd(tempx)$d < 1e-10
+    tempd = data.frame(y=times, event=delta, x=t(x.train2)[,!depx[-1]])
     formula <- as.formula(paste("Surv(y,event) ~", paste0("meanlog(", names(tempd)[-(1:2)], ")", collapse = "+")))
     ## fit0 <- eval(parse(text=paste0("flexsurvcure(Surv(y, event) ~", formula,", data = tempd, dist = 'lnorm')")))
     fit0 <- flexsurvcure(formula, data = tempd, dist = "lnorm")
     binoffset <- 1 - fit0$res[1]  #initial guess of noncured rate
     offset <- fit0$res[2]  #cov-adjusted center of log(times)
     sigma <- fit0$res[3]  #initial guess of sigma
-    beta <- fit0$res[4:(3+p2)]
+    beta <- fit0$res[4:(3+p2-sum(depx))]
 
     pb <- NULL
     for (i in 1:n){
         if (delta[i] == 0){  #if censored
-            s <- pnorm(y.train[i], mean = x.train2[,i]*beta, sd = sigma, lower.tail = FALSE)
+            s <- pnorm(y.train[i], mean = x.train2[!depx[-1],i]*beta, sd = sigma, lower.tail = FALSE)
             p <- binoffset*s/(1-binoffset+binoffset*s)
             pb <- c(pb, p)
         }
@@ -119,7 +173,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     }
     
     q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
-    rm(tempd)
+    rm(tempd, tempx, fit0)
 
     ## y.train = y.train-offset
     
@@ -250,8 +304,6 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     res$rm.const <- rm.const
     res$x.train1 <- x.train1
     res$x.train2 <- x.train2
-    res$fit <- fit0
-    res$pb <- pb
     attr(res, 'class') <- 'qbart'
     return(res)
 }
