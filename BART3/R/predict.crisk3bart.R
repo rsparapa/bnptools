@@ -77,10 +77,10 @@ predict.crisk3bart <- function(object, newdata,
     ## hot deck missing imputation
     for(k in 1:mult.impute) {
         if(miss.) {
-            warning(paste0('missing elements of x imputed with hot decking ',
-                           mult.impute, ' times'))
-
             if(k==1) {
+                warning(paste0('missing elements of x imputed with hot decking ',
+                               mult.impute, ' times'))
+
                 check=(p==p2 && p==p3)
                 check2=(p==p2)
                 check3=(p==p3)

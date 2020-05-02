@@ -55,10 +55,10 @@ predict.survbart <- function(object, newdata, mc.cores=1,
     ## hot deck missing imputation
     for(k in 1:mult.impute) {
         if(miss.) {
-            warning(paste0('missing elements of x imputed with hot decking ',
-                           mult.impute, ' times'))
-
-            if(k>1) newdata=newdata.
+            if(k==1)
+                warning(paste0('missing elements of x imputed with hot decking ',
+                               mult.impute, ' times'))
+            else newdata=newdata.
 
             for(i in 1:n)
                 for(j in 1:p) {
