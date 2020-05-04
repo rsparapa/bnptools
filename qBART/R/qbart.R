@@ -175,7 +175,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
     rm(tempd, tempx, fit0)
 
-    ## y.train = y.train-offset
+    y.train = y.train-offset
     
     if(is.na(lambda)) {
         if(is.na(sigest)) {

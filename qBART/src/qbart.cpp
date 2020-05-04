@@ -357,20 +357,14 @@ void cqbart(
 	//draw z1
 	if (q[k]==0) z1[k] = -rtnorm(-bm1.f(k), binaryOffset, 1., gen);
 	else  z1[k] = rtnorm(bm1.f(k), -binaryOffset, 1., gen);
-	#ifndef NoRcpp
-	pz1[k] = R::pnorm(z1[k]+binaryOffset,0,1,1,0);
-	#else
-	pz1[k] = ::pnorm(z1[k]+binaryOffset,0,1,1,0);
-	#endif
 	if (delta[k] == 0){
-	  if (q[k] == 1){
-	    //draw z2
-	    z2[k] = rtnorm(bm2.f(k), iy[k], sigma, gen);
-	  }
+	  
 	  #ifndef NoRcpp
-	  st[k] = R::pnorm(iy[k], bm2.f(k)+Offset, sigma, 0, 0);
+	  pz1[k] = R::pnorm(z1[k]+binaryOffset,0,1,1,0);
+	  st[k] = R::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
 	  #else
-	  st[k] = ::pnorm(iy[k], bm2.f(k)+Offset, sigma, 0, 0);
+	  pz1[k] = ::pnorm(z1[k]+binaryOffset,0,1,1,0);
+	  st[k] = ::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
 	  #endif
 	  pt[k] = pz1[k]*st[k]/(1-pz1[k]+pz1[k]*st[k]);
 	  //draw q
@@ -379,6 +373,10 @@ void cqbart(
 	  #else
 	  q[k] = ::rbinom(1, pt[k]);
 	  #endif
+	  if (q[k] == 1){
+	    //draw z2
+	    z2[k] = rtnorm(bm2.f(k), iy[k], sigma, gen);
+	  }
 	}
 	else q[k] = 1;
       }
