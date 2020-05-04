@@ -2705,9 +2705,9 @@ R> head(trees)
    ter/.style={fill=white,rectangle,draw=black,drop shadow}]
  \node[int]  {$x_1$} [grow=up]
  child {node[ter] {$0.036$}
- edge from parent node [right,pos=0.3] {$> c_{1,67}$}}
+ edge from parent node [right,pos=0.3] {$\ge c_{1,67}$}}
  child {node[ter] {$0.005$}
- edge from parent node [left,pos=0.3] {$\le c_{1,67}$}};
+ edge from parent node [left,pos=0.3] {$< c_{1,67}$}};
  \end{tikzpicture}
 \end{minipage}
 
@@ -2771,7 +2771,7 @@ represented by a set of ordered triples, $(n, j, k)$, representing
 branch decision rules: $n \in \mathcal{B}$ for node $n$ in the set of
 branches $\mathcal{B}$, $j$ for covariate $x_j$ and $k$ for the
 cutpoint $c_{jk}$.  The branch decision rules are of the form
-$x_j\le c_{jk}$ which means branch left and $x_j>c_{jk}$, branch
+$x_j< c_{jk}$ which means branch left and $x_j\ge c_{jk}$, branch
 right; or terminal leaves where it stops.  $\mathcal{M}$ represents
 leaves and is a set of ordered pairs, $(n, \mu_n)$:
 $n \in \mathcal{L}$ where $\mathcal{L}$ is the set of leaves

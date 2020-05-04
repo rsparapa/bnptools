@@ -1,3 +1,11 @@
+Changes and New Features in 3.6 (2020-05-04):
+	* Adding new function, SHAP, that calculates the
+	Shapley additive explanation (SHAP) partial dependence function
+	which is equivalent to Friedman's partial dependence function
+	but Shapley can be computed from the original tree fit directly
+	whereas Friedman requires that predict() be called and 
+	intermediate results summarized which is typically more work
+
 Changes and New Features in 3.5 (2020-04-14):
 	* fixing bugs in crisk3.bart, mc.crisk3.bart and gbart
 	most of these revolve around rm.const and its misuse
