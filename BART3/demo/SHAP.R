@@ -25,7 +25,6 @@ post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
 ## post = mc.gbart(x.train, y.train, sparse=TRUE)
 sort(post$varprob.mean*P, TRUE)
 
-
 pdf('shapley.pdf')
 H=20
 x=seq(-3, 3, length.out=H+1)[-(H+1)]
