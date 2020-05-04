@@ -256,6 +256,7 @@ gbart=function(
     res$varcount.mean <- apply(res$varcount, 2, mean)
     res$varprob.mean <- apply(res$varprob, 2, mean)
     res$rm.const <- rm.const
+    res$ndpost = ndpost
     attr(res, 'class') <- type
     return(res)
 }
