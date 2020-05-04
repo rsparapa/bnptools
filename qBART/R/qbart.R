@@ -165,7 +165,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     pb <- NULL
     for (i in 1:n){
         if (delta[i] == 0){  #if censored
-            s <- pnorm(y.train[i], mean = x.train2[!depx[-1],i]*beta, sd = sigma, lower.tail = FALSE)
+            s <- pnorm(y.train[i], mean = offset+x.train2[!depx[-1],i]*beta, sd = sigma, lower.tail = FALSE)
             p <- binoffset*s/(1-binoffset+binoffset*s)
             pb <- c(pb, p)
         }

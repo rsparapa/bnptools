@@ -13,8 +13,7 @@ ltime <- rnorm(n, mean = xb)  #log(real_time)~Normal
 time <- exp(ltime)
 ctime <- rexp(n, rate = 0.01)  #censoring_time~Exp(0.01)
 simcure <- data.frame(age = x1,  c_time = ctime, r_time = time)
-#simcure <- simcure[order(simcure$r_time, decreasing = TRUE),]  #ordered real time decreasing
-simcure$Ncure <- status  #larger real_time means cured
+simcure$Ncure <- status
 cuttime <- quantile(time, probs=0.8) 
 simcure[simcure$c_time > cuttime,]$c_time <- cuttime  #admin censoring
 simcure$r_time <- ifelse(simcure$Ncure == 1, simcure$r_time, Inf)
@@ -32,14 +31,24 @@ post <- abart(x.train=tdata$age, times=tdata$obstime, delta=tdata$event)
 #plot(xb[notcure], post$yhat.train.mean)
 plot(xb[notcure], ltime[notcure])
 par(mfrow=c(1,2))
-plot(ltime[notcure],post$yhat.train.mean,pch=20,main="abart")
+plot(ltime[notcure],post$yhat.train.mean,pch=20,ylim=c(-5,20),main="abart")
 abline(a=0,b=1,col=2)
 
 post1 <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta)
 #str(post1)
-plot(ltime[notcure],post1$y2hat.train.mean[notcure], pch=20,main="qbart")
+plot(ltime[notcure],post1$y2hat.train.mean[notcure], pch=20, col = ifelse(delta[notcure]==1, 1, 2), main="qbart")
 abline(a=0,b=1,col=2)
 mean(post1$prob.train)
+
+plot(post$yhat.train.mean, post1$y2hat.train.mean[notcure], pch=20, col = ifelse(delta[notcure]==1, 1, 2))
+abline(a=0,b=1,col=2)
+
+test <- simcure
+test$event <- 1
+post2 <- qbart(x.train1=tdata$age, x.train2=tdata$age, times=tdata$obstime, delta=tdata$event)
+plot(ltime[notcure],post2$y2hat.train.mean[notcure], pch=20,main="qbart")
+abline(a=0,b=1,col=2)
+mean(post2$prob.train)
 
 K <- post1$K
 total.surv.train <- matrix(0,nrow=n,ncol=K)
@@ -82,7 +91,7 @@ ld <- lung$status-1
 postl <- qbart(x.train1=lx, x.train2=lx, times=lt, delta=ld)
 str(postl)
 mean(postl$prob.train)
-mix <- flexsurvcure(Surv(time, status) ~ age + sex + ph.ecog + ph.karno + pat.karno + meal.cal + wt.loss, data=lung, dist="lnorm")
+## mix <- flexsurvcure(Surv(time, status) ~ age + sex + ph.ecog + ph.karno + pat.karno + meal.cal + wt.loss, data=lung, dist="lnorm")
 
 n <- nrow(lung)
 K <- postl$K
