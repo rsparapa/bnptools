@@ -29,7 +29,7 @@ pdf('shapley.pdf')
 H=20
 x=seq(-3, 3, length.out=H+1)[-(H+1)]
 x.test=matrix(x, nrow=H, ncol=P)
-yhat.test=SHAP(post$treedraws, x.train, x.test, 5)
+yhat.test=SHAP(post, x.train, x.test, 5)
 yhat.test.mean=apply(yhat.test, 2, mean)
 
 ## Friedman's partial dependence function

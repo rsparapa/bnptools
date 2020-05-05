@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 B <- getOption('mc.cores', 1)
 figures = getOption('figures', default='NONE')
@@ -77,8 +77,14 @@ pd.975 <- apply(pd, 2, quantile, probs=0.975)
 males <- 1:K
 females <- males+K
 
+tx.test = pre$tx.test[1:(2*K), ]
+tx.test[1:K, 2]=1   ## male
+tx.test[K+1:K, 2]=2 ## female
+pred2=SHAP(post, pre$tx.train, tx.test, 1:2)
+
 plot(c(0, pre$times), c(1, pd.mu[males]), type='s', col='blue',
-     ylim=0:1, ylab='S(t, x)', xlab='t (weeks)')
+     ylim=0:1, ylab='S(t, x)', xlab='t (weeks)',
+     sub="Friedman's partial dependence function")
      ## main=paste('Advanced Lung Cancer ex. (BART::lung)',
      ##            "Friedman's partial dependence function",
      ##            'Male (blue) vs. Female (red)', sep='\n'))
@@ -87,5 +93,24 @@ lines(c(0, pre$times), c(1, pd.975[males]), col='blue', type='s', lty=2)
 lines(c(0, pre$times), c(1, pd.mu[females]), col='red', type='s')
 lines(c(0, pre$times), c(1, pd.025[females]), col='red', type='s', lty=2)
 lines(c(0, pre$times), c(1, pd.975[females]), col='red', type='s', lty=2)
+##dev.copy2pdf(file='lung-F.pdf')
 if(figures!='NONE')
     dev.copy2pdf(file=paste(figures, 'lung.pdf', sep='/'))
+
+plot(c(0, pre$times), c(1, pred2$surv.test.mean[males]), type='s', col='blue',
+     ylim=0:1, ylab='S(t, x)', xlab='t (weeks)',
+     sub="SHAP partial dependence function")
+     ## main=paste('Advanced Lung Cancer ex. (BART::lung)',
+     ##            "Friedman's partial dependence function",
+     ##            'Male (blue) vs. Female (red)', sep='\n'))
+lines(c(0, pre$times), c(1, pred2$surv.test.lower[males]), col='blue',
+      type='s', lty=2)
+lines(c(0, pre$times), c(1, pred2$surv.test.upper[males]), col='blue',
+      type='s', lty=2)
+lines(c(0, pre$times), c(1, pred2$surv.test.mean[females]), col='red',
+      type='s', lty=1)
+lines(c(0, pre$times), c(1, pred2$surv.test.lower[females]), col='red',
+      type='s', lty=2)
+lines(c(0, pre$times), c(1, pred2$surv.test.upper[females]), col='red',
+      type='s', lty=2)
+##dev.copy2pdf(file='lung-S.pdf')
