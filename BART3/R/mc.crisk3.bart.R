@@ -221,19 +221,19 @@ mc.crisk3.bart <- function(
             }
 
         if(keeptestfits) {
-            post$prob.test.mean <- apply(post$prob.test, 2, mean)
+            post$prob.test.mean  <- apply(post$prob.test,  2, mean)
             post$prob.test2.mean <- apply(post$prob.test2, 2, mean)
             post$prob.test3.mean <- apply(post$prob.test3, 2, mean)
-            post$cif.test.mean <- apply(post$cif.test, 2, mean)
+            post$cif.test.mean  <- apply(post$cif.test,  2, mean)
             post$cif.test2.mean <- apply(post$cif.test2, 2, mean)
             post$cif.test3.mean <- apply(post$cif.test3, 2, mean)
             post$surv.test.mean <- apply(post$surv.test, 2, mean)
         }
 
-        post$varcount.mean <- apply(post$varcount, 2, mean)
+        post$varcount.mean  <- apply(post$varcount,  2, mean)
         post$varcount2.mean <- apply(post$varcount2, 2, mean)
         post$varcount3.mean <- apply(post$varcount3, 2, mean)
-        post$varprob.mean <- apply(post$varprob, 2, mean)
+        post$varprob.mean  <- apply(post$varprob,  2, mean)
         post$varprob2.mean <- apply(post$varprob2, 2, mean)
         post$varprob3.mean <- apply(post$varprob3, 2, mean)
 

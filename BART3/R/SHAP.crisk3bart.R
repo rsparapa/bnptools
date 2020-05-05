@@ -29,7 +29,24 @@ SHAP.crisk3bart=function(object,       ## object returned from BART
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
 
-    Trees=read.trees(object$treedraws, x.train)
+    P = ncol(x.train)
+
+    if(!all(S %in% 1:P))
+        stop('some elements of S are not in x.train')
+
+    if(P!=ncol(x.test))
+        stop('the number of columns in x.train and x.test are not the same')
+
+    if(P!=length(object$treedraws$cutpoints))
+        stop('the number of columns in x.train and length of cutpoints are not the same')
+
+    if(P!=length(object$treedraws2$cutpoints))
+        stop('the number of columns in x.train and length of cutpoints2 are not the same')
+
+    if(P!=length(object$treedraws3$cutpoints))
+        stop('the number of columns in x.train and length of cutpoints3 are not the same')
+
+    Trees =read.trees(object$treedraws,  x.train)
     Trees2=read.trees(object$treedraws2, x.train)
     Trees3=read.trees(object$treedraws3, x.train)
 
@@ -69,7 +86,6 @@ SHAP.crisk3bart=function(object,       ## object returned from BART
 
     pred=list()
 
-
     pred$times <- object$times
     K <- object$K
     pred$K = K
@@ -78,24 +94,24 @@ SHAP.crisk3bart=function(object,       ## object returned from BART
     pred$offset2 <- object$offset2
     pred$offset3 <- object$offset3
 
-    pred$yhat.test  <- object$offset+EXPVALUE(Trees)
+    pred$yhat.test  <- object$offset +EXPVALUE(Trees)
     pred$yhat.test2 <- object$offset2+EXPVALUE(Trees2)
     pred$yhat.test3 <- object$offset3+EXPVALUE(Trees3)
 
     if(type=='pbart') {
-        pred$prob.test <- pnorm(pred$yhat.test)
+        pred$prob.test  <- pnorm(pred$yhat.test)
         pred$prob.test2 <- pnorm(pred$yhat.test2)
         pred$prob.test3 <- pnorm(pred$yhat.test3)
     }
     else if(type=='lbart') {
-        pred$prob.test <- plogis(pred$yhat.test)
+        pred$prob.test  <- plogis(pred$yhat.test)
         pred$prob.test2 <- plogis(pred$yhat.test2)
         pred$prob.test3 <- plogis(pred$yhat.test3)
     }
 
     pred$surv.test <- (1-pred$prob.test)*(1-pred$prob.test2)*
         (1-pred$prob.test3)
-    pred$cif.test <- pred$prob.test
+    pred$cif.test  <- pred$prob.test
     pred$cif.test2 <- (1-pred$prob.test)*pred$prob.test2
     pred$cif.test3 <- (1-pred$prob.test)*(1-pred$prob.test2)*pred$prob.test3
 
@@ -115,10 +131,10 @@ SHAP.crisk3bart=function(object,       ## object returned from BART
                 pred$surv.test[ , l]
         }
 
-    pred$cif.test.mean  <- apply(pred$cif.test, 2, mean)
-    pred$cif.test.lower <- apply(pred$cif.test, 2, quantile, probs=probs[1])
-    pred$cif.test.upper <- apply(pred$cif.test, 2, quantile, probs=probs[2])
-    pred$cif.test2.mean <- apply(pred$cif.test2, 2, mean)
+    pred$cif.test.mean   <- apply(pred$cif.test, 2, mean)
+    pred$cif.test.lower  <- apply(pred$cif.test, 2, quantile, probs=probs[1])
+    pred$cif.test.upper  <- apply(pred$cif.test, 2, quantile, probs=probs[2])
+    pred$cif.test2.mean  <- apply(pred$cif.test2, 2, mean)
     pred$cif.test2.lower <- apply(pred$cif.test2, 2, quantile, probs=probs[1])
     pred$cif.test2.upper <- apply(pred$cif.test2, 2, quantile, probs=probs[2])
     pred$cif.test3.mean  <- apply(pred$cif.test3, 2, mean)
@@ -127,6 +143,9 @@ SHAP.crisk3bart=function(object,       ## object returned from BART
     pred$surv.test.mean  <- apply(pred$surv.test, 2, mean)
     pred$surv.test.lower <- apply(pred$surv.test, 2, quantile, probs=probs[1])
     pred$surv.test.upper <- apply(pred$surv.test, 2, quantile, probs=probs[2])
+    pred$prob.test.mean  <- apply(pred$prob.test, 2, mean)
+    pred$prob.test2.mean <- apply(pred$prob.test2, 2, mean)
+    pred$prob.test3.mean <- apply(pred$prob.test3, 2, mean)
 
     attr(pred, 'class') <- 'crisk3bart'
 
