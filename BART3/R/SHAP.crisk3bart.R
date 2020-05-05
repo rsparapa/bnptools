@@ -29,6 +29,23 @@ SHAP.crisk3bart=function(object,       ## object returned from BART
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
 
+    P = ncol(x.train)
+
+    if(!all(S %in% 1:P))
+        stop('some elements of S are not in x.train')
+
+    if(P!=ncol(x.test))
+        stop('the number of columns in x.train and x.test are not the same')
+
+    if(P!=length(object$treedraws$cutpoints))
+        stop('the number of columns in x.train and length of cutpoints are not the same')
+
+    if(P!=length(object$treedraws2$cutpoints))
+        stop('the number of columns in x.train and length of cutpoints2 are not the same')
+
+    if(P!=length(object$treedraws3$cutpoints))
+        stop('the number of columns in x.train and length of cutpoints3 are not the same')
+
     Trees=read.trees(object$treedraws, x.train)
     Trees2=read.trees(object$treedraws2, x.train)
     Trees3=read.trees(object$treedraws3, x.train)
@@ -68,7 +85,6 @@ SHAP.crisk3bart=function(object,       ## object returned from BART
     }
 
     pred=list()
-
 
     pred$times <- object$times
     K <- object$K
