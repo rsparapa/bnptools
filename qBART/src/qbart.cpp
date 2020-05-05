@@ -295,8 +295,8 @@ void cqbart(
    //if(type!=1) sign = new double[n]; 
 
    for(size_t k=0; k<n; k++) {
-     //if(delta[k]==0) z1[k] = -rtnorm(0., binaryOffset, 1., gen);
-     z1[k] = rtnorm(0., -binaryOffset, 1., gen);
+     if(q0[k]==0) z1[k] = -rtnorm(0., binaryOffset, 1., gen);
+     else z1[k] = rtnorm(0., -binaryOffset, 1., gen);
      z2[k] = iy[k]; 
      q[k] = q0[k];
    }
