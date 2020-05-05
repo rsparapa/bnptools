@@ -282,7 +282,6 @@ void cqbart(
 
    //--------------------------------------------------
    //create temporaries
-   double df=n+nu;
    double *z1 = new double[n];
    double *z2 = new double[n];
    int *q = new int[n];
@@ -349,7 +348,13 @@ void cqbart(
 
       //draw sigma
       double rss=0.;
-      for(size_t k=0;k<n;k++) rss += pow((iy[k]-bm2.f(k))/(iw[k]), 2.); 
+      double df=nu;
+      for(size_t k=0;k<n;k++) {
+	if (q[k]==1) {
+	  rss += pow((iy[k]-bm2.f(k))/(iw[k]), 2.); 
+	  df += 1;
+	}
+      }
       sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
       sdraw[i]=sigma;
 
@@ -358,7 +363,10 @@ void cqbart(
 	if (q[k]==0) z1[k] = -rtnorm(-bm1.f(k), binaryOffset, 1., gen);
 	else  z1[k] = rtnorm(bm1.f(k), -binaryOffset, 1., gen);
 	if (delta[k] == 0){
-	  
+	  if (q[k] == 1){
+	    //draw z2
+	    z2[k] = rtnorm(bm2.f(k), iy[k], sigma, gen);
+	  }
 	  #ifndef NoRcpp
 	  pz1[k] = R::pnorm(z1[k]+binaryOffset,0,1,1,0);
 	  st[k] = R::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
@@ -373,10 +381,6 @@ void cqbart(
 	  #else
 	  q[k] = ::rbinom(1, pt[k]);
 	  #endif
-	  if (q[k] == 1){
-	    //draw z2
-	    z2[k] = rtnorm(bm2.f(k), iy[k], sigma, gen);
-	  }
 	}
 	else q[k] = 1;
       }

@@ -17,8 +17,7 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 
-mc.qbart <- function(
-                     x.train, times, delta, q,
+mc.qbart <- function(x.train, times, delta, q,
                      x.test=matrix(0,0,0), K=100,
                      type='abart', ntype=1,
                      sparse=FALSE, theta=0, omega=1,
@@ -72,7 +71,7 @@ mc.qbart <- function(
 
     for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);
-            qbart(x.train=x.train, times=times, delta=delta, q=q,
+            qbart(x.train1=x.train, times=times, delta=delta, q=q,
                   x.test=x.test, K=K, type=type, ntype=ntype,
                   sparse=sparse, theta=theta, omega=omega,
                   a=a, b=b, augment=augment, rho=rho,

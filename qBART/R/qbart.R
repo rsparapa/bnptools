@@ -16,7 +16,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-qbart=function(x.train1=NULL, x.train2, times, delta,
+qbart=function(x.train1=NULL, x.train2, times, delta, q=NULL,
                x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
                ## type='abart',
                ntype=1,
@@ -162,6 +162,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     sigma <- fit0$res[3]  #initial guess of sigma
     beta <- fit0$res[4:(3+p2-sum(depx))]
 
+    ## q0 <- q
     pb <- NULL
     for (i in 1:n){
         if (delta[i] == 0){  #if censored

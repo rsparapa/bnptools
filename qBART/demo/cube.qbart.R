@@ -2,8 +2,8 @@ library(qBART)
 
 set.seed(33120)
 #simulate data
-p <- 0.7  #not cured
-n <- 5000  #total subj
+p <- 0.99  #not cured
+n <- 2000  #total subj
 status <- sample(0:1, n, replace = TRUE, prob = c((1-p),p))
 x1 <- rnorm(n, mean = 0, sd = 4)
 #x2 <- sample(0:1, n, replace = TRUE) gender = x2,
@@ -50,11 +50,11 @@ library(BART3)
 post <- abart(x.train=tdata$age, times=tdata$obstime, delta=tdata$event)
 #plot(xb[notcure], post$yhat.train.mean)
 plot(xb[notcure], ltime[notcure])
-par(mfrow=c(1,2))
-plot(ltime[notcure],post$yhat.train.mean,pch=20,ylim=c(-5,20),main="abart")
+par(mfrow=c(1,3))
+plot(ltime[notcure],post$yhat.train.mean,pch=20,main="abart")
 abline(a=0,b=1,col=2)
 
-post1 <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta)
+post1 <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, q=simcure$Ncure)
 #str(post1)
 plot(ltime[notcure],post1$y2hat.train.mean[notcure], pch=20, col = ifelse(delta[notcure]==1, 1, 2), main="qbart")
 abline(a=0,b=1,col=2)
@@ -72,8 +72,9 @@ for (i in 1:n){
 total.surv.mean <- apply(total.surv.train, 2, mean)
 ## par(mfrow=c(1,2))
 plot(c(0,post1$times),c(1,total.surv.mean),ylim=c(0,1),type='s')
+points(post1$times[delta == 1],total.surv.mean[delta == 1],pch = 3,col=2)
 kmfit1 <- survfit(Surv(times, delta)~1)
-plot(kmfit1)
+plot(kmfit1, mark.time=TRUE)
 
 #real data
 library(flexsurvcure)

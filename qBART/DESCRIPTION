@@ -3,7 +3,7 @@ Type: Package
 Title: What the Package Does in One 'Title Case' Line
 Version: 1.0
 Date: 2020-02-21
-Authors@R: c(person('Xiao', 'Li', role=c('aut','cre'), email='xiaoli@mcw.edu'), person('Rodney', 'Sparapani', role='aut'), person('Brent', 'Logan', role='cre')
+Authors@R: c(person('Xiao', 'Li', role=c('aut','cre'), email='xiaoli@mcw.edu'), person('Rodney', 'Sparapani', role='aut'), person('Brent', 'Logan', role='aut'))
 Description: One paragraph description of what the package does as one or more full sentences.
 License: GPL (>= 2)
 Imports: Rcpp (>= 1.0.1), BART3, parallel, tools, flexsurvcure
