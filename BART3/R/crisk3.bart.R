@@ -250,9 +250,11 @@ crisk3.bart <- function(
 
         post$yhat.test2 <- post2$yhat.test
         post$prob.test2 <- post2$prob.test
+        post$prob.test2.mean <- post2$prob.test.mean
 
         post$yhat.test3 <- post3$yhat.test
         post$prob.test3 <- post3$prob.test
+        post$prob.test3.mean <- post3$prob.test.mean
 
         post$surv.test <- (1-post$prob.test)*(1-post$prob.test2)*
             (1-post$prob.test3)
