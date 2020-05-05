@@ -3,7 +3,7 @@ library(qBART)
 set.seed(33120)
 #simulate data
 p <- 0.7  #not cured
-n <- 2000  #total subj
+n <- 5000  #total subj
 status <- sample(0:1, n, replace = TRUE, prob = c((1-p),p))
 x1 <- rnorm(n, mean = 0, sd = 4)
 #x2 <- sample(0:1, n, replace = TRUE) gender = x2,
@@ -24,6 +24,26 @@ x.train <- simcure$age
 times <- simcure$obstime
 delta <- simcure$event
 
+#no censoring subset
+notcens <- simcure$event==1
+tdata <- simcure[notcens]
+library(BART3)
+post <- abart(x.train=tdata$age, times=tdata$obstime, delta=tdata$event)
+plot(xb[notcens], ltime[notcens])
+par(mfrow=c(1,3))
+plot(ltime[notcens],post$yhat.train.mean,pch=20,main="abart")
+abline(a=0,b=1,col=2)
+
+post1 <- qbart(x.train1=tdata$age, x.train2=tdata$age, times=tdata$obstime, delta=tdata$event)
+#str(post1)
+plot(ltime[notcens],post1$y2hat.train.mean, pch=20, main="qbart")
+abline(a=0,b=1,col=2)
+mean(post1$prob.train)
+
+plot(post$yhat.train.mean,post1$y2hat.train.mean,pch=20, main="abart vs qbart")
+abline(a=0,b=1,col=2)
+
+#non-cured subset
 notcure <- simcure$Ncure==1
 tdata <- simcure[notcure,]
 library(BART3)
@@ -43,13 +63,7 @@ mean(post1$prob.train)
 plot(post$yhat.train.mean, post1$y2hat.train.mean[notcure], pch=20, col = ifelse(delta[notcure]==1, 1, 2))
 abline(a=0,b=1,col=2)
 
-test <- simcure
-test$event <- 1
-post2 <- qbart(x.train1=tdata$age, x.train2=tdata$age, times=tdata$obstime, delta=tdata$event)
-plot(ltime[notcure],post2$y2hat.train.mean[notcure], pch=20,main="qbart")
-abline(a=0,b=1,col=2)
-mean(post2$prob.train)
-
+#survival curves
 K <- post1$K
 total.surv.train <- matrix(0,nrow=n,ncol=K)
 for (i in 1:n){
@@ -61,8 +75,9 @@ plot(c(0,post1$times),c(1,total.surv.mean),ylim=c(0,1),type='s')
 kmfit1 <- survfit(Surv(times, delta)~1)
 plot(kmfit1)
 
+#real data
 library(flexsurvcure)
-
+str(bc)
 bcx <- bc$group
 bct <- bc$rectime
 bcd <- bc$censrec
@@ -81,8 +96,8 @@ plot(c(0,postbc$times),c(1,total.surv.mean),ylim=c(0,1), type='s')
 sfit <- survfit(Surv(rectime, censrec)~1, data=bc)
 plot(sfit)
 
-mixture = flexsurvcure(Surv(rectime,censrec)~ group + meanlog(group), data=bc, dist="lnorm", link="logistic", mixture = T)
-print(mixture)
+## mixture = flexsurvcure(Surv(rectime,censrec)~ group + meanlog(group), data=bc, dist="lnorm", link="logistic", mixture = T)
+## print(mixture)
 
 str(lung)
 lx <- lung[,-(1:3)]
