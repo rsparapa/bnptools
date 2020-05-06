@@ -40,39 +40,5 @@ SHAP.wbart=function(object,  ## object returned from BART
 
     Trees=read.trees(object$treedraws, x.train)
 
-    EXPVALUE = function()
-    {
-        H = nrow(x.test)
-        M = dim(Trees)[1]
-        T = dim(Trees)[2]
-        G = function(n) ## node
-        {
-            if(Trees[i, j, n, 1]==2) return(Trees[i, j, n, 4]) ## a leaf
-            else { ## a branch
-                v=Trees[i, j, n, 2]
-                c=Trees[i, j, n, 3]
-                n=2*n
-                m=n+1
-                if(v %in% S) {
-                    if(x.test[h, v]<c) return(G(n))
-                    else return(G(m))
-                } else {
-                    a=Trees[i, j, n, 5]
-                    b=Trees[i, j, m, 5]
-                    return((a*G(n)+b*G(m))/(a+b))
-                }
-            }
-        }
-        A = matrix(nrow=M, ncol=H)
-        B = matrix(nrow=M, ncol=T)
-        for(h in 1:H) { ## settings
-            for(i in 1:M) ## samples
-                for(j in 1:T) ## trees
-                    B[i, j]=G(1)
-            A[ , h]=apply(B, 1, sum)
-        }
-        return(A)
-    }
-
-    return(EXPVALUE())
+    return(EXPVALUE(Trees, x.test, S))
 }
