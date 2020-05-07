@@ -157,7 +157,8 @@ qbart=function(x.train1=NULL, x.train2, times, delta, q=NULL,
     formula <- as.formula(paste("Surv(y,event) ~", paste0("meanlog(", names(tempd)[-(1:2)], ")", collapse = "+")))
     ## fit0 <- eval(parse(text=paste0("flexsurvcure(Surv(y, event) ~", formula,", data = tempd, dist = 'lnorm')")))
     fit0 <- flexsurvcure(formula, data = tempd, dist = "lnorm")
-    binoffset <- 1 - fit0$res[1]  #initial guess of noncured rate
+    nonq <- 1 - fit0$res[1]  #initial guess of noncured rate
+    binoffset <- qnorm(nonq)  
     offset <- fit0$res[2]  #cov-adjusted center of log(times)
     sigma <- fit0$res[3]  #initial guess of sigma
     beta <- fit0$res[4:(3+p2-sum(depx))]
@@ -167,7 +168,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta, q=NULL,
     for (i in 1:n){
         if (delta[i] == 0){  #if censored
             s <- pnorm(y.train[i], mean = offset+x.train2[!depx[-1],i]*beta, sd = sigma, lower.tail = FALSE)
-            p <- binoffset*s/(1-binoffset+binoffset*s)
+            p <- nonq*s/(1-nonq+nonq*s)
             pb <- c(pb, p)
         }
         else pb <- c(pb, 1)  #else not cured

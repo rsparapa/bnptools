@@ -17,27 +17,28 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 
-mc.qbart <- function(x.train, times, delta, q,
-                     x.test=matrix(0,0,0), K=100,
-                     type='abart', ntype=1,
+mc.qbart <- function(x.train1=NULL, x.train2, times, delta, q,
+                     x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
+                     ##type='abart',
+                     ntype=1,
                      sparse=FALSE, theta=0, omega=1,
-                     a=0.5, b=1, augment=FALSE, rho=NULL,
-                     xinfo=matrix(0,0,0), usequants=FALSE,
+                     a=0.5, b=1, augment=FALSE, rho1=NULL, rho2=NULL,
+                     x1info=matrix(0,0,0), x2info=matrix(0,0,0), usequants=FALSE,
                      rm.const=TRUE,
                      sigest=NA, sigdf=3, sigquant=0.90,
                      k=2, power=2, base=0.95,
                      ##sigmaf=NA,
                      lambda=NA, tau.num=c(NA, 3, 6)[ntype],
                      ##tau.interval=0.9973,
-                     offset=NULL, w=rep(1, length(times)),
-                     ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
+                     ## offset=NULL,
+                     w=rep(1, length(times)),
+                     ntree=c(200L, 50L, 50L)[ntype], numcut1=100L, numcut2=100L,
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
                      mc.cores = 2L, nice = 19L, seed = 99L
                      )
 {
-    if(type!='abart') stop('type must be "abart"')
     if(ntype!=1) stop('ntype must be 1')
 
     if(.Platform$OS.type!='unix')
@@ -48,19 +49,27 @@ mc.qbart <- function(x.train, times, delta, q,
     parallel::mc.reset.stream()
 
     if(!transposed) {
-        temp = bartModelMatrix(x.train, numcut, usequants=usequants,
-                               xinfo=xinfo, rm.const=rm.const)
-        x.train = t(temp$X)
-        numcut = temp$numcut
-        xinfo = temp$xinfo
-        ## if(length(x.test)>0)
-        ##     x.test = t(bartModelMatrix(x.test[ , temp$rm.const]))
-        if(length(x.test)>0) {
-            x.test = bartModelMatrix(x.test)
-            x.test = t(x.test[ , temp$rm.const])
+        temp1 = bartModelMatrix(x.train1, numcut1, usequants=usequants,
+                               xinfo=x1info, rm.const=rm.const)
+        x.train1 = t(temp1$X)
+        numcut1 = temp1$numcut
+        x1info = temp1$xinfo
+        temp2 = bartModelMatrix(x.train2, numcut2, usequants=usequants,
+                               xinfo=x2info, rm.const=rm.const)
+        x.train2 = t(temp2$X)
+        numcut2 = temp2$numcut
+        x2info = temp2$xinfo
+        if(length(x.test1)>0) {
+            x.test1 = bartModelMatrix(x.test1)
+            x.test1 = t(x.test1[ , temp1$rm.const])
         }
-        rm.const <- temp$rm.const
-        rm(temp)
+        if(length(x.test2)>0){
+            x.test2 = bartModelMatrix(x.test2)
+            x.test2 = t(x.test2[ , temp2$rm.const])
+        }
+        rm.const1 <- temp1$rm.const
+        rm.const2 <- temp2$rm.const
+        rm(temp1,temp2)
     }
 
     mc.cores.detected <- detectCores()
@@ -71,19 +80,19 @@ mc.qbart <- function(x.train, times, delta, q,
 
     for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);
-            qbart(x.train1=x.train, times=times, delta=delta, q=q,
-                  x.test=x.test, K=K, type=type, ntype=ntype,
+            qbart(x.train1=x.train1, x.train2=x.train2, times=times, delta=delta,
+                  x.test1=x.test1, x.test2=x.test2, K=K, ntype=ntype,
                   sparse=sparse, theta=theta, omega=omega,
-                  a=a, b=b, augment=augment, rho=rho,
-                  xinfo=xinfo, usequants=usequants,
+                  a=a, b=b, augment=augment, rho1=rho1, rho2=rho2,
+                  x1info=x1info, x2info=x2info, usequants=usequants,
                   rm.const=rm.const,
                   sigest=sigest, sigdf=sigdf, sigquant=sigquant,
                   k=k, power=power, base=base,
                   ##sigmaf=sigmaf,
                   lambda=lambda, tau.num=tau.num,
                   ##tau.interval=tau.interval,
-                  offset=offset,
-                  w=w, ntree=ntree, numcut=numcut,
+                  ## offset=offset,
+                  w=w, ntree=ntree, numcut1=numcut1, numcut2=numcut2,
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery, printevery=printevery,
                   transposed=TRUE)},
@@ -119,22 +128,30 @@ mc.qbart <- function(x.train, times, delta, q,
         for(i in 2:mc.cores) {
             post$sigma <- cbind(post$sigma, post.list[[i]]$sigma)
 
-            post$yhat.train <- rbind(post$yhat.train,
-                                     post.list[[i]]$yhat.train)
+            post$prob.train <- rbind(post$prob.train,
+                                     post.list[[i]]$prob.train)
+
+            post$y2hat.train <- rbind(post$y2hat.train,
+                                     post.list[[i]]$y2hat.train)
 
             post$surv.train <- rbind(post$surv.train,
                                      post.list[[i]]$surv.train)
 
             if(keeptest) {
-                post$yhat.test <- rbind(post$yhat.test,
-                                        post.list[[i]]$yhat.test)
+                post$prob.test <- rbind(post$prob.test,
+                                     post.list[[i]]$prob.test)
+                
+                post$y2hat.test <- rbind(post$y2hat.test,
+                                        post.list[[i]]$y2hat.test)
 
                 post$surv.test <- rbind(post$surv.test,
                                         post.list[[i]]$surv.test)
             }
 
-            post$varcount <- rbind(post$varcount, post.list[[i]]$varcount)
-            post$varprob <- rbind(post$varprob, post.list[[i]]$varprob)
+            post$varcount1 <- rbind(post$varcount1, post.list[[i]]$varcount1)
+            post$varprob1 <- rbind(post$varprob1, post.list[[i]]$varprob1)
+            post$varcount2 <- rbind(post$varcount2, post.list[[i]]$varcount2)
+            post$varprob2 <- rbind(post$varprob2, post.list[[i]]$varprob2)
 
             post$treedraws$trees <- paste0(post$treedraws$trees,
                                            substr(post.list[[i]]$treedraws$trees, old.stop+2,
@@ -147,25 +164,22 @@ mc.qbart <- function(x.train, times, delta, q,
                     post$proc.time[j] <- post$proc.time[j]+post.list[[i]]$proc.time[j]
         }
 
-        if(type=='abart') {
-            post$yhat.train.mean <- apply(post$yhat.train, 2, mean)
+        
+            post$y2hat.train.mean <- apply(post$y2hat.train, 2, mean)
             post$surv.train.mean <- apply(post$surv.train, 2, mean)
 
             if(keeptest) {
-                post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
+                post$y2hat.test.mean <- apply(post$y2hat.test, 2, mean)
                 post$surv.test.mean <- apply(post$surv.test, 2, mean)
             }
-        } else {
-            post$prob.train.mean <- apply(post$prob.train, 2, mean)
+        
 
-            if(keeptest)
-                post$prob.test.mean <- apply(post$prob.test, 2, mean)
-        }
+        post$varcount1.mean <- apply(post$varcount1, 2, mean)
+        post$varprob1.mean <- apply(post$varprob1, 2, mean)
+        post$varcount2.mean <- apply(post$varcount2, 2, mean)
+        post$varprob2.mean <- apply(post$varprob2, 2, mean)
 
-        post$varcount.mean <- apply(post$varcount, 2, mean)
-        post$varprob.mean <- apply(post$varprob, 2, mean)
-
-        attr(post, 'class') <- type
+        attr(post, 'class') <- 'qbart'
 
         return(post)
     }

@@ -50,7 +50,7 @@ library(BART3)
 post <- abart(x.train=tdata$age, times=tdata$obstime, delta=tdata$event)
 #plot(xb[notcure], post$yhat.train.mean)
 plot(xb[notcure], ltime[notcure])
-par(mfrow=c(1,3))
+par(mfrow=c(1,2))
 plot(ltime[notcure],post$yhat.train.mean,pch=20,main="abart")
 abline(a=0,b=1,col=2)
 
@@ -62,6 +62,9 @@ mean(post1$prob.train)
 
 plot(post$yhat.train.mean, post1$y2hat.train.mean[notcure], pch=20, col = ifelse(delta[notcure]==1, 1, 2))
 abline(a=0,b=1,col=2)
+
+fl <- flexsurvcure(Surv(obstime,event)~meanlog(age), data=simcure, dist="lnorm")
+print(fl)
 
 #survival curves
 K <- post1$K

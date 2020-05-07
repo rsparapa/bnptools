@@ -343,8 +343,6 @@ void cqbart(
       
       //draw bart2
       bm2.draw(sigma, gen);
-      //draw bart1
-      bm1.draw(1., gen);
 
       //draw sigma
       double rss=0.;
@@ -359,9 +357,6 @@ void cqbart(
       sdraw[i]=sigma;
 
       for (size_t k=0; k<n; k++){
-	//draw z1
-	if (q[k]==0) z1[k] = -rtnorm(-bm1.f(k), binaryOffset, 1., gen);
-	else  z1[k] = rtnorm(bm1.f(k), -binaryOffset, 1., gen);
 	if (delta[k] == 0){
 	  if (q[k] == 1){
 	    //draw z2
@@ -383,7 +378,12 @@ void cqbart(
 	  #endif
 	}
 	else q[k] = 1;
+	//draw z1
+	if (q[k]==0) z1[k] = -rtnorm(-bm1.f(k), binaryOffset, 1., gen);
+	else  z1[k] = rtnorm(bm1.f(k), -binaryOffset, 1., gen);
       }
+      //draw bart1
+      bm1.draw(1., gen);
 
       
       if(i>=burn) {
