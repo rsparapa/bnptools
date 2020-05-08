@@ -32,20 +32,23 @@ comb=function(M, K, S=1:M) {
         C[1, ]=sort(S[1:M])
         return(C)
     } else if(K>1) {
-        if(K>26)
-            stop('K only supported up to 26 at this time')
+        ## if(K>26)
+        ##     stop('K only supported up to 26 at this time')
         a='0'
         for(N in 1:(K-1)) {
-            b=letters[N]
+            ## b=letters[N]
+            b=paste0('i', N)
             if(N==1)
                 cmd=paste0('for(', b, ' in (', a, '+1):(M-K+', N, '))\n')
             else cmd=paste0(cmd, 'for(', b, ' in (', a, '+1):(M-K+', N, '))\n')
             a=b
         }
-        b=letters[K]
+        ## b=letters[K]
+        b=paste0('i', K)
         cmd=paste0(cmd, 'for(', b, ' in (', a, '+1):M) {\n')
         cmd=paste0(cmd, 'C[N, ]=sort(c(')
-        for(N in 1:(K-1)) cmd=paste0(cmd, 'S[', letters[N], '],')
+        ##for(N in 1:(K-1)) cmd=paste0(cmd, 'S[', letters[N], '],')
+        for(N in 1:(K-1)) cmd=paste0(cmd, 'S[', paste0('i', N), '],')
         cmd=paste0(cmd, 'S[', b, ']))\n')
         cmd=paste0(cmd, 'N=N+1\n }')
         N=1
