@@ -129,7 +129,7 @@ perm.=function(M, K, S=1:M) {
     return(C)
 }
 
-for(K in 1:8)
-    for(M in K:8)
-        if(!all(perm(M, K)==perm.(M, K)))
-            print(c(M=M, K=K))
+## for(K in 1:8)
+##     for(M in K:8)
+##         if(!all(perm(M, K)==perm.(M, K)))
+##             print(c(M=M, K=K))
