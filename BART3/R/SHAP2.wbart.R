@@ -17,12 +17,16 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## Shapley additive explanation (SHAP) partial dependence function
-SHAP.wbart=function(object,  ## object returned from BART
+## for two-way interactions
+SHAP2.wbart=function(object, ## object returned from BART
                     x.train, ## x.train to estimate coverage
                     x.test,  ## settings of x.test: only x.test[ , S]
                              ## are used but they must all be given
-                    S)       ## indices of subset
+                    S)       ## indices of two variables
 {
+    if(length(S)!=2)
+        stop('S must be of length 2')
+    
     for(v in S)
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
@@ -43,36 +47,27 @@ SHAP.wbart=function(object,  ## object returned from BART
     ## L = dim(Trees)[1]
 
     M=P-length(S)
-    ##D=matrix(0, nrow=L, ncol=H)
-    D=EXPVALUE(Trees, x.test, S) ## S vs. emptyset
+    ## D=matrix(0, nrow=L, ncol=H)
+    D=EXPVALUE(Trees, x.test, S)-
+        EXPVALUE(Trees, x.test, i)-
+        EXPVALUE(Trees, x.test, j) 
     N=1 ## number of terms
-
+    i=S[1]
+    j=S[2]
+    
     if(M>0) {
         for(k in 1:M) {
             C=comb(M, k, (1:P)[-S])
             R=nrow(C)
             N=N+R
-            for(i in 1:R)
-                D=D+EXPVALUE(Trees, x.test, c(C[i, ], S))-
-                    EXPVALUE(Trees, x.test, C[i, ])
+            for(h in 1:R)
+                D=D+EXPVALUE(Trees, x.test, c(C[h, ], S))-
+                    EXPVALUE(Trees, x.test, c(C[h, ], i))-
+                    EXPVALUE(Trees, x.test, c(C[h, ], j))+
+                    EXPVALUE(Trees, x.test, C[h, ])
         }
-        D=D/N
+        D=D/N 
     }
 
     return(D)
-
-    ## D=matrix(0, nrow=L, ncol=H)
-
-    ## for(k in 1:M) {
-    ##     C=comb(M, k, (1:P)[-S])
-    ##     A=matrix(0, nrow=L, ncol=H)
-    ##     for(i in 1:nrow(C))
-    ##         A=A+EXPVALUE(Trees, x.test, c(C[i, ], S))-
-    ##             EXPVALUE(Trees, x.test, C[i, ])
-    ##     D=D+exp(lgamma(k+1)-lgamma(M+1))*A
-    ## }
-
-    ## D=D+EXPVALUE(Trees, x.test, S)/gamma(M+1) ## S vs. emptyset
-
-    ## return(D)
 }

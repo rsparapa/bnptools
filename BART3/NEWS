@@ -1,17 +1,28 @@
-Changes and New Features in 3.6 (2020-05-04):
+Changes and New Features in 3.6 (2020-05-09):
 	* Adding new S3 method, SHAP, that calculates the
 	Shapley additive explanation (SHAP) partial dependence function
-	which is equivalent to Friedman's partial dependence function
-	but Shapley can be computed from the original tree fit directly
-	whereas Friedman requires that predict() be called and 
-	intermediate results summarized which is typically more work
+	and SHAP2 for two-way interactions
+	an alternative to Friedman's partial dependence function
+	Shapley are computed from the x.test/predict fit directly 
+	whereas Friedman requires that x.test/predict be employed 
+	and intermediate results summarized over x.train
+	which can be more work or less work: it depends
+	since Shapley requires all possible variable subsets to 
+	be differenced which explodes with the number of variables
+	so there is an efficiency tradeoff between the two approaches
+	currently, this is written in R code, but C/C++ would 
+	certainly speed this up dramatically: some of the code
+	necessary can be found in the C/C++ function cpwbart
+	perhaps, there is a way to calculate the computational
+	complexity, and given the situation, use either
+	Shapley or Friedman, which ever is more efficient
 
 Changes and New Features in 3.5 (2020-04-14):
 	* fixing bugs in crisk3.bart, mc.crisk3.bart and gbart
 	most of these revolve around rm.const and its misuse
 	there is a possibility that these issues exist elsewhere
 
-	* predict.crisk3bart now handles missing data with 
+	* predict.crisk3bart/survbart now handle missing data with 
 	multiple imputation hot decking: likely potential for 
 	other functions to have similar capability
 

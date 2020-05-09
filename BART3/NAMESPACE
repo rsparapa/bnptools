@@ -25,7 +25,8 @@ export(bartModelMatrix)
 export(srstepwise)
 export(read.trees)
 export(EXPVALUE, comb, perm)
-export(SHAP) ## new S3 methods
+export(SHAP)  ## new S3 method: SHAP partial dependence function
+export(SHAP2) ## new S3 method: SHAP for two-way interactions
 ##export(dpgbart)
 importFrom(nnet, class.ind)
 importFrom(Rcpp, evalCpp)
@@ -35,6 +36,7 @@ importFrom(survival, survfit, Surv, survreg)
 importFrom(tools, psnice)
 importFrom(nlme, lme)
 S3method(SHAP, wbart)
+S3method(SHAP2, wbart)
 S3method(SHAP, survbart)
 S3method(SHAP, crisk3bart)
 ##S3method(hotdeck, wbart)

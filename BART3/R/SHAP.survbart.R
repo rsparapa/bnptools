@@ -44,10 +44,14 @@ SHAP.survbart  =function(object,       ## object returned from BART
 
     pred=list()
 
+    attr(object, 'class') <- 'wbart'
+    pred$yhat.test <- SHAP(object, x.train, x.test, S)
+    attr(object, 'class') <- 'survbart'
+    ## pred$yhat.test <- object$offset+EXPVALUE(trees, x.test, S)
+
     pred$times <- object$times
     K <- object$K
     pred$K = K
-    pred$yhat.test <- object$offset+EXPVALUE(trees, x.test, S)
     pred$offset <- object$offset
 
     if(type=='pbart')

@@ -1,6 +1,6 @@
-\name{BART-package}
-\alias{BART-package}
-\alias{BART}
+\name{BART3-package}
+\alias{BART3-package}
+\alias{BART3}
 \docType{package}
 \title{Bayesian Additive Regression Trees}
 \description{
