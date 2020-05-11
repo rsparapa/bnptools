@@ -25,6 +25,8 @@ export(bartModelMatrix)
 export(srstepwise)
 export(read.trees)
 export(EXPVALUE, comb, perm)
+export(FPD)   ## new S3 method: Friedman's partial dependence function
+export(HD)    ## new S3 method: Hot deck partial dependence function
 export(SHAP)  ## new S3 method: SHAP partial dependence function
 export(SHAP2) ## new S3 method: SHAP for two-way interactions
 ##export(dpgbart)
@@ -35,6 +37,8 @@ importFrom(stats, ar, cor, dbinom, dnorm, lm, predict, pnorm, qnorm, qchisq, plo
 importFrom(survival, survfit, Surv, survreg)
 importFrom(tools, psnice)
 importFrom(nlme, lme)
+S3method(HD, wbart)
+S3method(FPD, wbart)
 S3method(SHAP, wbart)
 S3method(SHAP2, wbart)
 S3method(SHAP, survbart)
