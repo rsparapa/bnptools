@@ -2,7 +2,7 @@ library(qBART)
 
 set.seed(33120)
 #simulate data
-p <- 0.7  #not cured
+p <- 0.99  #not cured
 n <- 2000  #total subj
 status <- sample(0:1, n, replace = TRUE, prob = c((1-p),p))
 x1 <- rnorm(n, mean = 0, sd = 4)
@@ -54,7 +54,7 @@ par(mfrow=c(1,2))
 plot(ltime[notcure],post$yhat.train.mean,pch=20,main="abart")
 abline(a=0,b=1,col=2)
 
-post1 <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, q=simcure$Ncure)
+post1 <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, q=simcure$Ncure, nskip=0, ndpost=5)
 #str(post1)
 plot(ltime[notcure],post1$y2hat.train.mean[notcure], pch=20, col = ifelse(delta[notcure]==1, 1, 2), main="qbart")
 abline(a=0,b=1,col=2)
