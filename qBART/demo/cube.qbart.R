@@ -2,7 +2,7 @@ library(qBART)
 
 set.seed(33120)
 #simulate data
-p <- 0.99  #not cured
+p <- 0.7  #not cured
 n <- 2000  #total subj
 status <- sample(0:1, n, replace = TRUE, prob = c((1-p),p))
 x1 <- rnorm(n, mean = 0, sd = 4)

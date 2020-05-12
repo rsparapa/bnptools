@@ -132,7 +132,7 @@ RcppExport SEXP cqbart(
    Rcpp::IntegerMatrix varcnt2(nkeeptreedraws,p2);
    Rcpp::NumericMatrix X1info(_X1info);
    Rcpp::NumericMatrix X2info(_X2info);
-   Rcpp::NumericVector sdraw(nd+burn);
+   Rcpp::NumericVector sdraw(nd/thin);
    Rcpp::NumericMatrix trdraw1(nkeeptrain,n);
    Rcpp::NumericMatrix tedraw1(nkeeptest,np);
    Rcpp::NumericMatrix trdraw2(nkeeptrain,n);
@@ -354,7 +354,7 @@ void cqbart(
 	}
       }
       sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
-      sdraw[i]=sigma;
+      //sdraw[i]=sigma;
 
       for (size_t k=0; k<n; k++){
 	if (delta[k] == 0){
@@ -363,10 +363,10 @@ void cqbart(
 	    z2[k] = rtnorm(bm2.f(k), iy[k], sigma, gen);
 	  }
 	  #ifndef NoRcpp
-	  pz1[k] = R::pnorm(z1[k]+binaryOffset,0,1,1,0);
+	  pz1[k] = R::pnorm(z1[k], -binaryOffset,1,1,0);
 	  st[k] = R::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
 	  #else
-	  pz1[k] = ::pnorm(z1[k]+binaryOffset,0,1,1,0);
+	  pz1[k] = ::pnorm(z1[k], -binaryOffset,1,1,0);
 	  st[k] = ::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
 	  #endif
 	  pt[k] = pz1[k]*st[k]/(1-pz1[k]+pz1[k]*st[k]);
@@ -392,6 +392,7 @@ void cqbart(
 	      TRDRAW1(trcnt,k)=binaryOffset+bm1.f(k);
 	      TRDRAW2(trcnt,k)=Offset+bm2.f(k);
 	    }
+	    sdraw[trcnt]=sigma;
             trcnt+=1;
          }
          keeptest = nkeeptest && (((i-burn+1) % skipte) ==0) && np;
