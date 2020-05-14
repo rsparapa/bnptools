@@ -25,8 +25,14 @@
 #include "treefuns.h"
 #include "bartfuns.h"
 
-bool bd(tree& x, xinfo& xi, dinfo& di, pinfo& pi, double sigma,
+bool bd(tree& x, xinfo& xi, dinfo& di, pinfo& pi, double sigma, 
 	std::vector<size_t>& nv, std::vector<double>& pv, bool aug, rn& gen);
+
+/*
+bool bd(tree& x, xinfo& xi, dinfo& di, pinfo& pi, double sigma, int lisa,
+	std::vector<size_t>& nv, std::vector<double>& pv, bool aug, rn& gen) 
+{ return bd(x, xi, di, pi, sigma*sqrt(lisa), nv, pv, aug, gen); }
+*/
 
 bool bd(tree& x, xinfo& xi, dinfo& di, pinfo& pi, double sigma, 
 	std::vector<size_t>& nv, std::vector<double>& pv, bool aug, rn& gen)

@@ -27,10 +27,10 @@
 #include "heterbartfuns.h"
 
 bool heterbd(tree& x, xinfo& xi, dinfo& di, pinfo& pi, double *sigma, 
-	     std::vector<size_t>& nv, std::vector<double>& pv, bool aug, rn& gen);
+	     std::vector<size_t>& nv, std::vector<double>& pv, bool aug, rn& gen, int shards=1);
 
 bool heterbd(tree& x, xinfo& xi, dinfo& di, pinfo& pi, double *sigma, 
-	     std::vector<size_t>& nv, std::vector<double>& pv, bool aug, rn& gen)
+	     std::vector<size_t>& nv, std::vector<double>& pv, bool aug, rn& gen, int shards)
 {
    tree::npv goodbots;  //nodes we could birth at (split on)
    double PBx = getpb(x,xi,pi,goodbots); //prob of a birth at x
@@ -49,7 +49,7 @@ bool heterbd(tree& x, xinfo& xi, dinfo& di, pinfo& pi, double *sigma,
       size_t nr,nl; //counts in proposed bots
       double bl,br; //sums of weights
       double Ml, Mr; //weighted sum of y in proposed bots
-      hetergetsuff(x,nx,v,c,xi,di,nl,bl,Ml,nr,br,Mr,sigma);
+      hetergetsuff(x,nx,v,c,xi,di,nl,bl,Ml,nr,br,Mr,sigma,shards);
 
       //--------------------------------------------------
       //compute alpha
@@ -90,7 +90,7 @@ bool heterbd(tree& x, xinfo& xi, dinfo& di, pinfo& pi, double *sigma,
       //compute sufficient statistics
       double br,bl; //sums of weights
       double Ml, Mr; //weighted sums of y
-      hetergetsuff(x, nx->getl(), nx->getr(), xi, di, bl, Ml, br, Mr, sigma);
+      hetergetsuff(x, nx->getl(), nx->getr(), xi, di, bl, Ml, br, Mr, sigma, shards);
 
       //--------------------------------------------------
       //compute alpha

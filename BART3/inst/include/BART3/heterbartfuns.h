@@ -29,10 +29,10 @@
 double heterlh(double b, double M, double tau);
 //--------------------------------------------------
 //compute b and M  for left and right give bot and v,c
-void hetergetsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo& di, size_t& nl, double& bl, double& Ml, size_t& nr, double& br, double& Mr, double *sigma);
+void hetergetsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo& di, size_t& nl, double& bl, double& Ml, size_t& nr, double& br, double& Mr, double *sigma, int shards=1);
 //--------------------------------------------------
 //compute b and M for left and right bots
-void hetergetsuff(tree& x, tree::tree_p l, tree::tree_p r, xinfo& xi, dinfo& di, double& bl, double& Ml, double& br, double& Mr, double *sigma);
+void hetergetsuff(tree& x, tree::tree_p l, tree::tree_p r, xinfo& xi, dinfo& di, double& bl, double& Ml, double& br, double& Mr, double *sigma, int shards=1);
 //--------------------------------------------------
 //draw one mu from post
 double heterdrawnodemu(double b, double M, double tau, rn& gen);
@@ -52,7 +52,7 @@ double heterlh(double b, double M, double tau) {
 }
 //--------------------------------------------------
 //compute b and M  for left and right give bot and v,c
-void hetergetsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo& di, size_t& nl, double& bl, double& Ml, size_t& nr,  double& br, double& Mr, double *sigma)
+void hetergetsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo& di, size_t& nl, double& bl, double& Ml, size_t& nr,  double& br, double& Mr, double *sigma, int shards)
 {
    double *xx;//current x
    bl=0; Ml=0.0; br=0; Mr=0.0; nl=0; nr=0;
@@ -61,7 +61,8 @@ void hetergetsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo
    for(size_t i=0;i<di.n;i++) {
       xx = di.x + i*di.p;
       if(nx==x.bn(xx,xi)) { //does the bottom node = xx's bottom node
-         w= 1.0/(sigma[i]*sigma[i]);
+         w=pow(sigma[i], -2.)/shards;
+         //w= 1.0/(sigma[i]*sigma[i]);
          if(xx[v] < xi[v][c]) {
                nl+=1;
                bl+=w;
@@ -76,7 +77,7 @@ void hetergetsuff(tree& x, tree::tree_p nx, size_t v, size_t c, xinfo& xi, dinfo
 }
 //--------------------------------------------------
 //compute b and M for left and right bots
-void hetergetsuff(tree& x, tree::tree_p l, tree::tree_p r, xinfo& xi, dinfo& di, double& bl, double& Ml, double& br, double& Mr, double *sigma)
+void hetergetsuff(tree& x, tree::tree_p l, tree::tree_p r, xinfo& xi, dinfo& di, double& bl, double& Ml, double& br, double& Mr, double *sigma, int shards)
 {
 
    double *xx;//current x
@@ -87,12 +88,14 @@ void hetergetsuff(tree& x, tree::tree_p l, tree::tree_p r, xinfo& xi, dinfo& di,
       xx = di.x + i*di.p;
       tree::tree_cp bn = x.bn(xx,xi);
       if(bn==l) {
-         w = 1.0/(sigma[i]*sigma[i]);
+	w=pow(sigma[i], -2.)/shards;
+         //w = 1.0/(sigma[i]*sigma[i]);
          bl+=w;
          Ml += w*di.y[i];
       }
       if(bn==r) {
-         w = 1.0/(sigma[i]*sigma[i]);
+	w=pow(sigma[i], -2.)/shards;
+         //w = 1.0/(sigma[i]*sigma[i]);
          br+=w;
          Mr += w*di.y[i];
       }
@@ -127,7 +130,8 @@ void heterallsuff(tree& x, xinfo& xi, dinfo& di, tree::npv& bnv, std::vector<dou
 
    double w;
    for(size_t i=0;i<di.n;i++) {
-      w = 1.0/(sigma[i]*sigma[i]);
+     w=pow(sigma[i], -2.);
+     // w = 1.0/(sigma[i]*sigma[i]);
       xx = di.x + i*di.p;
       tbn = x.bn(xx,xi);
       ni = bnmap[tbn];

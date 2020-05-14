@@ -26,11 +26,21 @@
 
 class heterbart : public bart
 {
+  public:
+   heterbart():bart() { }
+   heterbart(size_t m):bart(m) { }
+   void pr();
+   void draw(double *sigma, rn& gen, int shards=1);
+/*
 public:
-   heterbart():bart() {}
-   heterbart(size_t m):bart(m) {}
+   heterbart():bart() { this->shards=1; }
+   heterbart(size_t m):bart(m) { this->shards=1; }
+   heterbart(size_t m, int shards):bart(m) { this->shards=shards; }
    void pr();
    void draw(double *sigma, rn& gen);
+protected:
+  int shards; //number of shards for Modified LISA
+*/
 };
 
 //--------------------------------------------------
@@ -40,7 +50,7 @@ void heterbart::pr()
    bart::pr();
 }
 //--------------------------------------------------
-void heterbart::draw(double *sigma, rn& gen)
+void heterbart::draw(double *sigma, rn& gen, int shards)
 {
    for(size_t j=0;j<m;j++) {
       fit(t[j],xi,p,n,x,ftemp);
@@ -48,7 +58,7 @@ void heterbart::draw(double *sigma, rn& gen)
          allfit[k] = allfit[k]-ftemp[k];
          r[k] = y[k]-allfit[k];
       }
-      heterbd(t[j],xi,di,pi,sigma,nv,pv,aug,gen);
+      heterbd(t[j],xi,di,pi,sigma,nv,pv,aug,gen,shards);
       heterdrmu(t[j],xi,di,pi,sigma,gen);
       fit(t[j],xi,p,n,x,ftemp);
       for(size_t k=0;k<n;k++) allfit[k] += ftemp[k];

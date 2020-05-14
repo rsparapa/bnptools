@@ -2,6 +2,7 @@
 \title{Generalized BART for continuous and binary outcomes}
 \alias{gbart}
 \alias{mc.gbart}
+\alias{ml.gbart}
 \description{
 BART is a Bayesian \dQuote{sum-of-trees} model.\cr
 For a numeric response \eqn{y}, we have
@@ -28,19 +29,16 @@ gbart(
       rm.const=TRUE,
       sigest=NA, sigdf=3, sigquant=0.90,
       k=2, power=2, base=0.95,
-      %sigmaf=NA,
-      lambda=NA, tau.num=c(NA, 3, 6)[ntype], %tau.interval=0.9973,
+      lambda=NA, tau.num=c(NA, 3, 6)[ntype], 
       offset=NULL, w=rep(1, length(y.train)),
       ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
-      %ntree=200L, numcut=100L,
-      ndpost=1000L, nskip=100L, %keepevery=1L,
+      ndpost=1000L, nskip=100L, 
       keepevery=c(1L, 10L, 10L)[ntype],
       printevery=100L, transposed=FALSE,
-      %keeptestfits=NULL,
-      hostname=FALSE,
       mc.cores = 1L, ## mc.gbart only
       nice = 19L,    ## mc.gbart only
-      seed = 99L     ## mc.gbart only
+      seed = 99L,    ## mc.gbart only
+      shards = 1L    ## ml.gbart only
 )
 
 mc.gbart(
@@ -54,17 +52,14 @@ mc.gbart(
          rm.const=TRUE,
          sigest=NA, sigdf=3, sigquant=0.90,
          k=2, power=2, base=0.95,
-         %sigmaf=NA,
-         lambda=NA, tau.num=c(NA, 3, 6)[ntype], %tau.interval=0.9973,
+         lambda=NA, tau.num=c(NA, 3, 6)[ntype], 
          offset=NULL, w=rep(1, length(y.train)),
-         %ntree=200L, numcut=100L,
          ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
-         ndpost=1000L, nskip=100L, %keepevery=1L,
+         ndpost=1000L, nskip=100L, 
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
-         %keeptestfits=NULL,
-         hostname=FALSE,
-         mc.cores = 2L, nice = 19L, seed = 99L
+         mc.cores = 2L, nice = 19L, seed = 99L,
+         shards = 1L    ## ml.gbart only
 )
 
 }
@@ -233,11 +228,11 @@ argument \code{type} to specify a logit BART model.
    %%   called from \code{crisk3.bart} with no covariates besides time.
    %% }
    
- \item{hostname}{
-   When running on a cluster occasionally it is useful
-   to track on which node each chain is running; to do so
-   set this argument to \code{TRUE}.
- }
+ %% \item{hostname}{
+ %%   When running on a cluster occasionally it is useful
+ %%   to track on which node each chain is running; to do so
+ %%   set this argument to \code{TRUE}.
+ %% }
  
     \item{seed}{
      Setting the seed required for reproducible MCMC.
@@ -250,6 +245,10 @@ argument \code{type} to specify a logit BART model.
    \item{nice}{
      Set the job niceness.  The default
      niceness is 19: niceness goes from 0 (highest) to 19 (lowest).
+   }
+
+   \item{shards}{
+     The number of shards to break the data into.
    }
 }
 \details{
