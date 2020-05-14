@@ -336,6 +336,7 @@ void cqbart(
    //out of sample fit
    double* fhattest1=0; 
    double* fhattest2=0;
+   double* fhattr2= new double[n];
    if(np) { fhattest1 = new double[np]; fhattest2 = new double[np]; }
 
    //--------------------------------------------------
@@ -359,26 +360,30 @@ void cqbart(
       //draw bart2
       bm2.draw(sigma, gen);
 
+      //predict
+      bm2.predict(p2,n,ix2,fhattr2);
+
       //draw sigma
       double rss=0.;
       double df=nu;
       for(size_t k=0;k<n;k++) {
 	if (q[k]==1) {
-	  rss += pow((iy[k]-bm2.f(k))/(iw[k]), 2.); 
+	  rss += pow((iy[k]-fhattr2[k])/(iw[k]), 2.); 
 	  df += 1;
 	}
       }
       sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
       //sdraw[i]=sigma;
 
+	
       for (size_t k=0; k<n; k++){
 	if (delta[k] == 0){
 	  #ifndef NoRcpp
 	  pz1[k] = R::pnorm(bm1.f(k)+binaryOffset,0,1,1,0);
-	  st[k] = R::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
+	  st[k] = R::pnorm(iy[k], fhattr2[k], sigma, 0, 0);
 	  #else
 	  pz1[k] = ::pnorm(bm1.f(k)+binaryOffset,0,1,1,0);
-	  st[k] = ::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
+	  st[k] = ::pnorm(iy[k], fhattr2[k], sigma, 0, 0);
 	  #endif
 	  pt[k] = pz1[k]*st[k]/(1-pz1[k]+pz1[k]*st[k]);
 	  //draw q
@@ -395,7 +400,7 @@ void cqbart(
 	  z1[k] = rtnorm(bm1.f(k), -binaryOffset, 1., gen);
 	  if (delta[k] == 0) {
 	    //draw z2
-	    z2[k] = rtnorm(bm2.f(k), iy[k], sigma, gen);
+	    z2[k] = rtnorm(fhattr2[k], iy[k], sigma, gen);
 	  }
 	}
       }
@@ -411,7 +416,7 @@ void cqbart(
 	      qdraw(trcnt,k)=q[k];
 	      stdraw(trcnt,k)=st[k];
 	      ptdraw(trcnt,k)=pt[k];
-	      TRDRAW2(trcnt,k)=Offset+bm2.f(k);
+	      TRDRAW2(trcnt,k)=Offset+fhattr2[k];
 	    }
 	    sdraw[trcnt]=sigma;
             trcnt+=1;
@@ -459,7 +464,7 @@ void cqbart(
    printf("trcnt,tecnt: %zu,%zu\n",trcnt,tecnt);
 
    if(fhattest1) delete[] fhattest1; if(fhattest2) delete[] fhattest2;
-   delete[] z1; delete[] z2; delete[] pz1; delete[] pt; delete[] st;
+   delete[] z1; delete[] z2; delete[] pz1; delete[] pt; delete[] st; delete[] fhattr2;
    //delete[] svec;
    
 
