@@ -41,20 +41,40 @@
         stop(paste0('the number of columns in x.train and\n',
                     'the length of cutpoints are not the same'))
 
-    N=nrow(x.train)
     Q=nrow(x.test)
     for(i in 1:(Q-1))
         for(j in (i+1):Q)
             if(all(x.test[i, S]==x.test[j, S]))
-                stop(paste0('Row ', i, ' and ', j,
+                warning(paste0('Row ', i, ' and ', j,
                             ' of x.test are equal with respect to S'))
 
-    miss=apply(is.na(x.train), 2, sum)
-    names(miss)=names(object$treedraws$cutpoints)
-    miss.=(sum(miss)>0)
+    M=P-length(S)
+    D=hotdeck(x.train, x.test, S, object$treedraws, mc.cores=mc.cores)
 
-    pred=hotdeck(x.train, x.test, S, object$treedraws, object$offset,
-                 mc.cores=mc.cores)
+    ## weighted difference
+    if(M>0) {
+        for(k in 1:M) {
+            C=comb(M, k, (1:P)[-S])
+            R=nrow(C)
+            for(i in 1:R)
+                D=D+(hotdeck(x.train, x.test, c(C[i, ], S),
+                             object$treedraws, mc.cores=mc.cores)-
+                     hotdeck(x.train, x.test, C[i, ],
+                             object$treedraws, mc.cores=mc.cores))/
+                    choose(M, k)
+        }
+    }
+
+    return(D/P)
+
+    ## miss=apply(is.na(x.train), 2, sum)
+    ## names(miss)=names(object$treedraws$cutpoints)
+    ## miss.=(sum(miss)>0)
+
+    ## pred=hotdeck(x.train, x.test, S, object$treedraws, object$offset,
+    ##              mc.cores=mc.cores)
+
+    ## return(pred)
 
     ## set.seed(seed)
     ## for(i in 1:Q) {
@@ -76,7 +96,5 @@
     ##     else
     ##         pred=cbind(pred, pred.)
     ## }
-
-    return(pred)
 }
 

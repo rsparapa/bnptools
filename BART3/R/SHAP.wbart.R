@@ -38,41 +38,43 @@ SHAP.wbart=function(object,  ## object returned from BART
     if(P!=length(object$treedraws$cutpoints))
         stop('the number of columns in x.train and length of cutpoints are not the same')
 
+    Q=nrow(x.test)
+    for(i in 1:(Q-1))
+        for(j in (i+1):Q)
+            if(all(x.test[i, S]==x.test[j, S]))
+                warning(paste0('Row ', i, ' and ', j,
+                            ' of x.test are equal with respect to S'))
+
     Trees=read.trees(object$treedraws, x.train)
-    ## H = nrow(x.test)
-    ## L = dim(Trees)[1]
 
     M=P-length(S)
-    ##D=matrix(0, nrow=L, ncol=H)
     D=EXPVALUE(Trees, x.test, S) ## S vs. emptyset
-    N=1 ## number of terms
 
+    ## weighted difference
     if(M>0) {
         for(k in 1:M) {
             C=comb(M, k, (1:P)[-S])
             R=nrow(C)
-            N=N+R
             for(i in 1:R)
-                D=D+EXPVALUE(Trees, x.test, c(C[i, ], S))-
-                    EXPVALUE(Trees, x.test, C[i, ])
+                D=D+(EXPVALUE(Trees, x.test, c(C[i, ], S))-
+                    EXPVALUE(Trees, x.test, C[i, ]))/choose(M, k)
         }
-        D=D/N
     }
 
-    return(D)
+    return(D/P)
 
-    ## D=matrix(0, nrow=L, ncol=H)
+    ## unweighted difference
+    ## N=1 ## number of terms
 
-    ## for(k in 1:M) {
-    ##     C=comb(M, k, (1:P)[-S])
-    ##     A=matrix(0, nrow=L, ncol=H)
-    ##     for(i in 1:nrow(C))
-    ##         A=A+EXPVALUE(Trees, x.test, c(C[i, ], S))-
-    ##             EXPVALUE(Trees, x.test, C[i, ])
-    ##     D=D+exp(lgamma(k+1)-lgamma(M+1))*A
+    ## if(M>0) {
+    ##     for(k in 1:M) {
+    ##         C=comb(M, k, (1:P)[-S])
+    ##         R=nrow(C)
+    ##         N=N+R
+    ##         for(i in 1:R)
+    ##             D=D+EXPVALUE(Trees, x.test, c(C[i, ], S))-
+    ##                 EXPVALUE(Trees, x.test, C[i, ])
+    ##     }
+    ##     D=D/N
     ## }
-
-    ## D=D+EXPVALUE(Trees, x.test, S)/gamma(M+1) ## S vs. emptyset
-
-    ## return(D)
 }
