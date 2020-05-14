@@ -26,6 +26,8 @@
 #define TRDRAW1(a, b) trdraw1(a, b)
 #define TEDRAW1(a, b) tedraw1(a, b)
 #define QDRAW(a, b) qdraw(a, b)
+#define STDRAW(a, b) stdraw(a, b)
+#define PTDRAW(a, b) ptdraw(a, b)
 #define TRDRAW2(a, b) trdraw2(a, b)
 #define TEDRAW2(a, b) tedraw2(a, b)
 
@@ -137,6 +139,8 @@ RcppExport SEXP cqbart(
    Rcpp::NumericMatrix trdraw1(nkeeptrain,n);
    Rcpp::NumericMatrix tedraw1(nkeeptest,np);
    Rcpp::NumericMatrix qdraw(nkeeptrain,n);
+   Rcpp::NumericMatrix stdraw(nkeeptrain,n);
+   Rcpp::NumericMatrix ptdraw(nkeeptrain,n);
    Rcpp::NumericMatrix trdraw2(nkeeptrain,n);
    Rcpp::NumericMatrix tedraw2(nkeeptest,np);
 
@@ -173,6 +177,8 @@ RcppExport SEXP cqbart(
 #define TRDRAW1(a, b) trdraw1[a][b]
 #define TEDRAW1(a, b) tedraw1[a][b]
 #define QDRAW(a, b) qdraw[a][b]
+#define STDRAW(a, b) stdraw[a][b]
+#define PTDRAW(a, b) ptdraw[a][b]
 #define TRDRAW2(a, b) trdraw2[a][b]
 #define TEDRAW2(a, b) tedraw2[a][b]
 
@@ -221,6 +227,8 @@ void cqbart(
    double* _trdraw1,
    double* _tedraw1,
    double* _qdraw,
+   double* _stdraw,
+   double* _ptdraw,
    double* _trdraw2,
    double* _tedraw2
 )
@@ -230,10 +238,12 @@ void cqbart(
    std::vector<double*> trdraw1(nkeeptrain);
    std::vector<double*> tedraw1(nkeeptest);
    std::vector<double*> qdraw(nkeeptrain);
+   std::vector<double*> stdraw(nkeeptrain);
+   std::vector<double*> ptdraw(nkeeptrain);
    std::vector<double*> trdraw2(nkeeptrain);
    std::vector<double*> tedraw2(nkeeptest);
 
-   for(size_t i=0; i<nkeeptrain; ++i) {trdraw1[i]=&_trdraw1[i*n]; trdraw2[i]=&_trdraw2[i*n];qdraw[i]=&_qdraw[i*n];}
+   for(size_t i=0; i<nkeeptrain; ++i) {trdraw1[i]=&_trdraw1[i*n]; trdraw2[i]=&_trdraw2[i*n];qdraw[i]=&_qdraw[i*n];stdraw[i]=&_stdraw[i*n];ptdraw[i]=&_ptdraw[i*n];}
    for(size_t i=0; i<nkeeptest; ++i) {tedraw1[i]=&_tedraw1[i*np]; tedraw2[i]=&_tedraw2[i*np];}
 
    //matrix to return dart posteriors (counts and probs)
@@ -364,10 +374,10 @@ void cqbart(
       for (size_t k=0; k<n; k++){
 	if (delta[k] == 0){
 	  #ifndef NoRcpp
-	  pz1[k] = R::pnorm(z1[k], -binaryOffset,1,1,0);
+	  pz1[k] = R::pnorm(bm1.f(k)+binaryOffset,0,1,1,0);
 	  st[k] = R::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
 	  #else
-	  pz1[k] = ::pnorm(z1[k], -binaryOffset,1,1,0);
+	  pz1[k] = ::pnorm(bm1.f(k)+binaryOffset,0,1,1,0);
 	  st[k] = ::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
 	  #endif
 	  pt[k] = pz1[k]*st[k]/(1-pz1[k]+pz1[k]*st[k]);
@@ -378,7 +388,7 @@ void cqbart(
 	  q[k] = ::rbinom(1, pt[k]);
 	  #endif
 	}
-	else q[k] = 1;
+	else {q[k] = 1; st[k] = 1; pt[k] = 1;}
 	//draw z1
 	if (q[k]==0) z1[k] = -rtnorm(-bm1.f(k), binaryOffset, 1., gen);
 	else  {
@@ -399,6 +409,8 @@ void cqbart(
             for(size_t k=0;k<n;k++) {
 	      TRDRAW1(trcnt,k)=binaryOffset+bm1.f(k);
 	      qdraw(trcnt,k)=q[k];
+	      stdraw(trcnt,k)=st[k];
+	      ptdraw(trcnt,k)=pt[k];
 	      TRDRAW2(trcnt,k)=Offset+bm2.f(k);
 	    }
 	    sdraw[trcnt]=sigma;
@@ -464,6 +476,8 @@ void cqbart(
    ret["varcount2"]=varcnt2;
    ret["varprob2"]=varprb2;
    ret["qdraws"]=qdraw;
+   ret["stdraws"]=stdraw;
+   ret["ptdraws"]=ptdraw;
 
    Rcpp::List xi1ret(xi1.size());
    for(size_t i=0;i<xi1.size();i++) {
