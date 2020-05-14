@@ -40,6 +40,7 @@ RcppExport SEXP cqbart(
    SEXP _ix1,            //x1, train for cure status,  pxn (transposed so rows are contiguous in memory)
    SEXP _ix2,           //x2, train for y
    SEXP _iy,            //y, train,  nx1
+   SEXP _imaxy,
    SEXP _idelta,        //censoring indicator
    SEXP _iq0,             //initial cure status
    SEXP _ixp1,           //x, test1, pxnp (transposed so rows are contiguous in memory)
@@ -85,6 +86,7 @@ RcppExport SEXP cqbart(
    double *ix2 = &xv2[0];
    Rcpp::NumericVector  yv(_iy); 
    double *iy = &yv[0];
+   double maxy = Rcpp::as<double>(_imaxy);
    Rcpp::IntegerVector  deltav(_idelta); 
    int *delta = &deltav[0];
    Rcpp::IntegerVector  qv(_iq0); 
@@ -191,6 +193,7 @@ void cqbart(
    double* ix1,		//x1, train for cure status,  pxn (transposed so rows are contiguous in memory)
    double* ix2,         //x2, train for y
    double* iy,		//y, train,  nx1
+   double maxy,
    int* delta,          //censoring indicator
    int* q0,              //initial cure status
    double* ixp1,		//x, test1, pxnp (transposed so rows are contiguous in memory)
@@ -307,7 +310,7 @@ void cqbart(
    
    //double *sign;
    //if(type!=1) sign = new double[n]; 
-
+   
    for(size_t k=0; k<n; k++) {
      if(q0[k]==0) z1[k] = -rtnorm(0., binaryOffset, 1., gen);
      else z1[k] = rtnorm(0., -binaryOffset, 1., gen);
@@ -401,6 +404,7 @@ void cqbart(
 	  if (delta[k] == 0) {
 	    //draw z2
 	    z2[k] = rtnorm(fhattr2[k], iy[k], sigma, gen);
+	    z2[k] = std::min(maxy, z2[k]);  //maximum cap
 	  }
 	}
       }
@@ -414,7 +418,7 @@ void cqbart(
             for(size_t k=0;k<n;k++) {
 	      TRDRAW1(trcnt,k)=binaryOffset+bm1.f(k);
 	      qdraw(trcnt,k)=q[k];
-	      stdraw(trcnt,k)=st[k];
+	      stdraw(trcnt,k)=Offset+bm2.f(k);
 	      ptdraw(trcnt,k)=pt[k];
 	      TRDRAW2(trcnt,k)=Offset+fhattr2[k];
 	    }
@@ -481,7 +485,7 @@ void cqbart(
    ret["varcount2"]=varcnt2;
    ret["varprob2"]=varprb2;
    ret["qdraws"]=qdraw;
-   ret["stdraws"]=stdraw;
+   ret["bm2fdraws"]=stdraw;
    ret["ptdraws"]=ptdraw;
 
    Rcpp::List xi1ret(xi1.size());

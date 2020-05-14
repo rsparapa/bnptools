@@ -67,13 +67,16 @@ plot(rowMeans(post1$prob.train), type='l', ylab="p", main="trajectory of p")  #t
 abline(h=p,col=2)
 
 par(mfrow=c(2,1))
-i <- 6
+i <- 1
 i <- (1:n)[!notcens][i]  #the i^th censored subj
 plot(post1$ptdraw[,i], type='l')  #p(Q=1|delta=0)
 abline(h=simcure$Ncure[i], col=2)  #true Q
-plot(post1$qdraw[200:400,i], type='l')  #imputed Q
+plot(post1$qdraw[,i], type='l')  #imputed Q
 abline(h=simcure$Ncure[i], col=2)  #true Q
-lines(post1$stdraw[200:400,i], type='l', col=2)  #S(t|delta=0)
+plot(post1$bm2fdraws[,i], type='l')
+lines(post1$y2hat.train[,i],col=2)
+abline(h=ltime[i], col=3)
+plot(post1$stdraw[200:400,i], type='l', col=2)  #S(t|delta=0)
 abline(h=pnorm(log(simcure$obstime[i]),mean=xb[i],lower.tail=FALSE), col=2)
 
 lines(post1$y2hat.train[200:400,i], type='l', col=2)

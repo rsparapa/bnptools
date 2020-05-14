@@ -178,6 +178,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta, q=NULL,
     rm(tempd, tempx, fit0)
 
     y.train = y.train-offset
+    maxy = max(y.train[delta==1])*1.2
     
     if(is.na(lambda)) {
         if(is.na(sigest)) {
@@ -208,6 +209,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta, q=NULL,
                 x.train1,   #pxn training data for cure status
                 x.train2,   #pxn training data for y
                 y.train,   #training data log(time)
+                maxy,
                 delta,     ## censoring indicator
                 q0,        ##initial guess of cure status
                 x.test1,    #p*np test data for cure status
