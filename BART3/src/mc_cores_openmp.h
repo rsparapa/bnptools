@@ -17,12 +17,35 @@
  *  https://www.R-project.org/Licenses/GPL-2
  */
 
-#include <BART3.h>
-#include "cabart.h"
-#include "cgbart.h"
-#include "clbart.h"
-#include "cpbart.h"
-#include "cpwbart.h"
-#include "chotdeck.h"
-#include "cwbart.h"
-#include "mc_cores_openmp.h"
+#ifndef NoRcpp
+
+RcppExport SEXP mc_cores_openmp() {
+
+#else
+
+int mc_cores_openmp() {
+
+#endif
+
+#ifdef _OPENMP
+
+int mc_cores_openmp=omp_get_num_threads();
+
+#else
+
+int mc_cores_openmp=0;
+
+#endif
+
+#ifndef NoRcpp
+
+return Rcpp::wrap(mc_cores_openmp);
+
+#else
+
+return mc_cores_openmp;
+
+#endif
+
+}
+
