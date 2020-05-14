@@ -5,15 +5,13 @@
   sampling to balance outcomes among the shards.
 }
 \usage{
-stratrs(y, C=5, P=0)
+stratrs(y, C, seed=99)
 }
 
 \arguments{
   \item{y}{The binary/categorical/continuous outcome.}
   \item{C}{The number of shards to break the data set into.}
-  \item{P}{For continuous data, we break the range into
-    P segments via the quantiles.  Specifying, P=20 seems to
-    work reasonably well.}
+  \item{seed}{The seed for the random sampling.}
 }
 
 \details{
@@ -33,10 +31,10 @@ A vector is returned with each element assigned to a shard.
  \examples{
 set.seed(12)
 x <- rbinom(25000, 1, 0.1)
-a <- stratrs(x)
+a <- stratrs(x, 5)
 table(a, x)
 z <- pmin(rpois(25000, 0.8), 5)
-b <- stratrs(z)
+b <- stratrs(z, 5)
 table(b, z)
 }
-\keyword{convergence diagnostics}
+%\keyword{convergence diagnostics}
