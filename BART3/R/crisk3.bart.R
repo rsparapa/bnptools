@@ -103,7 +103,7 @@ crisk3.bart <- function(
         if(length(x.test3)>0) {
             x.test3 = t(bartModelMatrix(x.test3))
             if(class(rm.const)[1]=='logical' && rm.const)
-                x.test3 = x.test3[temp$rm.const, ]
+                x.test3 = rbind(x.test3[temp$rm.const, ])
         }
         ##rm.const3 <- temp$rm.const
         rm(temp)
@@ -116,7 +116,7 @@ crisk3.bart <- function(
         if(length(x.test2)>0) {
             x.test2 = t(bartModelMatrix(x.test2))
             if(class(rm.const)[1]=='logical' && rm.const)
-                x.test2 = x.test2[temp$rm.const, ]
+                x.test2 = rbind(x.test2[temp$rm.const, ])
         }
         ##rm.const2 <- temp$rm.const
         rm(temp)
@@ -129,7 +129,7 @@ crisk3.bart <- function(
         if(length(x.test)>0) {
             x.test = t(bartModelMatrix(x.test))
             if(class(rm.const)[1]=='logical' && rm.const)
-                x.test = x.test[temp$rm.const, ]
+                x.test = rbind(x.test[temp$rm.const, ])
         }
         ##rm.const <- temp$rm.const
         rm(temp)

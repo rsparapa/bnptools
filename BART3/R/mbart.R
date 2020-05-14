@@ -35,7 +35,7 @@ mbart <- function(
                   ndpost=1000L, nskip=100L,
                   keepevery=c(1L, 10L, 10L)[ntype],
                   printevery=100L, transposed=FALSE,
-                  hostname=FALSE,
+                  ##hostname=FALSE,
                   mc.cores = 2L, nice = 19L, seed = 99L
                   )
 {
@@ -116,8 +116,8 @@ mbart <- function(
                       ntree=ntree, numcut=numcut,
                       ndpost=ndpost, nskip=nskip,
                       keepevery=keepevery,
-                      printevery=printevery, transposed=TRUE,
-                      hostname=hostname)
+                      printevery=printevery, transposed=TRUE)
+                      ##hostname=hostname)
 
             if(attr(post.list[[h]], 'class')!=type)
                 return(post.list[[h]])

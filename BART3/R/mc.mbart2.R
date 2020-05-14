@@ -35,7 +35,7 @@ mc.mbart2 <- function(
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
-                     hostname=FALSE,
+                     ##hostname=FALSE,
                      mc.cores = 2L, nice = 19L, seed = 99L
                      )
 {
@@ -95,8 +95,8 @@ mc.mbart2 <- function(
                   ntree=ntree, numcut=numcut,
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery,
-                  printevery=printevery, transposed=TRUE,
-                  hostname=hostname)},
+                  printevery=printevery, transposed=TRUE)},
+                  ##hostname=hostname)},
             silent=(i!=1))
         ## to avoid duplication of output
         ## capture stdout from first posterior only

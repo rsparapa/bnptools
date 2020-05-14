@@ -35,7 +35,7 @@ mc.mbart <- function(
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
-                     hostname=FALSE,
+                     ##hostname=FALSE,
                      mc.cores = 2L, nice = 19L, seed = 99L
                      )
 {
@@ -59,7 +59,7 @@ mc.mbart <- function(
         stop(paste0("length of offset argument must be 0 or ", K))
 
     L <- K-1
-    
+
     if(!transposed) {
         temp = bartModelMatrix(x.train, numcut, usequants=usequants,
                                xinfo=xinfo, rm.const=rm.const)
@@ -97,8 +97,8 @@ mc.mbart <- function(
                   ntree=ntree, numcut=numcut,
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery,
-                  printevery=printevery, transposed=TRUE,
-                  hostname=hostname)},
+                  printevery=printevery, transposed=TRUE)},
+                  ##hostname=hostname)},
             silent=(i!=1))
         ## to avoid duplication of output
         ## capture stdout from first posterior only
@@ -161,7 +161,7 @@ mc.mbart <- function(
             post$varcount.mean[j, ] <- apply(post$varcount[[j]], 2, mean)
             post$varprob.mean[j, ] <- apply(post$varprob[[j]], 2, mean)
         }
-        
+
         attr(post, 'class') <- 'mbart'
 
         return(post)

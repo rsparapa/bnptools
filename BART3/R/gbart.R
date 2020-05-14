@@ -36,8 +36,9 @@ gbart=function(
                keepevery=c(1L, 10L, 10L)[ntype],
                printevery=100L, transposed=FALSE,
                ##keeptestfits = NULL,
-               hostname=FALSE,
-               mc.cores = 1L, nice = 19L, seed = 99L
+               ##hostname=FALSE,
+               mc.cores = 1L, nice = 19L, seed = 99L,
+               shards = 1L
                )
 {
     if(is.na(ntype))
@@ -167,9 +168,9 @@ gbart=function(
     ## if(hotdeck) ## warnings are suppressed with mc.gbart anyways
     ##     warning('missing elements of x imputed with hot decking')
 
-    if(.Platform$OS.type!='unix') hostname <- FALSE
-    else if(hostname)
-        hostname <- system('hostname', intern=TRUE)
+    ## if(.Platform$OS.type!='unix') hostname <- FALSE
+    ## else if(hostname)
+    ##     hostname <- system('hostname', intern=TRUE)
 
     ptm <- proc.time()
 
@@ -203,11 +204,12 @@ gbart=function(
                 rho,
                 augment,
                 printevery,
-                xinfo
+                xinfo,
+                shards
                 )
 
     res$proc.time <- proc.time()-ptm
-    res$hostname <- hostname
+##    res$hostname <- hostname
 
     Y=t(matrix(y.train, nrow=n, ncol=ndpost))
 

@@ -16,7 +16,6 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-
 mc.gbart <- function(
                      x.train, y.train,
                      x.test=matrix(0,0,0), type='wbart',
@@ -38,8 +37,9 @@ mc.gbart <- function(
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
                      ##keeptestfits = NULL,
-                     hostname=FALSE,
-                     mc.cores = 2L, nice = 19L, seed = 99L
+                     ##hostname=FALSE,
+                     mc.cores = 2L, nice = 19L, seed = 99L,
+                     shards = 1L
                      )
 {
     if(is.na(ntype))
@@ -67,13 +67,12 @@ mc.gbart <- function(
         x.train = t(temp$X)
         numcut = temp$numcut
         xinfo = temp$xinfo
-        ## if(length(x.test)>0)
-        ##     x.test = t(bartModelMatrix(x.test[ , temp$rm.const]))
         if(length(x.test)>0) {
-            x.test = bartModelMatrix(x.test)
-            x.test = t(x.test[ , temp$rm.const])
+            x.test = t(bartModelMatrix(x.test))
+            if(class(rm.const)[1]=='logical' && rm.const)
+            x.test = rbind(x.test[temp$rm.const, ])
         }
-        rm.const <- temp$rm.const
+        ##rm.const <- temp$rm.const
         rm(temp)
     }
 
@@ -103,8 +102,9 @@ mc.gbart <- function(
                   w=w, ntree=ntree, numcut=numcut,
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery, printevery=printevery,
-                  transposed=TRUE, ##keeptestfits=keeptestfits,
-                  hostname=hostname)},
+                  shards=shards, transposed=TRUE)},
+                  ##keeptestfits=keeptestfits,
+                  ##hostname=hostname,
             silent=(i!=1))
         ## to avoid duplication of output
         ## capture stdout from first posterior only
@@ -137,7 +137,7 @@ mc.gbart <- function(
         if(type=='wbart') sigma <- post$sigma[-(1:nskip)]
 
         for(i in 2:mc.cores) {
-            post$hostname[i] <- post.list[[i]]$hostname
+            ##post$hostname[i] <- post.list[[i]]$hostname
 
             post$yhat.train <- rbind(post$yhat.train,
                                      post.list[[i]]$yhat.train)

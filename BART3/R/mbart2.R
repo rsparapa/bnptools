@@ -35,7 +35,7 @@ mbart2 <- function(
                    ndpost=1000L, nskip=100L,
                    keepevery=c(1L, 10L, 10L)[ntype],
                    printevery=100L, transposed=FALSE,
-                   hostname=FALSE,
+                   ##hostname=FALSE,
                    mc.cores = 2L, nice = 19L, seed = 99L
                    )
 {
@@ -108,8 +108,8 @@ mbart2 <- function(
                   ntree=ntree, numcut=numcut,
                   ndpost=ndpost, nskip=nskip,
                   keepevery=keepevery,
-                  printevery=printevery, transposed=TRUE,
-                  hostname=hostname)
+                  printevery=printevery, transposed=TRUE)
+                  ##hostname=hostname)
 
         if(attr(post.list[[h]], 'class')!=type) return(post.list[[h]])
 
@@ -118,7 +118,7 @@ mbart2 <- function(
             post$yhat.train[ , j] <- post.list[[h]]$yhat.train[ , i]
             post$tot.train[ , i] <-
                 post$tot.train[ , i]+exp(post$yhat.train[ , j])
-            if(h==K) 
+            if(h==K)
                 for(j in (i-1)*K+1:K)
                     post$prob.train[ , j] <-
                         exp(post$yhat.train[ , j])/post$tot.train[ , i]
@@ -130,7 +130,7 @@ mbart2 <- function(
                 post$yhat.test[ , j] <- post.list[[h]]$yhat.test[ , i]
                 post$tot.test[ , i] <-
                     post$tot.test[ , i]+exp(post$yhat.test[ , j])
-                if(h==K) 
+                if(h==K)
                     for(j in (i-1)*K+1:K)
                         post$prob.test[ , j] <-
                             exp(post$yhat.test[ , j])/post$tot.test[ , i]
