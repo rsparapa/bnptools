@@ -26,7 +26,7 @@ SHAP2.wbart=function(object, ## object returned from BART
 {
     if(length(S)!=2)
         stop('S must be of length 2')
-    
+
     for(v in S)
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
@@ -43,18 +43,15 @@ SHAP2.wbart=function(object, ## object returned from BART
         stop('the number of columns in x.train and length of cutpoints are not the same')
 
     Trees=read.trees(object$treedraws, x.train)
-    ## H = nrow(x.test)
-    ## L = dim(Trees)[1]
 
     M=P-length(S)
-    ## D=matrix(0, nrow=L, ncol=H)
     D=EXPVALUE(Trees, x.test, S)-
         EXPVALUE(Trees, x.test, i)-
-        EXPVALUE(Trees, x.test, j) 
+        EXPVALUE(Trees, x.test, j)
     N=1 ## number of terms
     i=S[1]
     j=S[2]
-    
+
     if(M>0) {
         for(k in 1:M) {
             C=comb(M, k, (1:P)[-S])
@@ -66,7 +63,7 @@ SHAP2.wbart=function(object, ## object returned from BART
                     EXPVALUE(Trees, x.test, c(C[h, ], j))+
                     EXPVALUE(Trees, x.test, C[h, ])
         }
-        D=D/N 
+        D=D/N
     }
 
     return(D)
