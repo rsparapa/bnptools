@@ -116,16 +116,24 @@ ml.gbart <- function(
             if(type=='wbart') {
                 post$yhat.train.mean <- NULL
                 post$yhat.test.mean <- NULL
-                post$weight=mean(post$sigma[-(1:nskip)]^(-2))
+                post$weight=mean(c(post$sigma[-(1:nskip), ])^(-2))
             } else {
                 post$prob.train <- NULL
                 post$prob.train.mean <- NULL
                 post$prob.test.mean <- NULL
                 post$weight=1
             }
-        } else if(type=='wbart')
-            post$weight[h]=mean(post.list[[h]]$sigma[-(1:nskip)]^(-2))
-        else post$weight[h]=1
+
+            post$treedraws=list()
+        } else {
+            if(type=='wbart') {
+                post$weight[h]=mean(c(post.list[[h]]$sigma[-(1:nskip), ])^(-2))
+                post$sigma=cbind(post$sigma, post.list[[h]]$sigma)
+            }
+            else post$weight[h]=1
+        }
+
+        post$treedraws[[h]]=post.list[[h]]$treedraws
     }
 
     post$weight=post$weight/sum(post$weight)
