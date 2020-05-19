@@ -23,41 +23,44 @@ round(cor(x.train), digits=2)
 
 y.train=(f(x.train)+sigma*rnorm(N))
 
-B=8
-post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
-# set.seed(21)
-## post = mc.gbart(x.train, y.train, sparse=TRUE)
-
 H=20
 x=seq(-3, 3, length.out=H+1)[-(H+1)]
 x.test=matrix(0, nrow=H, ncol=P)
 x.test[ , 3]=x
 
+B=8
+post = mc.gbart(x.train, y.train, x.test, sparse=TRUE, mc.cores=B, seed=12)
+# set.seed(21)
+## post = mc.gbart(x.train, y.train, sparse=TRUE)
+
 post2 = ml.gbart(x.train, y.train, x.test, shards=10,
                  sparse=TRUE, mc.cores=B, seed=12)
 
-pdf('modlisa.pdf')
+##pdf('modlisa.pdf')
 plot(post$sigma[ , 1], type='l', ylim=c(0, 10), ylab='SD')
-for(i in 1:8) {
-    if(i>1) lines(post$sigma[ , i])
-    lines(apply(post2$sigma[ , seq(i, 80, 10)], 1, mean)/sqrt(10), col=2)
-}
+for(i in 2:8) lines(post$sigma[ , i])
+for(i in 1:10) lines(post2$sigma[ , i]/sqrt(10), col=2)
 abline(v=100, h=0)
 abline(h=1, col='blue')
 legend('topright', c('N=10000', '1 shard', '10 shards', 'True'),
        lty=1, col=c(0:2, 4))
-dev.off()
+##dev.off()
 
 ## yhat.test=HD(post, x.train, x.test, 3)
 ## yhat.test.mean=apply(yhat.test, 2, mean)
-## yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
-## yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
+post$yhat.test.025=apply(post$yhat.test, 2, quantile, probs=0.025)
+post$yhat.test.975=apply(post$yhat.test, 2, quantile, probs=0.975)
+post2$yhat.test.025=apply(post2$yhat.test, 2, quantile, probs=0.025)
+post2$yhat.test.975=apply(post2$yhat.test, 2, quantile, probs=0.975)
 
-## pdf('modlisa.pdf')
-## plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2)
-## lines(x, yhat.test.mean, lwd=2, lty=3)
-## lines(x, yhat.test.025, lty=2, lwd=2)
-## lines(x, yhat.test.975, lty=2, lwd=2)
-## legend('topleft', col=c(4, 1), lty=c(1, 2),
-##        legend=c('True', 'HD'), lwd=2)
-## dev.off()
+pdf('modlisa.pdf')
+plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2)
+lines(x, post$yhat.test.mean, lwd=2, lty=1)
+lines(x, post$yhat.test.025, lwd=2, lty=2)
+lines(x, post$yhat.test.975, lwd=2, lty=2)
+lines(x, post2$yhat.test.mean, lwd=2, col=2)
+lines(x, post2$yhat.test.025, lwd=2, lty=2, col=2)
+lines(x, post2$yhat.test.975, lwd=2, lty=2, col=2)
+legend('topleft', col=c(4, 1, 2), lty=1,
+       legend=c('True', '1 shard', '10 shards'), lwd=2)
+dev.off()

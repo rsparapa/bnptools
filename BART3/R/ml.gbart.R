@@ -83,7 +83,8 @@ ml.gbart <- function(
 
     post.list = list()
     shard. <- as.list(1:shards)
-    p = nrow(x.train) ## transposed
+    p = nrow(x.train) ## transposed: columns of x.train
+    q = ncol(x.test)  ## transposed: rows of x.test
 
     for(h in 1:shards) {
         shard.[[h]] <- rs==h
@@ -109,38 +110,46 @@ ml.gbart <- function(
 
             if(attr(post, 'class')!=type) return(post)
 
-            ## this sounds like a good idea, but it would be enormous
-            ## post$yhat.shard <- matrix(nrow=mc.ndpost*mc.cores, ncol=length(y.train))
-            ## post$yhat.shard[1:mc.ndpost, shard.[[h]] ] <- post$yhat.train
+            post$weight=list()
+            post$treedraws=list()
             post$yhat.train <- NULL
             if(type=='wbart') {
                 post$yhat.train.mean <- NULL
                 post$yhat.test.mean <- NULL
-                post$weight=mean(c(post$sigma[-(1:nskip), ])^(-2))
+                post$yhat.test.mean <- NULL
+                post$sigma = cbind(apply(post$sigma, 1, mean))
             } else {
                 post$prob.train <- NULL
                 post$prob.train.mean <- NULL
                 post$prob.test.mean <- NULL
-                post$weight=1
             }
-
-            post$treedraws=list()
-        } else {
-            if(type=='wbart') {
-                post$weight[h]=mean(c(post.list[[h]]$sigma[-(1:nskip), ])^(-2))
-                post$sigma=cbind(post$sigma, post.list[[h]]$sigma)
-            }
-            else post$weight[h]=1
         }
+
+        if(type=='wbart') {
+            if(h>1)
+                post$sigma = cbind(post$sigma, apply(post.list[[h]]$sigma, 1, mean))
+            post$weight[[h]]=matrix(apply((post.list[[h]]$sigma[-(1:nskip), ])^2, 1, mean),
+                                    nrow=ndpost, ncol=q)
+            post$weight[[h]]=matrix(1/apply(post$weight[[h]]*post$yhat.test, 2, var),
+                                    nrow=ndpost, ncol=q, byrow=TRUE)
+        } else {
+            post$weight[[h]]=matrix(1/apply(post$yhat.test, 2, var),
+                                    nrow=ndpost, ncol=q, byrow=TRUE)
+        }
+
+        if(h==1)
+            post$weight.=post$weight[[h]]
+        else
+            post$weight.=post$weight.+post$weight[[h]]
 
         post$treedraws[[h]]=post.list[[h]]$treedraws
     }
 
-    post$weight=post$weight/sum(post$weight)
-
     for(h in 1:shards) {
-        if(h==1) post$yhat.test = post$weight[1]*post$yhat.test
-        else post$yhat.test = post$yhat.test+post$weight[h]*post.list[[h]]$yhat.test
+        ## if(h==1) post$yhat.test = post$yhat.test/shards
+        ## else post$yhat.test = post$yhat.test+post.list[[h]]$yhat.test/shards
+        if(h==1) post$yhat.test = post$weight[[1]]*post$yhat.test/post$weight.
+        else post$yhat.test = post$yhat.test+post$weight[[h]]*post.list[[h]]$yhat.test/post$weight.
     }
 
     if(type=='wbart')
