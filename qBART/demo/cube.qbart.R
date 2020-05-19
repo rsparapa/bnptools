@@ -26,7 +26,7 @@ delta <- simcure$event
 
 #no censoring subset
 notcens <- simcure$event==1
-tdata <- simcure[notcens]
+tdata <- simcure[notcens,]
 library(BART3)
 post <- abart(x.train=tdata$x1, times=tdata$obstime, delta=tdata$event)
 plot(xb[notcens], ltime[notcens])
@@ -54,14 +54,17 @@ par(mfrow=c(1,3))
 plot(ltime[notcure],post$yhat.train.mean,pch=20,main="abart", col = ifelse(delta[notcure]==1, 1, 2))
 abline(a=0,b=1,col=2)
 
-post1 <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, q=simcure$Ncure, nskip=100, ndpost=1000)
+post1 <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, q=simcure$Ncure, nskip=0, ndpost=10000)
 #str(post1)
 plot(ltime[notcure],post1$y2hat.train.mean[notcure], pch=20, col = ifelse(delta[notcure]==1, 1, 2), main="qbart")
 abline(a=0,b=1,col=2)
 mean(post1$prob.train)
-
 plot(post$yhat.train.mean, post1$y2hat.train.mean[notcure], pch=20, col = ifelse(delta[notcure]==1, 1, 2), xlab="abart", ylab="qbart", main="Non-cured log(time)")
 abline(a=0,b=1,col=2)
+
+par(mfrow=c(1,2))
+plot(post1$sigma, type='l', ylab="sigma", main="trajectory of sigma")
+abline(h=1,col=2)
 
 plot(rowMeans(post1$prob.train), type='l', ylab="p", main="trajectory of p")  #trajectory of p
 abline(h=p,col=2)
@@ -78,8 +81,6 @@ lines(post1$y2hat.train[,i],col=2)
 abline(h=ltime[i], col=3)
 plot(post1$stdraw[200:400,i], type='l', col=2)  #S(t|delta=0)
 abline(h=pnorm(log(simcure$obstime[i]),mean=xb[i],lower.tail=FALSE), col=2)
-
-lines(post1$y2hat.train[200:400,i], type='l', col=2)
 
 fl <- flexsurvcure(Surv(obstime,event)~meanlog(x1), data=simcure, dist="lnorm")
 print(fl)

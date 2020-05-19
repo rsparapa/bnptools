@@ -364,29 +364,16 @@ void cqbart(
       bm2.draw(sigma, gen);
 
       //predict
-      bm2.predict(p2,n,ix2,fhattr2);
+      //bm2.predict(p2,n,ix2,fhattr2);
 
-      //draw sigma
-      double rss=0.;
-      double df=nu;
-      for(size_t k=0;k<n;k++) {
-	if (q[k]==1) {
-	  rss += pow((iy[k]-fhattr2[k])/(iw[k]), 2.); 
-	  df += 1;
-	}
-      }
-      sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
-      //sdraw[i]=sigma;
-
-	
       for (size_t k=0; k<n; k++){
 	if (delta[k] == 0){
 	  #ifndef NoRcpp
 	  pz1[k] = R::pnorm(bm1.f(k)+binaryOffset,0,1,1,0);
-	  st[k] = R::pnorm(iy[k], fhattr2[k], sigma, 0, 0);
+	  st[k] = R::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
 	  #else
 	  pz1[k] = ::pnorm(bm1.f(k)+binaryOffset,0,1,1,0);
-	  st[k] = ::pnorm(iy[k], fhattr2[k], sigma, 0, 0);
+	  st[k] = ::pnorm(iy[k], bm2.f(k), sigma, 0, 0);
 	  #endif
 	  pt[k] = pz1[k]*st[k]/(1-pz1[k]+pz1[k]*st[k]);
 	  //draw q
@@ -403,24 +390,34 @@ void cqbart(
 	  z1[k] = rtnorm(bm1.f(k), -binaryOffset, 1., gen);
 	  if (delta[k] == 0) {
 	    //draw z2
-	    z2[k] = rtnorm(fhattr2[k], iy[k], sigma, gen);
-	    z2[k] = std::min(maxy, z2[k]);  //maximum cap
+	    z2[k] = rtnorm(bm2.f(k), iy[k], sigma, gen);
 	  }
 	}
       }
+
+
+      //draw sigma
+      double rss=0.;
+      double df=nu;
+      for(size_t k=0;k<n;k++) {
+	if (q[k]==1) {
+	  rss += pow((z2[k]-bm2.f(k))/(iw[k]), 2.); 
+	  df += 1;
+	}
+      }
+      sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
+      //sdraw[i]=sigma;
       //draw bart1
       bm1.draw(1., gen);
-
-//printf("binaryOffset: %lf\n", binaryOffset);
       
       if(i>=burn) {
          if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {
             for(size_t k=0;k<n;k++) {
 	      TRDRAW1(trcnt,k)=binaryOffset+bm1.f(k);
 	      qdraw(trcnt,k)=q[k];
-	      stdraw(trcnt,k)=Offset+bm2.f(k);
+	      stdraw(trcnt,k)=z2[k];
 	      ptdraw(trcnt,k)=pt[k];
-	      TRDRAW2(trcnt,k)=Offset+fhattr2[k];
+	      TRDRAW2(trcnt,k)=Offset+bm2.f(k);
 	    }
 	    sdraw[trcnt]=sigma;
             trcnt+=1;

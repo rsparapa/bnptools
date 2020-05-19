@@ -308,7 +308,6 @@ qbart=function(x.train1=NULL, x.train2, times, delta, q=NULL,
     res$rm.const <- rm.const
     res$x.train1 <- x.train1
     res$x.train2 <- x.train2
-    res$pb <- pb
     attr(res, 'class') <- 'qbart'
     return(res)
 }
