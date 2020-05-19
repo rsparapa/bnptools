@@ -37,6 +37,7 @@ lung.surv.bart	   Lung cancer example for survival analysis with probit BART
 lung.surv.ice	   Lung cancer example for survival analysis: ICE-like S(t) plot
 lung.surv.lbart	   Lung cancer example for survival analysis with logit BART
 missing.gbart	   Example of missing imputation with gbart
+modlisa	   Example of using Modified LISA
 nhanes.pbart1 	   Friedman's partial dependence function for binary outcomes with BART part 1
 nhanes.pbart2 	   Friedman's partial dependence function for binary outcomes with BART part 2
 np.recur.bart	   Nonproportional intensity for recurrent events with BART
