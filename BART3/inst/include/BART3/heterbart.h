@@ -31,16 +31,6 @@ class heterbart : public bart
    heterbart(size_t m):bart(m) { }
    void pr();
    void draw(double *sigma, rn& gen, int shards=1);
-/*
-public:
-   heterbart():bart() { this->shards=1; }
-   heterbart(size_t m):bart(m) { this->shards=1; }
-   heterbart(size_t m, int shards):bart(m) { this->shards=shards; }
-   void pr();
-   void draw(double *sigma, rn& gen);
-protected:
-  int shards; //number of shards for Modified LISA
-*/
 };
 
 //--------------------------------------------------

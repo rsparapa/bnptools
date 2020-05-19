@@ -1,3 +1,6 @@
+Changes and New Features in 3.7 (2020-05-19):
+	* Adding support for Modified LISA: ml.gbart() function
+
 Changes and New Features in 3.6 (2020-05-09):
 	* Adding new S3 method, SHAP, that calculates the
 	Shapley additive explanation (SHAP) partial dependence function

@@ -37,7 +37,7 @@ ml.gbart <- function(
                      ##keeptestfits = NULL,
                      ##hostname=FALSE,
                      mc.cores = 1, nice = 19L, seed = 99L,
-                     shards = 1
+                     shards = 1, weight=rep(NA, shards)
                      )
 {
     if(length(x.test)==0)
@@ -110,47 +110,69 @@ ml.gbart <- function(
 
             if(attr(post, 'class')!=type) return(post)
 
-            post$weight=list()
+            post$weight=double(shards)
             post$treedraws=list()
+            post$varcount=list()
+            post$varprob=list()
             post$yhat.train <- NULL
             if(type=='wbart') {
                 post$yhat.train.mean <- NULL
                 post$yhat.test.mean <- NULL
                 post$yhat.test.mean <- NULL
-                post$sigma = cbind(apply(post$sigma, 1, mean))
             } else {
                 post$prob.train <- NULL
                 post$prob.train.mean <- NULL
                 post$prob.test.mean <- NULL
             }
-        }
-
-        if(type=='wbart') {
-            if(h>1)
-                post$sigma = cbind(post$sigma, apply(post.list[[h]]$sigma, 1, mean))
-            post$weight[[h]]=matrix(apply((post.list[[h]]$sigma[-(1:nskip), ])^2, 1, mean),
-                                    nrow=ndpost, ncol=q)
-            post$weight[[h]]=matrix(1/apply(post$weight[[h]]*post$yhat.test, 2, var),
-                                    nrow=ndpost, ncol=q, byrow=TRUE)
         } else {
-            post$weight[[h]]=matrix(1/apply(post$yhat.test, 2, var),
-                                    nrow=ndpost, ncol=q, byrow=TRUE)
+            post$offset[h] = post.list[[h]]$offset
         }
+        
+        if(type=='wbart') {
+            if(h==1) post$sigma = cbind(apply(post$sigma, 1, mean))
+            else post$sigma = cbind(post$sigma, apply(post.list[[h]]$sigma, 1, mean))
 
-        if(h==1)
-            post$weight.=post$weight[[h]]
-        else
-            post$weight.=post$weight.+post$weight[[h]]
+            if(is.na(weight[h]))
+                post$weight[h] = mean(apply((post.list[[h]]$sigma[-(1:nskip), ])^(-2), 1, mean))
+            else post$weight[h] = weight[h]
+            ## post$weight[[h]]=matrix(apply((post.list[[h]]$sigma[-(1:nskip), ])^2, 1, mean),
+            ##                         nrow=ndpost, ncol=q)
+            ## post$weight[[h]]=matrix(1/apply(post$weight[[h]]*post$yhat.test, 2, var),
+            ##                         nrow=ndpost, ncol=q, byrow=TRUE)
+        } else {
+            if(is.na(weight[h]))
+                post$weight[h] = 1
+            else post$weight[h] = weight[h]
+            ## post$weight[[h]]=matrix(1/apply(post$yhat.test, 2, var),
+            ##                         nrow=ndpost, ncol=q, byrow=TRUE)
+        }
 
         post$treedraws[[h]]=post.list[[h]]$treedraws
+        post$varcount[[h]]=post.list[[h]]$varcount
+        post$varprob[[h]]=post.list[[h]]$varprob
+
+        if(h==1) {
+            post$varcount.mean=apply(post$varcount[[h]], 2, mean)
+            post$varprob.mean=apply(post$varprob[[h]], 2, mean)/shards
+        } else {
+            post$varcount.mean=post$varcount.mean+
+                apply(post$varcount[[h]], 2, mean)
+            post$varprob.mean=post$varprob.mean+
+                apply(post$varprob[[h]], 2, mean)/shards
+        }
     }
 
+    post$weight=post$weight/sum(post$weight)
+    
     for(h in 1:shards) {
-        ## if(h==1) post$yhat.test = post$yhat.test/shards
-        ## else post$yhat.test = post$yhat.test+post.list[[h]]$yhat.test/shards
-        if(h==1) post$yhat.test = post$weight[[1]]*post$yhat.test/post$weight.
-        else post$yhat.test = post$yhat.test+post$weight[[h]]*post.list[[h]]$yhat.test/post$weight.
+        ## if(h==1) post$yhat.test = post$weight[[1]]*post$yhat.test/post$weight.
+        ## else post$yhat.test = post$yhat.test+post$weight[[h]]*post.list[[h]]$yhat.test/post$weight.
+        if(h==1) post$yhat.test = post$weight[1]*(post$yhat.test-post$offset[1])
+        else post$yhat.test = post$yhat.test+
+                 post$weight[h]*(post.list[[h]]$yhat.test-post$offset[h])
     }
+
+    post$yhat.test = post$yhat.test+mean(post$offset)
 
     if(type=='wbart')
         post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
