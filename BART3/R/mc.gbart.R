@@ -185,8 +185,13 @@ mc.gbart <- function(
             ##CPO=1/apply(1/dbinom(Y, 1, post$prob.train), 2, mean)
             log.pdf=dbinom(Y, 1, post$prob.train, TRUE)
 
-            if(keeptestfits)
+            if(keeptestfits) {
+                if(type=='pbart')
+                    post$prob.test=pnorm(post$yhat.test)
+                else if(type=='lbart')
+                    post$prob.test=plogis(post$yhat.test)
                 post$prob.test.mean <- apply(post$prob.test, 2, mean)
+            }
         }
 
         min.log.pdf=t(matrix(apply(log.pdf, 2, min),
