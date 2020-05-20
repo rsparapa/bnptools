@@ -112,8 +112,10 @@ ml.gbart <- function(
 
             post$weight=double(shards)
             post$treedraws=list()
-            post$varcount=list()
-            post$varprob=list()
+            post$varcount=array(dim=c(shards, ndpost, p))
+            post$varprob=array(dim=c(shards, ndpost, p))
+            post$varcount.mean=matrix(nrow=shards, ncol=p)
+            post$varprob.mean=matrix(nrow=shards, ncol=p)
             post$yhat.train <- NULL
             if(type=='wbart') {
                 post$yhat.train.mean <- NULL
@@ -127,7 +129,7 @@ ml.gbart <- function(
         } else {
             post$offset[h] = post.list[[h]]$offset
         }
-        
+
         if(type=='wbart') {
             if(h==1) post$sigma = cbind(apply(post$sigma, 1, mean))
             else post$sigma = cbind(post$sigma, apply(post.list[[h]]$sigma, 1, mean))
@@ -148,22 +150,26 @@ ml.gbart <- function(
         }
 
         post$treedraws[[h]]=post.list[[h]]$treedraws
-        post$varcount[[h]]=post.list[[h]]$varcount
-        post$varprob[[h]]=post.list[[h]]$varprob
+        post$varcount[h, , ]=post.list[[h]]$varcount
+        post$varprob[h, , ]=post.list[[h]]$varprob
+        ## post$varcount[[h]]=post.list[[h]]$varcount
+        ## post$varprob[[h]]=post.list[[h]]$varprob
+        post$varcount.mean[h, ]=post.list[[h]]$varcount.mean
+        post$varprob.mean[h, ]=post.list[[h]]$varprob.mean
 
-        if(h==1) {
-            post$varcount.mean=apply(post$varcount[[h]], 2, mean)
-            post$varprob.mean=apply(post$varprob[[h]], 2, mean)/shards
-        } else {
-            post$varcount.mean=post$varcount.mean+
-                apply(post$varcount[[h]], 2, mean)
-            post$varprob.mean=post$varprob.mean+
-                apply(post$varprob[[h]], 2, mean)/shards
-        }
+        ## if(h==1) {
+        ##     post$varcount.mean=apply(post$varcount[[h]], 2, mean)
+        ##     post$varprob.mean=apply(post$varprob[[h]], 2, mean)/shards
+        ## } else {
+        ##     post$varcount.mean=post$varcount.mean+
+        ##         apply(post$varcount[[h]], 2, mean)
+        ##     post$varprob.mean=post$varprob.mean+
+        ##         apply(post$varprob[[h]], 2, mean)/shards
+        ## }
     }
 
     post$weight=post$weight/sum(post$weight)
-    
+
     for(h in 1:shards) {
         ## if(h==1) post$yhat.test = post$weight[[1]]*post$yhat.test/post$weight.
         ## else post$yhat.test = post$yhat.test+post$weight[[h]]*post.list[[h]]$yhat.test/post$weight.
