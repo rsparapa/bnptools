@@ -38,7 +38,7 @@ gbart=function(
                ##keeptestfits = NULL,
                ##hostname=FALSE,
                mc.cores = 1L, nice = 19L, seed = 99L,
-               shards = 1L
+               shards = 1L, weight=rep(NA, shards)
                )
 {
     if(is.na(ntype))
