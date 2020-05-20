@@ -100,4 +100,9 @@ read.trees=function(treedraws, ## treedraws item returned from BART
         }
     }
     return(Trees)
+    ## you could use a sparse array, however, these appear to be slower
+    ## nonzero = which(Trees!=0, arr.ind=TRUE)
+    ## Trees. = Trees=simple_sparse_array(nonzero, Trees[nonzero],
+    ##                                    dim=c(M, T, node.max, 5))
+    ## return(Trees.)
 }
