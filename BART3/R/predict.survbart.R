@@ -18,7 +18,7 @@
 
 predict.survbart <- function(object, newdata, mc.cores=1,
                              openmp=(mc.cores.openmp()>0),
-                             mult.impute=mc.cores,
+                             mult.impute=4,
                              seed=99, ...) {
 
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")

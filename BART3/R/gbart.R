@@ -29,14 +29,12 @@ gbart=function(
                k=2, power=2, base=0.95,
                ##sigmaf=NA,
                lambda=NA, tau.num=c(NA, 3, 6)[ntype],
-               ##tau.interval=0.9973,
                offset=NULL, w=rep(1, length(y.train)),
                ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
                ndpost=1000L, nskip=100L,
                keepevery=c(1L, 10L, 10L)[ntype],
                printevery=100L, transposed=FALSE,
-               ##keeptestfits = NULL,
-               ##hostname=FALSE,
+               probs=c(0.025, 0.975),
                mc.cores = 1L, nice = 19L, seed = 99L,
                shards = 1L, weight=rep(NA, shards)
                )
@@ -215,6 +213,10 @@ gbart=function(
 
     if(type=='wbart') {
         res$yhat.train.mean <- apply(res$yhat.train, 2, mean)
+        res$yhat.train.lower <- apply(res$yhat.train, 2, quantile,
+                                      probs=min(probs))
+        res$yhat.train.upper <- apply(res$yhat.train, 2, quantile,
+                                      probs=max(probs))
         SD=matrix(res$sigma[-(1:nskip)], nrow=ndpost, ncol=n)
         ##CPO=1/apply(1/dnorm(Y, res$yhat.train, SD), 2, mean)
         log.pdf=dnorm(Y, res$yhat.train, SD, TRUE)
@@ -241,13 +243,22 @@ gbart=function(
     ##if(length(keeptestfits)==0) keeptestfits <- (np>0)
 
     if(keeptestfits) {
-        if(type=='wbart')
+        if(type=='wbart') {
             res$yhat.test.mean <- apply(res$yhat.test, 2, mean)
+            res$yhat.test.lower <- apply(res$yhat.test, 2, quantile,
+                                         probs=min(probs))
+            res$yhat.test.upper <- apply(res$yhat.test, 2, quantile,
+                                         probs=max(probs))
+        }
         else {
             if(type=='pbart') res$prob.test = pnorm(res$yhat.test)
             else if(type=='lbart') res$prob.test = plogis(res$yhat.test)
 
             res$prob.test.mean <- apply(res$prob.test, 2, mean)
+            res$prob.test.lower <- apply(res$prob.test, 2, quantile,
+                                         probs=min(probs))
+            res$prob.test.upper <- apply(res$prob.test, 2, quantile,
+                                         probs=max(probs))
         }
     }
 

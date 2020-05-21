@@ -34,10 +34,9 @@ ml.gbart <- function(
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
-                     ##keeptestfits = NULL,
-                     ##hostname=FALSE,
-                     mc.cores = 1, nice = 19L, seed = 99L,
-                     shards = 1, weight=rep(NA, shards)
+                     probs=c(0.025, 0.975),
+                     mc.cores = 2L, nice = 19L, seed = 99L,
+                     shards = 1L, weight=rep(NA, shards)
                      )
 {
     if(length(x.test)==0)
@@ -180,14 +179,22 @@ ml.gbart <- function(
 
     post$yhat.test = post$yhat.test+mean(post$offset)
 
-    if(type=='wbart')
+    if(type=='wbart') {
         post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
-    else {
+        post$yhat.test.lower <- apply(post$yhat.test, 2, quantile,
+                                      probs=min(probs))
+        post$yhat.test.upper <- apply(post$yhat.test, 2, quantile,
+                                      probs=max(probs))
+     } else {
         if(type=='pbart')
             post$prob.test <- pnorm(post$yhat.test)
         else if(type=='lbart')
             post$prob.test <- plogis(post$yhat.test)
         post$prob.test.mean <- apply(post$prob.test, 2, mean)
+        post$prob.test.lower <- apply(post$prob.test, 2, quantile,
+                                      probs=min(probs))
+        post$prob.test.upper <- apply(post$prob.test, 2, quantile,
+                                      probs=max(probs))
     }
 
     return(post)

@@ -36,8 +36,7 @@ mc.gbart <- function(
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
-                     ##keeptestfits = NULL,
-                     ##hostname=FALSE,
+                     probs=c(0.025, 0.975),
                      mc.cores = 2L, nice = 19L, seed = 99L,
                      shards = 1L, weight=rep(NA, shards)
                      )
@@ -173,13 +172,22 @@ mc.gbart <- function(
 
         if(type=='wbart') {
             post$yhat.train.mean <- apply(post$yhat.train, 2, mean)
+            post$yhat.train.lower <- apply(post$yhat.train, 2, quantile,
+                                           probs=min(probs))
+            post$yhat.train.upper <- apply(post$yhat.train, 2, quantile,
+                                           probs=max(probs))
             SD=matrix(sigma, nrow=post$ndpost, ncol=n)
             ##CPO=1/apply(1/dnorm(Y, post$yhat.train, SD), 2, mean)
             log.pdf=dnorm(Y, post$yhat.train, SD, TRUE)
             post$sigma.mean=mean(SD[ , 1])
 
-            if(keeptestfits)
+            if(keeptestfits) {
                 post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
+                post$yhat.test.lower <- apply(post$yhat.test, 2, quantile,
+                                             probs=min(probs))
+                post$yhat.test.upper <- apply(post$yhat.test, 2, quantile,
+                                             probs=max(probs))
+            }
         } else {
             post$prob.train.mean <- apply(post$prob.train, 2, mean)
             ##CPO=1/apply(1/dbinom(Y, 1, post$prob.train), 2, mean)
@@ -191,6 +199,10 @@ mc.gbart <- function(
                 else if(type=='lbart')
                     post$prob.test=plogis(post$yhat.test)
                 post$prob.test.mean <- apply(post$prob.test, 2, mean)
+                post$prob.test.lower <- apply(post$prob.test, 2, quantile,
+                                              probs=min(probs))
+                post$prob.test.upper <- apply(post$prob.test, 2, quantile,
+                                              probs=max(probs))
             }
         }
 

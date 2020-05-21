@@ -37,6 +37,7 @@ crisk2.mbart <- function(
     ndpost = 1000L, nskip = 250L,
     keepevery = 10L,
     printevery=100L,
+    transposed=FALSE,
     id = NULL,
     seed=99,    ## mc.crisk2.mbart only
     mc.cores=2, ## mc.crisk2.mbart only
@@ -92,10 +93,10 @@ crisk2.mbart <- function(
 
     if(!transposed) {
         post$tx.train <- x.train
-        post$tx.train2 <- post2$x.train
+        ##post$tx.train2 <- post2$x.train
     } else {
         post$tx.train <- t(x.train)
-        post$tx.train2 <- t(x.train2)
+        ##post$tx.train2 <- t(x.train2)
     }
 
     post$type <- type
@@ -105,17 +106,17 @@ crisk2.mbart <- function(
     post$varprob2 <- post2$varprob
     post$varprob2.mean <- post2$varprob.mean
     post$rm.const <- rm.const
-    post$rm.const2 <- rm.const2
+    ##post$rm.const2 <- rm.const2
     post$yhat.train <- NULL
     post$yhat.train.mean <- NULL
 
     if(length(x.test)>0) {
         if(!transposed) {
             post$tx.test <- x.test
-            post$tx.test2 <- x.test2
+            ##post$tx.test2 <- x.test2
         } else {
             post$tx.test <- t(x.test)
-            post$tx.test2 <- t(x.test2)
+            ##post$tx.test2 <- t(x.test2)
         }
 
         H <- nrow(post$tx.test)/K ## the number of different settings

@@ -39,7 +39,6 @@ mbart(
       ndpost=1000L, nskip=100L,
       keepevery=c(1L, 10L, 10L)[ntype],
       printevery=100L, transposed=FALSE,
-      hostname=FALSE,
       mc.cores = 2L, ## mc.bart only
       nice = 19L,    ## mc.bart only
       seed = 99L     ## mc.bart only
@@ -62,7 +61,6 @@ mc.mbart(
          ndpost=1000L, nskip=100L,
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
-         hostname=FALSE,
          mc.cores = 2L, ## mc.bart only
          nice = 19L,    ## mc.bart only
          seed = 99L     ## mc.bart only
@@ -201,11 +199,11 @@ mc.mbart(
    calling \code{mc.mbart}.
    }
 
- \item{hostname}{
-   When running on a cluster occasionally it is useful
-   to track on which node each chain is running; to do so
-   set this argument to \code{TRUE}.
- }
+ %% \item{hostname}{
+ %%   When running on a cluster occasionally it is useful
+ %%   to track on which node each chain is running; to do so
+ %%   set this argument to \code{TRUE}.
+ %% }
  
     \item{seed}{
      Setting the seed required for reproducible MCMC.
