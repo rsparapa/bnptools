@@ -1,3 +1,2 @@
 inst/cxx-ex/.*[.]o$
 inst/cxx-ex/.*[.]out$
-inst/doc/framed.sty

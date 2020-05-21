@@ -11,6 +11,7 @@
 \usepackage{statex2}
 \usepackage[authoryear,round]{natbib}
 \usepackage{rotating}
+\usepackage{framed}
 %\usepackage{pdfsync}
 %\synctex=1
 %% -- Article metainformation (author, title, ...) -----------------------------
