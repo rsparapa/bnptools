@@ -8,6 +8,7 @@ cal.recur.bart	   Interval coverage calibration for recurrent events with BART
 concord.surv.bart  Concordance probability for survival analysis with BART
 cube.abart	   x-cubed example for log time with AFT BART
 cube.gbart	   x-cubed example for generic BART
+cube.hbart	   x-cubed example for heteroskedastic BART
 cube.gbmm 	   x-cubed example for the Generalized BART Mixed Model
 cube.pbart	   x-cubed example for binary outcomes with probit BART
 cube.lbart	   x-cubed example for binary outcomes with logit BART
