@@ -20,6 +20,7 @@
 #include <BART3.h>
 #include "cabart.h"
 #include "cgbart.h"
+#include "chbart.h"
 #include "clbart.h"
 #include "cpbart.h"
 #include "cpwbart.h"

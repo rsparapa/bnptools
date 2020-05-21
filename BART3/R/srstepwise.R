@@ -16,7 +16,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-srstepwise=function(x, times, delta, sle=0.15, sls=0.15, dist='lognormal') {
+srstepwise=function(x, y, delta=1, sle=0.15, sls=0.15, dist='lognormal') {
     x=cbind(x)
 
     P=ncol(x)
@@ -28,20 +28,28 @@ srstepwise=function(x, times, delta, sle=0.15, sls=0.15, dist='lognormal') {
     H=0
     L=P
 
-    y=Surv(time=times, event=delta)
-    
-    while(step) {
+    if(dist!='normal') y=Surv(time=y, event=delta)
+    h=0
+    while(step & h<2*P) {
+        h=h+1
         fits=as.list(1:L)
         A=matrix(nrow=L, ncol=H+1)
         for(i in 1:L) {
-            if(H==0)
-                fits[[i]]=survreg(y~x[ , out.[i]], dist=dist)
-            else 
-                fits[[i]]=survreg(y~x[ , out.[i]]+x[ , in.], dist=dist)
+            if(H==0) {
+                if(dist=='normal')
+                    fits[[i]]=lm(y~x[ , out.[i]])
+                else fits[[i]]=survreg(y~x[ , out.[i]], dist=dist)
+            }
+            else {
+                if(dist=='normal')
+                fits[[i]]=lm(y~x[ , out.[i]]+x[ , in.])
+                else
+                    fits[[i]]=survreg(y~x[ , out.[i]]+x[ , in.], dist=dist)
+            }
+
             A[i, ]=pnorm(-abs(coef(fits[[i]])[2:(H+2)]/
                               sqrt(diag(vcov(fits[[i]]))[2:(H+2)])))
         }
-##return(A)
         
         ##forward step
         j=which(order(A[ , 1])==1)[1]
@@ -54,8 +62,10 @@ srstepwise=function(x, times, delta, sle=0.15, sls=0.15, dist='lognormal') {
         }
         else if(H==0) step=FALSE
         else {
-            fits[[1]]=survreg(y~x[ , in.], dist=dist)
-            A=A[ , -(H+1)]
+            if(dist=='normal')
+                fits[[1]]=lm(y~x[ , in.])
+            else fits[[1]]=survreg(y~x[ , in.], dist=dist)
+            A=rbind(A[ , -(H+1)])   
             A[1, ]=pnorm(-abs(coef(fits[[i]])[2:(H+1)]/
                               sqrt(diag(vcov(fits[[i]]))[2:(H+1)])))
             j=1
