@@ -115,6 +115,7 @@ read.trees=function(treedraws, ## treedraws item returned from BART
     }
     print(object.size(Trees))
     print(object.size(Trees.))
-    return(Trees)
+    ##return(Trees)
+    return(Trees.)
 }
 
