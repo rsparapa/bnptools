@@ -20,8 +20,8 @@
 typedef std::vector<tree> vtree;
 
 #ifdef _OPENMP
-void local_getpred(size_t nd, size_t p, size_t m, size_t np, xinfo& xi, std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat);
-//void local_getpred(size_t nd, size_t p, size_t m, size_t np, xinfo xi, std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat);
+void local_getpred(size_t nd, size_t p, size_t m, size_t np, xinfo& xi, 
+std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat);
 #endif
 
 void getpred(int beg, int end, size_t p, size_t m, size_t np, xinfo& xi, std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat);
@@ -33,7 +33,6 @@ RcppExport SEXP cpwbart(
 )
 {
    Rprintf("*****In main of C++ for bart prediction\n");
-
    //--------------------------------------------------
    //get threadcount
    int tc = Rcpp::as<int>(_itc);
@@ -41,7 +40,6 @@ RcppExport SEXP cpwbart(
    //--------------------------------------------------
    //process trees
    Rcpp::List trees(_itrees);
-
    Rcpp::CharacterVector itrees(Rcpp::wrap(trees["trees"])); 
    std::string itv(itrees[0]);
    std::stringstream ttss(itv);
@@ -86,7 +84,10 @@ RcppExport SEXP cpwbart(
    cout << "***using serial code\n";
    getpred(0, nd-1, p, m, np,  xi,  tmat, px,  yhat);
    #else
-   if(tc==1) {cout << "***using serial code\n"; getpred(0, nd-1, p, m, np,  xi,  tmat, px,  yhat);}
+   if(tc==1) {
+     cout << "***using serial code\n"; 
+     getpred(0, nd-1, p, m, np,  xi,  tmat, px,  yhat);
+   }
    else {
       cout << "***using parallel code\n";
 #pragma omp parallel num_threads(tc)
@@ -113,11 +114,9 @@ void getpred(int beg, int end, size_t p, size_t m, size_t np, xinfo& xi, std::ve
    delete [] fptemp;
 }
 #ifdef _OPENMP
-//void local_getpred(size_t nd, size_t p, size_t m, size_t np, xinfo xi, std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat)
-void local_getpred(size_t nd, size_t p, size_t m, size_t np, xinfo& xi, std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat)
+void local_getpred(size_t nd, size_t p, size_t m, size_t np, xinfo& xi, 
+std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat)
 {
-
-
    int my_rank = omp_get_thread_num();
    int thread_count = omp_get_num_threads();
    int h = nd/thread_count; int beg = my_rank*h; int end = beg+h-1;
