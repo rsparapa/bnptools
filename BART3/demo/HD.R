@@ -20,7 +20,7 @@ set.seed(12)
 x.train=matrix(rnorm(N*P), N, P) %*% L
 dimnames(x.train)[[2]] <- paste0('x', 1:P)
 round(cor(x.train), digits=2)
-
+##x.train=x.train[order(x.train[ , 3]), ]
 y.train=(f(x.train)+sigma*rnorm(N))
 
 B=8
@@ -29,18 +29,21 @@ post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
 ## post = mc.gbart(x.train, y.train, sparse=TRUE)
 sort(post$varprob.mean*P, TRUE)
 
-H=20
-x=seq(-3, 3, length.out=H+1)[-(H+1)]
-x.test=matrix(x, nrow=H, ncol=P)
-yhat.test=HD(post, x.train, x.test, 3)
-yhat.test.mean=apply(yhat.test, 2, mean)
-yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
-yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
 pdf('HD.pdf')
-plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2)
-lines(x, yhat.test.mean, col=2, lty=2, lwd=2)
-lines(x, yhat.test.025, col=2, lty=3, lwd=2)
-lines(x, yhat.test.975, col=2, lty=3, lwd=2)
-legend('topleft', col=c(4, 2, 1), lty=c(1, 2),
-       legend=c('True', 'HD'), lwd=2)
+for(mc.cores in c(8)) {
+    a=proc.time()
+    x=x.train[ , 3]
+    x.test = x.train
+    yhat.test=HD(post, x.train, x.test, 3, mc.cores=mc.cores)
+    yhat.test.mean=apply(yhat.test, 2, mean)
+    yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
+    yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
+    plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2)
+    points(x, yhat.test.mean, col=2, lwd=2, pch='.')
+    points(x, yhat.test.025, col=1, lwd=2, pch='.')
+    points(x, yhat.test.975, col=1, lwd=2, pch='.')
+    legend('topleft', col=c(4, 2, 1), lty=c(1, 2),
+           legend=c('True', 'HD'), lwd=2)
+    print((proc.time()-a)/60)
+}
 dev.off()

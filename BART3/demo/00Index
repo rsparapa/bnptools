@@ -28,6 +28,7 @@ geweke.lung.surv.bart   Geweke diagnostics for advanced lung cancer survival ana
 inform.null.gbart  Specifying an informative null hypothesis prior with BART
 inform.alt.gbart   Specifying an informative alternative hypothesis prior with BART
 dm.recur.bart	   Diabetes and hospital admission example for recurrent events with BART
+HD  		   Hot-decking marginal expectation
 leuk		   Multi-state model example with leukemia data set
 liver.crisk.bart   Liver transplant example for competing risks with BART
 liver.crisk2.bart   Liver transplant example for competing risks with BART alternative
@@ -44,6 +45,7 @@ nhanes.pbart2 	   Friedman's partial dependence function for binary outcomes wit
 np.recur.bart	   Nonproportional intensity for recurrent events with BART
 nox		   Boston air pollution: Nitrogen Oxides and Housing Values
 replication	   Replication script for JSS article
+SHAP		   SHAP marginal expectation
 sigma.known.gbart	Sigma is fixed and known
 sparse.lbart	   Dirichlet sparsity prior with logit BART
 sparse.pbart	   Dirichlet sparsity prior with probit BART

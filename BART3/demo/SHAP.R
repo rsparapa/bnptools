@@ -29,36 +29,18 @@ post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
 ## post = mc.gbart(x.train, y.train, sparse=TRUE)
 sort(post$varprob.mean*P, TRUE)
 
-H=20
-x=seq(-3, 3, length.out=H+1)[-(H+1)]
-x.test=matrix(x, nrow=H, ncol=P)
+a=proc.time()
+x.test=x.train
 yhat.test=SHAP(post, x.train, x.test, 3)
 yhat.test.mean=apply(yhat.test, 2, mean)
 yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
 yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
-## yhat.test2=FPD(post, x.train, x.test, 3)
-## yhat.test2.mean=apply(yhat.test2, 2, mean)
-## yhat.test2.025=apply(yhat.test2, 2, quantile, probs=0.025)
-## yhat.test2.975=apply(yhat.test2, 2, quantile, probs=0.975)
-
-yhat.test3=HD(post, x.train, x.test, 3)
-yhat.test3.mean=apply(yhat.test3, 2, mean)
-yhat.test3.025=apply(yhat.test3, 2, quantile, probs=0.025)
-yhat.test3.975=apply(yhat.test3, 2, quantile, probs=0.975)
+print((proc.time()-a)/60)
 
 pdf('SHAP.pdf')
+x=x.train[ , 3]
 plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2)
-lines(x, yhat.test.mean, lwd=2, lty=3)
-lines(x, yhat.test.025, lty=2, lwd=2)
-lines(x, yhat.test.975, lty=2, lwd=2)
-## lines(x, yhat.test2.mean, col=2, lwd=2)
-## lines(x, yhat.test2.025, col=2, lty=2, lwd=2)
-## lines(x, yhat.test2.975, col=2, lty=2, lwd=2)
-lines(x, yhat.test3.mean, col=2, lwd=2, lty=4)
-lines(x, yhat.test3.025, col=2, lty=2, lwd=2)
-lines(x, yhat.test3.975, col=2, lty=2, lwd=2)
-## legend('topleft', col=c(4, 1, 2, 3), lty=c(1, 3, 1, 4),
-##        legend=c('True', 'SHAP', 'FPD', 'HD'), lwd=2)
-legend('topleft', col=c(4, 1, 2), lty=c(1, 2, 4),
-       legend=c('True', 'SHAP', 'HD'), lwd=2)
+points(x, yhat.test.mean, col=1, pch='.')
+points(x, yhat.test.025, col=1, pch='.')
+points(x, yhat.test.975, col=1, pch='.')
 dev.off()
