@@ -17,14 +17,25 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## Hot deck (HD) partial dependence function
- HD.wbart=function(object,   ## object returned from BART
-                   x.train, ## x.train to estimate coverage
-                   x.test,  ## settings of x.test: only x.test[ , S]
-                            ## are used but they must all be given
-                   S,       ## indices of subset
-                   mc.cores=1,
-                   seed=99)
+HD.wbart=function(object,  ## object returned from BART
+                  x.train, ## x.train to estimate coverage
+                  x.test,  ## settings of x.test: only x.test[ , S]
+                           ## are used but they must all be given
+                  S,       ## indices of subset
+                  seed=99L,
+                  mc.cores=1L,
+                  nice=19L)
 {
+    if(mc.cores>1L) {
+        if(.Platform$OS.type!='unix')
+            stop('parallel::mcparallel/mccollect do not exist on windows')
+        else {
+            RNGkind("L'Ecuyer-CMRG")
+            set.seed(seed)
+            parallel::mc.reset.stream()
+        }
+    } else { set.seed(seed) }
+
     for(v in S)
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
@@ -46,55 +57,66 @@
         for(j in (i+1):Q)
             if(all(x.test[i, S]==x.test[j, S]))
                 warning(paste0('Row ', i, ' and ', j,
-                            ' of x.test are equal with respect to S'))
+                               ' of x.test are equal with respect to S'))
 
     M=P-length(S)
-    D=hotdeck(x.train, x.test, S, object$treedraws, mc.cores=mc.cores)
+    if(mc.cores>1L)
+        D=mc.hotdeck(x.train, x.test, S, object$treedraws, 
+                     mc.cores=mc.cores, nice=nice)
+    else D=hotdeck(x.train, x.test, S, object$treedraws)
 
     ## weighted difference
     if(M>0) {
         for(k in 1:M) {
             C=comb(M, k, (1:P)[-S])
             R=nrow(C)
-            for(i in 1:R)
-                D=D+(hotdeck(x.train, x.test, c(C[i, ], S),
-                             object$treedraws, mc.cores=mc.cores)-
-                     hotdeck(x.train, x.test, C[i, ],
-                             object$treedraws, mc.cores=mc.cores))/
-                    choose(M, k)
+            for(i in 1:R) {
+                if(mc.cores>1L)
+                    D=D+(mc.hotdeck(x.train, x.test, c(C[i, ], S),
+                                    object$treedraws, 
+                                    mc.cores=mc.cores, nice=nice)-
+                         mc.hotdeck(x.train, x.test, C[i, ],
+                                    object$treedraws, 
+                                    mc.cores=mc.cores, nice=nice))/
+                        choose(M, k)
+                else 
+                    D=D+(hotdeck(x.train, x.test, c(C[i, ], S),
+                                 object$treedraws)-
+                         hotdeck(x.train, x.test, C[i, ],
+                                 object$treedraws))/choose(M, k)
+            }
         }
     }
-
     return(D/P)
-
-    ## miss=apply(is.na(x.train), 2, sum)
-    ## names(miss)=names(object$treedraws$cutpoints)
-    ## miss.=(sum(miss)>0)
-
-    ## pred=hotdeck(x.train, x.test, S, object$treedraws, object$offset,
-    ##              mc.cores=mc.cores)
-
-    ## return(pred)
-
-    ## set.seed(seed)
-    ## for(i in 1:Q) {
-    ##     X.test = x.train[sample.int(N), ] ## hot deck/permute x.train
-    ##     for(j in 1:P) {
-    ##         if(!(j %in% S) & miss[j]>0) {
-    ##             for(k in 1:N)
-    ##                 if(is.na(X.test[k, j]))
-    ##                     while(is.na(X.test[k, j]))
-    ##                         X.test[k, j]=X.test[sample.int(N, 1), j]
-    ##         } else if(j %in% S) {
-    ##             X.test[ , j]=x.test[i, j]
-    ##         }
-    ##     }
-    ##     pred.=apply(predict(object, X.test, mc.cores=mc.cores,
-    ##                         mult.impute=1), 1, mean)
-    ##     if(i==1)
-    ##         pred=cbind(pred.)
-    ##     else
-    ##         pred=cbind(pred, pred.)
-    ## }
 }
+        ## miss=apply(is.na(x.train), 2, sum)
+        ## names(miss)=names(object$treedraws$cutpoints)
+        ## miss.=(sum(miss)>0)
+
+        ## pred=hotdeck(x.train, x.test, S, object$treedraws, object$offset,
+        ##              mc.cores=mc.cores)
+
+        ## return(pred)
+
+        ## set.seed(seed)
+        ## for(i in 1:Q) {
+        ##     X.test = x.train[sample.int(N), ] ## hot deck/permute x.train
+        ##     for(j in 1:P) {
+        ##         if(!(j %in% S) & miss[j]>0) {
+        ##             for(k in 1:N)
+        ##                 if(is.na(X.test[k, j]))
+        ##                     while(is.na(X.test[k, j]))
+        ##                         X.test[k, j]=X.test[sample.int(N, 1), j]
+        ##         } else if(j %in% S) {
+        ##             X.test[ , j]=x.test[i, j]
+        ##         }
+        ##     }
+        ##     pred.=apply(predict(object, X.test, mc.cores=mc.cores,
+        ##                         mult.impute=1), 1, mean)
+        ##     if(i==1)
+        ##         pred=cbind(pred.)
+        ##     else
+        ##         pred=cbind(pred, pred.)
+        ## }
+    
 

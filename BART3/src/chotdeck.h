@@ -21,30 +21,36 @@ RcppExport SEXP chotdeck(
    SEXP _itrain,
    SEXP _itest,
    SEXP _imask,
-   SEXP _itrees,		//treedraws list from fbart
-   SEXP _itc			//thread count
+   SEXP _itrees		//treedraws list from fbart
+//   SEXP _itc		//thread count
 )
 {
-   Rprintf("*****In main of C++ for bart prediction\n");
+   //Rprintf("*****In main of C++ for bart prediction\n");
    //random number generation
    arn gen;
    //--------------------------------------------------
-   //get threadcount
-   int tc = Rcpp::as<int>(_itc);
-   cout << "tc (threadcount): " << tc << endl;
+   //OpenMP will not work here since we cannot 
+   //estimate 1, ..., nd predictions simultaneously
+   //for each sample, we need to hotdeck the values
+   //however, we can parallel-ize predictions 1, ..., np
+   //but we are not using OpenMP: just multiple threads
+   //each given a block of xtest which is even easier
+   //int tc = Rcpp::as<int>(_itc);
+   //cout << "tc (threadcount): " << tc << endl;
    //--------------------------------------------------
    //process trees
    Rcpp::List trees(_itrees);
-
    Rcpp::CharacterVector itrees(Rcpp::wrap(trees["trees"])); 
    std::string itv(itrees[0]);
    std::stringstream ttss(itv);
 
    size_t nd,m,p;
    ttss >> nd >> m >> p;
+/*
    cout << "number of bart draws: " << nd << endl;
    cout << "number of trees in bart sum: " << m << endl;
    cout << "number of x columns: " << p << endl;
+*/
    //--------------------------------------------------
    //process cutpoints (from trees)
    Rcpp::List  ixi(Rcpp::wrap(trees["cutpoints"]));
@@ -61,10 +67,10 @@ RcppExport SEXP chotdeck(
    //process x
    Rcpp::IntegerVector mask(_imask);
    Rcpp::NumericMatrix xtrain(_itrain);
-   Rcpp::NumericMatrix xtest(_itest);
+   Rcpp::NumericMatrix xtest=Rcpp::clone(_itest);
    size_t n = xtrain.ncol();
    size_t np = xtest.ncol();
-   cout << "from x,np,p: " << xtest.nrow() << ", " << xtest.ncol() << endl;
+   //cout << "from x,np,p: " << xtest.nrow() << ", " << xtest.ncol() << endl;
    //--------------------------------------------------
    //read in trees
    std::vector<vtree> tmat(nd);

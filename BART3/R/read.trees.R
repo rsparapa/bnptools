@@ -25,8 +25,8 @@ read.trees=function(treedraws, ## treedraws item returned from BART
 
     tc <- textConnection(treedraws$tree)
     trees <- read.table(file=tc, fill=TRUE,
-                    row.names=NULL, header=FALSE,
-                    col.names=c('node', 'var', 'cut', 'leaf'))
+                        row.names=NULL, header=FALSE,
+                        col.names=c('node', 'var', 'cut', 'leaf'))
     close(tc)
 
     N=nrow(x.train)
@@ -38,6 +38,7 @@ read.trees=function(treedraws, ## treedraws item returned from BART
     node.max=max(trees$node)
     tier.max=floor(log2(node.max))
     Trees=array(0, dim=c(M, T, node.max, 5))
+    Trees. = replicate(n=M, expr=list())
     ## last index of Trees
     ## 1 for nodes: 1 is a branch and 2 is a leaf
     ## 2 for variable: R index (add 1 to C/C++ index)
@@ -57,10 +58,10 @@ read.trees=function(treedraws, ## treedraws item returned from BART
             L=0             ## number of leaves
             for(h in l+(1:C)) { ## rows for this node
                 k=trees$node[h]
-                Trees[i, j, k, 1]=2 ## default to a leaf
+                Trees[i, j, k, 1]=2L ## default to a leaf
                 L=L+1
                 if((k%%2)==0) {
-                    Trees[i, j, k/2, 1]=1 ## but it was really a branch
+                    Trees[i, j, k/2, 1]=1L ## but it was really a branch
                     B=B+1
                     L=L-1
                 }
@@ -93,16 +94,27 @@ read.trees=function(treedraws, ## treedraws item returned from BART
                 }
                 Trees[i, j, k, 5]=sum(Cover[ , k])
             }
+            node.max=max(which(Trees[i, j, , 1]==2L))
+            Trees.[[i]][[j]]=list()
+            Trees.[[i]][[j]][[1]]=matrix(0, nrow=node.max, ncol=4)
+            Trees.[[i]][[j]][[2]]=double(node.max)
+            k=which(Trees[i, j, , 1]==1L)
+            Trees.[[i]][[j]][[1]][k, 1]=1L ## branches
+            Trees.[[i]][[j]][[1]][k, 2]=Trees[i, j, k, 2] ## variables
+            Trees.[[i]][[j]][[1]][k, 3]=Trees[i, j, k, 3] ## cut-points
+            Trees.[[i]][[j]][[1]][k, 4]=Trees[i, j, k, 5] ## coverage
+            k=which(Trees[i, j, , 1]==2L) ## leaves
+            Trees.[[i]][[j]][[1]][k, 1]=2L
+            Trees.[[i]][[j]][[1]][k, 4]=Trees[i, j, k, 5] ## coverage
+            Trees.[[i]][[j]][[2]][k]=Trees[i, j, k, 4] ## leaves
             if((j%%T)==0) {
                 i=i+1
                 j=0
             }
         }
     }
+    print(object.size(Trees))
+    print(object.size(Trees.))
     return(Trees)
-    ## you could use a sparse array, however, these appear to be slower
-    ## nonzero = which(Trees!=0, arr.ind=TRUE)
-    ## Trees. = Trees=simple_sparse_array(nonzero, Trees[nonzero],
-    ##                                    dim=c(M, T, node.max, 5))
-    ## return(Trees.)
 }
+

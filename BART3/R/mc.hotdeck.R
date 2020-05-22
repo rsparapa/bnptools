@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2020 Robert McCulloch and Rodney Sparapani
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-hotdeck = function(
+mc.hotdeck = function(
                    x.train,           ## matrix for training
                    x.test,	      ## matrix to predict at
                    S,                 ## x.test columns to condition on
@@ -24,10 +24,12 @@ hotdeck = function(
                    treedraws,	      ## $treedraws
                    mu=0,	      ## mean to add on
                    transposed=FALSE,
-                   mc.cores=1L,       ## mc.hotdeck only
-                   nice=19L           ## mc.hotdeck only
-                   )
+                   mc.cores=2L,       ## mc.hotdeck only
+                   nice=19L)          ## mc.hotdeck only
 {
+    ## if(.Platform$OS.type!='unix')
+    ##     stop('parallel::mcparallel/mccollect do not exist on windows')
+
     if(!transposed) {
         x.train <- t(bartModelMatrix(x.train))
         x.test <- t(bartModelMatrix(x.test))
@@ -41,25 +43,33 @@ hotdeck = function(
     if(p!=nrow(x.test))
         stop(paste0('The number of columns in x.test must be equal to ', p))
 
-    mask = 1:p
-    for(i in mask)
-        mask[i]=1*(i %in% S)
+    mc.cores.detected <- detectCores()
 
-    res = .Call("chotdeck",
-                x.train,          ##training
-                x.test,           ##testing
-                as.integer(mask), ## 1 condition, 0 hot deck
-                treedraws         ##trees
-                ##mc.cores        ##thread count
-                )
+    if(!is.na(mc.cores.detected) && mc.cores>mc.cores.detected)
+        mc.cores <- mc.cores.detected
 
-    return(res$yhat.test+mu)
-    
-   ## OpenMP will not work here since we cannot 
-   ## estimate 1, ..., ndpost predictions simultaneously
-   ## for each sample, we need to hotdeck the values
-   ## however, we can parallel-ize predictions 1, ..., np
-   ## but we are not using OpenMP: just multiple threads
-   ## each given a block of xtest which is even easier
-   ## see mc.hotdeck
+    K <- ncol(x.test)
+    k <- K%/%mc.cores-1
+    j <- K
+    for(i in 1:mc.cores) {
+        if(i==mc.cores) h <- 1
+        else h <- j-k
+
+        parallel::mcparallel({psnice(value=nice);
+            hotdeck(x.train,
+                    matrix(x.test[ , h:j], nrow=p, ncol=j-h+1),
+                    S, treedraws, mu=0, transposed=TRUE)},
+            silent=(i!=1))
+        j <- h-1
+    }
+
+    pred.list <- parallel::mccollect()
+
+    pred <- pred.list[[1]]
+
+    if(mc.cores>1)
+        for(i in 2:mc.cores)
+            pred <- cbind(pred, pred.list[[i]])
+
+    return(pred+mu)
 }
