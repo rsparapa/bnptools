@@ -18,8 +18,11 @@
 
 ## Shapley additive explanation (SHAP) partial dependence function
 ## for two-way interactions
-SHAP2=function(object, ## object returned from BART
-              ...)
+SHAP2=function(object,  ## object returned from BART
+               x.train, ## x.train to estimate coverage
+               x.test,  ## settings of x.test: only x.test[ , S]
+                        ## are used but they must all be given
+               S)       ## indices of two variables
 {
     UseMethod('SHAP2')
 }

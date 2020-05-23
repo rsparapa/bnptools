@@ -17,8 +17,11 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## Shapley additive explanation (SHAP) partial dependence function
-SHAP=function(object, ## object returned from BART
-              ...)
+SHAP=function(object,  ## object returned from BART
+              x.train, ## x.train to estimate coverage
+              x.test,  ## settings of x.test: only x.test[ , S]
+                       ## are used but they must all be given
+              S)       ## indices of subset
 {
     UseMethod('SHAP')
 }

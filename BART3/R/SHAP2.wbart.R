@@ -44,27 +44,47 @@ SHAP2.wbart=function(object, ## object returned from BART
 
     Trees=read.trees(object$treedraws, x.train)
 
-    M=P-length(S)
+    ##M=P-length(S)
+    M=P-1 ## use the same notation as SHAP
+    L=M-1 ## but introduce L for convenience
     D=EXPVALUE(Trees, x.test, S)-
         EXPVALUE(Trees, x.test, i)-
         EXPVALUE(Trees, x.test, j)
-    N=1 ## number of terms
+    ##N=1 ## number of terms
     i=S[1]
     j=S[2]
 
-    if(M>0) {
-        for(k in 1:M) {
-            C=comb(M, k, (1:P)[-S])
+    ##weighted
+    if(L>0) {
+        for(k in 1:L) {
+            C=comb(L, k, (1:P)[-S])
             R=nrow(C)
-            N=N+R
+            ##N=N+R
             for(h in 1:R)
-                D=D+EXPVALUE(Trees, x.test, c(C[h, ], S))-
+                D=D+(EXPVALUE(Trees, x.test, c(C[h, ], S))-
                     EXPVALUE(Trees, x.test, c(C[h, ], i))-
                     EXPVALUE(Trees, x.test, c(C[h, ], j))+
-                    EXPVALUE(Trees, x.test, C[h, ])
+                    EXPVALUE(Trees, x.test, C[h, ]))/
+                    choose(L, k)
         }
-        D=D/N
     }
 
-    return(D)
+    return(0.5*D/M)
+    
+    ## unweighted for testing
+    ## if(M>0) {
+    ##     for(k in 1:M) {
+    ##         C=comb(M, k, (1:P)[-S])
+    ##         R=nrow(C)
+    ##         N=N+R
+    ##         for(h in 1:R)
+    ##             D=D+EXPVALUE(Trees, x.test, c(C[h, ], S))-
+    ##                 EXPVALUE(Trees, x.test, c(C[h, ], i))-
+    ##                 EXPVALUE(Trees, x.test, c(C[h, ], j))+
+    ##                 EXPVALUE(Trees, x.test, C[h, ])
+    ##     }
+    ##     D=D/N
+    ## }
+
+    ## return(D)
 }
