@@ -38,7 +38,8 @@ mc.pwbart = function(
 
     mc.cores.detected <- detectCores()
 
-    if(!is.na(mc.cores.detected) && mc.cores>mc.cores.detected) mc.cores <- mc.cores.detected
+    if(!is.na(mc.cores.detected) && mc.cores>mc.cores.detected)
+        mc.cores <- mc.cores.detected
 
     K <- ncol(x.test)
     k <- K%/%mc.cores-1
@@ -48,7 +49,8 @@ mc.pwbart = function(
         else h <- j-k
 
         parallel::mcparallel({psnice(value=nice);
-            pwbart(matrix(x.test[ , h:j], nrow=p, ncol=j-h+1), treedraws, mu, 1, TRUE)},
+            pwbart(matrix(x.test[ , h:j], nrow=p, ncol=j-h+1),
+                   treedraws, mu, 1, TRUE)},
             silent=(i!=1))
         j <- h-1
     }

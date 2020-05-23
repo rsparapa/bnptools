@@ -17,14 +17,14 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## Friedman's partial dependence (FPD) function
-FPD.wbart=function(object,   ## object returned from BART
+FPD.wbart=function(object,  ## object returned from BART
                    x.train, ## x.train to estimate coverage
                    x.test,  ## settings of x.test: only x.test[ , S]
                             ## are used but they must all be given
                    S,       ## indices of subset
-                   mc.cores=1,
-                   mult.impute=4,
-                   seed=99)
+                   mc.cores=1L,
+                   mult.impute=4L,
+                   seed=99L)
 {
     for(v in S)
         if(any(is.na(x.test[ , v])))
@@ -42,7 +42,6 @@ FPD.wbart=function(object,   ## object returned from BART
         stop(paste0('the number of columns in x.train and\n',
                     'the length of cutpoints are not the same'))
 
-    ##N=nrow(x.train)
     Q=nrow(x.test)
     for(i in 1:(Q-1))
         for(j in (i+1):Q)
@@ -50,12 +49,13 @@ FPD.wbart=function(object,   ## object returned from BART
                 stop(paste0('Row ', i, ' and ', j,
                             ' of x.test are equal with respect to S'))
 
+    set.seed(seed)
     X.test = x.train
     for(i in 1:Q) {
         for(j in S)
             X.test[ , j]=x.test[i, j]
         pred.=apply(predict(object, X.test, mc.cores=mc.cores,
-                            mult.impute=mult.impute, seed=seed), 1, mean)
+                            mult.impute=mult.impute, seed=NA), 1, mean)
         if(i==1)
             pred=cbind(pred.)
         else

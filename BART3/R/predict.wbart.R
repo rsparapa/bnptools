@@ -16,9 +16,9 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-predict.wbart <- function(object, newdata, mc.cores=1,
+predict.wbart <- function(object, newdata, mc.cores=1L,
                           openmp=(mc.cores.openmp()>0),
-                          mult.impute=4, seed=99, ...)
+                          mult.impute=4L, seed=99L, ...)
 {
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
 
@@ -32,8 +32,10 @@ predict.wbart <- function(object, newdata, mc.cores=1,
 
     if(!is.na(mc.cores.detected) && mc.cores>mc.cores.detected) mc.cores <- mc.cores.detected
 
-    if(.Platform$OS.type != "unix" || openmp || mc.cores==1) call <- pwbart
-    else call <- mc.pwbart
+    if(.Platform$OS.type != "unix" || openmp || mc.cores==1) 
+        call <- pwbart
+    else 
+        call <- mc.pwbart
 
     if(length(object$mu)==0) object$mu=object$offset
 
@@ -45,7 +47,7 @@ predict.wbart <- function(object, newdata, mc.cores=1,
 
     if(!miss.) mult.impute=1
     else {
-        set.seed(seed)
+        if(!is.na(seed)) set.seed(seed)
         newdata.=newdata
         n=nrow(newdata)
     }
@@ -74,7 +76,8 @@ predict.wbart <- function(object, newdata, mc.cores=1,
                 }
         }
 
-        pred[[k]]=call(newdata, object$treedraws, mc.cores=mc.cores, mu=object$mu, ...)
+        pred[[k]]=call(newdata, object$treedraws,
+                       mc.cores=mc.cores, mu=object$mu, ...)
 
         if(mult.impute>1) {
             if(k==1) {

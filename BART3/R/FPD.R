@@ -17,8 +17,14 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## Friedman's partial dependence (FPD) function
-FPD=function(object, ## object returned from BART
-              ...)
+FPD=function(object,  ## object returned from BART
+             x.train, ## x.train to estimate coverage
+             x.test,  ## settings of x.test: only x.test[ , S]
+                      ## are used but they must all be given
+             S,       ## indices of subset
+             mc.cores=1L,
+             mult.impute=4L,
+             seed=99L)
 {
     UseMethod('FPD')
 }
