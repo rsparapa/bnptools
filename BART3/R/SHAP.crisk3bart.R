@@ -19,11 +19,12 @@
 ## Shapley additive explanation (SHAP) partial dependence function
 SHAP.crisk3bart=function(object,       ## object returned from BART
                          x.train,      ## x.train to estimate coverage
-                         x.test,       ## settings of x.test: only x.test[ , S]
+                         x.test,       ## settings: only x.test[ , S]
                                        ## are used but they must all be given
                          S,            ## indices of subset
                          type='pbart', ## type of probability model
-                         probs=c(0.025, 0.975))
+                         probs=c(0.025, 0.975),
+                         ...)
 {
     for(v in S)
         if(any(is.na(x.test[ , v])))
@@ -60,9 +61,19 @@ SHAP.crisk3bart=function(object,       ## object returned from BART
     pred$offset2 <- object$offset2
     pred$offset3 <- object$offset3
 
-    pred$yhat.test  <- object$offset +EXPVALUE(Trees, x.test, S)
-    pred$yhat.test2 <- object$offset2+EXPVALUE(Trees2, x.test, S)
-    pred$yhat.test3 <- object$offset3+EXPVALUE(Trees3, x.test, S)
+    ## pred$yhat.test  <- object$offset +EXPVALUE(Trees, x.test, S)
+    ## pred$yhat.test2 <- object$offset2+EXPVALUE(Trees2, x.test, S)
+    ## pred$yhat.test3 <- object$offset3+EXPVALUE(Trees3, x.test, S)
+
+    attr(object, 'class') <- 'wbart'
+    pred$yhat.test <- SHAP(object, x.train, x.test, S)
+    object. = object
+    object.$treedraws = object$treedraws2
+    pred$yhat.test2 <- SHAP(object., x.train, x.test, S)
+    object. = object
+    object.$treedraws = object$treedraws3
+    pred$yhat.test3 <- SHAP(object., x.train, x.test, S)
+    attr(object, 'class') <- 'crisk3bart'
 
     if(type=='pbart') {
         pred$prob.test  <- pnorm(pred$yhat.test)

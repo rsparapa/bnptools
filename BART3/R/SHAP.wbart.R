@@ -21,7 +21,8 @@ SHAP.wbart=function(object,  ## object returned from BART
                     x.train, ## x.train to estimate coverage
                     x.test,  ## settings of x.test: only x.test[ , S]
                              ## are used but they must all be given
-                    S)       ## indices of subset
+                    S,       ## indices of subset
+                    ...)
 {
     for(v in S)
         if(any(is.na(x.test[ , v])))

@@ -19,11 +19,12 @@
 ## Shapley additive explanation (SHAP) partial dependence function
 SHAP.survbart  =function(object,       ## object returned from BART
                          x.train,      ## x.train to estimate coverage
-                         x.test,       ## settings of x.test: only x.test[ , S]
+                         x.test,       ## settings: only x.test[ , S]
                                        ## are used but they must all be given
                          S,            ## indices of subset
                          type='pbart', ## type of probability model
-                         probs=c(0.025, 0.975))
+                         probs=c(0.025, 0.975),
+                         ...)
 {
     for(v in S)
         if(any(is.na(x.test[ , v])))
@@ -47,7 +48,6 @@ SHAP.survbart  =function(object,       ## object returned from BART
     attr(object, 'class') <- 'wbart'
     pred$yhat.test <- SHAP(object, x.train, x.test, S)
     attr(object, 'class') <- 'survbart'
-    ## pred$yhat.test <- object$offset+EXPVALUE(trees, x.test, S)
 
     pred$times <- object$times
     K <- object$K
@@ -72,8 +72,10 @@ SHAP.survbart  =function(object,       ## object returned from BART
         }
 
     pred$surv.test.mean <- apply(pred$surv.test, 2, mean)
-    pred$surv.test.lower <- apply(pred$surv.test, 2, quantile, probs=probs[1])
-    pred$surv.test.upper <- apply(pred$surv.test, 2, quantile, probs=probs[2])
+    pred$surv.test.lower <- apply(pred$surv.test, 2, quantile,
+                                  probs=probs[1])
+    pred$surv.test.upper <- apply(pred$surv.test, 2, quantile,
+                                  probs=probs[2])
 
     attr(pred, 'class') <- 'survbart'
 
