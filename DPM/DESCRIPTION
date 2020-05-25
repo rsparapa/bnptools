@@ -1,15 +1,17 @@
 Package: DPM
 Type: Package
 Title: Dirichlet Process Mixtures With Low Information Omnibus Prior
-Version: 1.2
-Date: 2019-11-25
-Author: rsparapa
-Maintainer: rsparapa <rsparapa@mcw.edu>
+Version: 1.3
+Date: 2020-05-25
+Authors@R: c(person('Rodney', 'Sparapani', role=c('aut', 'cre'), 
+  email='rsparapa@mcw.edu'))
+Authors: Rodney Sparapani [aut, cre]
+Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
 Description: Dirichlet Process Mixtures With Low Information Omnibus Prior
 License: GPL (>= 2)
 Depends: survival
-Imports: Rcpp, RcppEigen, DPpackage
-LinkingTo: Rcpp, RcppEigen
+Imports: Rcpp
+LinkingTo: Rcpp
 Suggests: knitr, rmarkdown
 SystemRequirements: C++11
 NeedsCompilation: yes

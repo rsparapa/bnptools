@@ -20,7 +20,8 @@
 #ifndef DPMrng_h
 #define DPMrng_h
 
-#include <RcppEigen.h>
+//#include <RcppEigen.h>
+#include <Rcpp.h>
 
 namespace DPM {
   //pure virtual base class for random number generator

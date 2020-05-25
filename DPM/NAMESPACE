@@ -1,9 +1,8 @@
 useDynLib(DPM, .registration=TRUE)
-import(RcppEigen)
+##import(RcppEigen)
 importFrom(Rcpp, evalCpp)
 importFrom(DPpackage, DPdensity)
 importFrom(survival, survfit, Surv, survreg)
-##exportPattern("^[[:alpha:]]+")
 export(mutau, normwrapper, NoGa)
 export(rcat, .rgamma, rlgamma, rtnorm, .quantile, Quantile,
        .floor, .ceiling, .sort)
