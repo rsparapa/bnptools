@@ -5,7 +5,7 @@ f = function(x)
     10*sin(pi*x[ , 1]*x[ , 2]) +  20*x[ , 3]
 ##    10*sin(pi*x[ , 1]*x[ , 2]) + 5*x[ , 3]*x[ , 4]^2 + 20*x[ , 5]
 
-N = 1000
+N = 250
 sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
 P = 4       ##number of covariates
 ## P = 10
@@ -38,12 +38,24 @@ for(mc.cores in c(8)) {
     yhat.test.mean=apply(yhat.test, 2, mean)
     yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
     yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
+    yhat.test2=FPD(post, x.train, x.test, 3, mc.cores=mc.cores)
+    yhat.test2.mean=apply(yhat.test2, 2, mean)
+    yhat.test2.025=apply(yhat.test2, 2, quantile, probs=0.025)
+    yhat.test2.975=apply(yhat.test2, 2, quantile, probs=0.975)
     plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2)
-    points(x, yhat.test.mean, col=2, lwd=2, pch='.')
-    points(x, yhat.test.025, col=1, lwd=2, pch='.')
-    points(x, yhat.test.975, col=1, lwd=2, pch='.')
-    legend('topleft', col=c(4, 2, 1), lty=c(1, 2),
-           legend=c('True', 'HD'), lwd=2)
+    points(x, yhat.test.mean, col=2, pch='.')
+    points(x, yhat.test.025, col=2, pch='.')
+    points(x, yhat.test.975, col=2, pch='.')
+    points(x, yhat.test2.mean, col=1, pch='.')
+    points(x, yhat.test2.025, col=3, pch='.')
+    points(x, yhat.test2.975, col=3, pch='.')
+    legend('topleft', col=c(4, 2, 1), lty=1,
+           legend=c('True', 'HD', 'FPD'), lwd=2)
     print((proc.time()-a)/60)
 }
 dev.off()
+
+print(mean((yhat.test.975-yhat.test.mean)/
+     (yhat.test2.975-yhat.test2.mean)))
+print(mean((yhat.test.025-yhat.test.mean)/
+     (yhat.test2.025-yhat.test2.mean)))
