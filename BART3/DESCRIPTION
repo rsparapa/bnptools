@@ -27,7 +27,7 @@ Description: Bayesian Additive Regression Trees (BART) provide flexible nonparam
 License: GPL (>= 2)
 Depends: R (>= 2.10), nlme, nnet, survival
 Imports: Rcpp (>= 0.12.3), parallel, tools
-LinkingTo: Rcpp
+LinkingTo: Rcpp, DPM
 Suggests: MASS, knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: yes
