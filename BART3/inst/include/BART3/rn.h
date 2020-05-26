@@ -62,6 +62,7 @@ class arn: public rn
   //constructor
   arn() {}
   arn(unsigned int n1, unsigned int n2) {this->n1=n1; this->n2=n2;}
+  
   //virtual
   virtual ~arn() {}
   virtual double normal() {return (nor)(gen);}
@@ -193,13 +194,16 @@ class arn: public rn
 
 #else // YesRcpp
 
+#include "DPMrng.h"
+
 //abstract random number generator based on R/Rcpp
 class arn: public rn
 {
  public:
   //constructor
- //arn():df(1) {}
- arn() {}
+  //arn():df(1) {}
+  arn() {}
+  arn(DPM::arng eng) { set_state(eng.get_state()); }
   //virtual
   virtual ~arn() {}
   virtual double normal() {return R::norm_rand();}
@@ -270,6 +274,10 @@ class arn: public rn
     }
     return draw;
   }
+  
+    Rcpp::RNGScope get_state(void) { return RNGstate; }
+    void set_state(Rcpp::RNGScope RNGstate) { this->RNGstate=RNGstate; }
+  
  private:
   std::vector<double> wts;
   Rcpp::RNGScope RNGstate;

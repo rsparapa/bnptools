@@ -141,6 +141,10 @@ namespace DPM {
       virtual double rnormt(double a, double b, double mu, double sd)
       {return mu+sd*rnormt((a-mu)/sd, (b-mu)/sd);}
     */
+
+    Rcpp::RNGScope get_state(void) { return RNGstate; }
+    void set_state(Rcpp::RNGScope RNGstate) { this->RNGstate=RNGstate; }
+    
   private:
     Rcpp::RNGScope RNGstate;
     //std::vector<double> wts;

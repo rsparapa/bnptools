@@ -21,6 +21,7 @@
 #include "cabart.h"
 #include "cgbart.h"
 #include "chbart.h"
+#include "cliobart.h"
 #include "clbart.h"
 #include "cpbart.h"
 #include "cpwbart.h"

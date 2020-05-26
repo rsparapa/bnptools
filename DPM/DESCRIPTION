@@ -10,7 +10,7 @@ Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
 Description: Dirichlet Process Mixtures With Low Information Omnibus Prior
 License: GPL (>= 2)
 Depends: survival
-Imports: Rcpp
+Imports: Rcpp, DPpackage
 LinkingTo: Rcpp
 Suggests: knitr, rmarkdown
 SystemRequirements: C++11
