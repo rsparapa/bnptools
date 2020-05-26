@@ -16,7 +16,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-qbart=function(x.train1=NULL, x.train2, times, delta, q=NULL,
+qbart=function(x.train1=NULL, x.train2, times, delta,
                x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
                ## type='abart',
                ntype=1,

@@ -32,7 +32,6 @@
 #define TEDRAW2(a, b) tedraw2(a, b)
 
 RcppExport SEXP cqbart(
-   //SEXP _type,          //1:wbart, 2:pbart, 3:lbart
    SEXP _in,            //number of observations in training data
    SEXP _ip1,            //dimension of x1
    SEXP _ip2,            //dimension of x2
@@ -75,7 +74,6 @@ RcppExport SEXP cqbart(
 )
 {
    //process args
-   //int type = Rcpp::as<int>(_type);
    size_t n = Rcpp::as<int>(_in);
    size_t p1 = Rcpp::as<int>(_ip1);
    size_t p2 = Rcpp::as<int>(_ip2);
@@ -185,7 +183,6 @@ RcppExport SEXP cqbart(
 #define TEDRAW2(a, b) tedraw2[a][b]
 
 void cqbart(
-   //int type,            //1:wbart, 2:pbart, 3:lbart
    size_t n,            //number of observations in training data
    size_t p1,		//dimension of x1
    size_t p2,           //dimension of x2
@@ -308,8 +305,6 @@ void cqbart(
    double *st = new double[n];
    //double *svec = new double[n]; 
    
-   //double *sign;
-   //if(type!=1) sign = new double[n]; 
    
    for(size_t k=0; k<n; k++) {
      if(q0[k]==0) z1[k] = -rtnorm(0., binaryOffset, 1., gen);
@@ -414,9 +409,9 @@ void cqbart(
          if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {
             for(size_t k=0;k<n;k++) {
 	      TRDRAW1(trcnt,k)=binaryOffset+bm1.f(k);
-	      qdraw(trcnt,k)=q[k];
-	      stdraw(trcnt,k)=z2[k];
-	      ptdraw(trcnt,k)=pt[k];
+	      //qdraw(trcnt,k)=q[k];
+	      //stdraw(trcnt,k)=st[k];
+	      //ptdraw(trcnt,k)=pt[k];
 	      TRDRAW2(trcnt,k)=Offset+bm2.f(k);
 	    }
 	    sdraw[trcnt]=sigma;
@@ -481,9 +476,9 @@ void cqbart(
    ret["y2hat.test"]=tedraw2;
    ret["varcount2"]=varcnt2;
    ret["varprob2"]=varprb2;
-   ret["qdraws"]=qdraw;
-   ret["bm2fdraws"]=stdraw;
-   ret["ptdraws"]=ptdraw;
+   //ret["qdraws"]=qdraw;
+   //ret["bm2fdraws"]=stdraw;
+   //ret["ptdraws"]=ptdraw;
 
    Rcpp::List xi1ret(xi1.size());
    for(size_t i=0;i<xi1.size();i++) {

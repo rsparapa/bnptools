@@ -17,7 +17,7 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 
-mc.qbart <- function(x.train1=NULL, x.train2, times, delta, q,
+mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
                      x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
                      ##type='abart',
                      ntype=1,
@@ -105,13 +105,13 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta, q,
 
     post <- post.list[[1]]
 
-    if(mc.cores==1 | attr(post, 'class')!=type) return(post)
+    if(mc.cores==1 | attr(post, 'class')!="qbart") return(post)
     else {
         if(class(rm.const)[1]!='logical') post$rm.const <- rm.const
 
         post$ndpost <- mc.cores*mc.ndpost
 
-        p <- nrow(x.train[post$rm.const, ])
+        p <- nrow(x.train1[post$rm.const, ])
 
         old.text <- paste0(as.character(mc.ndpost), ' ', as.character(ntree),
                            ' ', as.character(p))
@@ -123,7 +123,7 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta, q,
                                            as.character(p)),
                                     post$treedraws$trees)
 
-        keeptest <- length(x.test)>0
+        keeptest <- length(x.test1)>0
 
         for(i in 2:mc.cores) {
             post$sigma <- cbind(post$sigma, post.list[[i]]$sigma)
