@@ -94,7 +94,26 @@ RcppExport SEXP chotdeck(
      }
      getpred(k, k, p, m, np, xi, tmat, px, yhat);
    }
-
+   
+   /*
+   double y;
+   for(size_t k=0; k<nd; ++k) {   // samples
+     for(size_t i=0; i<np; ++i) { // settings
+       size_t h;
+       h=n*gen.uniform();
+       for(size_t j=0; j<p; ++j)  // variables: rows of xpred
+	 if(mask[j]==0) xtest(j, i)=xtrain(j, h);
+       // mimicking Friedman's partial dependence function
+       y=0.;
+       for(size_t l=0; l<n; ++l) {
+	 getpred(k, k, p, m, np, xi, tmat, px, yhat);
+	 y += yhat(k, i);
+       }
+       yhat(k, i)=y/n;
+     }
+   }
+   */
+   
    //--------------------------------------------------
    Rcpp::List ret;
    ret["yhat.test"] = yhat;

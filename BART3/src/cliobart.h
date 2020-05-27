@@ -17,11 +17,6 @@
  *  https://www.R-project.org/Licenses/GPL-2
  */
 
-#include "DPM.h"
-#include "DPMneal7.h"
-#include "DPMneal8.h"
-#include "DPMNoGa.h"
-
 #ifndef NoRcpp
 
 #define TRDRAW(a, b) trdraw(a, b)
@@ -33,7 +28,6 @@ RcppExport SEXP cliobart(
 			 SEXP _states, 
 			 SEXP _prior,
 			 SEXP _hyper,
-// SEXP _type,          //1:wbart, 2:pbart, 3:lbart
    SEXP _in,            //number of observations in training data
    SEXP _ip,            //dimension of x
    SEXP _inp,           //number of observations in test data

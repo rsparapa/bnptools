@@ -18,6 +18,12 @@
  */
 
 #include <BART3.h>
+
+#include "DPM.h"
+#include "DPMneal7.h"
+#include "DPMneal8.h"
+#include "DPMNoGa.h"
+
 #include "cabart.h"
 #include "cgbart.h"
 #include "chbart.h"
