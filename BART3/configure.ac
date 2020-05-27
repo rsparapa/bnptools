@@ -45,7 +45,8 @@ dnl the meat of R's m4/openmp.m4
 	  for ac_option in -xopenmp -fopenmp -qopenmp \
                            -openmp -mp -omp -qsmp=omp -homp \
 			   -fopenmp=libomp \
-                           -Popenmp --openmp; do
+                           -Popenmp --openmp \
+			   "-Xclang -fopenmp -lomp"; do
 	    ac_save_[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
 	    _AC_LANG_PREFIX[]FLAGS="$[]_AC_LANG_PREFIX[]FLAGS $ac_option"
 	    AC_LINK_IFELSE([_AC_LANG_OPENMP],
