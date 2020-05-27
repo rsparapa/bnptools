@@ -10,18 +10,6 @@ AC_PREREQ(2.62)
 dnl derived from the BART R package v 2.3
 AC_INIT([BART],[2.3],[],[],[])
 
-dnl CXX1X=`"${R_HOME}/bin/R" CMD config CXX1X`
-dnl CXX1XSTD=`"${R_HOME}/bin/R" CMD config CXX1XSTD`
-dnl CXX="${CXX1X} ${CXX1XSTD}"
-dnl CXXFLAGS=`"${R_HOME}/bin/R" CMD config CXX1XFLAGS`
-
-dnl DYLIB_LDFLAGS=`"${R_HOME}/bin/R" CMD config DYLIB_LDFLAGS | tail -1`
-dnl LDFLAGS="${DYLIB_LDFLAGS} ${LDFLAGS}"
-
-dnl CXX11FLAGS=`"${R_HOME}/bin/R" CMD config CXX11FLAGS | tail -1`
-dnl CXX11=`"${R_HOME}/bin/R" CMD config CXX11 | tail -1`
-dnl CXX11STD=`"${R_HOME}/bin/R" CMD config CXX11STD | tail -1`
-dnl LDFLAGS=`"${R_HOME}/bin/R" CMD config LDFLAGS | tail -1`
 CXX11FLAGS=`R CMD config CXX11FLAGS`
 CXX11=`R CMD config CXX11`
 CXX11STD=`R CMD config CXX11STD`
@@ -46,7 +34,7 @@ dnl the meat of R's m4/openmp.m4
                            -openmp -mp -omp -qsmp=omp -homp \
 			   -fopenmp=libomp \
                            -Popenmp --openmp \
-			   "-Xclang -fopenmp -lomp"; do
+			   "-Xclang -fopenmp -Xlinker -lomp"; do
 	    ac_save_[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
 	    _AC_LANG_PREFIX[]FLAGS="$[]_AC_LANG_PREFIX[]FLAGS $ac_option"
 	    AC_LINK_IFELSE([_AC_LANG_OPENMP],
