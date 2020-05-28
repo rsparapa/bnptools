@@ -10,10 +10,10 @@ EXPVALUE = function(trees, x.test, S)
     node.max = dim(trees)[3]
     ## M*T*node.max*5
     P = ncol(x.test)
-    ## speeding up with compiled code
-    mask = integer(P)
-    for(i in 1:P) mask[i] = (i %in% S)*1
-    return(.Call('cEXPVALUE', H, M, T, node.max, trees, x.test, mask))
+    ## working on speeding this up with compiled code
+    ## mask = integer(P)
+    ## for(i in 1:P) mask[i] = (i %in% S)*1
+    ## return(.Call('cEXPVALUE', H, M, T, node.max, trees, x.test, mask))
     G = function(n) ## node
     {
         if(trees[i, j, n, 1]==2) return(trees[i, j, n, 4]) ## a leaf

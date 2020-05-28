@@ -14,6 +14,7 @@
       //      = (M-1)*T*node_max*5 + (T-1)*node_max*5 + (node_max-1)*5 + 5 - 5
       //      = M*T*node_max*5 - 5
         //if(trees[i, j, n, 1]==2) return(trees[i, j, n, 4]) ## a leaf
+// THE NEXT LINES DROPS CORE, BUT WHY?
         if(trees[k]==2) return trees[k+3]; //## a leaf
         else { //## a branch
 	  size_t v, m;
