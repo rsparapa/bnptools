@@ -24,6 +24,7 @@
 #include "DPMneal8.h"
 #include "DPMNoGa.h"
 
+#include "cEXPVALUE.h"
 #include "cabart.h"
 #include "cgbart.h"
 #include "chbart.h"
