@@ -16,7 +16,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-qbart=function(x.train1=NULL, x.train2, times, delta,
+tqbart=function(x.train1=NULL, x.train2, times, delta, q,
                x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
                ## type='abart',
                ntype=1,
@@ -151,37 +151,19 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     }
 
     ## initialize offsets
-    tempx <- cbind(1, t(x.train2))
-    depx <- abs(svd(tempx)$d) < 1e-10
-    tempd = data.frame(y=times, event=delta, x=t(x.train2)[,!depx[-1]])
-    formula <- as.formula(paste("Surv(y,event) ~", paste0("meanlog(", names(tempd)[-(1:2)], ")", collapse = "+")))
-    ## fit0 <- eval(parse(text=paste0("flexsurvcure(Surv(y, event) ~", formula,", data = tempd, dist = 'lnorm')")))
-    fit0 <- flexsurvcure(formula, data = tempd, dist = "lnorm")
-    p0 <- 1 - fit0$res[1]  #initial guess of noncured rate
-    binoffset <- qnorm(p0)  
-    offset <- fit0$res[2]  #cov-adjusted center of log(times)
-    sigma <- fit0$res[3]  #initial guess of sigma
-    beta <- fit0$res[4:(3+p2-sum(depx))]
-
-    ## q0 <- q
-    pb <- NULL
-    for (i in 1:n){
-        if (delta[i] == 0){  #if censored
-            s <- pnorm(y.train[i], mean = offset+x.train2[!depx[-1],i]*beta, sd = sigma, lower.tail = FALSE)
-            p <- p0*s/(1-p0+p0*s)
-            pb <- c(pb, p)
-        }
-        else pb <- c(pb, 1)  #else not cured
-    }
-    
-    q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
-    rm(tempd, tempx, fit0)
+    binoffset <- qnorm(mean(q))  
+    offset <- mean(y.train[q==1])  #cov-adjusted center of log(times)
 
     y.train = y.train-offset
     
+    
     if(is.na(lambda)) {
         if(is.na(sigest)) {
-            if(p2 < n) sigest = sigma
+            if(p2 < n) {
+                nqy <- q==1
+                y <- y.train[nqy]
+                x <- x.train1[,nqy]
+                sigest = summary(lm(y~.,data.frame(t(x),y)))$sigma}
             else sigest = sd(y.train)
         }
         qchi = qchisq(1-sigquant, sigdf)
@@ -198,7 +180,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     
     ptm <- proc.time()
 
-    res = .Call("cqbart",
+    res = .Call("tqbart",
                 ## ntype,
                 ##as.integer(factor(type, levels=check))-1,
                 n,  #number of observations in training data
@@ -209,7 +191,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                 x.train2,   #pxn training data for y
                 y.train,   #training data log(time)
                 delta,     ## censoring indicator
-                q0,        ##initial guess of cure status
+                q,        ##initial guess of cure status
                 x.test1,    #p*np test data for cure status
                 x.test2,    #p*np test data for y
                 ntree,
