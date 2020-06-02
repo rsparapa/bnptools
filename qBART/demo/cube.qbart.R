@@ -100,7 +100,7 @@ delta <- simcure$event
 ## par(mfrow=c(2,4))
 ## for (i in 1:8) plot(post1$sigma[,i], type='l')
 ## for (i in 1:8) acf(post1$sigma[,i])
-post <- qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta)
+post <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, mc.core=8)
 str(post)
 noncure <- simcure$Ncure == 1
 plot(ltime1[noncure], post$y2hat.train.mean[noncure], pch=20)
@@ -108,7 +108,8 @@ abline(a=0,b=1,col=2)
 cen <- simcure$event==0
 par(mfrow=c(1,2))
 plot(p[cen], colMeans(post$prob.train[,cen]), pch=20)
-plot(p, colMeans(post$prob.train), pch=20)
+plot(x2-0.5, qnorm(colMeans(post$prob.train)), pch=20)
+abline(a=0, b=1, col=2)
 hist(colMeans(post$qdraws)[cen])
 
 ## true status
@@ -118,62 +119,35 @@ str(post1)
 
 ## probit BART on q
 library(BART3)
-postp <- pbart(x.train=x.train, y.train=simcure$Ncure)
+postp <- pbart(x.train=simcure$x2, y.train=simcure$Ncure)
 str(postp)
 
-plot(postp$prob.train.mean, post1$prob.train.mean, pch=20)
+library(flexsurvcure)
+fit <- flexsurvcure(Surv(obstime,event)~ x1 +x2 + meanlog(x1) + meanlog(x2), data=simcure, dist="lnorm", link="probit", mixture = T)
+print(fit)
+
+plot(postp$prob.train.mean, post$prob.train.mean, col=ifelse(cen,2,1), pch=20)
+abline(a=0, b=1, col=2)
+plot(post$prob.train.mean, post1$prob.train.mean, pch=20)
+abline(a=0, b=1, col=2)
 plot(colMeans(post$qdraws),colMeans(post1$qdraws),pch=20)
-
-
-
-
+plot(p, colMeans(postp$prob.train), pch=20)
+plot(x2-0.5, qnorm(colMeans(postp$prob.train)), pch=20)
+abline(a=0, b=1, col=2)
 
 set.seed(52520)
 ## Friedman function on p
 n <- 2000  #total subj
 x1 <- runif(n); x2 <- runif(n); x3 <- runif(n); x4 <- runif(n); x5 <- runif(n)
 bp <- sin(pi*x1*x2) + 2*(x3-0.5)^2 + x4 + 0.5*x5  #p mean
-p <- pnorm(bp)  #not cured
+p <- pnorm(bp-1.5)  #not cured
 status <- rbinom(rep(1,n), rep(1,n), prob = p)
-b0 <- 1; b1 <- 0.5; #b2 <- 0.13
-xb <- b0 + b1*x1 #+ b2*x2
+x6 <- rnorm(n, mean = 0, sd = 4)
+b0 <- 1; b1 <- 4; #b2 <- 0.13
+xb <- b0 + b1*(x1-0.5) #+ b2*x2
 ltime2 <- rnorm(n, mean = xb)  #log(real_time)~Normal
 time <- exp(ltime2)
-ctime <- rexp(n, rate = 0.01)  #censoring_time~Exp(0.01)
-simcure <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x4, x5 = x5,  c_time = ctime, r_time = time)
-simcure$Ncure <- status
-cuttime <- quantile(time, probs=0.8) 
-simcure[simcure$c_time > cuttime,]$c_time <- cuttime  #admin censoring
-simcure$r_time <- ifelse(simcure$Ncure == 1, simcure$r_time, Inf)
-simcure$obstime <- ifelse(simcure$c_time < simcure$r_time, simcure$c_time, simcure$r_time)
-simcure$event <- ifelse(simcure$obstime == simcure$c_time, 0, 1)
-
-x.train <- simcure[,c("x1","x2","x3","x4","x5")]
-times <- simcure$obstime
-delta <- simcure$event
-
-## multiple chains
-post2 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, mc.cores=8, keepevery=50)
-par(mfrow=c(2,4))
-for (i in 1:8) plot(post2$sigma[,i], type='l')
-for (i in 1:8) acf(post2$sigma[,i])
-noncure <- simcure$Ncure == 1
-par(mfrow=c(1,2))
-plot(ltime2[noncure], post2$y2hat.train.mean[noncure], pch=20)
-abline(a=0,b=1,col=2)
-plot(xb,ltime2,pch=20)
-
-set.seed(52620)
-## Friedman function on y
-n <- 2000  #total subj
-x1 <- runif(n); x2 <- runif(n); x3 <- runif(n); x4 <- runif(n); x5 <- runif(n)
-bp <- x1*0.25 + x2 -1  #p mean
-p <- pnorm(bp)  #not cured
-status <- rbinom(rep(1,n), rep(1,n), prob = p)
-xb <- sin(pi*x1*x2) + 2*(x3-0.5)^2 + x4 + 0.5*x5
-ltime3 <- rnorm(n, mean = xb)  #log(real_time)~Normal
-time <- exp(ltime3)
-ctime <- rexp(n, rate = 0.01)  #censoring_time~Exp(0.01)
+ctime <- rexp(n, rate = 0.001)  #censoring_time~Exp(0.01)
 simcure <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x4, x5 = x5, c_time = ctime, r_time = time)
 simcure$Ncure <- status
 cuttime <- quantile(time, probs=0.8) 
@@ -187,7 +161,53 @@ times <- simcure$obstime
 delta <- simcure$event
 
 ## multiple chains
-post3 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, mc.cores=8, keepevery=50)
+post2 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, mc.cores=8)
+par(mfrow=c(2,4))
+for (i in 1:8) plot(post2$sigma[,i], type='l')
+for (i in 1:8) acf(post2$sigma[,i])
+noncure <- simcure$Ncure == 1
+par(mfrow=c(1,2))
+plot(ltime2[noncure], post2$y2hat.train.mean[noncure], pch=20)
+abline(a=0,b=1,col=2)
+plot(p, post2$prob.train.mean, pch=20, main="fitted p vs true p")
+abline(a=0, b=1, col=2)
+plot(xb,ltime2,pch=20)
+
+postp <- pbart(x.train=x.train, y.train=simcure$Ncure)
+plot(p, postp$prob.train.mean, pch=20, main="probit BART")
+abline(a=0, b=1, col=2)
+plot(post2$prob.train.mean, postp$prob.train.mean, pch=20, xlab="qbart", ylab="pbart")
+abline(a=0, b=1, col=2)
+
+library(flexsurvcure)
+fit <- flexsurvcure(Surv(obstime,event)~ x1 +x2 +x3 +x4 +x5 + meanlog(x1) + meanlog(x2) +meanlog(x3) +meanlog(x4) +meanlog(x5), data=simcure, dist="lnorm", link="probit", mixture = T)  #too slow
+print(fit)
+
+set.seed(52620)
+## Friedman function on y
+n <- 2000  #total subj
+x1 <- runif(n); x2 <- runif(n); x3 <- runif(n); x4 <- runif(n); x5 <- runif(n)
+bp <- x2 - 0.5  #p mean
+p <- pnorm(bp)  #not cured
+status <- rbinom(rep(1,n), rep(1,n), prob = p)
+xb <- sin(pi*x1*x2) + 2*(x3-0.5)^2 + x4 + 0.5*x5
+ltime3 <- rnorm(n, mean = xb, sd = 0.5)  #log(real_time)~Normal
+time <- exp(ltime3)
+ctime <- rexp(n, rate = 0.001)  #censoring_time~Exp(0.01)
+simcure <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x4, x5 = x5, c_time = ctime, r_time = time)
+simcure$Ncure <- status
+cuttime <- quantile(time, probs=0.95) 
+simcure[simcure$c_time > cuttime,]$c_time <- cuttime  #admin censoring
+simcure$r_time <- ifelse(simcure$Ncure == 1, simcure$r_time, Inf)
+simcure$obstime <- ifelse(simcure$c_time < simcure$r_time, simcure$c_time, simcure$r_time)
+simcure$event <- ifelse(simcure$obstime == simcure$c_time, 0, 1)
+
+x.train <- simcure[,c("x1","x2","x3","x4","x5")]
+times <- simcure$obstime
+delta <- simcure$event
+
+## multiple chains
+post3 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, mc.cores=8)
 par(mfrow=c(2,4))
 for (i in 1:8) plot(post3$sigma[,i], type='l')
 for (i in 1:8) acf(post3$sigma[,i])
@@ -195,7 +215,17 @@ noncure <- simcure$Ncure == 1
 par(mfrow=c(1,2))
 plot(ltime3[noncure], post3$y2hat.train.mean[noncure], pch=20)
 abline(a=0,b=1,col=2)
+plot(p, post3$prob.train.mean, pch=20, main="fitted p vs true p")
+abline(a=0, b=1, col=2)
 plot(xb,ltime3,pch=20)
+
+postp <- pbart(x.train=x.train, y.train=simcure$Ncure)
+plot(p, postp$prob.train.mean, pch=20, main="probit BART")
+abline(a=0, b=1, col=2)
+plot(post3$prob.train.mean, postp$prob.train.mean, pch=20, xlab="qbart", ylab="pbart")
+abline(a=0, b=1, col=2)
+
+post4 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, sparse=TRUE, mc.cores=8)
 
 
 #real data with complete covariates

@@ -27,7 +27,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                sigest=NA, sigdf=3, sigquant=0.90,
                k=2, power=2, base=0.95,
                ##sigmaf=NA,
-               lambda=NA, tau.num=c(NA, 3, 6)[ntype],
+               lambda=NA, ## tau.num=c(NA, 3, 6)[ntype],
                ##tau.interval=0.9973,
                ## offset=NULL,
                w=rep(1, length(times)),
@@ -38,7 +38,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                mc.cores = 1L, nice = 19L, seed = 99L
                )
 {
-    if(ntype!=1) stop('ntype must be 1')
+    if(!(ntype %in% c(1,2))) stop('ntype must be either 1 or 2')
 
     y.train=log(times)
 
@@ -155,15 +155,13 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     depx <- abs(svd(tempx)$d) < 1e-10
     tempd = data.frame(y=times, event=delta, x=t(x.train2)[,!depx[-1]])
     formula <- as.formula(paste("Surv(y,event) ~", paste0("meanlog(", names(tempd)[-(1:2)], ")", collapse = "+")))
-    ## fit0 <- eval(parse(text=paste0("flexsurvcure(Surv(y, event) ~", formula,", data = tempd, dist = 'lnorm')")))
-    fit0 <- flexsurvcure(formula, data = tempd, dist = "lnorm")
+    fit0 <- flexsurvcure(formula, data = tempd, dist = "lnorm", link = ifelse(ntype==1, "probit", "logistic"))
     p0 <- 1 - fit0$res[1]  #initial guess of noncured rate
     binoffset <- qnorm(p0)  
     offset <- fit0$res[2]  #cov-adjusted center of log(times)
     sigma <- fit0$res[3]  #initial guess of sigma
     beta <- fit0$res[4:(3+p2-sum(depx))]
 
-    ## q0 <- q
     pb <- NULL
     for (i in 1:n){
         if (delta[i] == 0){  #if censored
@@ -190,16 +188,15 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
         sigest=sqrt(lambda)
     }
     
-    if(is.na(tau.num)) {
-        tau=(max(y.train)-min(y.train))/(2*k*sqrt(ntree))
-    } else {
-        tau=tau.num/(k*sqrt(ntree))
-    }
+        tau1=3/(k*sqrt(ntree))
+    
+        tau2=(max(y.train)-min(y.train))/(2*k*sqrt(ntree))
+    
     
     ptm <- proc.time()
 
     res = .Call("cqbart",
-                ## ntype,
+                ntype,
                 ##as.integer(factor(type, levels=check))-1,
                 n,  #number of observations in training data
                 p1,  #dimension of x1
@@ -222,7 +219,8 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                 base,
                 binoffset,
                 offset,
-                tau,
+                tau1,
+                tau2,
                 sigdf,
                 lambda,
                 sigest,

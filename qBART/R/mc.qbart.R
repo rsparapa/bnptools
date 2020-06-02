@@ -28,7 +28,7 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
                      sigest=NA, sigdf=3, sigquant=0.90,
                      k=2, power=2, base=0.95,
                      ##sigmaf=NA,
-                     lambda=NA, tau.num=c(NA, 3, 6)[ntype],
+                     lambda=NA, ## tau.num=c(NA, 3, 6)[ntype],
                      ##tau.interval=0.9973,
                      ## offset=NULL,
                      w=rep(1, length(times)),
@@ -89,7 +89,7 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
                   sigest=sigest, sigdf=sigdf, sigquant=sigquant,
                   k=k, power=power, base=base,
                   ##sigmaf=sigmaf,
-                  lambda=lambda, tau.num=tau.num,
+                  lambda=lambda, ## tau.num=tau.num,
                   ##tau.interval=tau.interval,
                   ## offset=offset,
                   w=w, ntree=ntree, numcut1=numcut1, numcut2=numcut2,
@@ -164,14 +164,15 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
                     post$proc.time[j] <- post$proc.time[j]+post.list[[i]]$proc.time[j]
         }
 
-        
-            post$y2hat.train.mean <- apply(post$y2hat.train, 2, mean)
-            post$surv.train.mean <- apply(post$surv.train, 2, mean)
+        post$prob.train.mean <- apply(post$prob.train, 2, mean)
+        post$y2hat.train.mean <- apply(post$y2hat.train, 2, mean)
+        post$surv.train.mean <- apply(post$surv.train, 2, mean)
 
-            if(keeptest) {
-                post$y2hat.test.mean <- apply(post$y2hat.test, 2, mean)
-                post$surv.test.mean <- apply(post$surv.test, 2, mean)
-            }
+        if(keeptest) {
+            post$prob.test.mean <- apply(post$prob.test, 2, mean)
+            post$y2hat.test.mean <- apply(post$y2hat.test, 2, mean)
+            post$surv.test.mean <- apply(post$surv.test, 2, mean)
+        }
         
 
         post$varcount1.mean <- apply(post$varcount1, 2, mean)

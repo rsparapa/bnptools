@@ -32,6 +32,7 @@
 #define TEDRAW2(a, b) tedraw2(a, b)
 
 RcppExport SEXP cqbart(
+   SEXP _type,          //1:pbart+qbart, 2:lbart+qbart
    SEXP _in,            //number of observations in training data
    SEXP _ip1,            //dimension of x1
    SEXP _ip2,            //dimension of x2
@@ -53,7 +54,8 @@ RcppExport SEXP cqbart(
    SEXP _ibase,
    SEXP _binaryOffset,  //center of uncured rate
    SEXP _Offset,        //center of log(time)
-   SEXP _itau,
+   SEXP _itau1,
+   SEXP _itau2,
    SEXP _inu,
    SEXP _ilambda,
    SEXP _isigest,
@@ -73,6 +75,7 @@ RcppExport SEXP cqbart(
 )
 {
    //process args
+   int type = Rcpp::as<int>(_type);
    size_t n = Rcpp::as<int>(_in);
    size_t p1 = Rcpp::as<int>(_ip1);
    size_t p2 = Rcpp::as<int>(_ip2);
@@ -103,7 +106,8 @@ RcppExport SEXP cqbart(
    double alpha = Rcpp::as<double>(_ibase);
    double binaryOffset = Rcpp::as<double>(_binaryOffset);
    double Offset = Rcpp::as<double>(_Offset);
-   double tau = Rcpp::as<double>(_itau);
+   double tau1 = Rcpp::as<double>(_itau1);
+   double tau2 = Rcpp::as<double>(_itau2);
    double nu = Rcpp::as<double>(_inu);
    double lambda = Rcpp::as<double>(_ilambda);
    double sigma=Rcpp::as<double>(_isigest);
@@ -181,6 +185,7 @@ RcppExport SEXP cqbart(
 #define TEDRAW2(a, b) tedraw2[a][b]
 
 void cqbart(
+   int type,            //1:pbart+qbart, 2:lbart+qbart
    size_t n,            //number of observations in training data
    size_t p1,		//dimension of x1
    size_t p2,           //dimension of x2
@@ -202,7 +207,8 @@ void cqbart(
    double alpha,
    double binaryOffset,
    double Offset,
-   double tau,
+   double tau1,
+   double tau2,
    double nu,
    double lambda,
    double sigma,
@@ -279,8 +285,8 @@ void cqbart(
    printf("*****burn,nd,thin: %zu,%zu,%zu\n",burn,nd,thin);
 // printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
 //                    mybeta,alpha,tau,nu,lambda,Offset);
-   cout << "*****Prior:beta,alpha,tau,nu,lambda,offset: " 
-	<< mybeta << ',' << alpha << ',' << tau << ',' 
+   cout << "*****Prior:beta,alpha,tau1,tau2,nu,lambda,offset: " 
+	<< mybeta << ',' << alpha << ',' << tau1 << ',' << tau2 << ','
         << nu << ',' << lambda << ',' << Offset << endl;
 //if(type==1) {
 //   printf("*****sigma: %lf\n",sigma);
@@ -300,24 +306,25 @@ void cqbart(
    double *pz1 = new double[n];
    double *pt = new double[n];
    double *st = new double[n];
-   //double *svec = new double[n]; 
+   double *svec = new double[n]; 
    
    
    for(size_t k=0; k<n; k++) {
      if(q0[k]==0) z1[k] = -rtnorm(0., binaryOffset, 1., gen);
      else z1[k] = rtnorm(0., -binaryOffset, 1., gen);
+     svec[k] = 1.;
      z2[k] = iy[k]; 
      q[k] = q0[k];
    }
    //--------------------------------------------------
    //set up BART1 model
-   bm1.setprior(alpha,mybeta,tau);
+   bm1.setprior(alpha,mybeta,tau1);
    bm1.setdata(p1,n,ix1,z1,numcut1);
    bm1.setdart(a,b,rho1,aug,dart);
 
    
    //set up BART2 model
-   bm2.setprior(alpha,mybeta,tau);
+   bm2.setprior(alpha,mybeta,tau2);
    bm2.setdata(p2,n,ix2,z2,q,numcut2);
    bm2.setdart(a,b,rho2,aug,dart);
 
@@ -376,10 +383,15 @@ void cqbart(
 	  #endif
 	}
 	else {q[k] = 1; st[k] = 1; pt[k] = 1;}
+	//draw svec
 	//draw z1
-	if (q[k]==0) z1[k] = -rtnorm(-bm1.f(k), binaryOffset, 1., gen);
+	if (q[k]==0) {
+	  z1[k] = -rtnorm(-bm1.f(k), binaryOffset, svec[k], gen);
+	  //if(type==2) svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), -bm1.f(k), 1000, 1, gen));
+	}
 	else  {
-	  z1[k] = rtnorm(bm1.f(k), -binaryOffset, 1., gen);
+	  z1[k] = rtnorm(bm1.f(k), -binaryOffset, svec[k], gen);
+	  //if(type==2) svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), bm1.f(k), 1000, 1, gen));
 	  if (delta[k] == 0) {
 	    //draw z2
 	    z2[k] = rtnorm(bm2.f(k), iy[k], sigma, gen);
@@ -458,7 +470,7 @@ void cqbart(
 
    if(fhattest1) delete[] fhattest1; if(fhattest2) delete[] fhattest2;
    delete[] z1; delete[] z2; delete[] pz1; delete[] pt; delete[] st; delete[] fhattr2;
-   //delete[] svec;
+   delete[] svec;
    
 
 #ifndef NoRcpp
@@ -662,7 +674,7 @@ RcppExport SEXP tqbart(
 #define TRDRAW2(a, b) trdraw2[a][b]
 #define TEDRAW2(a, b) tedraw2[a][b]
 
-void cqbart(
+void tqbart(
    size_t n,            //number of observations in training data
    size_t p1,		//dimension of x1
    size_t p2,           //dimension of x2
