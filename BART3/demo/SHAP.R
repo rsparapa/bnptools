@@ -5,7 +5,7 @@ f = function(x)
     10*sin(pi*x[ , 1]*x[ , 2]) +  20*x[ , 3]
 ##    10*sin(pi*x[ , 1]*x[ , 2]) + 5*x[ , 3]*x[ , 4]^2 + 20*x[ , 5]
 
-N = 1000
+N = 50
 sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
 P = 4       ##number of covariates
 ## P = 10
@@ -31,7 +31,7 @@ sort(post$varprob.mean*P, TRUE)
 
 a=proc.time()
 x.test=x.train
-yhat.test=SHAP(post, x.train, x.test, 3)
+yhat.test=SHAP(post, x.train, x.test, 3, call=TRUE)
 yhat.test.mean=apply(yhat.test, 2, mean)
 yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
 yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
@@ -41,6 +41,6 @@ pdf('SHAP.pdf')
 x=x.train[ , 3]
 plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2)
 points(x, yhat.test.mean, col=1, pch='.')
-points(x, yhat.test.025, col=1, pch='.')
-points(x, yhat.test.975, col=1, pch='.')
+points(x, yhat.test.025, col=2, pch='.')
+points(x, yhat.test.975, col=2, pch='.')
 dev.off()

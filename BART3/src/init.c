@@ -20,6 +20,7 @@ extern SEXP mc_cores_openmp();
 extern SEXP crtnorm(SEXP, SEXP, SEXP, SEXP);
 extern SEXP crtgamma(SEXP, SEXP, SEXP, SEXP);
 extern SEXP cdraw_lambda_i(SEXP, SEXP, SEXP, SEXP);
+extern SEXP cEXPVALUE(SEXP, SEXP, SEXP);
 /*extern SEXP cdpmbart(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cdpmwbart(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cdpgbart(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);*/
@@ -41,6 +42,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"crtnorm", (DL_FUNC) &crtnorm,  4},
     {"crtgamma",(DL_FUNC) &crtgamma, 4},
     {"cdraw_lambda_i", (DL_FUNC) &cdraw_lambda_i, 4},
+    {"cEXPVALUE", (DL_FUNC) &cEXPVALUE, 3},
 /*  {"cdpgbart",(DL_FUNC) &cdpgbart,35},
     {"cdpmbart",(DL_FUNC) &cdpmbart,25},
     {"cdpmwbart",(DL_FUNC) &cdpmwbart,27}, */

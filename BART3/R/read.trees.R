@@ -17,7 +17,8 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 read.trees=function(treedraws, ## treedraws item returned from BART
-                    x.train)   ## x.train to estimate coverage
+                    x.train,   ## x.train to estimate coverage
+                    call=FALSE)## default to R vs. C++ code
 {
     for(v in 1:ncol(x.train))
         if(any(is.na(x.train[ , v])))
@@ -38,11 +39,11 @@ read.trees=function(treedraws, ## treedraws item returned from BART
     node.max=max(trees$node)
     tier.max=floor(log2(node.max))
     Trees=array(0, dim=c(M, T, node.max, 5))
-    Trees. = replicate(n=M, expr=list())
+    if(call) Trees. = replicate(n=M, expr=list())
     ## last index of Trees
     ## 1 for nodes: 1 is a branch and 2 is a leaf
     ## 2 for variable: R index (add 1 to C/C++ index)
-    ## 3 for cut-point: R index
+    ## 3 for cut-point
     ## 4 for leaf value
     ## 5 for the number of training subjects passing through this node
     ## (data science/machine learning often calls this coverage)
@@ -94,19 +95,24 @@ read.trees=function(treedraws, ## treedraws item returned from BART
                 }
                 Trees[i, j, k, 5]=sum(Cover[ , k])
             }
-            node.max=max(which(Trees[i, j, , 1]==2L))
-            Trees.[[i]][[j]]=list()
-            Trees.[[i]][[j]][[1]]=matrix(0, nrow=node.max, ncol=4)
-            Trees.[[i]][[j]][[2]]=double(node.max)
-            k=which(Trees[i, j, , 1]==1L)
-            Trees.[[i]][[j]][[1]][k, 1]=1L ## branches
-            Trees.[[i]][[j]][[1]][k, 2]=Trees[i, j, k, 2] ## variables
-            Trees.[[i]][[j]][[1]][k, 3]=Trees[i, j, k, 3] ## cut-points
-            Trees.[[i]][[j]][[1]][k, 4]=Trees[i, j, k, 5] ## coverage
-            k=which(Trees[i, j, , 1]==2L) ## leaves
-            Trees.[[i]][[j]][[1]][k, 1]=2L
-            Trees.[[i]][[j]][[1]][k, 4]=Trees[i, j, k, 5] ## coverage
-            Trees.[[i]][[j]][[2]][k]=Trees[i, j, k, 4] ## leaves
+            if(call) {
+                node.max=max(which(Trees[i, j, , 1]==2L))
+                Trees.[[i]][[j]]=list()
+                Trees.[[i]][[j]]$node =integer(node.max)
+                Trees.[[i]][[j]]$var  =integer(node.max)
+                Trees.[[i]][[j]]$cut  =double(node.max)
+                Trees.[[i]][[j]]$leaf =double(node.max)
+                Trees.[[i]][[j]]$cover=integer(node.max)
+                k=which(Trees[i, j, , 1]==1L)
+                Trees.[[i]][[j]]$node[k] =1L ## branches
+                Trees.[[i]][[j]]$var[k]  =Trees[i, j, k, 2] ## variables
+                Trees.[[i]][[j]]$cut[k]  =Trees[i, j, k, 3] ## cut-points
+                Trees.[[i]][[j]]$cover[k]=Trees[i, j, k, 5] ## coverage
+                k=which(Trees[i, j, , 1]==2L) ## leaves
+                Trees.[[i]][[j]]$node[k] =2L
+                Trees.[[i]][[j]]$leaf[k] =Trees[i, j, k, 4] ## leaves
+                Trees.[[i]][[j]]$cover[k]=Trees[i, j, k, 5] ## coverage
+            }
             if((j%%T)==0) {
                 i=i+1
                 j=0
@@ -115,7 +121,7 @@ read.trees=function(treedraws, ## treedraws item returned from BART
     }
     ##print(object.size(Trees))
     ##print(object.size(Trees.))
-    return(Trees)
-    ##return(Trees.)
+    if(call) return(Trees.)
+    else return(Trees)
 }
 

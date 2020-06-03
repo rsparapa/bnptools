@@ -22,6 +22,7 @@ SHAP.wbart=function(object,  ## object returned from BART
                     x.test,  ## settings of x.test: only x.test[ , S]
                              ## are used but they must all be given
                     S,       ## indices of subset
+                    call=FALSE, ## default to R vs. C++ code
                     ...)
 {
     for(v in S)
@@ -46,10 +47,10 @@ SHAP.wbart=function(object,  ## object returned from BART
                 warning(paste0('Row ', i, ' and ', j,
                             ' of x.test are equal with respect to S'))
 
-    Trees=read.trees(object$treedraws, x.train)
+    Trees=read.trees(object$treedraws, x.train, call)
 
     M=P-length(S)
-    D=EXPVALUE(Trees, x.test, S) ## S vs. emptyset
+    D=EXPVALUE(Trees, x.test, S, call) ## S vs. emptyset
 
     ## weighted difference
     if(M>0) {
@@ -57,8 +58,8 @@ SHAP.wbart=function(object,  ## object returned from BART
             C=comb(M, k, (1:P)[-S])
             R=nrow(C)
             for(i in 1:R)
-                D=D+(EXPVALUE(Trees, x.test, c(C[i, ], S))-
-                    EXPVALUE(Trees, x.test, C[i, ]))/choose(M, k)
+                D=D+(EXPVALUE(Trees, x.test, c(C[i, ], S), call)-
+                    EXPVALUE(Trees, x.test, C[i, ], call))/choose(M, k)
         }
     }
 

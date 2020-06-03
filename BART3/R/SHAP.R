@@ -22,6 +22,7 @@ SHAP=function(object,  ## object returned from BART
               x.test,  ## settings of x.test: only x.test[ , S]
                        ## are used but they must all be given
               S,       ## indices of subset
+              call=FALSE, ## default to R vs. C++ code
               ...)
 {
     UseMethod('SHAP')
