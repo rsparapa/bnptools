@@ -18,7 +18,7 @@
 
 qbart=function(x.train1=NULL, x.train2, times, delta,
                x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
-               ## type='abart',
+               flex=TRUE,
                ntype=1,
                sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho1=NULL, rho2=NULL,
@@ -151,6 +151,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     }
 
     ## initialize offsets
+    if (flex) {
     tempx <- cbind(1, t(x.train2))
     depx <- abs(svd(tempx)$d) < 1e-10
     tempd = data.frame(y=times, event=delta, x=t(x.train2)[,!depx[-1]])
@@ -158,9 +159,9 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     fit0 <- flexsurvcure(formula, data = tempd, dist = "lnorm", link = ifelse(ntype==1, "probit", "logistic"))
     p0 <- 1 - fit0$res[1]  #initial guess of noncured rate
     binoffset <- qnorm(p0)  
-    offset <- fit0$res[2]  #cov-adjusted center of log(times)
     sigma <- fit0$res[3]  #initial guess of sigma
     beta <- fit0$res[4:(3+p2-sum(depx))]
+    offset <- fit0$res[2]+sum(beta*fit0$datameans)  #cov-adjusted center of log(times)
 
     pb <- NULL
     for (i in 1:n){
@@ -174,6 +175,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     
     q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
     rm(tempd, tempx, fit0)
+    }
 
     y.train = y.train-offset
     
