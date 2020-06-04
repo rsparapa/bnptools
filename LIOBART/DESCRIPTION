@@ -1,0 +1,18 @@
+Package: LIOBART
+Type: Package
+Title: Low Information Omnibus Bayesian Additive Regression Trees
+Version: 0.1
+Date: 2020-06-04
+Authors@R: c(person('Rodney', 'Sparapani', role=c('aut', 'cre'), 
+  email='rsparapa@mcw.edu'))
+Authors: Rodney Sparapani [aut, cre]
+Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
+Description: Low Information Omnibus Bayesian Additive Regression Trees
+License: GPL (>= 2)
+Depends: R (>= 2.10), nlme, nnet, survival
+Imports: Rcpp (>= 0.12.3), parallel, tools
+LinkingTo: Rcpp, BART3, DPM
+Suggests: MASS, knitr, rmarkdown
+VignetteBuilder: knitr
+NeedsCompilation: yes
+Packaged: 
