@@ -194,7 +194,9 @@ class arn: public rn
 
 #else // YesRcpp
 
+#ifdef build_with_DPM
 #include "DPMrng.h"
+#endif
 
 //abstract random number generator based on R/Rcpp
 class arn: public rn
@@ -203,7 +205,9 @@ class arn: public rn
   //constructor
   //arn():df(1) {}
   arn() {}
+  #ifdef build_with_DPM
   arn(DPM::arng eng) { set_state(eng.get_state()); }
+  #endif
   //virtual
   virtual ~arn() {}
   virtual double normal() {return R::norm_rand();}

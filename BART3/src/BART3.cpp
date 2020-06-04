@@ -19,16 +19,17 @@
 
 #include <BART3.h>
 
+#ifdef build_with_DPM
 #include "DPM.h"
 #include "DPMneal7.h"
 #include "DPMneal8.h"
 #include "DPMNoGa.h"
+#endif
 
 #include "cEXPVALUE.h"
 #include "cabart.h"
 #include "cgbart.h"
 #include "chbart.h"
-#include "cliobart.h"
 #include "clbart.h"
 #include "cpbart.h"
 #include "cpwbart.h"
