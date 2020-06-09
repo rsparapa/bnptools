@@ -16,7 +16,9 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-predict.lbart <- function(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...) {
+predict.lbart <- function(object, newdata, mc.cores=1,
+                          openmp=(mc.cores.openmp()>0),
+                          probs=c(0.025, 0.975), ...) {
 
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
 
@@ -41,6 +43,10 @@ predict.lbart <- function(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()
 
     pred$prob.test <- plogis(pred$yhat.test)
     pred$prob.test.mean <- apply(pred$prob.test, 2, mean)
+    pred$prob.test.lower <- apply(pred$prob.test, 2, quantile,
+                                  probs=min(probs))
+    pred$prob.test.upper <- apply(pred$prob.test, 2, quantile,
+                                  probs=max(probs))
     pred$binaryOffset <- object$binaryOffset
     attr(pred, 'class') <- 'lbart'
 
