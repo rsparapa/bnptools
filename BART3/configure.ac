@@ -5,10 +5,10 @@ dnl dnl which in turn is based on autoconf's openmp.m4,
 dnl dnl with is licensed under GPL-3 with the 
 dnl dnl Autoconf Configure Script Exception, version 3.0.
 
-dnl AC_PREREQ(2.62)
+AC_PREREQ(2.62)
 
 dnl dnl derived from the BART R package v 2.3
-dnl AC_INIT([BART],[2.3],[],[],[])
+AC_INIT([BART],[2.3],[],[],[])
 
 dnl CXX11FLAGS=`R CMD config CXX11FLAGS`
 dnl CXX11=`R CMD config CXX11`
@@ -52,7 +52,7 @@ dnl 	OPENMP_[]_AC_LANG_PREFIX[]FLAGS=$ac_cv_prog_[]_AC_LANG_ABBREV[]_openmp ;;
 dnl     esac
 dnl   fi
 
-dnl AC_SUBST(OPENMP_CXXFLAGS)
-dnl AC_CONFIG_FILES([src/Makevars])
-dnl AC_OUTPUT
+AC_SUBST(OPENMP_CXXFLAGS)
+AC_CONFIG_FILES([src/Makevars])
+AC_OUTPUT
 
