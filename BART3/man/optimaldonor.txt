@@ -1,0 +1,75 @@
+	Data dictionary		
+Variable name	label	Value	Level
+agegp	Recipient age group	2	18-29
+		3	30-39
+		4	40-49
+		5	50-59
+		6	60+
+sex	Recipient gender	1	Male
+		2	Female
+cau	Recipient race: Caucasian	1	Caucasian
+		0	o/w
+afa	Recipient race: African-American	1	African-American
+		0	o/w
+api	Recipient race: Asian/Pacific Islander	1	Asian/Pacific Islander
+		0	o/w
+nam	Recipient race: Native American	1	Native American
+		0	o/w
+raceo	Recipient race: Other	1	Other
+		0	o/w
+raceu	Recipient race: Unknown	1	Unknown
+		0	o/w
+hisp	Ethnicity	0	Not Hispanic
+		1	Hispanic
+kpslt90	Karnofsky score: <90	1	<90
+		0	o/w
+kpsge90	Karnofsky score: >=90	1	>=90
+		0	o/w
+kpsu	Karnofsky score: Missing	1	Missing
+		0	o/w
+aml	Disease at HCT: AML	1	AML
+		0	o/w
+all	Disease at HCT: ALL	1	ALL
+		0	o/w
+cml	Disease at HCT: CML	1	CML
+		0	o/w
+mds	Disease at HCT: MDS	1	MDS
+		0	o/w
+disstat	Disease status prior to HCT	1	Early
+		2	Intermediate
+		3	Advanced
+intdxtxgp	"Time from dx to tx, months"	1	<6 months
+		2	"6-12 months, or missing"
+		3	>=12 months
+intdxtxgpmi	"Time from dx to tx, missing"	1	Missing
+		0	o/w
+condint	Conditioning intensity	1	MAC
+		2	RIC
+tbin	Total body irradiation: No	1	No
+		0	
+tbiy	Total body irradiation: Yes	1	Yes
+		0	
+tbiu	Total body irradiation: Missing	1	Missing
+		0	
+graftype	Graft type	1	Bone Marrow
+		2	Peripheral Blood
+dnrage	"Donor age (decades, or years/10)"		
+tac	GVHD prophylaxis: FK506 based	1	FK506 based
+		0	o/w
+csa	GVHD prophylaxis: CSA based	1	CSA based
+		0	o/w
+gvhdo	GVHD prophylaxis: Other	1	other (non-FK or CSA based)
+		0	o/w
+invivo_tcd	In vivo T-cell depletion	0	No
+		1	Yes
+yeargp	Year of HSCT	1	1999-2002
+		2	2003-2006
+		3	2007-2011
+		4	2012-2014
+		5	2015-2016
+rcmvp	Recipient CMV status: Positive	1	Positive
+		0	o/w
+rcmvn	Recipient CMV status: Negative	1	Negative
+		0	o/w
+rcmvu	Recipient CMV status: Unknown	1	Unknown
+		0	o/w
