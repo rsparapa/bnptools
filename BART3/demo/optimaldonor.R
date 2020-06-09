@@ -16,20 +16,21 @@ data(optimaldonor)
 X.test <- optimaldonor
 
 # Read in BART posterior samples
-post <- readRDS(file=system.file("optimaldonor/post.rds", package="BART3"))
+post <- readRDS(file=system.file("optimaldonor/post.rds",
+                                 package="BART3"))
 # Produce predictions of event probabilities
 # Recall higher probabilities indicates worse outcome
-# Produce predictions on X.test 
-pred = predict(post, X.test, mc.cores=B)  
+# Produce predictions on X.test
+pred = predict(post, X.test, mc.cores=B)
 
-# Consider a new X.test object with donor age set to 18 (or 1.8 decades)
+# Consider a new X.test object with donor age set to 18 (1.8 decades)
 X.test18 <- X.test
-X.test18[ , 33] <- rep(1.8, 100)
+X.test18[ , "dnrage"] <- rep(1.8, 100)
 # Produce predictions on new X.test corresponding to use of an 18 year
 # old donor instead of the original actual donor
 # Compute posterior mean prediction of event probability along with 95
 # percent intervals
-pred18 = predict(post, X.test18, mc.cores=B)  
+pred18 = predict(post, X.test18, mc.cores=B)
 
 # Produce differences in predictions between age 18 donor and actual donor
 trtdiff <- pred18$prob.test-pred$prob.test
@@ -47,19 +48,21 @@ plotdata <- data.frame(pat.index=c(1:100), trtdiff.mean,
                        trtdiff.lower, trtdiff.upper, trtp)
 
 p1 <- ggplot(plotdata, aes(x=pat.index, y=trtdiff.mean)) +
-    geom_pointrange(data=plotdata, aes(ymax=plotdata$trtdiff.lower,
-                                       ymin=plotdata$trtdiff.upper),
+    geom_pointrange(data=plotdata, aes(ymax=trtdiff.lower,
+                                       ymin=trtdiff.upper),
                     colour="black") +
     theme(axis.text=element_text(size=16, face="bold"),
           axis.title=element_text(size=18, face="bold"))
 p1
+readline(prompt = "Hit Enter to Continue ")
 
 # Plot probability of better outcome with age 18 donor vs. actual donor
 p2 <- ggplot(plotdata, aes(x=pat.index, y=trtp)) +
     theme(axis.text=element_text(size=16, face="bold"),
           axis.title=element_text(size=18,face="bold")) +
-    geom_point(color="black", size=2) + ylim(0, 1) 
+    geom_point(color="black", size=2) + ylim(0, 1)
 p2
+readline(prompt = "Hit Enter to Continue ")
 
 # Obtain population level predictions for age 18 donor outcome and for
 # difference between age 18 donor and actual donor at each MCMC sample
@@ -77,6 +80,7 @@ p3 <- ggplot() +
     geom_density(aes(x=pop18), colour="black", fill="black", size=2,
                  data=popdf, alpha=0.4)
 p3
+readline(prompt = "Hit Enter to Continue ")
 
 # Histogram of population level differences in outcomes if all patients
 # utilized a matched donor of age 18 vs. the actual donor in the dataset
@@ -87,3 +91,4 @@ p4 <-  ggplot() + theme(axis.text=element_text(size=16, face="bold"),
     geom_density(aes(x=popdiff), colour="black", fill="black", size=2,
                  data=popdf, alpha=0.4)
 p4
+readline(prompt = "Hit Enter to Continue ")
