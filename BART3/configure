@@ -1781,8 +1781,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 LDFLAGS=`R CMD config LDFLAGS`
 
-CXX="${CXX11}"
-CXXFLAGS="${CXXFLAGS} ${CXX11STD} ${CXX11FLAGS}"
 CPPFLAGS="${CPPFLAGS} -D_OPENMP"
 
 ac_ext=cpp
