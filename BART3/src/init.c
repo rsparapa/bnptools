@@ -8,7 +8,7 @@ extern SEXP cpbart(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, S
 extern SEXP clbart(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 /* extern SEXP cmbart(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP); */
 extern SEXP cpwbart(SEXP, SEXP, SEXP);
-extern SEXP chotdeck(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP chotdeck(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cwbart(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cgbart(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP chbart(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -29,7 +29,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"clbart",  (DL_FUNC) &clbart,  24},
 /*  {"cmbart",  (DL_FUNC) &cmbart,  29},*/
     {"cpwbart", (DL_FUNC) &cpwbart,  3},
-    {"chotdeck",(DL_FUNC) &chotdeck, 5},
+    {"chotdeck",(DL_FUNC) &chotdeck, 6},
     {"cwbart",  (DL_FUNC) &cwbart,  31},
     {"cgbart",  (DL_FUNC) &cgbart,  31},
     {"chbart",  (DL_FUNC) &chbart,  28},

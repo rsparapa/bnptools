@@ -16,13 +16,14 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Hot deck (HD) partial dependence function
+## Hot deck (HD) additive explanation function
 HD.wbart=function(object,  ## object returned from BART
                   x.train, ## x.train to estimate coverage
                   x.test,  ## settings of x.test: only x.test[ , S]
                            ## are used but they must all be given
                   S,       ## indices of subset
                   seed=99L,
+                  mult.impute=1L,
                   mc.cores=1L,
                   nice=19L)
 {
@@ -61,7 +62,7 @@ HD.wbart=function(object,  ## object returned from BART
 
     M=P-length(S)
     if(mc.cores>1L)
-        D=mc.hotdeck(x.train, x.test, S, object$treedraws, 
+        D=mc.hotdeck(x.train, x.test, S, object$treedraws,
                      mc.cores=mc.cores, nice=nice)
     else D=hotdeck(x.train, x.test, S, object$treedraws)
 
@@ -73,13 +74,13 @@ HD.wbart=function(object,  ## object returned from BART
             for(i in 1:R) {
                 if(mc.cores>1L)
                     D=D+(mc.hotdeck(x.train, x.test, c(C[i, ], S),
-                                    object$treedraws, 
+                                    object$treedraws,
                                     mc.cores=mc.cores, nice=nice)-
                          mc.hotdeck(x.train, x.test, C[i, ],
-                                    object$treedraws, 
+                                    object$treedraws,
                                     mc.cores=mc.cores, nice=nice))/
                         choose(M, k)
-                else 
+                else
                     D=D+(hotdeck(x.train, x.test, c(C[i, ], S),
                                  object$treedraws)-
                          hotdeck(x.train, x.test, C[i, ],
@@ -118,5 +119,5 @@ HD.wbart=function(object,  ## object returned from BART
         ##     else
         ##         pred=cbind(pred, pred.)
         ## }
-    
+
 

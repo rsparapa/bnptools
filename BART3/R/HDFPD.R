@@ -16,16 +16,15 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Hot deck (HD) conditional expectation
-HD=function(object,  ## object returned from BART
-            x.train, ## x.train to estimate coverage
-            x.test,  ## settings of x.test: only x.test[ , S]
-                     ## are used but they must all be given
-            S,       ## indices of subset
-            seed=99L,
-            mult.impute=1L,
-            mc.cores=1L,
-            nice=19L)
+## hot deck Friedman's partial dependence (FPD) function
+HDFPD=function(object,  ## object returned from BART
+             x.train, ## x.train to estimate coverage
+             x.test,  ## settings of x.test: only x.test[ , S]
+                      ## are used but they must all be given
+             S,       ## indices of subset
+             mult.impute=4L,
+             mc.cores=1L,
+             seed=99L)
 {
-    UseMethod('HD')
+    UseMethod('HDFPD')
 }

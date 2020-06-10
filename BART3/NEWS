@@ -1,10 +1,12 @@
-Changes and New Features in 3.7 (2020-05-27):
+Changes and New Features in 3.7 (2020-06-10):
 	* Experimental support for Modified LISA: ml.gbart() function
 	* Experimental support for Heteroskedastic BART: hbart()
 	* Experimental support for LIO BART: liobart()
 	* Synching new S3 method arguments
-	* Use the subset combination weights (analagous to permutation
-	weighting scheme) for HD/SHAP/SHAP2 S3 methods
+	* Use subset combination weights for HD/SHAP/SHAP2 S3 methods
+          (equivalent to permutation weights, but less computationally
+	  demanding)
+	* Add hot decked version of FPD: HDPFD
 
 Changes and New Features in 3.6 (2020-05-09):
 	* Adding new S3 method, SHAP, that calculates the

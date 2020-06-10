@@ -24,6 +24,7 @@ hotdeck = function(
                    treedraws,	      ## $treedraws
                    mu=0,	      ## mean to add on
                    transposed=FALSE,
+                   mult.impute=1L,
                    mc.cores=1L,       ## mc.hotdeck only
                    nice=19L           ## mc.hotdeck only
                    )
@@ -49,13 +50,13 @@ hotdeck = function(
                 x.train,          ##training
                 x.test,           ##testing
                 as.integer(mask), ## 1 condition, 0 hot deck
-                treedraws         ##trees
-                ##mc.cores        ##thread count
+                treedraws,        ##trees
+                mult.impute
                 )
 
     return(res$yhat.test+mu)
-    
-   ## OpenMP will not work here since we cannot 
+
+   ## OpenMP will not work here since we cannot
    ## estimate 1, ..., ndpost predictions simultaneously
    ## for each sample, we need to hotdeck the values
    ## however, we can parallel-ize predictions 1, ..., np

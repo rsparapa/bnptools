@@ -24,6 +24,7 @@ mc.hotdeck = function(
                    treedraws,	      ## $treedraws
                    mu=0,	      ## mean to add on
                    transposed=FALSE,
+                   mult.impute=1L,
                    mc.cores=2L,       ## mc.hotdeck only
                    nice=19L)          ## mc.hotdeck only
 {
@@ -58,7 +59,8 @@ mc.hotdeck = function(
         parallel::mcparallel({psnice(value=nice);
             hotdeck(x.train,
                     matrix(x.test[ , h:j], nrow=p, ncol=j-h+1),
-                    S, treedraws, mu=0, transposed=TRUE)},
+                    S, treedraws, mu=0, transposed=TRUE,
+                    mult.impute)},
             silent=(i!=1))
         j <- h-1
     }
