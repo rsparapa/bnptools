@@ -46,15 +46,19 @@ hotdeck = function(
     for(i in mask)
         mask[i]=1*(i %in% S)
 
-    res = .Call("chotdeck",
+    for(i in 1:mult.impute) {
+        res = .Call("chotdeck",
                 x.train,          ##training
                 x.test,           ##testing
                 as.integer(mask), ## 1 condition, 0 hot deck
-                treedraws,        ##trees
-                mult.impute
+                treedraws         ##trees
+                ## mult.impute
                 )
+        if(i==1) pred=res
+        else pred$yhat.test=pred$yhat.test+res$yhat.test
+    }
 
-    return(res$yhat.test+mu)
+    return(pred$yhat.test/mult.impute+mu)
 
    ## OpenMP will not work here since we cannot
    ## estimate 1, ..., ndpost predictions simultaneously

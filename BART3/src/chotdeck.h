@@ -21,8 +21,8 @@ RcppExport SEXP chotdeck(
 			 SEXP _itrain,
 			 SEXP _itest,
 			 SEXP _imask,
-			 SEXP _itrees,
-			 SEXP _multimpute
+			 SEXP _itrees
+			 //SEXP _multimpute
 			 //treedraws list from fbart
 			 //   SEXP _itc		//thread count
 			 )
@@ -58,7 +58,7 @@ RcppExport SEXP chotdeck(
   Rcpp::List  ixi(Rcpp::wrap(trees["cutpoints"]));
   size_t pp = ixi.size();
   if(p!=pp) cout << "WARNING: p from trees and p from x don't agree\n";
-  size_t multimpute=Rcpp::as<int>(_multimpute);
+//  int multimpute=Rcpp::as<int>(_multimpute);
   xinfo xi;
   xi.resize(p);
   for(size_t i=0;i<p;i++) {
@@ -77,8 +77,9 @@ RcppExport SEXP chotdeck(
   //--------------------------------------------------
   //read in trees
   std::vector<vtree> tmat(nd);
-  for(size_t i=0;i<nd;i++) tmat[i].resize(m);
+  //  for(size_t i=0;i<nd;i++) tmat[i].resize(m);
   for(size_t i=0;i<nd;i++) {
+    tmat[i].resize(m);
     for(size_t j=0;j<m;j++) ttss >> tmat[i][j];
   }
   //--------------------------------------------------
@@ -88,12 +89,12 @@ RcppExport SEXP chotdeck(
   std::fill(yhat.begin(), yhat.end(), 0.0);
   double *px = &xtest(0,0);
 
+  /*
   if(multimpute>1) {
-    double y;
     for(size_t k=0; k<nd; ++k) {   // samples
-      for(size_t i=0; i<np; ++i) { // settings
-	y=0.;
-	for(size_t l=0; l<multimpute; ++l) {
+      Rcpp::NumericVector y(np);
+      for(size_t l=0; l<multimpute; ++l) {
+	for(size_t i=0; i<np; ++i) { // settings
 	  size_t h;
 	  h=n*gen.uniform();
 	  for(size_t j=0; j<p; ++j) { // variables: rows of xpred
@@ -101,27 +102,28 @@ RcppExport SEXP chotdeck(
 	    while(xtrain(j, h)!=xtrain(j, h)) h=n*gen.uniform();
 	    if(mask[j]==0) xtest(j, i)=xtrain(j, h);
 	  }
-	  getpred(k, k, p, m, np, xi, tmat, px, yhat);
-	  y += yhat(k, i);
 	}
-	yhat(k, i)=y/multimpute;
+	getpred(k, k, p, m, np, xi, tmat, px, yhat);
+	y += yhat.row(k);
       }
+      yhat.row(k)=y/multimpute; 
     }    
   } else {
+*/
     for(size_t k=0; k<nd; ++k) {   // samples
       for(size_t i=0; i<np; ++i) { // settings
-	  size_t h;
-	  h=n*gen.uniform();
-	  for(size_t j=0; j<p; ++j) {  // variables: rows of xpred
-	    // check for missing values
-	    while(xtrain(j, h)!=xtrain(j, h)) h=n*gen.uniform();
-	    if(mask[j]==0) xtest(j, i)=xtrain(j, h);
-	  }
-	  getpred(k, k, p, m, np, xi, tmat, px, yhat);
+	size_t h;
+	h=n*gen.uniform();
+	for(size_t j=0; j<p; ++j) {  // variables: rows of xpred
+	  // check for missing values
+	  while(xtrain(j, h)!=xtrain(j, h)) h=n*gen.uniform();
+	  if(mask[j]==0) xtest(j, i)=xtrain(j, h);
+	}
       }
+      getpred(k, k, p, m, np, xi, tmat, px, yhat);
     }
-  }
-   
+//  }
+  
   /*
     double y;
     for(size_t k=0; k<nd; ++k) {   // samples
