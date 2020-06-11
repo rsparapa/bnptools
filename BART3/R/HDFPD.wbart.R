@@ -17,15 +17,26 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## hot deck Friedman's partial dependence (FPD) function
-HDFPD.wbart=function(object,  ## object returned from BART
+HDFPD.wbart=function(object,## object returned from BART
                    x.train, ## x.train to estimate coverage
                    x.test,  ## settings of x.test: only x.test[ , S]
                             ## are used but they must all be given
                    S,       ## indices of subset
                    mult.impute=4L,
                    mc.cores=1L,
-                   seed=99L)
+                   seed=99L,
+                   nice=19L)
 {
+    if(mc.cores>1L) {
+        if(.Platform$OS.type!='unix')
+            stop('parallel::mcparallel/mccollect do not exist on windows')
+        else {
+            RNGkind("L'Ecuyer-CMRG")
+            set.seed(seed)
+            parallel::mc.reset.stream()
+        }
+    } else { set.seed(seed) }
+    
     for(v in S)
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
@@ -48,20 +59,12 @@ HDFPD.wbart=function(object,  ## object returned from BART
             if(all(x.test[i, S]==x.test[j, S]))
                 stop(paste0('Row ', i, ' and ', j,
                             ' of x.test are equal with respect to S'))
-
-    set.seed(seed)
-    X.test = x.train
-    for(i in 1:Q) {
-        for(j in S)
-            X.test[ , j]=x.test[i, j]
-        pred.=apply(predict(object, X.test, mc.cores=mc.cores,
-                            mult.impute=mult.impute, seed=NA), 1, mean)
-        if(i==1)
-            pred=cbind(pred.)
-        else
-            pred=cbind(pred, pred.)
-    }
-
-    return(pred)
+    if(mc.cores>1L)
+        return(mc.hotdeck(x.train, x.test, S, object$treedraws,
+                          object$offset, mult.impute=mult.impute,
+                          mc.cores=mc.cores, nice=nice))
+    else
+        return(hotdeck(x.train, x.test, S, object$treedraws,
+                       object$offset, mult.impute=mult.impute))
 }
 

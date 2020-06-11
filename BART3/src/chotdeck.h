@@ -96,8 +96,11 @@ RcppExport SEXP chotdeck(
 	for(size_t l=0; l<multimpute; ++l) {
 	  size_t h;
 	  h=n*gen.uniform();
-	  for(size_t j=0; j<p; ++j)  // variables: rows of xpred
+	  for(size_t j=0; j<p; ++j) { // variables: rows of xpred
+	    // check for missing values
+	    while(xtrain(j, h)!=xtrain(j, h)) h=n*gen.uniform();
 	    if(mask[j]==0) xtest(j, i)=xtrain(j, h);
+	  }
 	  getpred(k, k, p, m, np, xi, tmat, px, yhat);
 	  y += yhat(k, i);
 	}
@@ -109,8 +112,11 @@ RcppExport SEXP chotdeck(
       for(size_t i=0; i<np; ++i) { // settings
 	  size_t h;
 	  h=n*gen.uniform();
-	  for(size_t j=0; j<p; ++j)  // variables: rows of xpred
+	  for(size_t j=0; j<p; ++j) {  // variables: rows of xpred
+	    // check for missing values
+	    while(xtrain(j, h)!=xtrain(j, h)) h=n*gen.uniform();
 	    if(mask[j]==0) xtest(j, i)=xtrain(j, h);
+	  }
 	  getpred(k, k, p, m, np, xi, tmat, px, yhat);
       }
     }

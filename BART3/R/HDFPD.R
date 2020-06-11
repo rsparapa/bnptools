@@ -24,7 +24,8 @@ HDFPD=function(object,  ## object returned from BART
              S,       ## indices of subset
              mult.impute=4L,
              mc.cores=1L,
-             seed=99L)
+             seed=99L,
+             nice=19L)
 {
     UseMethod('HDFPD')
 }
