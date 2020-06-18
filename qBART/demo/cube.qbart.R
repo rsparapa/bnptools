@@ -100,7 +100,7 @@ delta <- simcure$event
 ## par(mfrow=c(2,4))
 ## for (i in 1:8) plot(post1$sigma[,i], type='l')
 ## for (i in 1:8) acf(post1$sigma[,i])
-post <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, mc.core=8)
+post <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, mc.core=8, flex=FALSE)
 str(post)
 noncure <- simcure$Ncure == 1
 plot(ltime1[noncure], post$y2hat.train.mean[noncure], pch=20)
@@ -161,7 +161,7 @@ times <- simcure$obstime
 delta <- simcure$event
 
 ## multiple chains
-post2 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, mc.cores=8)
+post2 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, mc.cores=8, flex=FALSE)
 par(mfrow=c(2,4))
 for (i in 1:8) plot(post2$sigma[,i], type='l')
 for (i in 1:8) acf(post2$sigma[,i])
@@ -231,21 +231,21 @@ postd <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, 
 library(qBART)
 set.seed(60320)
 ## Friedman on p and y
-n <- 5000  #total subj
+n <- 2000  #total subj
 x1 <- runif(n); x2 <- runif(n); x3 <- runif(n); x4 <- runif(n); x5 <- runif(n)
 bp <- sin(pi*x1*x2) + 2*(x3-0.5)^2 + x4 + 0.5*x5  #p mean
 p <- pnorm(bp-1.4)  #not cured
 status <- rbinom(rep(1,n), rep(1,n), prob = p)
 # x3 dropped
-# x1 in (0,100); x2 in (40pi,560pi); x4 in (0,1); x5 in (1,11)
-nx1 <- 100*x1; nx2 <- 40*pi+x2*(520*pi); nx4 <- x4; nx5 <- 1+10*x5
+# x1 in (0,100); x2 in (40pi,560pi); x4 in (0,1); x5 in (1e-6,1.1e-5)
+nx1 <- 100*x1; nx2 <- 40*pi+x2*(520*pi); nx4 <- x4; nx5 <- (1+10*x5)*10^(-6)
 xb <- atan((nx2*nx4-1/(nx2*nx5))/nx1)
-ltime4 <- rnorm(n, mean = xb, sd = 0.3)  #log(real_time)~Normal
+ltime4 <- rnorm(n, mean = xb, sd = 0.5)  #log(real_time)~Normal
 time <- exp(ltime4)
 ctime <- rexp(n, rate = 0.001)  #censoring_time~Exp(0.01)
 simcure <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x4, x5 = x5, c_time = ctime, r_time = time)
 simcure$Ncure <- status
-cuttime <- quantile(time, probs=0.8) 
+cuttime <- quantile(time, probs=0.95) 
 simcure[simcure$c_time > cuttime,]$c_time <- cuttime  #admin censoring
 simcure$r_time <- ifelse(simcure$Ncure == 1, simcure$r_time, Inf)
 simcure$obstime <- ifelse(simcure$c_time < simcure$r_time, simcure$c_time, simcure$r_time)
@@ -260,19 +260,29 @@ mean(status)
 table(status,delta,dnn=c("Ncure","event"))
 
 ## multiple chains
-post4 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, sparse=TRUE, mc.cores=8)
+post4 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, sparse=TRUE, mc.cores=8, flex=FALSE)
+post5 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, sparse=TRUE, mc.cores=8, flex=TRUE)
+post6 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, sparse=TRUE, mc.cores=8, flex=TRUE, binoff=qnorm(mean(status)))
 par(mfrow=c(2,4))
 for (i in 1:8) plot(post4$sigma[,i], type='l')
 for (i in 1:8) acf(post4$sigma[,i])
 noncure <- simcure$Ncure == 1
-par(mfrow=c(1,2))
+par(mfrow=c(2,2))
 plot(ltime4[noncure], post4$y2hat.train.mean[noncure], pch=20)
 abline(a=0,b=1,col=2)
-plot(p, post4$prob.train.mean, pch=20, main="fitted p vs true p")
+plot(p, post4$prob.train.mean, pch=20, main="Noflex: fitted p vs true p")
 abline(a=0, b=1, col=2)
 fited <- loess(post4$prob.train.mean ~ p)
 fitp <- predict(fited)
 points(p, fitp,pch=20, col=3)
+plot(ltime4[noncure], post5$y2hat.train.mean[noncure], pch=20)
+abline(a=0,b=1,col=2)
+plot(p, post5$prob.train.mean, pch=20, main="flex: fitted p vs true p")
+abline(a=0, b=1, col=2)
+fited <- loess(post5$prob.train.mean ~ p)
+fitp <- predict(fited)
+points(p, fitp,pch=20, col=3)
+plot(post4$prob.train.mean, post5$prob.train.mean, pch=20, main="flex vs Noflex")
 plot(xb,ltime4,pch=20)
 
 postp <- pbart(x.train=x.train, y.train=simcure$Ncure)
@@ -280,7 +290,7 @@ plot(p, postp$prob.train.mean, pch=20, main="probit BART")
 abline(a=0, b=1, col=2)
 fited <- loess(postp$prob.train.mean ~ p)
 fitp <- predict(fited)
-points(p, fitp,pch=20, col=3)
+points(p,fitp,pch=20, col=3)
 plot(post4$prob.train.mean, postp$prob.train.mean, pch=20, xlab="qbart", ylab="pbart")
 abline(a=0, b=1, col=2)
 
@@ -289,10 +299,10 @@ set.seed(60420)
 n <- 2000  #total subj
 x1 <- runif(n); x2 <- runif(n); x3 <- runif(n); x4 <- runif(n); x5 <- runif(n)
 # x3 dropped
-# x1 in (0,100); x2 in (40pi,560pi); x4 in (0,1); x5 in (1,11)
-nx1 <- 100*x1; nx2 <- 40*pi+x2*(520*pi); nx4 <- x4; nx5 <- 1+10*x5
+# x1 in (0,100); x2 in (40pi,560pi); x4 in (0,1); x5 in (1e-6,1.1e-5)
+nx1 <- 100*x1; nx2 <- 40*pi+x2*(520*pi); nx4 <- x4; nx5 <- (1+10*x5)*10^(-6)
 bp <- atan((nx2*nx4-1/(nx2*nx5))/nx1)  #p mean
-p <- pnorm(bp-1)  #not cured
+p <- pnorm(bp)  #not cured
 status <- rbinom(rep(1,n), rep(1,n), prob = p)
 xb <- sin(pi*x1*x2) + 2*(x3-0.5)^2 + x4 + 0.5*x5
 ltime5 <- rnorm(n, mean = xb, sd = 0.5)  #log(real_time)~Normal
@@ -315,15 +325,21 @@ mean(status)
 table(status,delta,dnn=c("Ncure","event"))
 
 ## multiple chains
-post5 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, sparse=TRUE, mc.cores=8)
+post8 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, sparse=TRUE, mc.cores=8)
+post7 <- mc.qbart(x.train1=x.train, x.train2=x.train, times=times, delta=delta, sparse=TRUE, mc.cores=8, flex=FALSE)
 par(mfrow=c(2,4))
 for (i in 1:8) plot(post5$sigma[,i], type='l')
 for (i in 1:8) acf(post5$sigma[,i])
 noncure <- simcure$Ncure == 1
 par(mfrow=c(1,2))
-plot(ltime5[noncure], post5$y2hat.train.mean[noncure], pch=20)
+plot(ltime5[noncure], post8$y2hat.train.mean[noncure], pch=20)
 abline(a=0,b=1,col=2)
-plot(p, post5$prob.train.mean, pch=20, main="fitted p vs true p")
+plot(p, post8$prob.train.mean, pch=20, main="flex: fitted p vs true p")
+abline(a=0, b=1, col=2)
+par(mfrow=c(1,2))
+plot(ltime5[noncure], post7$y2hat.train.mean[noncure], pch=20)
+abline(a=0,b=1,col=2)
+plot(p, post7$prob.train.mean, pch=20, main="Noflex: fitted p vs true p")
 abline(a=0, b=1, col=2)
 plot(xb,ltime5,pch=20)
 

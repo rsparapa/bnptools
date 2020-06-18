@@ -18,7 +18,7 @@
 
 qbart=function(x.train1=NULL, x.train2, times, delta,
                x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
-               flex=TRUE,
+               flex=TRUE, binoff=NA,
                ntype=1,
                sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho1=NULL, rho2=NULL,
@@ -150,6 +150,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                 }
     }
 
+    
     ## initialize offsets
     if (flex) {
     tempx <- cbind(1, t(x.train2))
@@ -158,7 +159,9 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     formula <- as.formula(paste("Surv(y,event) ~", paste0("meanlog(", names(tempd)[-(1:2)], ")", collapse = "+")))
     fit0 <- flexsurvcure(formula, data = tempd, dist = "lnorm", link = ifelse(ntype==1, "probit", "logistic"))
     p0 <- 1 - fit0$res[1]  #initial guess of noncured rate
-    binoffset <- qnorm(p0)  
+    if(is.na(binoff)){binoffset <- qnorm(p0)}
+    else binoffset <- binoff
+    sigbin <- 0
     sigma <- fit0$res[3]  #initial guess of sigma
     beta <- fit0$res[4:(3+p2-sum(depx))]
     offset <- fit0$res[2]+sum(beta*fit0$datameans)  #cov-adjusted center of log(times)
@@ -175,6 +178,25 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     
     q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
     rm(tempd, tempx, fit0)
+    }
+    else {
+        p0 <- (mean(delta)+1)/2
+        binoffset <- qnorm(p0)
+        sigbin <- (qnorm(p0)-qnorm(mean(delta)))/3
+        offset <- mean(y.train)
+        sigma <- summary(lm(y.train~., data.frame(t(x.train2),y.train)))$sigma
+        
+        pb <- NULL
+        for (i in 1:n){
+            if (delta[i] == 0){  #if censored
+                s <- pnorm(y.train[i], mean = offset, sd = sigma, lower.tail = FALSE)
+                p <- p0*s/(1-p0+p0*s)
+                pb <- c(pb, p)
+            }
+            else pb <- c(pb, 1)  #else not cured
+        }
+    
+        q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
     }
 
     y.train = y.train-offset
@@ -220,6 +242,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                 power,
                 base,
                 binoffset,
+                sigbin,
                 offset,
                 tau1,
                 tau2,
@@ -291,7 +314,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
 
     res$times = events
     res$K = K
-    res$binaryoffset = binoffset
+    ## res$binaryoffset = binoffset
     res$offset = offset
     ## names(res$treedraws$cutpoints) = dimnames(x.train)[[1]]
     
