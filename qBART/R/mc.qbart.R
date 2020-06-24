@@ -19,7 +19,7 @@
 
 mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
                      x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
-                     flex=TRUE,
+                     flex=TRUE, binoff=NA,
                      ntype=1,
                      sparse=FALSE, theta=0, omega=1,
                      a=0.5, b=1, augment=FALSE, rho1=NULL, rho2=NULL,
@@ -81,7 +81,7 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
     for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);
             qbart(x.train1=x.train1, x.train2=x.train2, times=times, delta=delta,
-                  x.test1=x.test1, x.test2=x.test2, K=K, flex=flex, ntype=ntype,
+                  x.test1=x.test1, x.test2=x.test2, K=K, flex=flex, binoff=binoff, ntype=ntype,
                   sparse=sparse, theta=theta, omega=omega,
                   a=a, b=b, augment=augment, rho1=rho1, rho2=rho2,
                   x1info=x1info, x2info=x2info, usequants=usequants,
@@ -136,6 +136,9 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
 
             post$surv.train <- rbind(post$surv.train,
                                      post.list[[i]]$surv.train)
+            post$binaryOffset <- rbind(post$binaryOffset, post.list[[i]]$binaryOffset)
+
+            ## post$sigbinary <- rbind(post$sigbinary, post.list[[i]]$sigbinary)
 
             if(keeptest) {
                 post$prob.test <- rbind(post$prob.test,
