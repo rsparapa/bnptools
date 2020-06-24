@@ -8,7 +8,7 @@ immunodeficiency virus type I whose CD4 T cell counts were between 200 and 500 p
 \usage{data(ACTG175)}
 \format{A data frame with 2139 observations on the following 27 variables:
 \describe{
-\item{\code{pidnum}}{patient's ID number}
+\item{\code{pidnum}}{patient ID number}
 \item{\code{age}}{age in years at baseline}
 \item{\code{wtkg}}{weight in kg at baseline}
 \item{\code{hemo}}{hemophilia (0=no, 1=yes)}
