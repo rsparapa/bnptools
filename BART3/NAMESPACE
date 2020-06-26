@@ -27,9 +27,9 @@ export(read.trees)
 export(EXPVALUE, comb, perm)
 export(FPD)   ## new S3 method: Friedman's partial dependence function
 export(HDFPD) ## new S3 method: hot deck Friedman's partial dependence function
-export(HD)    ## new S3 method: hot deck SHAP additive explanation function
 export(SHAP)  ## new S3 method: SHAP additive explanation function
 export(SHAP2) ## new S3 method: SHAP for two-way interactions
+export(HDSHAP)## new S3 method: hot deck SHAP additive explanation function
 importFrom(Rcpp, evalCpp)
 importFrom(nlme, lme)
 importFrom(nnet, class.ind)
@@ -38,13 +38,13 @@ importFrom(stats, ar, coef, cor, dbinom, dnorm, lm, plogis, pnorm, predict, qchi
 importFrom(survival, survfit, Surv, survreg)
 importFrom(tools, psnice)
 importFrom(utils, read.table)
-S3method(HD, wbart)
 S3method(FPD, wbart)
 S3method(HDFPD, wbart)
 S3method(SHAP, wbart)
 S3method(SHAP2, wbart)
 S3method(SHAP, survbart)
 S3method(SHAP, crisk3bart)
+S3method(HDSHAP, wbart)
 S3method(predict, wbart)
 S3method(predict, pbart)
 S3method(predict, survbart)

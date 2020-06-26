@@ -16,8 +16,8 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Hot deck (HD) additive explanation function
-HD.wbart=function(object,  ## object returned from BART
+## Hot deck (HD) SHAP additive explanation function
+HDSHAP.wbart=function(object,  ## object returned from BART
                   x.train, ## x.train to estimate coverage
                   x.test,  ## settings of x.test: only x.test[ , S]
                            ## are used but they must all be given
