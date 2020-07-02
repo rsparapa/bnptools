@@ -18,7 +18,7 @@
 
 qbart=function(x.train1=NULL, x.train2, times, delta,
                x.test1=matrix(0,0,0), x.test2=matrix(0,0,0), K=100,
-               flex=TRUE, binoff=NA,
+               binoff=NA, grid=NA,
                ntype=1,
                sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho1=NULL, rho2=NULL,
@@ -152,24 +152,15 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
 
     
     ## initialize offsets
-    if (flex) {
-    tempx <- cbind(1, t(x.train2))
-    depx <- abs(svd(tempx)$d) < 1e-10
-    tempd = data.frame(y=times, event=delta, x=t(x.train2)[,!depx[-1]])
-    formula <- as.formula(paste("Surv(y,event) ~", paste0("meanlog(", names(tempd)[-(1:2)], ")", collapse = "+")))
-    fit0 <- flexsurvcure(formula, data = tempd, dist = "lnorm", link = ifelse(ntype==1, "probit", "logistic"))
-    p0 <- 1 - fit0$res[1]  #initial guess of noncured rate
-    if(is.na(binoff)){binoffset <- qnorm(p0)}
-    else binoffset <- binoff
-    sigbin <- 0
-    sigma <- fit0$res[3]  #initial guess of sigma
-    beta <- fit0$res[4:(3+p2-sum(depx))]
-    offset <- fit0$res[2]+sum(beta*fit0$datameans)  #cov-adjusted center of log(times)
-
+    p0 <- (mean(delta)+1)/2
+    binoffset <- qnorm(p0)
+    offset <- mean(y.train)
+    sigma <- summary(lm(y.train~., data.frame(t(x.train2),y.train)))$sigma
+    
     pb <- NULL
     for (i in 1:n){
         if (delta[i] == 0){  #if censored
-            s <- pnorm(y.train[i], mean = offset+x.train2[!depx[-1],i]*beta, sd = sigma, lower.tail = FALSE)
+            s <- pnorm(y.train[i], mean = offset, sd = sigma, lower.tail = FALSE)
             p <- p0*s/(1-p0+p0*s)
             pb <- c(pb, p)
         }
@@ -177,27 +168,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     }
     
     q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
-    rm(tempd, tempx, fit0)
-    }
-    else {
-        p0 <- (mean(delta)+1)/2
-        binoffset <- qnorm(p0)
-        sigbin <- (qnorm(p0)-qnorm(mean(delta)))/3
-        offset <- mean(y.train)
-        sigma <- summary(lm(y.train~., data.frame(t(x.train2),y.train)))$sigma
-        
-        pb <- NULL
-        for (i in 1:n){
-            if (delta[i] == 0){  #if censored
-                s <- pnorm(y.train[i], mean = offset, sd = sigma, lower.tail = FALSE)
-                p <- p0*s/(1-p0+p0*s)
-                pb <- c(pb, p)
-            }
-            else pb <- c(pb, 1)  #else not cured
-        }
     
-        q0 = rbinom(rep(1,n), rep(1,n), prob = pb)  #initial imputation of cure status
-    }
 
     y.train = y.train-offset
     
@@ -242,7 +213,6 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                 power,
                 base,
                 binoffset,
-                sigbin,
                 offset,
                 tau1,
                 tau2,
@@ -268,9 +238,14 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
 
     res$prob.train = pnorm(res$y1hat.train)
     res$prob.train.mean <- apply(res$prob.train, 2, mean)
-    
+
     K <- min(n, K)
-    events=unique(sort(times))
+    if(is.na(grid)){
+        events=unique(sort(times))
+    }
+    else {
+        events=unique(sort(grid))
+    }
     if(length(events)>K) {
         events <- unique(quantile(times, probs=(1:K)/K))
         attr(events, 'names') <- NULL
@@ -302,7 +277,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                 h <- (i-1)*K+j
                 surv.ncure <- pnorm(log(events[j]),
                           mean=res$y2hat.test[ , i],
-                          sd=res$sigma[-(1:nskip)],
+                          sd=res$sigma,
                           lower.tail=FALSE)
                 res$surv.test[ , h] <- 1-res$prob.test[, i] + res$prob.test[, i]*surv.ncure
             }
@@ -314,9 +289,8 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
 
     res$times = events
     res$K = K
-    ## res$binaryoffset = binoffset
+    res$binaryOffset = binoffset
     res$offset = offset
-    ## names(res$treedraws$cutpoints) = dimnames(x.train)[[1]]
     
     dimnames(res$varcount1)[[2]] = as.list(dimnames(x.train1)[[1]])
     dimnames(res$varprob1)[[2]] = as.list(dimnames(x.train1)[[1]])

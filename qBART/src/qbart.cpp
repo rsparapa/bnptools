@@ -53,7 +53,6 @@ RcppExport SEXP cqbart(
    SEXP _ipower,
    SEXP _ibase,
    SEXP _binaryOffset,  //center of uncured rate
-   SEXP _sigbin,    
    SEXP _Offset,        //center of log(time)
    SEXP _itau1,
    SEXP _itau2,
@@ -106,7 +105,6 @@ RcppExport SEXP cqbart(
    double mybeta = Rcpp::as<double>(_ipower);
    double alpha = Rcpp::as<double>(_ibase);
    double binaryOffset = Rcpp::as<double>(_binaryOffset);
-   double sigbin = Rcpp::as<double>(_sigbin);
    double Offset = Rcpp::as<double>(_Offset);
    double tau1 = Rcpp::as<double>(_itau1);
    double tau2 = Rcpp::as<double>(_itau2);
@@ -140,8 +138,6 @@ RcppExport SEXP cqbart(
    Rcpp::NumericMatrix X1info(_X1info);
    Rcpp::NumericMatrix X2info(_X2info);
    Rcpp::NumericVector sdraw(nd/thin);
-   Rcpp::NumericVector bindraw(nd/thin);
-   Rcpp::NumericVector sigbdraw(nd/thin);
    Rcpp::NumericMatrix trdraw1(nkeeptrain,n);
    Rcpp::NumericMatrix tedraw1(nkeeptest,np);
    //Rcpp::NumericMatrix qdraw(nkeeptrain,n);
@@ -210,7 +206,6 @@ void cqbart(
    double mybeta,
    double alpha,
    double binaryOffset,
-   double sigbin,
    double Offset,
    double tau1,
    double tau2,
@@ -312,7 +307,6 @@ void cqbart(
    double *pt = new double[n];
    double *st = new double[n];
    double *svec = new double[n]; 
-   double mu0 = binaryOffset;
    
    
    for(size_t k=0; k<n; k++) {
@@ -417,22 +411,6 @@ void cqbart(
       //sdraw[i]=sigma;
       //draw bart1
       bm1.draw(1., gen);
-
-      //draw binoffset
-      if (sigbin == 0) {binaryOffset = binaryOffset;}
-      else {
-        double rs = 0.;
-	double sigb;
-	double mu1;
-        for (size_t k=0; k<n; k++) {rs += z1[k]+binaryOffset-bm1.f(k);}
-        mu1 = (mu0/pow(sigbin, 2.)+rs)/(1/pow(sigbin, 2.)+n);
-        sigb = pow(1/(1/pow(sigbin, 2.)+n), .5);
-        #ifndef NoRcpp
-        binaryOffset = R::rnorm(mu1, sigb);
-        #else
-        binaryOffset = ::rnorm(mu1, sigb);
-        #endif
-      }
       
       if(i>=burn) {
          if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {
@@ -444,8 +422,6 @@ void cqbart(
 	      TRDRAW2(trcnt,k)=Offset+bm2.f(k);
 	    }
 	    sdraw[trcnt]=sigma;
-	    bindraw[trcnt]=binaryOffset;
-	    //sigbdraw[trcnt]=sigbin;
             trcnt+=1;
          }
          keeptest = nkeeptest && (((i-burn+1) % skipte) ==0) && np;
@@ -499,8 +475,6 @@ void cqbart(
    //return list
    Rcpp::List ret;
    ret["sigma"]=sdraw;
-   ret["binaryOffset"]=bindraw;
-   //ret["sigbinary"]=sigbdraw;
    ret["y1hat.train"]=trdraw1;
    ret["y1hat.test"]=tedraw1;
    ret["varcount1"]=varcnt1;
