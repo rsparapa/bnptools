@@ -27,7 +27,7 @@ gbart=function(
                rm.const=TRUE,
                sigest=NA, sigdf=3, sigquant=0.90,
                k=2, power=2, base=0.95,
-               ##sigmaf=NA,
+               impute.mult=NULL,
                lambda=NA, tau.num=c(NA, 3, 6)[ntype],
                offset=NULL, w=rep(1, length(y.train)),
                ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
@@ -79,6 +79,23 @@ gbart=function(
     if(length(rm.const)==0) rm.const <- 1:p
     if(length(grp)==0) grp <- 1:p
 
+    check = length(impute.mult)
+    if(check==1)
+        stop('The columns in the multinomial must be greater than 1')
+    if(check>1) {
+        impute.prob=double(check)
+        impute.miss=integer(n)
+        for(j in 1:check) {
+            i=impute.mult[j]
+            impute.prob[j]=sum(x.train[i, ]==1)
+            impute.miss = pmax(impute.miss, is.na(x.train[i, ]))
+        }
+        impute.prob=impute.prob/sum(impute.prob)
+    } else {
+        impute.prob=double(0)
+        impute.miss=integer(0)
+    }
+    
     check <- unique(sort(y.train))
 
     if(length(check)==2) {
@@ -138,31 +155,37 @@ gbart=function(
     ## hot deck missing imputation
     ## must be conducted here since it would
     ## cause trouble with multi-threading on the C++ side
-
+    ## ignore columns for multinomial imputation in training
+    
     check=(np>0 && np==n)
 
     for(i in 1:n)
-        for(j in 1:p) {
-            if(check) check=((is.na(x.train[j, i]) && is.na(x.test[j, i])) ||
-                             (!is.na(x.train[j, i]) && !is.na(x.test[j, i]) &&
-                              x.train[j, i]==x.test[j, i]))
+        for(j in 1:p)
+            if(!(j %in% impute.mult)) {
+                if(check) check=((is.na(x.train[j, i]) &&
+                                  is.na(x.test[j, i])) ||
+                                 (!is.na(x.train[j, i]) &&
+                                  !is.na(x.test[j, i]) &&
+                                  x.train[j, i]==x.test[j, i]))
 
-            while(is.na(x.train[j, i])) {
-                h=sample.int(n, 1)
-                x.train[j, i]=x.train[j, h]
+                while(is.na(x.train[j, i])) {
+                    h=sample.int(n, 1)
+                    x.train[j, i]=x.train[j, h]
+                }
             }
-        }
 
     if(check) x.test=x.train
     else if(np>0) {
         for(i in 1:np)
             for(j in 1:p)
-                while(is.na(x.test[j, i])) {
-                    h=sample.int(np, 1)
-                    x.test[j, i]=x.test[j, h]
-                }
+                ##if(!(j %in% impute.mult)) 
+                    while(is.na(x.test[j, i])) {
+                        h=sample.int(np, 1)
+                        x.test[j, i]=x.test[j, h]
+                    }
     }
 
+    
     ## if(hotdeck) ## warnings are suppressed with mc.gbart anyways
     ##     warning('missing elements of x imputed with hot decking')
 
@@ -203,7 +226,10 @@ gbart=function(
                 augment,
                 printevery,
                 xinfo,
-                shards
+                shards,
+                as.integer(impute.mult),
+                impute.miss,
+                impute.prob
                 )
 
     res$proc.time <- proc.time()-ptm
