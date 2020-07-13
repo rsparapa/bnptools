@@ -1,12 +1,16 @@
+
+Changes and New Features in 3.8 (2020-07-13):
+	* New support for covariate missing imputation of a category
+	  see the new argument to gbart: impute.mult
+
 Changes and New Features in 3.7 (2020-06-10):
 	* Experimental support for Modified LISA: ml.gbart() function
 	* Experimental support for Heteroskedastic BART: hbart()
 	* Experimental support for LIO BART: liobart()
 	* Synching new S3 method arguments
-	* Use subset combination weights for HD/SHAP/SHAP2 S3 methods
-          (equivalent to permutation weights, but less computationally
-	  demanding)
-	* Add hot decked version of FPD: HDPFD
+	* Use weighted combination subsets for SHAP/SHAP2/HDSHAP S3 methods
+          (originally HDSHAP was simply named HD)
+	* Hot decked version of FPD: HDPFD
 
 Changes and New Features in 3.6 (2020-05-09):
 	* Adding new S3 method, SHAP, that calculates the

@@ -278,7 +278,27 @@ class arn: public rn
     }
     return draw;
   }
-  
+  int rcat(Rcpp::NumericVector _p) {
+      double c=Rcpp::sum(_p), d=Rcpp::min(_p);
+      if(c==0. || d<0.) {
+#ifdef DEBUG
+	cout << "rcat returning -1\n";
+	cout << _p << '\n';
+#endif
+	return -1;
+      }
+      int K=_p.size();
+      Rcpp::NumericVector p = _p/c;
+      Rcpp::IntegerVector x(K);
+      R::rmultinom(1, &p[0], K, &x[0]);
+      for(int j=0; j<K; ++j) if(x[j]==1) return j;
+#ifdef DEBUG
+	cout << "rcat returning -2\n";
+	cout << _p << '\n';
+#endif
+      return -2; // never gets to this line: just working around the compiler warnings
+    }
+
     Rcpp::RNGScope get_state(void) { return RNGstate; }
     void set_state(Rcpp::RNGScope RNGstate) { this->RNGstate=RNGstate; }
   

@@ -1,4 +1,6 @@
 
+library(BART3)
+
 f = function(x)
     -10+10*x[ , 1]+5*x[ , 2]+10*sin(pi*x[ , 4]*x[ , 5])+20*(x[ , 6]-0.5)^3
 
@@ -20,5 +22,13 @@ x.[which(miss==1), 1:3]=NA
 X. = X
 X.[ , 1:3] = x.
 
-check = gbart(X., y, impute.mult=1:3)
-table(check, miss)
+set.seed(34)
+post = gbart(X., y, impute.mult=1:3, sparse=TRUE)
+
+post2 = mc.gbart(X., y, sparse=TRUE, seed=22)
+
+## missing imputation
+post$varprob.mean[1:6]
+## vs. hot-decking
+post2$varprob.mean[1:6]
+

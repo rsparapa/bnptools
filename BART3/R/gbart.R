@@ -81,21 +81,22 @@ gbart=function(
 
     check = length(impute.mult)
     if(check==1)
-        stop('The columns in the multinomial must be greater than 1')
+        stop("The multinomial's columns must be greater than 1\nConvert binary into two columns")
     if(check>1) {
         impute.prob=double(check)
         impute.miss=integer(n)
         for(j in 1:check) {
             i=impute.mult[j]
-            impute.prob[j]=sum(x.train[i, ]==1)
+            impute.prob[j]=sum(x.train[i, ]==1, na.rm = TRUE)
             impute.miss = pmax(impute.miss, is.na(x.train[i, ]))
         }
         impute.prob=impute.prob/sum(impute.prob)
     } else {
-        impute.prob=double(0)
-        impute.miss=integer(0)
+        impute.mult=integer(0) ## integer vector of column indicators for missing covariates
+        impute.miss=integer(0) ## integer vector of row indicators for missing values
+        impute.prob=double(0)  ## double vector of prior missing imputation probability
     }
-    
+
     check <- unique(sort(y.train))
 
     if(length(check)==2) {
@@ -156,7 +157,7 @@ gbart=function(
     ## must be conducted here since it would
     ## cause trouble with multi-threading on the C++ side
     ## ignore columns for multinomial imputation in training
-    
+
     check=(np>0 && np==n)
 
     for(i in 1:n)
@@ -178,14 +179,14 @@ gbart=function(
     else if(np>0) {
         for(i in 1:np)
             for(j in 1:p)
-                ##if(!(j %in% impute.mult)) 
+                ##if(!(j %in% impute.mult))
                     while(is.na(x.test[j, i])) {
                         h=sample.int(np, 1)
                         x.test[j, i]=x.test[j, h]
                     }
     }
 
-    
+
     ## if(hotdeck) ## warnings are suppressed with mc.gbart anyways
     ##     warning('missing elements of x imputed with hot decking')
 
@@ -227,7 +228,7 @@ gbart=function(
                 printevery,
                 xinfo,
                 shards,
-                as.integer(impute.mult),
+                as.integer(impute.mult-1), ## convert to C/C++ indices
                 impute.miss,
                 impute.prob
                 )

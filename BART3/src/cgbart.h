@@ -21,6 +21,7 @@
 
 #define TRDRAW(a, b) trdraw(a, b)
 #define TEDRAW(a, b) tedraw(a, b)
+#define XV(a, b) xv(a, b)
 
 RcppExport SEXP cgbart(
    SEXP _type,          //1:wbart, 2:pbart, 3:lbart
@@ -53,7 +54,10 @@ RcppExport SEXP cgbart(
    SEXP _iaug,          //categorical strategy: true(1)=data augment false(0)=degenerate trees
    SEXP _inprintevery,
    SEXP _Xinfo,
-   SEXP _shards
+   SEXP _shards,
+   SEXP _impute_mult, // integer vector of column indicators for missing covariates
+   SEXP _impute_miss, // integer vector of row indicators for missing values
+   SEXP _impute_prior // double vector of prior missing imputation probability
 )
 {
    //process args
@@ -61,8 +65,25 @@ RcppExport SEXP cgbart(
    size_t n = Rcpp::as<int>(_in);
    size_t p = Rcpp::as<int>(_ip);
    size_t np = Rcpp::as<int>(_inp);
+ 
+/*
+  // the pointer from a vector should be equivalent to the pointer from a matrix
+  // since, as far as R is concerned, a matrix is just a fancy vector
    Rcpp::NumericVector  xv(_ix);
    double *ix = &xv[0];
+*/
+   
+   Rcpp::NumericMatrix xv(_ix); // transposed:  p rows, n columns
+   double *ix = &XV(0, 0);
+   Rcpp::IntegerVector impute_mult(_impute_mult); // integer vector of column indicators for missing covariates
+   size_t K = impute_mult.size(); // number of columns to impute
+   Rcpp::IntegerVector impute_miss(_impute_miss); // length n: integer vector of row indicators for missing values
+   Rcpp::NumericVector impute_prior(_impute_prior); // length K: double vector of prior missing imputation probability
+   Rcpp::NumericVector impute_post(K); // length K: double vector of posterior missing imputation probability
+   Rcpp::NumericVector impute_fhat(K); 
+   double *impute_fhat_ptr = 0, *impute_Xrow_ptr = 0;
+   if(K>0) impute_fhat_ptr = &impute_fhat[0];
+   
    Rcpp::NumericVector  yv(_iy); 
    double *iy = &yv[0];
    Rcpp::NumericVector  xpv(_ixp);
@@ -260,6 +281,14 @@ if(type==1) {
 	<< dart << ',' << theta << ',' << omega << ',' << a << ',' 
 	<< b << ',' << rho << ',' << aug << endl;
    //printf("*****nkeeptrain,nkeeptest: %zu, %zu\n",nkeeptrain,nkeeptest);
+   if(K>0) {
+     cout << "*****Missing imputation row indices: index 0=" << impute_miss[0] << ','
+	  << "index n-1=" << impute_miss[n-1] << endl;
+     cout << "*****Missing imputation column indices: index 0=" << impute_mult[0] << ','
+	  << "index K-1=" << impute_mult[K-1] << endl;
+     cout << "*****Missing imputation probability: prob[0]=" << impute_prior[0] << ','
+	  << "prob[K-1]=" << impute_prior[K-1] << endl;
+   }
    printf("*****printevery: %zu\n",printevery);
 
    //--------------------------------------------------
@@ -280,6 +309,16 @@ if(type==1) {
        if(iy[i]==0) sign[i] = -1.;
        else sign[i] = 1.;
        z[i] = sign[i];
+     }
+     if(K>0) {
+       if(impute_miss[i]==1) {
+	 size_t k;
+	 k=gen.rcat(impute_prior); // use prior prob only
+	 for(size_t j=0; j<K; j++) {
+	   if(j==k) XV(impute_mult[j], i)=1;
+	   else XV(impute_mult[j], i)=0;
+	 }
+       }
      }
    }
    //--------------------------------------------------
@@ -331,6 +370,29 @@ if(type==1) {
 	  if(type==3) 
 	    svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), sign[k]*bm.f(k), 1000, 1, gen));
 	  }
+      }
+
+      if(K>0) {
+	for(size_t k=0; k<n; ++k) {
+	  if(impute_miss[k]==1) {
+	    impute_Xrow_ptr=&XV(0, k);
+	    impute_post=impute_prior;
+	    for(size_t j=0; j<K; ++j) {
+	      for(size_t h=0; h<K; ++h) {
+		if(h==j) XV(impute_mult[h], k)=1;
+		else XV(impute_mult[h], k)=0;
+	      }
+	      bm.predict(p, 1, impute_Xrow_ptr, &impute_fhat_ptr[j]);
+	      impute_post[j] *= R::dnorm(z[k], impute_fhat_ptr[j], svec[k], 0); 
+	    }
+	    size_t h;
+	    h=gen.rcat(impute_post); 
+	    for(size_t j=0; j<K; j++) {
+	      if(j==h) XV(impute_mult[j], k)=1;
+	      else XV(impute_mult[j], k)=0;
+	    }	    
+	  }
+	}
       }
 
 /*
