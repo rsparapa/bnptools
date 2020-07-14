@@ -83,6 +83,7 @@ gbart=function(
     if(check==1)
         stop("The multinomial's columns must be greater than 1\nConvert binary into two columns")
     if(check>1) {
+        impute.flag=TRUE
         impute.prob=double(check)
         impute.miss=integer(n)
         for(j in 1:check) {
@@ -92,6 +93,7 @@ gbart=function(
         }
         impute.prob=impute.prob/sum(impute.prob)
     } else {
+        impute.flag=FALSE
         impute.mult=integer(0) ## integer vector of column indicators for missing covariates
         impute.miss=integer(0) ## integer vector of row indicators for missing values
         impute.prob=double(0)  ## double vector of prior missing imputation probability
@@ -152,7 +154,8 @@ gbart=function(
         ## else if(type=='lbart')
         ##     tau=qlogis(1-0.5*tau)/(k*sqrt(ntree))
     }
-
+    ## k can now be re-used
+    
     ## hot deck missing imputation
     ## must be conducted here since it would
     ## cause trouble with multi-threading on the C++ side
@@ -160,30 +163,40 @@ gbart=function(
 
     check=(np>0 && np==n)
 
-    for(i in 1:n)
-        for(j in 1:p)
-            if(!(j %in% impute.mult)) {
-                if(check) check=((is.na(x.train[j, i]) &&
-                                  is.na(x.test[j, i])) ||
-                                 (!is.na(x.train[j, i]) &&
-                                  !is.na(x.test[j, i]) &&
-                                  x.train[j, i]==x.test[j, i]))
+    if(check)
+        for(i in 1:n) {
+            for(j in 1:p) {
+                check=((is.na(x.train[j, i]) &&
+                        is.na(x.test[j, i])) ||
+                       (!is.na(x.train[j, i]) &&
+                        !is.na(x.test[j, i]) &&
+                        x.train[j, i]==x.test[j, i]))
+                if(!check) break
+            }
+            if(!check) break
+        }
 
+    for(i in 1:n)
+        for(j in 1:p) 
+            if(impute.flag && !(j %in% impute.mult)) {
+                k = is.na(x.train[ , i]) 
+                if(impute.flag) k[impute.mult]=FALSE
                 while(is.na(x.train[j, i])) {
                     h=sample.int(n, 1)
-                    x.train[j, i]=x.train[j, h]
+                    x.train[k, i]=x.train[k, h]
                 }
             }
 
-    if(check) x.test=x.train
+    if(check && !impute.flag) x.test=x.train
     else if(np>0) {
         for(i in 1:np)
-            for(j in 1:p)
-                ##if(!(j %in% impute.mult))
-                    while(is.na(x.test[j, i])) {
-                        h=sample.int(np, 1)
-                        x.test[j, i]=x.test[j, h]
-                    }
+            for(j in 1:p) {
+                k = is.na(x.train[ , i])
+                while(is.na(x.test[j, i])) {
+                    h=sample.int(np, 1)
+                    x.test[k, i]=x.test[k, h]
+                }
+            }
     }
 
 
