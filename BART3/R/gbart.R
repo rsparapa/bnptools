@@ -155,7 +155,7 @@ gbart=function(
         ##     tau=qlogis(1-0.5*tau)/(k*sqrt(ntree))
     }
     ## k can now be re-used
-    
+
     ## hot deck missing imputation
     ## must be conducted here since it would
     ## cause trouble with multi-threading on the C++ side
@@ -177,13 +177,13 @@ gbart=function(
         }
 
     for(i in 1:n)
-        for(j in 1:p) 
+        for(j in 1:p)
             if(impute.flag && !(j %in% impute.mult)) {
-                k = is.na(x.train[ , i]) 
+                k = is.na(x.train[ , i])
                 if(impute.flag) k[impute.mult]=FALSE
                 while(is.na(x.train[j, i])) {
                     h=sample.int(n, 1)
-                    x.train[k, i]=x.train[k, h]
+                    x.train[which(k), i]=x.train[which(k), h]
                 }
             }
 
@@ -194,11 +194,10 @@ gbart=function(
                 k = is.na(x.train[ , i])
                 while(is.na(x.test[j, i])) {
                     h=sample.int(np, 1)
-                    x.test[k, i]=x.test[k, h]
+                    x.test[which(k), i]=x.test[which(k), h]
                 }
             }
     }
-
 
     ## if(hotdeck) ## warnings are suppressed with mc.gbart anyways
     ##     warning('missing elements of x imputed with hot decking')

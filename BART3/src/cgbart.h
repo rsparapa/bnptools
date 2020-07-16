@@ -126,6 +126,7 @@ RcppExport SEXP cgbart(
    Rcpp::NumericVector sdraw(nd+burn);
    Rcpp::NumericMatrix trdraw(nkeeptrain,n);
    Rcpp::NumericMatrix tedraw(nkeeptest,np);
+   Rcpp::NumericVector impute_draw(Rcpp::Dimension(nkeeptrain, n, K));
 
    //random number generation
    arn gen;
@@ -378,10 +379,8 @@ if(type==1) {
 	    impute_Xrow_ptr=&XV(0, k);
 	    impute_post=impute_prior;
 	    for(size_t j=0; j<K; ++j) {
-	      for(size_t h=0; h<K; ++h) {
-		if(h==j) XV(impute_mult[h], k)=1;
-		else XV(impute_mult[h], k)=0;
-	      }
+	      for(size_t h=0; h<K; ++h) XV(impute_mult[h], k)=0;
+	      XV(impute_mult[j], k)=1;
 	      bm.predict(p, 1, impute_Xrow_ptr, &impute_fhat_ptr[j]);
 	      impute_post[j] *= R::dnorm(z[k], impute_fhat_ptr[j], svec[k], 0); 
 	    }
@@ -410,9 +409,17 @@ if(type==1) {
 */
 
       if(i>=burn) {
+	size_t idcnt=0;
          if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {
-            for(size_t k=0;k<n;k++) TRDRAW(trcnt,k)=Offset+bm.f(k);
-            trcnt+=1;
+            for(size_t k=0;k<n;k++) {
+	      TRDRAW(trcnt,k)=Offset+bm.f(k);
+	      for(size_t j=0; j<K; ++j) {
+		impute_draw[idcnt]=XV(impute_mult[j], k);
+		idcnt+=1;
+		//impute_draw(trcnt, k, j)=XV(impute_mult[j], k);
+	      }
+	    }
+	    trcnt+=1;
          }
          keeptest = nkeeptest && (((i-burn+1) % skipte) ==0) && np;
          if(keeptest) {
@@ -479,6 +486,8 @@ if(type==1) {
    treesL["trees"]=Rcpp::CharacterVector(treess.str());
    ret["treedraws"] = treesL;
 
+   if(K>0) ret["impute.mult"]=impute_draw;
+   
    return ret;
 #else
 
