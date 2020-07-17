@@ -22,8 +22,14 @@ x.[which(miss==1), 1:3]=NA
 X. = X
 X.[ , 1:3] = x.
 
+impute.prob=matrix(0.05, nrow=N, ncol=3)
+for(i in 1:N) 
+    impute.prob[i, which(x[i, ]==1)]=0.9
+
 set.seed(34)
-post = gbart(X., y, impute.mult=1:3, sparse=TRUE)
+post = gbart(X., y, impute.mult=1:3,
+             impute.prob=impute.prob,
+             sparse=TRUE)
 
 post2 = mc.gbart(X., y, sparse=TRUE, seed=22)
 

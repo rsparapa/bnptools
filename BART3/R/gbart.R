@@ -27,7 +27,7 @@ gbart=function(
                rm.const=TRUE,
                sigest=NA, sigdf=3, sigquant=0.90,
                k=2, power=2, base=0.95,
-               impute.mult=NULL,
+               impute.mult=NULL, impute.prob=NULL,
                lambda=NA, tau.num=c(NA, 3, 6)[ntype],
                offset=NULL, w=rep(1, length(y.train)),
                ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
@@ -81,22 +81,30 @@ gbart=function(
 
     check = length(impute.mult)
     if(check==1)
-        stop("The multinomial's columns must be greater than 1\nConvert binary into two columns")
+        stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
     if(check>1) {
         impute.flag=TRUE
-        impute.prob=double(check)
         impute.miss=integer(n)
         for(j in 1:check) {
             i=impute.mult[j]
-            impute.prob[j]=sum(x.train[i, ]==1, na.rm = TRUE)
             impute.miss = pmax(impute.miss, is.na(x.train[i, ]))
         }
-        impute.prob=impute.prob/sum(impute.prob)
+        if(length(impute.prob)==0) {
+            impute.prob=double(check)
+            for(j in 1:check) {
+                i=impute.mult[j]
+                impute.prob[j]=sum(x.train[i, ]==1, na.rm = TRUE)
+            }
+            impute.prob=impute.prob/sum(impute.prob)
+            impute.prob=matrix(impute.prob,
+                               nrow=n, ncol=check, byrow=TRUE)
+        }
+        impute.mult=as.integer(impute.mult-1) ## convert from R index to C/C++
     } else {
         impute.flag=FALSE
         impute.mult=integer(0) ## integer vector of column indicators for missing covariates
         impute.miss=integer(0) ## integer vector of row indicators for missing values
-        impute.prob=double(0)  ## double vector of prior missing imputation probability
+        impute.prob=matrix(nrow=0, ncol=0)  
     }
 
     check <- unique(sort(y.train))
@@ -240,7 +248,8 @@ gbart=function(
                 printevery,
                 xinfo,
                 shards,
-                as.integer(impute.mult-1), ## convert to C/C++ indices
+                impute.mult, 
+                ## as.integer(impute.mult-1), ## convert to C/C++ indices
                 impute.miss,
                 impute.prob
                 )

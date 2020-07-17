@@ -57,7 +57,7 @@ RcppExport SEXP cgbart(
    SEXP _shards,
    SEXP _impute_mult, // integer vector of column indicators for missing covariates
    SEXP _impute_miss, // integer vector of row indicators for missing values
-   SEXP _impute_prior // double vector of prior missing imputation probability
+   SEXP _impute_prior // matrix of prior missing imputation probability
 )
 {
    //process args
@@ -78,7 +78,7 @@ RcppExport SEXP cgbart(
    Rcpp::IntegerVector impute_mult(_impute_mult); // integer vector of column indicators for missing covariates
    size_t K = impute_mult.size(); // number of columns to impute
    Rcpp::IntegerVector impute_miss(_impute_miss); // length n: integer vector of row indicators for missing values
-   Rcpp::NumericVector impute_prior(_impute_prior); // length K: double vector of prior missing imputation probability
+   Rcpp::NumericMatrix impute_prior(_impute_prior); // n X K: matrix of prior missing imputation probability
    Rcpp::NumericVector impute_post(K); // length K: double vector of posterior missing imputation probability
    Rcpp::NumericVector impute_fhat(K); 
    double *impute_fhat_ptr = 0, *impute_Xrow_ptr = 0;
@@ -287,8 +287,8 @@ if(type==1) {
 	  << "index n-1=" << impute_miss[n-1] << endl;
      cout << "*****Missing imputation column indices: index 0=" << impute_mult[0] << ','
 	  << "index K-1=" << impute_mult[K-1] << endl;
-     cout << "*****Missing imputation probability: prob[0]=" << impute_prior[0] << ','
-	  << "prob[K-1]=" << impute_prior[K-1] << endl;
+     // cout << "*****Missing imputation probability: prob[0]=" << impute_prior[0] << ','
+     // 	  << "prob[K-1]=" << impute_prior[K-1] << endl;
    }
    printf("*****printevery: %zu\n",printevery);
 
@@ -314,7 +314,8 @@ if(type==1) {
      if(K>0) {
        if(impute_miss[i]==1) {
 	 size_t k;
-	 k=gen.rcat(impute_prior); // use prior prob only
+	 Rcpp::NumericVector impute_prob(impute_prior.row(i));
+	 k=gen.rcat(impute_prob); // use prior prob only
 	 for(size_t j=0; j<K; j++) {
 	   if(j==k) XV(impute_mult[j], i)=1;
 	   else XV(impute_mult[j], i)=0;
@@ -377,7 +378,7 @@ if(type==1) {
 	for(size_t k=0; k<n; ++k) {
 	  if(impute_miss[k]==1) {
 	    impute_Xrow_ptr=&XV(0, k);
-	    impute_post=impute_prior;
+	    impute_post=impute_prior.row(k);
 	    for(size_t j=0; j<K; ++j) {
 	      for(size_t h=0; h<K; ++h) XV(impute_mult[h], k)=0;
 	      XV(impute_mult[j], k)=1;
