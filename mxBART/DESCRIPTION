@@ -6,23 +6,11 @@ Date: 2020-01-31
 Authors@R: c(person('Charles', 'Spanbauer', role=c('aut','cre'),
   email='cspanbauer@mcw.edu'),
   person('Rodney', 'Sparapani', role='aut'))
-Description: MixedBART models for repeated measures/clustered data that 
-incorporates a treatment interaction sparse prior for precision medicine.
-MixedBART models with parametric random effect term(s) for general random 
-effect design vectors allowing multiple levels of hierarchy. It is based 
-on the 'BART3' R package.
+Description: MixedBART models for repeated measures/clustered data that incorporates a treatment interaction sparse prior for precision medicine. MixedBART models with parametric random effect term(s) for general random effect design vectors allowing multiple levels of hierarchy. It is based on the 'BART3' R package.
 License: GPL (>= 2)
 Depends: R (>= 3.6)
-Imports: abind,
-	 BART3,
-	 methods,
-	 Rcpp (>= 0.12.3),
-	 parallel,
-	 stats,
-	 tools 
-LinkingTo: BART3,
-	   Rcpp,
-	   RcppEigen
+Imports: abind, BART3, methods, Rcpp (>= 0.12.3), parallel, stats, tools 
+LinkingTo: BART3, Rcpp, RcppEigen
 Suggests: MASS, knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: yes
