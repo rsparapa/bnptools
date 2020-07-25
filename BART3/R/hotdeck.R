@@ -20,11 +20,12 @@ hotdeck = function(
                    x.train,           ## matrix for training
                    x.test,	      ## matrix to predict at
                    S,                 ## x.test columns to condition on
-                                      ## others will be hot-decked
+                   ## others will be hot-decked
                    treedraws,	      ## $treedraws
                    mu=0,	      ## mean to add on
                    transposed=FALSE,
                    mult.impute=1L,
+                   hdvar=FALSE,       ## return hot-deck variance
                    mc.cores=1L,       ## mc.hotdeck only
                    nice=19L           ## mc.hotdeck only
                    )
@@ -42,29 +43,43 @@ hotdeck = function(
     if(p!=nrow(x.test))
         stop(paste0('The number of columns in x.test must be equal to ', p))
 
+    if(hdvar && mult.impute==1)
+        stop(paste0('To calculate hot-deck variance, set mult.impute>1'))
+
     mask = 1:p
     for(i in mask)
         mask[i]=1*(i %in% S)
 
+    res = as.list(1:mult.impute)
     for(i in 1:mult.impute) {
-        res = .Call("chotdeck",
-                x.train,          ##training
-                x.test,           ##testing
-                as.integer(mask), ## 1 condition, 0 hot deck
-                treedraws         ##trees
-                ## mult.impute
-                )
-        if(i==1) pred=res
-        else pred$yhat.test=pred$yhat.test+res$yhat.test
+        res[[i]] = .Call("chotdeck",
+                    x.train,          ##training
+                    x.test,           ##testing
+                    as.integer(mask), ## 1 condition, 0 hot deck
+                    treedraws         ##trees
+                    )
+        if(i==1) pred=res[[1]]
+        else pred$yhat.test=pred$yhat.test+res[[i]]$yhat.test
+    }
+    pred$yhat.test=pred$yhat.test/mult.impute
+    if(hdvar) {
+        for(i in 1:mult.impute) {
+            if(i==1) pred$hdvar.test=(res[[1]]$yhat.test-pred$yhat.test)^2
+            else pred$hdvar.test=pred$hdvar.test+
+                     ((res[[i]]$yhat.test-pred$yhat.test)^2)
+        }
+        pred$hdvar.test=pred$hdvar.test/mult.impute
+        pred$yhat.test=pred$yhat.test+mu
+        return(pred)
+    } else {
+        return(pred$yhat.test+mu)
     }
 
-    return(pred$yhat.test/mult.impute+mu)
-
-   ## OpenMP will not work here since we cannot
-   ## estimate 1, ..., ndpost predictions simultaneously
-   ## for each sample, we need to hotdeck the values
-   ## however, we can parallel-ize predictions 1, ..., np
-   ## but we are not using OpenMP: just multiple threads
-   ## each given a block of xtest which is even easier
-   ## see mc.hotdeck
+    ## OpenMP will not work here since we cannot
+    ## estimate 1, ..., ndpost predictions simultaneously
+    ## for each sample, we need to hotdeck the values
+    ## however, we can parallel-ize predictions 1, ..., np
+    ## but we are not using OpenMP: just multiple threads
+    ## each given a block of xtest which is even easier
+    ## see mc.hotdeck
 }

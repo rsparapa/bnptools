@@ -25,6 +25,7 @@ mc.hotdeck = function(
                    mu=0,	      ## mean to add on
                    transposed=FALSE,
                    mult.impute=1L,
+                   hdvar=FALSE,       ## return hot-deck variance
                    mc.cores=2L,       ## mc.hotdeck only
                    nice=19L)          ## mc.hotdeck only
 {
@@ -57,21 +58,35 @@ mc.hotdeck = function(
         else h <- j-k
 
         parallel::mcparallel({psnice(value=nice);
-            hotdeck(x.train,
-                    matrix(x.test[ , h:j], nrow=p, ncol=j-h+1),
-                    S, treedraws, mu=0, transposed=TRUE,
-                    mult.impute)},
+            hotdeck(x.train=x.train,
+                    x.test=matrix(x.test[ , h:j], nrow=p, ncol=j-h+1),
+                    S=S, treedraws=treedraws, mu=0, transposed=TRUE,
+                    mult.impute=mult.impute, hdvar=hdvar)},
             silent=(i!=1))
         j <- h-1
     }
 
     pred.list <- parallel::mccollect()
 
-    pred <- pred.list[[1]]
+    if(hdvar) {
+        pred = list()
+        pred$yhat.test <- pred.list[[1]]$yhat.test
+        pred$hdvar.test <- pred.list[[1]]$hdvar.test
 
-    if(mc.cores>1)
-        for(i in 2:mc.cores)
-            pred <- cbind(pred, pred.list[[i]])
+        if(mc.cores>1)
+            for(i in 2:mc.cores) {
+                pred$yhat.test <- cbind(pred$yhat.test, pred.list[[i]]$yhat.test)
+                pred$hdvar.test <- cbind(pred$hdvar.test, pred.list[[i]]$hdvar.test)
+            }
+        pred$yhat.test=pred$yhat.test+mu
+        return(pred)
+    } else {
+        pred <- pred.list[[1]]
 
-    return(pred+mu)
+        if(mc.cores>1)
+            for(i in 2:mc.cores)
+                pred <- cbind(pred, pred.list[[i]])
+
+        return(pred+mu)
+    }
 }
