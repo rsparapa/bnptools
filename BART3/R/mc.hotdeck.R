@@ -75,10 +75,13 @@ mc.hotdeck = function(
 
         if(mc.cores>1)
             for(i in 2:mc.cores) {
-                pred$yhat.test <- cbind(pred$yhat.test, pred.list[[i]]$yhat.test)
-                pred$hdvar.test <- cbind(pred$hdvar.test, pred.list[[i]]$hdvar.test)
+                pred$yhat.test <- cbind(pred$yhat.test,
+                                        pred.list[[i]]$yhat.test)
+                pred$hdvar.test <- cbind(pred$hdvar.test,
+                                         pred.list[[i]]$hdvar.test)
             }
         pred$yhat.test=pred$yhat.test+mu
+        pred$yhat.test.mean=apply(pred$yhat.test, 2, mean)
         return(pred)
     } else {
         pred <- pred.list[[1]]

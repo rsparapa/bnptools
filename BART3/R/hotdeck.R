@@ -62,14 +62,19 @@ hotdeck = function(
         else pred$yhat.test=pred$yhat.test+res[[i]]$yhat.test
     }
     pred$yhat.test=pred$yhat.test/mult.impute
+    pred$yhat.test.mean=apply(pred$yhat.test, 2, mean)
+    yhat.test.mean=matrix(pred$yhat.test.mean, byrow=TRUE,
+                          nrow=nrow(pred$yhat.test),
+                          ncol=ncol(pred$yhat.test))
     if(hdvar) {
         for(i in 1:mult.impute) {
-            if(i==1) pred$hdvar.test=(res[[1]]$yhat.test-pred$yhat.test)^2
+            if(i==1) pred$hdvar.test=(res[[1]]$yhat.test-yhat.test.mean)^2
             else pred$hdvar.test=pred$hdvar.test+
-                     ((res[[i]]$yhat.test-pred$yhat.test)^2)
+                     ((res[[i]]$yhat.test-yhat.test.mean)^2)
         }
         pred$hdvar.test=pred$hdvar.test/mult.impute
         pred$yhat.test=pred$yhat.test+mu
+        pred$yhat.test.mean=pred$yhat.test.mean+mu
         return(pred)
     } else {
         return(pred$yhat.test+mu)

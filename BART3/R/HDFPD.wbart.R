@@ -23,6 +23,7 @@ HDFPD.wbart=function(object,## object returned from BART
                             ## are used but they must all be given
                    S,       ## indices of subset
                    mult.impute=4L,
+                   hdvar=FALSE,
                    mc.cores=1L,
                    seed=99L,
                    nice=19L)
@@ -62,9 +63,10 @@ HDFPD.wbart=function(object,## object returned from BART
     if(mc.cores>1L)
         return(mc.hotdeck(x.train, x.test, S, object$treedraws,
                           object$offset, mult.impute=mult.impute,
-                          mc.cores=mc.cores, nice=nice))
+                          hdvar=hdvar, mc.cores=mc.cores, nice=nice))
     else
         return(hotdeck(x.train, x.test, S, object$treedraws,
-                       object$offset, mult.impute=mult.impute))
+                       object$offset, mult.impute=mult.impute,
+                       hdvar=hdvar))
 }
 
