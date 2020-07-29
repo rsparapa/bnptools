@@ -33,71 +33,78 @@ H=20
 x.test=matrix(0, nrow=H, ncol=P)
 x=seq(-3, 3, length.out=H+1)[-(H+1)]
 x.test[ , 3]=x
+## FPD: truth
 yhat.test=FPD(post, x.train, x.test, 3)
 yhat.test.mean=apply(yhat.test, 2, mean)
 fvar.test=apply(yhat.test, 2, var)
 yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
 yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
-## yhat.test10=HDFPD(post, x.train, x.test, 3, mult.impute=10)
-## yhat.test10.mean=apply(yhat.test10, 2, mean)
-## yhat.test10.025=apply(yhat.test10, 2, quantile, probs=0.025)
-## yhat.test10.975=apply(yhat.test10, 2, quantile, probs=1-0.025)
-## yhat.test20=HDFPD(post, x.train, x.test, 3, mult.impute=20)
-## yhat.test20.mean=apply(yhat.test20, 2, mean)
+
+## HDFPD: approximation
+yhat.test20=HDFPD(post, x.train, x.test, 3, mult.impute=20)
+yhat.test20.mean=apply(yhat.test20, 2, mean)
+Yhat.test20.mean=matrix(yhat.test20.mean, byrow=TRUE,
+                        nrow=nrow(yhat.test20),
+                        ncol=ncol(yhat.test20))
 yhat.test20.025=apply(yhat.test20, 2, quantile, probs=0.025)
 yhat.test20.975=apply(yhat.test20, 2, quantile, probs=1-0.025)
 
+## HDFPD: approximation with correction
 pred=HDFPD(post, x.train, x.test, 3, mult.impute=20, hdvar=TRUE)
-c=(1-(hdvar.test20/fvar.test20)/20)^(-0.5)
 fvar.test20=apply(pred$yhat.test, 2, var)
 hdvar.test20=apply(pred$hdvar.test, 2, mean)
-hdvar.test20
+hdvar.test20/H
+##c=(1-(hdvar.test20/fvar.test20)/H)^(-0.5)
+fvar.test20.=fvar.test20-(hdvar.test20/H)
+fsd.test20.=sqrt(fvar.test20.)
 
-yhat.test20.025.=0
-yhat.test20.975.=0
-for(i in 1:H) {
-yhat.test20.025.[i]=quantile(pred$yhat.test[ , i], probs=0.025*c[i])
-yhat.test20.975.[i]=quantile(pred$yhat.test[ , i], probs=1-0.025*c[i])
-}
-
-## yhat.test2.025=apply(yhat.test2, 2, quantile, probs=0.025*sqrt(1000/20))
-## yhat.test2.975=apply(yhat.test2, 2, quantile, probs=1-0.025*sqrt(1000/20))
-## yhat.test3=HDFPD(post, x.train, x.test, 3, mult.impute=10)
-## yhat.test3.mean=apply(yhat.test3, 2, mean)
-## yhat.test3.025=apply(yhat.test3, 2, quantile, probs=0.025)
-## yhat.test3.975=apply(yhat.test3, 2, quantile, probs=0.975)
-## yhat.test4=HDFPD(post, x.train, x.test, 3, mult.impute=20)
-## yhat.test4.mean=apply(yhat.test4, 2, mean)
-## yhat.test4.025=apply(yhat.test4, 2, quantile, probs=0.025)
-## yhat.test4.975=apply(yhat.test4, 2, quantile, probs=0.975)
-## yhat.test5=HDFPD(post, x.train, x.test, 3, mult.impute=40)
-## yhat.test5.mean=apply(yhat.test5, 2, mean)
-## yhat.test5.025=apply(yhat.test5, 2, quantile, probs=0.025)
-## yhat.test5.975=apply(yhat.test5, 2, quantile, probs=0.975)
+yhat.test20.=Yhat.test20.mean+
+    (yhat.test20-Yhat.test20.mean)*
+    sqrt(fvar.test20./fvar.test20)
+yhat.test20.025.=apply(yhat.test20., 2, quantile, probs=0.025)
+yhat.test20.975.=apply(yhat.test20., 2, quantile, probs=1-0.025)
 
 ##pdf('HDFPD.pdf')
-plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2)
-lines(x, yhat.test.mean, col=1, lty=2, lwd=2)
-lines(x, yhat.test.025, col=1, lty=3, lwd=2)
-lines(x, yhat.test.975, col=1, lty=3, lwd=2)
-lines(x, yhat.test20.mean, col=2, lty=2, lwd=2)
-lines(x, yhat.test20.025., col=2, lty=3, lwd=2)
-lines(x, yhat.test20.975., col=2, lty=3, lwd=2)
-## lines(x, yhat.test10.mean, col=3, lty=2, lwd=2)
-lines(x, yhat.test20.025, col=3, lty=3, lwd=2)
-lines(x, yhat.test20.975, col=3, lty=3, lwd=2)
-legend('topleft', col=c(4, 1, 2, 3), lty=1,
-       legend=c('True', 'FPD', 'correction', 'no correction'), lwd=2)
-## lines(x, yhat.test3.mean, col=3, lty=1, lwd=2)
-## lines(x, yhat.test3.025, col=3, lty=3, lwd=2)
-## lines(x, yhat.test3.975, col=3, lty=3, lwd=2)
-## lines(x, yhat.test4.mean, col=5, lty=1, lwd=2)
-## lines(x, yhat.test4.025, col=5, lty=3, lwd=2)
-## lines(x, yhat.test4.975, col=5, lty=3, lwd=2)
-## lines(x, yhat.test5.mean, col=6, lty=1, lwd=2)
-## lines(x, yhat.test5.025, col=6, lty=3, lwd=2)
-## lines(x, yhat.test5.975, col=6, lty=3, lwd=2)
-## legend('topleft', col=c(4, 1, 2, 3, 5), lty=1,
-##        legend=c('True', 'FPD', '1', '10', '20', '40'), lwd=2)
-##dev.off()
-dev.copy2pdf(file='HDFPD.pdf')
+par(mfrow=c(2, 1))
+for(i in 1:2) {
+    if(i==1) {
+        plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2,
+             xlim=c(-1, 1), ylim=c(-15, 15))
+        legend('topleft', col=c(4, 1, 2, 3), lty=1,
+           legend=c('True', 'FPD', 'Method 1', 'no correction'), lwd=2)
+        } else
+            plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2,
+                 xlim=c(1, 3), ylim=c(15, 45))
+    lines(x, yhat.test.mean, col=1, lty=2, lwd=2)
+    lines(x, yhat.test.025, col=1, lty=3, lwd=2)
+    lines(x, yhat.test.975, col=1, lty=3, lwd=2)
+    lines(x, yhat.test20.mean, col=2, lty=2, lwd=2)
+    lines(x, yhat.test20.025, col=3, lty=3, lwd=2)
+    lines(x, yhat.test20.975, col=3, lty=3, lwd=2)
+    lines(x, yhat.test20.mean-1.96*fsd.test20., col=2, lty=3, lwd=2)
+    lines(x, yhat.test20.mean+1.96*fsd.test20., col=2, lty=3, lwd=2)
+}
+par(mfrow=c(1, 1))
+dev.copy2pdf(file='HDFPD-1.pdf')
+
+par(mfrow=c(2, 1))
+for(i in 1:2) {
+    if(i==1) {
+        plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2,
+             xlim=c(-1, 1), ylim=c(-15, 15))
+        legend('topleft', col=c(4, 1, 2, 3), lty=1,
+           legend=c('True', 'FPD', 'Method 2', 'no correction'), lwd=2)
+        } else
+            plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2,
+                 xlim=c(1, 3), ylim=c(15, 45))
+    lines(x, yhat.test.mean, col=1, lty=2, lwd=2)
+    lines(x, yhat.test.025, col=1, lty=3, lwd=2)
+    lines(x, yhat.test.975, col=1, lty=3, lwd=2)
+    lines(x, yhat.test20.mean, col=2, lty=2, lwd=2)
+    lines(x, yhat.test20.025, col=3, lty=3, lwd=2)
+    lines(x, yhat.test20.975, col=3, lty=3, lwd=2)
+    lines(x, yhat.test20.025., col=2, lty=3, lwd=2)
+    lines(x, yhat.test20.975., col=2, lty=3, lwd=2)
+}
+par(mfrow=c(1, 1))
+dev.copy2pdf(file='HDFPD-2.pdf')
