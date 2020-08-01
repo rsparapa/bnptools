@@ -1,4 +1,8 @@
 
+Changes and New Features in 3.9 (2020-07-30):
+	* Hot decked version of FPD, S3 method HDPFD, completed 
+	with its corresponding variance adjustment
+
 Changes and New Features in 3.8 (2020-07-13):
 	* New support for covariate missing imputation of a category
 	  see the new argument to gbart: impute.mult
@@ -10,7 +14,7 @@ Changes and New Features in 3.7 (2020-06-10):
 	* Synching new S3 method arguments
 	* Use weighted combination subsets for SHAP/SHAP2/HDSHAP S3 methods
           (originally HDSHAP was simply named HD)
-	* Hot decked version of FPD: HDPFD
+	* Hot decked version of FPD: S3 method HDPFD
 
 Changes and New Features in 3.6 (2020-05-09):
 	* Adding new S3 method, SHAP, that calculates the

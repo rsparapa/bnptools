@@ -25,7 +25,10 @@ hotdeck = function(
                    mu=0,	      ## mean to add on
                    transposed=FALSE,
                    mult.impute=1L,
-                   hdvar=FALSE,       ## return hot-deck variance
+                   hotd.var=FALSE,    ## return hot-deck variance
+                   alpha=0.05,        ## hot-deck symmetric credible interval
+                   probs=c(0.025, 0.975),
+                                      ## hot-deck asymmetric credible interval
                    mc.cores=1L,       ## mc.hotdeck only
                    nice=19L           ## mc.hotdeck only
                    )
@@ -43,7 +46,7 @@ hotdeck = function(
     if(p!=nrow(x.test))
         stop(paste0('The number of columns in x.test must be equal to ', p))
 
-    if(hdvar && mult.impute==1)
+    if(hotd.var && mult.impute==1)
         stop(paste0('To calculate hot-deck variance, set mult.impute>1'))
 
     mask = 1:p
@@ -63,18 +66,27 @@ hotdeck = function(
     }
     pred$yhat.test=pred$yhat.test/mult.impute
     pred$yhat.test.mean=apply(pred$yhat.test, 2, mean)
-    yhat.test.mean=matrix(pred$yhat.test.mean, byrow=TRUE,
+    pred$yhat.test.var =apply(pred$yhat.test, 2, var)
+    Yhat.test.mean=matrix(pred$yhat.test.mean, byrow=TRUE,
                           nrow=nrow(pred$yhat.test),
                           ncol=ncol(pred$yhat.test))
-    if(hdvar) {
+    if(hotd.var) {
         for(i in 1:mult.impute) {
-            if(i==1) pred$hdvar.test=(res[[1]]$yhat.test-yhat.test.mean)^2
-            else pred$hdvar.test=pred$hdvar.test+
-                     ((res[[i]]$yhat.test-yhat.test.mean)^2)
+            if(i==1) pred$hotd.test.var=(res[[1]]$yhat.test-Yhat.test.mean)^2
+            else pred$hotd.test.var=pred$hotd.test.var+
+                     ((res[[i]]$yhat.test-Yhat.test.mean)^2)
         }
-        pred$hdvar.test=pred$hdvar.test/mult.impute
+        pred$hotd.test.var=pred$hotd.test.var/(mult.impute^2) ## SD of the mean
+        pred$yhat.test.var.=pred$yhat.test.var-pred$hotd.test.var
         pred$yhat.test=pred$yhat.test+mu
         pred$yhat.test.mean=pred$yhat.test.mean+mu
+        z=qnorm(1-alpha/2)
+        pred$yhat.test.lower.=pred$yhat.test.mean-z*sqrt(pred$yhat.test.var.)
+        pred$yhat.test.upper.=pred$yhat.test.mean+z*sqrt(pred$yhat.test.var.)
+        pred$yhat.test.=Yhat.test.mean+(pred$yhat.test-Yhat.test.mean)*
+            sqrt(pred$yhat.test.var./pred$yhat.test.var)
+        pred$yhat.test.lower=apply(pred$yhat.test., 2, quantile, probs=probs[1])
+        pred$yhat.test.upper=apply(pred$yhat.test., 2, quantile, probs=probs[2])
         return(pred)
     } else {
         return(pred$yhat.test+mu)
