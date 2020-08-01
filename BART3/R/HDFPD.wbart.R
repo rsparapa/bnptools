@@ -23,7 +23,10 @@ HDFPD.wbart=function(object,## object returned from BART
                             ## are used but they must all be given
                    S,       ## indices of subset
                    mult.impute=4L,
-                   hdvar=FALSE,
+                   hotd.var=FALSE, ## hot-deck variance adjustment
+                   alpha=0.05, ## hot-deck symmetric credible interval
+                   probs=c(0.025, 0.975),
+                            ## hot-deck asymmetric credible interval
                    mc.cores=1L,
                    seed=99L,
                    nice=19L)
@@ -37,7 +40,7 @@ HDFPD.wbart=function(object,## object returned from BART
             parallel::mc.reset.stream()
         }
     } else { set.seed(seed) }
-    
+
     for(v in S)
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
@@ -63,10 +66,10 @@ HDFPD.wbart=function(object,## object returned from BART
     if(mc.cores>1L)
         return(mc.hotdeck(x.train, x.test, S, object$treedraws,
                           object$offset, mult.impute=mult.impute,
-                          hdvar=hdvar, mc.cores=mc.cores, nice=nice))
+                          hotd.var=hotd.var, mc.cores=mc.cores, nice=nice))
     else
         return(hotdeck(x.train, x.test, S, object$treedraws,
                        object$offset, mult.impute=mult.impute,
-                       hdvar=hdvar))
+                       hotd.var=hotd.var))
 }
 

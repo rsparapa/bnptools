@@ -25,7 +25,10 @@ mc.hotdeck = function(
                    mu=0,	      ## mean to add on
                    transposed=FALSE,
                    mult.impute=1L,
-                   hdvar=FALSE,       ## return hot-deck variance
+                   hotd.var=FALSE,    ## hot-deck variance adjustment
+                   alpha=0.05,        ## hot-deck symmetric credible interval
+                   probs=c(0.025, 0.975),
+                                      ## hot-deck asymmetric credible interval
                    mc.cores=2L,       ## mc.hotdeck only
                    nice=19L)          ## mc.hotdeck only
 {
@@ -61,27 +64,38 @@ mc.hotdeck = function(
             hotdeck(x.train=x.train,
                     x.test=matrix(x.test[ , h:j], nrow=p, ncol=j-h+1),
                     S=S, treedraws=treedraws, mu=0, transposed=TRUE,
-                    mult.impute=mult.impute, hdvar=hdvar)},
+                    mult.impute=mult.impute, hotd.var=hotd.var)},
             silent=(i!=1))
         j <- h-1
     }
 
     pred.list <- parallel::mccollect()
 
-    if(hdvar) {
+    if(hotd.var) {
         pred = list()
-        pred$yhat.test <- pred.list[[1]]$yhat.test
-        pred$hdvar.test <- pred.list[[1]]$hdvar.test
+        pred$yhat.test <- pred.list[[1]]$yhat.test ## hot-deck posterior
+        pred$yhat.test. <- pred.list[[1]]$yhat.test. ## adjusted posterior
+        pred$hotd.test.var <- pred.list[[1]]$hotd.test.var
 
         if(mc.cores>1)
             for(i in 2:mc.cores) {
                 pred$yhat.test <- cbind(pred$yhat.test,
                                         pred.list[[i]]$yhat.test)
-                pred$hdvar.test <- cbind(pred$hdvar.test,
-                                         pred.list[[i]]$hdvar.test)
+                pred$yhat.test. <- cbind(pred$yhat.test.,
+                                         pred.list[[i]]$yhat.test.)
+                pred$hotd.test.var <- c(pred$hotd.test.var,
+                                         pred.list[[i]]$hotd.test.var)
             }
         pred$yhat.test=pred$yhat.test+mu
+        pred$yhat.test.=pred$yhat.test.+mu
         pred$yhat.test.mean=apply(pred$yhat.test, 2, mean)
+        pred$yhat.test.var =apply(pred$yhat.test, 2, var)
+        pred$yhat.test.var.=apply(pred$yhat.test., 2, var)
+        z=qnorm(1-alpha/2)
+        pred$yhat.test.lower.=pred$yhat.test.mean-z*sqrt(pred$yhat.test.var.)
+        pred$yhat.test.upper.=pred$yhat.test.mean+z*sqrt(pred$yhat.test.var.)
+        pred$yhat.test.lower=apply(pred$yhat.test., 2, quantile, probs=probs[1])
+        pred$yhat.test.upper=apply(pred$yhat.test., 2, quantile, probs=probs[2])
         return(pred)
     } else {
         pred <- pred.list[[1]]
@@ -89,7 +103,6 @@ mc.hotdeck = function(
         if(mc.cores>1)
             for(i in 2:mc.cores)
                 pred <- cbind(pred, pred.list[[i]])
-
         return(pred+mu)
     }
 }

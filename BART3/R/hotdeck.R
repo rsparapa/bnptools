@@ -67,17 +67,24 @@ hotdeck = function(
     pred$yhat.test=pred$yhat.test/mult.impute
     pred$yhat.test.mean=apply(pred$yhat.test, 2, mean)
     pred$yhat.test.var =apply(pred$yhat.test, 2, var)
-    Yhat.test.mean=matrix(pred$yhat.test.mean, byrow=TRUE,
-                          nrow=nrow(pred$yhat.test),
-                          ncol=ncol(pred$yhat.test))
+
     if(hotd.var) {
+        Yhat.test.mean=matrix(pred$yhat.test.mean, byrow=TRUE,
+                              nrow=nrow(pred$yhat.test),
+                              ncol=ncol(pred$yhat.test))
         for(i in 1:mult.impute) {
             if(i==1) pred$hotd.test.var=(res[[1]]$yhat.test-Yhat.test.mean)^2
             else pred$hotd.test.var=pred$hotd.test.var+
                      ((res[[i]]$yhat.test-Yhat.test.mean)^2)
         }
-        pred$hotd.test.var=pred$hotd.test.var/(mult.impute^2) ## SD of the mean
+        pred$hotd.test.var=apply(pred$hotd.test.var/(mult.impute^2), 2, mean)
         pred$yhat.test.var.=pred$yhat.test.var-pred$hotd.test.var
+        z=which(pred$yhat.test.var.<0)
+        if(length(z)>0) {
+            print(paste0('Some adjusted hot-deck variances<0\n',
+                         'Increase mult.impute>', mult.impute))
+            pred$yhat.test.var.[z]=pred$yhat.test.var[z]
+        }
         pred$yhat.test=pred$yhat.test+mu
         pred$yhat.test.mean=pred$yhat.test.mean+mu
         z=qnorm(1-alpha/2)

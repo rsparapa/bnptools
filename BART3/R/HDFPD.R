@@ -23,7 +23,10 @@ HDFPD=function(object,  ## object returned from BART
                       ## are used but they must all be given
              S,       ## indices of subset
              mult.impute=4L,
-             hdvar=FALSE,
+             hotd.var=FALSE, ## hot-deck variance adjustment
+             alpha=0.05, ## hot-deck symmetric credible interval
+             probs=c(0.025, 0.975),
+                      ## hot-deck asymmetric credible interval
              mc.cores=1L,
              seed=99L,
              nice=19L)
