@@ -66,10 +66,11 @@ HDFPD.wbart=function(object,## object returned from BART
     if(mc.cores>1L)
         return(mc.hotdeck(x.train, x.test, S, object$treedraws,
                           object$offset, mult.impute=mult.impute,
-                          hotd.var=hotd.var, mc.cores=mc.cores, nice=nice))
+                          hotd.var=hotd.var, alpha=alpha, probs=probs,
+                          mc.cores=mc.cores, nice=nice))
     else
         return(hotdeck(x.train, x.test, S, object$treedraws,
                        object$offset, mult.impute=mult.impute,
-                       hotd.var=hotd.var))
+                       hotd.var=hotd.var, alpha=alpha, probs=probs))
 }
 

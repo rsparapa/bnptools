@@ -28,7 +28,7 @@ hotdeck = function(
                    hotd.var=FALSE,    ## return hot-deck variance
                    alpha=0.05,        ## hot-deck symmetric credible interval
                    probs=c(0.025, 0.975),
-                                      ## hot-deck asymmetric credible interval
+                                      ## equal-tail asymmetric credible interval
                    mc.cores=1L,       ## mc.hotdeck only
                    nice=19L           ## mc.hotdeck only
                    )
@@ -66,9 +66,9 @@ hotdeck = function(
     }
     pred$yhat.test=pred$yhat.test/mult.impute
     pred$yhat.test.mean=apply(pred$yhat.test, 2, mean)
-    pred$yhat.test.var =apply(pred$yhat.test, 2, var)
 
     if(hotd.var) {
+        pred$yhat.test.var =apply(pred$yhat.test, 2, var)
         Yhat.test.mean=matrix(pred$yhat.test.mean, byrow=TRUE,
                               nrow=nrow(pred$yhat.test),
                               ncol=ncol(pred$yhat.test))
@@ -81,8 +81,8 @@ hotdeck = function(
         pred$yhat.test.var.=pred$yhat.test.var-pred$hotd.test.var
         z=which(pred$yhat.test.var.<0)
         if(length(z)>0) {
-            print(paste0('Some adjusted hot-deck variances<0\n',
-                         'Increase mult.impute>', mult.impute))
+            warning(paste0(length(z), ' adjusted hot-deck variances<0 : ',
+                           'increase mult.impute>', mult.impute))
             pred$yhat.test.var.[z]=pred$yhat.test.var[z]
         }
         pred$yhat.test=pred$yhat.test+mu
@@ -94,16 +94,13 @@ hotdeck = function(
             sqrt(pred$yhat.test.var./pred$yhat.test.var)
         pred$yhat.test.lower=apply(pred$yhat.test., 2, quantile, probs=probs[1])
         pred$yhat.test.upper=apply(pred$yhat.test., 2, quantile, probs=probs[2])
-        return(pred)
+        ##return(pred)
     } else {
-        return(pred$yhat.test+mu)
+        pred$yhat.test=pred$yhat.test+mu
+        pred$yhat.test.mean=pred$yhat.test.mean+mu
+        pred$yhat.test.lower=apply(pred$yhat.test, 2, quantile, probs=probs[1])
+        pred$yhat.test.upper=apply(pred$yhat.test, 2, quantile, probs=probs[2])
+        ##return(pred$yhat.test+mu)
     }
-
-    ## OpenMP will not work here since we cannot
-    ## estimate 1, ..., ndpost predictions simultaneously
-    ## for each sample, we need to hotdeck the values
-    ## however, we can parallel-ize predictions 1, ..., np
-    ## but we are not using OpenMP: just multiple threads
-    ## each given a block of xtest which is even easier
-    ## see mc.hotdeck
+    return(pred)
 }
