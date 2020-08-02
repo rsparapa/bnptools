@@ -5,7 +5,7 @@ f = function(x)
     10*sin(pi*x[ , 1]*x[ , 2]) +  20*x[ , 3]
 ##    10*sin(pi*x[ , 1]*x[ , 2]) + 5*x[ , 3]*x[ , 4]^2 + 20*x[ , 5]
 
-N = 1000
+N = 500
 sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
 P = 4       ##number of covariates
 ## P = 10
@@ -20,7 +20,9 @@ set.seed(12)
 x.train=matrix(rnorm(N*P), N, P) %*% L
 dimnames(x.train)[[2]] <- paste0('x', 1:P)
 round(cor(x.train), digits=2)
-
+x = x.train[ , 3]
+x.train=x.train[order(x), ]
+x = x.train[ , 3]
 y.train=(f(x.train)+sigma*rnorm(N))
 
 B=8
@@ -29,10 +31,11 @@ post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
 ## post = mc.gbart(x.train, y.train, sparse=TRUE)
 sort(post$varprob.mean*P, TRUE)
 
-H=20 ### BEWARE H settings and NOT H imputations
-x.test=matrix(0, nrow=H, ncol=P)
-x=seq(-3, 3, length.out=H+1)[-(H+1)]
-x.test[ , 3]=x
+x.test = x.train
+## H=20
+## x.test=matrix(0, nrow=H, ncol=P)
+## x=seq(-3, 3, length.out=H+1)[-(H+1)]
+## x.test[ , 3]=x
 
 ## FPD: no hot-decking
 proc.time.=proc.time()
