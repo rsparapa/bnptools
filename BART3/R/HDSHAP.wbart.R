@@ -65,8 +65,8 @@ HDSHAP.wbart=function(object,  ## object returned from BART
                                ' of x.test are equal with respect to S'))
     M=P-length(S)
 
-    if(mc.cores>1L) call='mc.hotdeck'
-    else call='hotdeck'
+    if(mc.cores>1L) call=mc.hotdeck
+    else call=hotdeck
 
     shap=call(x.train, x.test, S, object$treedraws,
               hotd.var=hotd.var, alpha=alpha, probs=probs,
