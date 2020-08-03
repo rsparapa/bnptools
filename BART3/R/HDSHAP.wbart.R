@@ -117,9 +117,15 @@ HDSHAP.wbart=function(object,  ## object returned from BART
 
     if(hotd.var) {
         shap$yhat.test.=shap$yhat.test./P
+        shap$yhat.test.mean =apply(shap$yhat.test., 2, mean)
+        shap$yhat.test.lower=apply(shap$yhat.test., 2, quantile, probs=probs[1])
+        shap$yhat.test.upper=apply(shap$yhat.test., 2, quantile, probs=probs[2])
         shap$yhat.test.var.=shap$yhat.test.var./(P^2)
     } else {
         shap$yhat.test=shap$yhat.test/P
+        shap$yhat.test.mean =apply(shap$yhat.test, 2, mean)
+        shap$yhat.test.lower=apply(shap$yhat.test, 2, quantile, probs=probs[1])
+        shap$yhat.test.upper=apply(shap$yhat.test, 2, quantile, probs=probs[2])
     }
 
     return(shap.)
