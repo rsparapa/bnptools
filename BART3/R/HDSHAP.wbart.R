@@ -24,6 +24,10 @@ HDSHAP.wbart=function(object,  ## object returned from BART
                   S,       ## indices of subset
                   seed=99L,
                   mult.impute=1L,
+                  hotd.var=FALSE, ## hot-deck variance adjustment
+                  alpha=0.05, ## hot-deck symmetric credible interval
+                  probs=c(0.025, 0.975),
+                           ## hot-deck asymmetric credible interval
                   mc.cores=1L,
                   nice=19L)
 {
@@ -90,34 +94,33 @@ HDSHAP.wbart=function(object,  ## object returned from BART
     }
     return(D/P)
 }
-        ## miss=apply(is.na(x.train), 2, sum)
-        ## names(miss)=names(object$treedraws$cutpoints)
-        ## miss.=(sum(miss)>0)
 
-        ## pred=hotdeck(x.train, x.test, S, object$treedraws, object$offset,
-        ##              mc.cores=mc.cores)
+    ## if(mc.cores>1L)
+    ##     D=mc.hotdeck(x.train, x.test, S, object$treedraws,
+    ##                  mc.cores=mc.cores, nice=nice)
+    ## else D=hotdeck(x.train, x.test, S, object$treedraws)
 
-        ## return(pred)
-
-        ## set.seed(seed)
-        ## for(i in 1:Q) {
-        ##     X.test = x.train[sample.int(N), ] ## hot deck/permute x.train
-        ##     for(j in 1:P) {
-        ##         if(!(j %in% S) & miss[j]>0) {
-        ##             for(k in 1:N)
-        ##                 if(is.na(X.test[k, j]))
-        ##                     while(is.na(X.test[k, j]))
-        ##                         X.test[k, j]=X.test[sample.int(N, 1), j]
-        ##         } else if(j %in% S) {
-        ##             X.test[ , j]=x.test[i, j]
-        ##         }
-        ##     }
-        ##     pred.=apply(predict(object, X.test, mc.cores=mc.cores,
-        ##                         mult.impute=1), 1, mean)
-        ##     if(i==1)
-        ##         pred=cbind(pred.)
-        ##     else
-        ##         pred=cbind(pred, pred.)
-        ## }
-
+    ## ## weighted difference
+    ## if(M>0) {
+    ##     for(k in 1:M) {
+    ##         C=comb(M, k, (1:P)[-S])
+    ##         R=nrow(C)
+    ##         for(i in 1:R) {
+    ##             if(mc.cores>1L)
+    ##                 D=D+(mc.hotdeck(x.train, x.test, c(C[i, ], S),
+    ##                                 object$treedraws,
+    ##                                 mc.cores=mc.cores, nice=nice)-
+    ##                      mc.hotdeck(x.train, x.test, C[i, ],
+    ##                                 object$treedraws,
+    ##                                 mc.cores=mc.cores, nice=nice))/
+    ##                     choose(M, k)
+    ##             else
+    ##                 D=D+(hotdeck(x.train, x.test, c(C[i, ], S),
+    ##                              object$treedraws)-
+    ##                      hotdeck(x.train, x.test, C[i, ],
+    ##                              object$treedraws))/choose(M, k)
+    ##         }
+    ##     }
+    ## }
+    ## return(D/P)
 
