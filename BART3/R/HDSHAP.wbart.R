@@ -18,18 +18,18 @@
 
 ## Hot deck (HD) SHAP additive explanation function
 HDSHAP.wbart=function(object,  ## object returned from BART
-                  x.train, ## x.train to estimate coverage
-                  x.test,  ## settings of x.test: only x.test[ , S]
-                           ## are used but they must all be given
-                  S,       ## indices of subset
-                  seed=99L,
-                  mult.impute=1L,
-                  hotd.var=FALSE, ## hot-deck variance adjustment
-                  alpha=0.05, ## hot-deck symmetric credible interval
-                  probs=c(0.025, 0.975),
-                           ## hot-deck asymmetric credible interval
-                  mc.cores=1L,
-                  nice=19L)
+                      x.train, ## x.train to estimate coverage
+                      x.test,  ## settings of x.test: only x.test[ , S]
+                      ## are used but they must all be given
+                      S,       ## indices of subset
+                      seed=99L,
+                      mult.impute=1L,
+                      hotd.var=FALSE, ## hot-deck variance adjustment
+                      alpha=0.05, ## hot-deck symmetric credible interval
+                      probs=c(0.025, 0.975),
+                      ## hot-deck asymmetric credible interval
+                      mc.cores=1L,
+                      nice=19L)
 {
     if(mc.cores>1L) {
         if(.Platform$OS.type!='unix')
@@ -63,12 +63,23 @@ HDSHAP.wbart=function(object,  ## object returned from BART
             if(all(x.test[i, S]==x.test[j, S]))
                 warning(paste0('Row ', i, ' and ', j,
                                ' of x.test are equal with respect to S'))
-
     M=P-length(S)
-    if(mc.cores>1L)
-        D=mc.hotdeck(x.train, x.test, S, object$treedraws,
-                     mc.cores=mc.cores, nice=nice)
-    else D=hotdeck(x.train, x.test, S, object$treedraws)
+
+    if(mc.cores>1L) call='mc.hotdeck'
+    else call='hotdeck'
+
+    shap=call(x.train, x.test, S, object$treedraws,
+              hotd.var=hotd.var, alpha=alpha, probs=probs,
+              mc.cores=mc.cores, nice=nice)
+
+    shap.=list()
+
+    if(hotd.var) {
+        shap.$yhat.test.=shap$yhat.test.
+        shap.$yhat.test.var.=shap$yhat.test.var.
+    } else {
+        shap.$yhat.test=shap$yhat.test
+    }
 
     ## weighted difference
     if(M>0) {
@@ -76,51 +87,70 @@ HDSHAP.wbart=function(object,  ## object returned from BART
             C=comb(M, k, (1:P)[-S])
             R=nrow(C)
             for(i in 1:R) {
-                if(mc.cores>1L)
-                    D=D+(mc.hotdeck(x.train, x.test, c(C[i, ], S),
-                                    object$treedraws,
-                                    mc.cores=mc.cores, nice=nice)-
-                         mc.hotdeck(x.train, x.test, C[i, ],
-                                    object$treedraws,
-                                    mc.cores=mc.cores, nice=nice))/
-                        choose(M, k)
-                else
-                    D=D+(hotdeck(x.train, x.test, c(C[i, ], S),
-                                 object$treedraws)-
-                         hotdeck(x.train, x.test, C[i, ],
-                                 object$treedraws))/choose(M, k)
+                shap.in=call(x.train, x.test, c(C[i, ], S),
+                             object$treedraws, hotd.var=hotd.var,
+                             alpha=alpha, probs=probs,
+                             mc.cores=mc.cores, nice=nice)
+                shap.ex=call(x.train, x.test, C[i, ],
+                             object$treedraws, hotd.var=hotd.var,
+                             alpha=alpha, probs=probs,
+                             mc.cores=mc.cores, nice=nice)
+                if(hotd.var) {
+                    shap.$yhat.test.=shap.$yhat.test.+
+                        (shap.in$yhat.test.-shap.ex$yhat.test.)/choose(M, k)
+                    shap.var=shap.in$yhat.test.var.+shap.ex$yhat.test.var.
+                    for(i in 1:Q) {
+                        C=2*var(shap.in$yhat.test.[ , i],
+                                shap.ex$yhat.test.[ , i])
+                        if(shap.var[i]>C)
+                            shap.var[i]=shap.var[i]-C
+                    }
+                    shap.$yhat.test.var.=shap.$yhat.test.var.+
+                        shap.var/(choose(M, k)^2)
+                } else {
+                    shap.$yhat.test=shap.$yhat.test+
+                        (shap.in$yhat.test-shap.ex$yhat.test)/choose(M, k)
+                }
             }
         }
     }
-    return(D/P)
+
+    if(hotd.var) {
+        shap$yhat.test.=shap$yhat.test./P
+        shap$yhat.test.var.=shap$yhat.test.var./(P^2)
+    } else {
+        shap$yhat.test=shap$yhat.test/P
+    }
+
+    return(shap.)
 }
 
-    ## if(mc.cores>1L)
-    ##     D=mc.hotdeck(x.train, x.test, S, object$treedraws,
-    ##                  mc.cores=mc.cores, nice=nice)
-    ## else D=hotdeck(x.train, x.test, S, object$treedraws)
+## if(mc.cores>1L)
+##     D=mc.hotdeck(x.train, x.test, S, object$treedraws,
+##                  mc.cores=mc.cores, nice=nice)
+## else D=hotdeck(x.train, x.test, S, object$treedraws)
 
-    ## ## weighted difference
-    ## if(M>0) {
-    ##     for(k in 1:M) {
-    ##         C=comb(M, k, (1:P)[-S])
-    ##         R=nrow(C)
-    ##         for(i in 1:R) {
-    ##             if(mc.cores>1L)
-    ##                 D=D+(mc.hotdeck(x.train, x.test, c(C[i, ], S),
-    ##                                 object$treedraws,
-    ##                                 mc.cores=mc.cores, nice=nice)-
-    ##                      mc.hotdeck(x.train, x.test, C[i, ],
-    ##                                 object$treedraws,
-    ##                                 mc.cores=mc.cores, nice=nice))/
-    ##                     choose(M, k)
-    ##             else
-    ##                 D=D+(hotdeck(x.train, x.test, c(C[i, ], S),
-    ##                              object$treedraws)-
-    ##                      hotdeck(x.train, x.test, C[i, ],
-    ##                              object$treedraws))/choose(M, k)
-    ##         }
-    ##     }
-    ## }
-    ## return(D/P)
+## ## weighted difference
+## if(M>0) {
+##     for(k in 1:M) {
+##         C=comb(M, k, (1:P)[-S])
+##         R=nrow(C)
+##         for(i in 1:R) {
+##             if(mc.cores>1L)
+##                 D=D+(mc.hotdeck(x.train, x.test, c(C[i, ], S),
+##                                 object$treedraws,
+##                                 mc.cores=mc.cores, nice=nice)-
+##                      mc.hotdeck(x.train, x.test, C[i, ],
+##                                 object$treedraws,
+##                                 mc.cores=mc.cores, nice=nice))/
+##                     choose(M, k)
+##             else
+##                 D=D+(hotdeck(x.train, x.test, c(C[i, ], S),
+##                              object$treedraws)-
+##                      hotdeck(x.train, x.test, C[i, ],
+##                              object$treedraws))/choose(M, k)
+##         }
+##     }
+## }
+## return(D/P)
 
