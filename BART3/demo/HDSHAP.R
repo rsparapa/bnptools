@@ -56,7 +56,7 @@ pred20=HDSHAP(post, x.train, x.test, 3, mult.impute=20, hotd.var=TRUE, mc.cores=
 print(proc.time()-proc.time.)
 
 proc.time.=proc.time()
-pred5=HDFPD(post, x.train, x.test, 3, mult.impute=5, hotd.var=TRUE, mc.cores=B)
+pred5=HDSHAP(post, x.train, x.test, 3, mult.impute=5, hotd.var=TRUE, mc.cores=B)
 print(proc.time()-proc.time.)
 
 proc.time.=proc.time()
@@ -66,8 +66,8 @@ print(proc.time()-proc.time.)
 par(mfrow=c(2, 1))
 for(i in 1:2) {
     if(i==1) {
-        plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2)
-        ##             xlim=c(-0.5, 0.5), ylim=c(-15, 15))
+        plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
+                     xlim=c(-0.5, 0.5), ylim=c(-15, 15))
         } else {
             plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
                  xlim=c(0.5, 2.5), ylim=c(25, 50))
