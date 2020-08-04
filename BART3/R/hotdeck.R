@@ -81,8 +81,8 @@ hotdeck = function(
         pred$yhat.test.var.=pred$yhat.test.var-pred$hotd.test.var
         z=which(pred$yhat.test.var.<0)
         if(length(z)>0) {
-            warning(paste0(length(z), ' adjusted hot-deck variances<0 : ',
-                           'increase mult.impute>', mult.impute))
+            ## warning(paste0(length(z), ' adjusted hot-deck variances<0 : ',
+            ##                'increase mult.impute>', mult.impute))
             pred$yhat.test.var.[z]=pred$yhat.test.var[z]
         }
         pred$yhat.test=pred$yhat.test+mu

@@ -65,10 +65,10 @@ HDSHAP.wbart=function(object,  ## object returned from BART
                                ' of x.test are equal with respect to S'))
     M=P-length(S)
 
-    if(mc.cores>1L) call=mc.hotdeck
-    else call=hotdeck
+    if(mc.cores>1L) call.=mc.hotdeck
+    else call.=hotdeck
 
-    shap=call(x.train, x.test, S, object$treedraws,
+    shap=call.(x.train, x.test, S, object$treedraws, mult.impute=mult.impute,
               hotd.var=hotd.var, alpha=alpha, probs=probs,
               mc.cores=mc.cores, nice=nice)
 
@@ -87,26 +87,26 @@ HDSHAP.wbart=function(object,  ## object returned from BART
             C=comb(M, k, (1:P)[-S])
             R=nrow(C)
             for(i in 1:R) {
-                shap.in=call(x.train, x.test, c(C[i, ], S),
-                             object$treedraws, hotd.var=hotd.var,
-                             alpha=alpha, probs=probs,
+                shap.in=call.(x.train, x.test, c(C[i, ], S),
+                             object$treedraws, mult.impute=mult.impute,
+                             hotd.var=hotd.var, alpha=alpha, probs=probs,
                              mc.cores=mc.cores, nice=nice)
-                shap.ex=call(x.train, x.test, C[i, ],
-                             object$treedraws, hotd.var=hotd.var,
-                             alpha=alpha, probs=probs,
+                shap.ex=call.(x.train, x.test, C[i, ],
+                             object$treedraws, mult.impute=mult.impute,
+                             hotd.var=hotd.var, alpha=alpha, probs=probs,
                              mc.cores=mc.cores, nice=nice)
                 if(hotd.var) {
                     shap.$yhat.test.=shap.$yhat.test.+
                         (shap.in$yhat.test.-shap.ex$yhat.test.)/choose(M, k)
-                    shap.var=shap.in$yhat.test.var.+shap.ex$yhat.test.var.
-                    for(i in 1:Q) {
-                        C=2*var(shap.in$yhat.test.[ , i],
-                                shap.ex$yhat.test.[ , i])
-                        if(shap.var[i]>C)
-                            shap.var[i]=shap.var[i]-C
-                    }
-                    shap.$yhat.test.var.=shap.$yhat.test.var.+
-                        shap.var/(choose(M, k)^2)
+                    ## shap.var=shap.in$yhat.test.var.+shap.ex$yhat.test.var.
+                    ## for(i in 1:Q) {
+                    ##     C=2*var(shap.in$yhat.test.[ , i],
+                    ##             shap.ex$yhat.test.[ , i])
+                    ##     if(shap.var[i]>C)
+                    ##         shap.var[i]=shap.var[i]-C
+                    ## }
+                    ## shap.$yhat.test.var.=shap.$yhat.test.var.+
+                    ##     shap.var/(choose(M, k)^2)
                 } else {
                     shap.$yhat.test=shap.$yhat.test+
                         (shap.in$yhat.test-shap.ex$yhat.test)/choose(M, k)
@@ -116,16 +116,20 @@ HDSHAP.wbart=function(object,  ## object returned from BART
     }
 
     if(hotd.var) {
-        shap$yhat.test.=shap$yhat.test./P
-        shap$yhat.test.mean =apply(shap$yhat.test., 2, mean)
-        shap$yhat.test.lower=apply(shap$yhat.test., 2, quantile, probs=probs[1])
-        shap$yhat.test.upper=apply(shap$yhat.test., 2, quantile, probs=probs[2])
-        shap$yhat.test.var.=shap$yhat.test.var./(P^2)
+        shap.$yhat.test.=shap.$yhat.test./P
+        shap.$yhat.test.mean =apply(shap.$yhat.test., 2, mean)
+        shap.$yhat.test.lower=apply(shap.$yhat.test., 2, quantile,
+                                    probs=probs[1])
+        shap.$yhat.test.upper=apply(shap.$yhat.test., 2, quantile,
+                                    probs=probs[2])
+        ##shap.$yhat.test.var.=shap.$yhat.test.var./(P^2)
     } else {
-        shap$yhat.test=shap$yhat.test/P
-        shap$yhat.test.mean =apply(shap$yhat.test, 2, mean)
-        shap$yhat.test.lower=apply(shap$yhat.test, 2, quantile, probs=probs[1])
-        shap$yhat.test.upper=apply(shap$yhat.test, 2, quantile, probs=probs[2])
+        shap.$yhat.test=shap.$yhat.test/P
+        shap.$yhat.test.mean =apply(shap.$yhat.test, 2, mean)
+        shap.$yhat.test.lower=apply(shap.$yhat.test, 2, quantile,
+                                    probs=probs[1])
+        shap.$yhat.test.upper=apply(shap.$yhat.test, 2, quantile,
+                                    probs=probs[2])
     }
 
     return(shap.)
