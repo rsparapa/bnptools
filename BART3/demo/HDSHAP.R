@@ -63,6 +63,12 @@ proc.time.=proc.time()
 pred2=HDSHAP(post, x.train, x.test, 3, mult.impute=2, hotd.var=TRUE, mc.cores=B)
 print(proc.time()-proc.time.)
 
+## HDSHAP: adjusted hot-decking variance and imputing combinations
+proc.time.=proc.time()
+pred20.=HDSHAP(post, x.train, x.test, 3, mult.impute=20, hotd.var=TRUE,
+              comb.impute=1, mc.cores=B)
+print(proc.time()-proc.time.)
+
 par(mfrow=c(2, 1))
 for(i in 1:2) {
     if(i==1) {
@@ -71,8 +77,11 @@ for(i in 1:2) {
         } else {
             plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
                  xlim=c(0.5, 2.5), ylim=c(25, 50))
-        legend('topleft', col=0:6, lty=0:6, lwd=2,
-           legend=c('Method 2', 'True', 'FPD', 'Naive 20', '20', '5', '2'))
+        legend('topleft', lwd=2,
+               ##col=0:7, lty=0:7,
+               col=1:7, lty=1:7,
+           legend=c(##'Method 2',
+               'True', 'FPD', 'Naive 20', '20', '5', '2', '20+'))
         }
     lines(x, yhat.test.mean, col=2, lwd=2)
     lines(x, yhat.test.025, col=2, lty=2, lwd=2)
@@ -88,6 +97,9 @@ for(i in 1:2) {
     lines(x, pred2$yhat.test.mean, col=6, lwd=2)
     lines(x, pred2$yhat.test.lower, col=6, lty=6, lwd=2)
     lines(x, pred2$yhat.test.upper, col=6, lty=6, lwd=2)
+    lines(x, pred20.$yhat.test.mean, col=7, lwd=2)
+    lines(x, pred20.$yhat.test.lower, col=7, lty=7, lwd=2)
+    lines(x, pred20.$yhat.test.upper, col=7, lty=7, lwd=2)
 }
 par(mfrow=c(1, 1))
 dev.copy2pdf(file='HDSHAP.pdf')

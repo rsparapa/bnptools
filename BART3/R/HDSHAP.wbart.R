@@ -24,6 +24,7 @@ HDSHAP.wbart=function(object,  ## object returned from BART
                       S,       ## indices of subset
                       seed=99L,
                       mult.impute=1L,
+                      comb.impute=0L,
                       hotd.var=FALSE, ## hot-deck variance adjustment
                       alpha=0.05, ## hot-deck symmetric credible interval
                       probs=c(0.025, 0.975),
@@ -83,9 +84,28 @@ HDSHAP.wbart=function(object,  ## object returned from BART
 
     ## weighted difference
     if(M>0) {
+        varprob=object$varprob.mean
+        varprob[S]=0
         for(k in 1:M) {
-            C=comb(M, k, (1:P)[-S])
-            R=nrow(C)
+            if(comb.impute<=0 || k==M) {
+                C=comb(M, k, (1:P)[-S])
+                R=nrow(C)
+            } else {
+                R=comb.impute
+                C=matrix(0, nrow=R, ncol=k)
+                for(i in 1:R) {
+                    varprob.=varprob
+                    for(j in 1:k) {
+                        h=(t(rmultinom(1, 1, varprob.))%*%(1:P))[1, 1]
+                        if(h %in% S)
+                            stop('comb.impute picked a column in S')
+                        else if(h %in% C[i, 1:j])
+                            stop('comb.impute picked a column twice')
+                        C[i, j]=h
+                        varprob.[h]=0
+                    }
+                }
+            }
             for(i in 1:R) {
                 shap.in=call.(x.train, x.test, c(C[i, ], S),
                              object$treedraws, mult.impute=mult.impute,
@@ -97,7 +117,8 @@ HDSHAP.wbart=function(object,  ## object returned from BART
                              mc.cores=mc.cores, nice=nice)
                 if(hotd.var) {
                     shap.$yhat.test.=shap.$yhat.test.+
-                        (shap.in$yhat.test.-shap.ex$yhat.test.)/choose(M, k)
+                        (shap.in$yhat.test.-shap.ex$yhat.test.)/R
+                        ##(shap.in$yhat.test.-shap.ex$yhat.test.)/choose(M, k)
                     ## shap.var=shap.in$yhat.test.var.+shap.ex$yhat.test.var.
                     ## for(i in 1:Q) {
                     ##     C=2*var(shap.in$yhat.test.[ , i],
@@ -109,7 +130,8 @@ HDSHAP.wbart=function(object,  ## object returned from BART
                     ##     shap.var/(choose(M, k)^2)
                 } else {
                     shap.$yhat.test=shap.$yhat.test+
-                        (shap.in$yhat.test-shap.ex$yhat.test)/choose(M, k)
+                        (shap.in$yhat.test-shap.ex$yhat.test)/R
+                        ##(shap.in$yhat.test-shap.ex$yhat.test)/choose(M, k)
                 }
             }
         }
