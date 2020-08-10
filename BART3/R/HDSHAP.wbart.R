@@ -24,7 +24,7 @@ HDSHAP.wbart=function(object,  ## object returned from BART
                       S,       ## indices of subset
                       seed=99L,
                       mult.impute=1L,
-                      comb.impute=0L,
+                      comb.draw=0L,
                       hotd.var=FALSE, ## hot-deck variance adjustment
                       alpha=0.05, ## hot-deck symmetric credible interval
                       probs=c(0.025, 0.975),
@@ -87,20 +87,19 @@ HDSHAP.wbart=function(object,  ## object returned from BART
         varprob=object$varprob.mean
         varprob[S]=0
         for(k in 1:M) {
-            if(comb.impute<=0 || k==M) {
-                C=comb(M, k, (1:P)[-S])
-                R=nrow(C)
-            } else {
-                R=comb.impute
+            C=comb(M, k, (1:P)[-S])
+            R=nrow(C)
+            if(comb.draw>0 && comb.draw<R) {
+                R=comb.draw
                 C=matrix(0, nrow=R, ncol=k)
                 for(i in 1:R) {
                     varprob.=varprob
                     for(j in 1:k) {
                         h=(t(rmultinom(1, 1, varprob.))%*%(1:P))[1, 1]
                         if(h %in% S)
-                            stop('comb.impute picked a column in S')
+                            stop('comb.draw picked a column in S')
                         else if(h %in% C[i, 1:j])
-                            stop('comb.impute picked a column twice')
+                            stop('comb.draw picked a column twice')
                         C[i, j]=h
                         varprob.[h]=0
                     }

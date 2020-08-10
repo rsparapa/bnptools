@@ -24,7 +24,7 @@ HDSHAP=function(object,  ## object returned from BART
             S,       ## indices of subset
             seed=99L,
             mult.impute=1L,
-            comb.impute=0L,
+            comb.draw=0L,
             hotd.var=FALSE, ## hot-deck variance adjustment
             alpha=0.05, ## hot-deck symmetric credible interval
             probs=c(0.025, 0.975),
