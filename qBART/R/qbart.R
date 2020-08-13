@@ -31,7 +31,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                ##tau.interval=0.9973,
                ## offset=NULL,
                w=rep(1, length(times)),
-               ntree=c(200L, 50L, 50L)[ntype], numcut1=100L, numcut2=100L,
+               ntree1=50L, ntree2=200L, numcut1=100L, numcut2=100L,
                ndpost=1000L, nskip=100L,
                keepevery=c(1L, 10L, 10L)[ntype],
                printevery=100L, transposed=FALSE,
@@ -183,9 +183,9 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
         sigest=sqrt(lambda)
     }
     
-        tau1=3/(k*sqrt(ntree))
+        tau1=3/(k*sqrt(ntree1))
     
-        tau2=(max(y.train)-min(y.train))/(2*k*sqrt(ntree))
+        tau2=(max(y.train)-min(y.train))/(2*k*sqrt(ntree2))
     
     
     ptm <- proc.time()
@@ -204,7 +204,8 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
                 q0,        ##initial guess of cure status
                 x.test1,    #p*np test data for cure status
                 x.test2,    #p*np test data for y
-                ntree,
+                ntree1,
+                ntree2,
                 numcut1,
                 numcut2,
                 ndpost*keepevery,

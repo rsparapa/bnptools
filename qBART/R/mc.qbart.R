@@ -32,7 +32,7 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
                      ##tau.interval=0.9973,
                      ## offset=NULL,
                      w=rep(1, length(times)),
-                     ntree=c(200L, 50L, 50L)[ntype], numcut1=100L, numcut2=100L,
+                     ntree1=50L, ntree2=200L, numcut1=100L, numcut2=100L,
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
@@ -92,7 +92,7 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
                   lambda=lambda, ## tau.num=tau.num,
                   ##tau.interval=tau.interval,
                   ## offset=offset,
-                  w=w, ntree=ntree, numcut1=numcut1, numcut2=numcut2,
+                  w=w, ntree1=ntree1, ntree2=ntree2, numcut1=numcut1, numcut2=numcut2,
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery, printevery=printevery,
                   transposed=TRUE)},
@@ -111,17 +111,28 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
 
         post$ndpost <- mc.cores*mc.ndpost
 
-        p <- nrow(x.train1[post$rm.const, ])
+        p1 <- nrow(x.train1[post$rm.const, ])
 
-        old.text <- paste0(as.character(mc.ndpost), ' ', as.character(ntree),
-                           ' ', as.character(p))
-        old.stop <- nchar(old.text)
+        old.text1 <- paste0(as.character(mc.ndpost), ' ', as.character(ntree1),
+                           ' ', as.character(p1))
+        old.stop1 <- nchar(old.text1)
 
-        post$treedraws$trees <- sub(old.text,
+        post$treedraws$trees1 <- sub(old.text1,
                                     paste0(as.character(post$ndpost), ' ',
-                                           as.character(ntree), ' ',
-                                           as.character(p)),
-                                    post$treedraws$trees)
+                                           as.character(ntree1), ' ',
+                                           as.character(p1)),
+                                    post$treedraws$trees1)
+        p2 <- nrow(x.train2[post$rm.const, ])
+
+        old.text2 <- paste0(as.character(mc.ndpost), ' ', as.character(ntree2),
+                           ' ', as.character(p2))
+        old.stop2 <- nchar(old.text2)
+
+        post$treedraws$trees2 <- sub(old.text2,
+                                    paste0(as.character(post$ndpost), ' ',
+                                           as.character(ntree2), ' ',
+                                           as.character(p2)),
+                                    post$treedraws$trees2)
 
         keeptest <- length(x.test1)>0
 
@@ -152,9 +163,13 @@ mc.qbart <- function(x.train1=NULL, x.train2, times, delta,
             post$varcount2 <- rbind(post$varcount2, post.list[[i]]$varcount2)
             post$varprob2 <- rbind(post$varprob2, post.list[[i]]$varprob2)
 
-            post$treedraws$trees <- paste0(post$treedraws$trees,
-                                           substr(post.list[[i]]$treedraws$trees, old.stop+2,
-                                                  nchar(post.list[[i]]$treedraws$trees)))
+            post$treedraws$trees1 <- paste0(post$treedraws$trees1,
+                                           substr(post.list[[i]]$treedraws$trees1, old.stop1+2,
+                                                  nchar(post.list[[i]]$treedraws$trees1)))
+
+            post$treedraws$trees2 <- paste0(post$treedraws$trees2,
+                                           substr(post.list[[i]]$treedraws$trees2, old.stop2+2,
+                                                  nchar(post.list[[i]]$treedraws$trees2)))
 
             post$proc.time['elapsed'] <- max(post$proc.time['elapsed'],
                                              post.list[[i]]$proc.time['elapsed'])

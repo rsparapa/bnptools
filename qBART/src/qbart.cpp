@@ -44,7 +44,8 @@ RcppExport SEXP cqbart(
    SEXP _iq0,             //initial cure status
    SEXP _ixp1,           //x, test1, pxnp (transposed so rows are contiguous in memory)
    SEXP _ixp2,           //x, test2 for y
-   SEXP _im,            //number of trees
+   SEXP _im1,            //number of trees for cure status
+   SEXP _im2,            //number of trees for y
    SEXP _inc1,           //number of cut points for x1
    SEXP _inc2,           //number of cut points for x2
    SEXP _ind,           //number of kept draws (except for thinnning ..)
@@ -94,7 +95,8 @@ RcppExport SEXP cqbart(
    double *ixp1 = &xpv1[0];
    Rcpp::NumericVector  xpv2(_ixp2);
    double *ixp2 = &xpv2[0];
-   size_t m = Rcpp::as<int>(_im);
+   size_t m1 = Rcpp::as<int>(_im1);
+   size_t m2 = Rcpp::as<int>(_im2);
    Rcpp::IntegerVector _nc1(_inc1);
    int *numcut1 = &_nc1[0];
    Rcpp::IntegerVector _nc2(_inc2);
@@ -150,7 +152,7 @@ RcppExport SEXP cqbart(
    arn gen;
 
    //probit BART for cure status
-   bart bm1(m);
+   bart bm1(m1);
 
    if(X1info.size()>0) {
      xinfo _x1i;
@@ -163,7 +165,7 @@ RcppExport SEXP cqbart(
    }
 
    //log-normal BART for y
-   qbart bm2(m);
+   qbart bm2(m2);
 
    if(X2info.size()>0) {
      xinfo _x2i;
@@ -197,7 +199,8 @@ void cqbart(
    int* q0,              //initial cure status
    double* ixp1,		//x, test1, pxnp (transposed so rows are contiguous in memory)
    double* ixp2,           //x, test2 for y
-   size_t m,		//number of trees
+   size_t m1,		//number of trees for cure status
+   size_t m2,            //number of trees for y
    int *numcut1,		//number of cut points for x1
    int* numcut2,           //number of cut points for x2
    size_t nd,		//number of kept draws (except for thinnning ..)
@@ -258,13 +261,17 @@ void cqbart(
    //random number generation
    arn gen(n1, n2);
 
-   bart bm1(m);
-   qbart bm2(m);
+   bart bm1(m1);
+   qbart bm2(m2);
 #endif
 
-   std::stringstream treess;  //string stream to write trees to
-   treess.precision(10);
-   treess << nkeeptreedraws << " " << m << " " << p1 << endl;
+   std::stringstream treess1;  //string stream to write trees to
+   treess1.precision(10);
+   treess1 << nkeeptreedraws << " " << m1 << " " << p1 << endl;
+
+   std::stringstream treess2;  //string stream to write trees to
+   treess2.precision(10);
+   treess2 << nkeeptreedraws << " " << m2 << " " << p2 << endl;
 
    printf("*****Calling qbart: \n");
 
@@ -279,7 +286,7 @@ void cqbart(
    printf("x21,x2[n*p2]: %lf, %lf\n",ix2[0],ix2[n*p2-1]);
    if(np) printf("xp11,xp1[np*p1]: %lf, %lf\n",ixp1[0],ixp1[np*p1-1]);
    if(np) printf("xp21,xp2[np*p2]: %lf, %lf\n",ixp2[0],ixp2[np*p2-1]);
-   printf("*****Number of Trees: %zu\n",m);
+   printf("*****Number of Trees: %zu\n",m1, m2);
    printf("*****Number of Cut Points for BART1: %d ... %d\n", numcut1[0], numcut1[p1-1]);
    printf("*****Number of Cut Points for BART2: %d ... %d\n", numcut2[0], numcut2[p2-1]);
    printf("*****burn,nd,thin: %zu,%zu,%zu\n",burn,nd,thin);
@@ -436,28 +443,35 @@ void cqbart(
          }
          keeptreedraw = nkeeptreedraws && (((i-burn+1) % skiptreedraws) ==0);
          if(keeptreedraw) {
-	   for(size_t j=0;j<m;j++) {
-	     treess << bm1.gettree(j);
+	   for(size_t j=0;j<m1;j++) {
+	     treess1 << bm1.gettree(j);
              #ifndef NoRcpp
 	     ivarcnt1=bm1.getnv();
 	     ivarprb1=bm1.getpv();
-	     ivarcnt2=bm2.getnv();
-	     ivarprb2=bm2.getpv();
 	     size_t k=(i-burn)/skiptreedraws;
 	     for(size_t j=0;j<p1;j++){
 	      varcnt1(k,j)=ivarcnt1[j];
 	      varprb1(k,j)=ivarprb1[j];
 	     }
+             #else
+	     varcnt1.push_back(bm1.getnv());
+	     varprb1.push_back(bm1.getpv());
+             #endif
+	   }
+	 for(size_t j=0;j<m2;j++){
+	     treess2 << bm2.gettree(j);
+             #ifndef NoRcpp
+	     ivarcnt2=bm2.getnv();
+	     ivarprb2=bm2.getpv();
+	     size_t k=(i-burn)/skiptreedraws;
 	     for(size_t j=0;j<p2;j++){
 	      varcnt2(k,j)=ivarcnt2[j];
 	      varprb2(k,j)=ivarprb2[j];
 	     }
-             #else
-	     varcnt1.push_back(bm1.getnv());
-	     varprb1.push_back(bm1.getpv());
+	     #else
 	     varcnt2.push_back(bm2.getnv());
 	     varprb2.push_back(bm2.getpv());
-             #endif
+	     #endif
 	   }
          }
       }
@@ -502,7 +516,9 @@ void cqbart(
 
    Rcpp::List treesL;
    treesL["cutpoints1"] = xi1ret;
-   treesL["trees"]=Rcpp::CharacterVector(treess.str());
+   treesL["trees1"]=Rcpp::CharacterVector(treess1.str());
+   treesL["cutpoints2"] = xi2ret;
+   treesL["trees2"]=Rcpp::CharacterVector(treess2.str());
    ret["treedraws"] = treesL;
    
    return ret;
