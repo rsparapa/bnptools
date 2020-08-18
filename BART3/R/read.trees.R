@@ -1,4 +1,4 @@
-
+## read.trees.R
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
 
@@ -17,12 +17,18 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 read.trees=function(treedraws, ## treedraws item returned from BART
-                    x.train,   ## x.train to estimate coverage
+                    x.train=matrix(nrow=0, ncol=0),
+                               ## x.train to estimate coverage
                     call=FALSE)## default to R vs. C++ code
 {
-    for(v in 1:ncol(x.train))
-        if(any(is.na(x.train[ , v])))
-            stop(paste0('x.train column with missing values:', v))
+    
+    N=nrow(x.train)
+    coverage=(N>0)
+    if(coverage) {
+        for(v in 1:ncol(x.train))
+            if(any(is.na(x.train[ , v])))
+                stop(paste0('x.train column with missing values:', v))
+    }
 
     tc <- textConnection(treedraws$tree)
     trees <- read.table(file=tc, fill=TRUE,
@@ -30,7 +36,6 @@ read.trees=function(treedraws, ## treedraws item returned from BART
                         col.names=c('node', 'var', 'cut', 'leaf'))
     close(tc)
 
-    N=nrow(x.train)
     trees.=trees[1, ] ## the first row are constants
     M=trees.$node ## number of samples
     T=trees.$var  ## number of trees
@@ -47,7 +52,7 @@ read.trees=function(treedraws, ## treedraws item returned from BART
     ## 4 for leaf value
     ## 5 for the number of training subjects passing through this node
     ## (data science/machine learning often calls this coverage)
-    Cover=matrix(TRUE, nrow=N, ncol=node.max)
+    if(coverage) Cover=matrix(TRUE, nrow=N, ncol=node.max)
 
     i=1 ## index of samples
     j=0 ## index of trees
@@ -81,19 +86,21 @@ read.trees=function(treedraws, ## treedraws item returned from BART
                     Trees[i, j, k, 4]=trees$leaf[h]
                 }
             }
-            for(k in sort(trees$node[l+(1:C)])) {
-                if(Trees[i, j, k, 1]==1) { ## a branch
-                    v=Trees[i, j, k, 2]
-                    c=Trees[i, j, k, 3]
-                    if(k==1) {
-                        Cover[ , 2]= x.train[ , v]<c
-                        Cover[ , 3]= x.train[ , v]>=c
-                    } else {
-                        Cover[ , 2*k]  = Cover[ , k] & x.train[ , v]<c
-                        Cover[ , 2*k+1]= Cover[ , k] & x.train[ , v]>=c
+            if(coverage) {
+                for(k in sort(trees$node[l+(1:C)])) {
+                    if(Trees[i, j, k, 1]==1) { ## a branch
+                        v=Trees[i, j, k, 2]
+                        c=Trees[i, j, k, 3]
+                        if(k==1) {
+                            Cover[ , 2]= x.train[ , v]<c
+                            Cover[ , 3]= x.train[ , v]>=c
+                        } else {
+                            Cover[ , 2*k]  = Cover[ , k] & x.train[ , v]<c
+                            Cover[ , 2*k+1]= Cover[ , k] & x.train[ , v]>=c
+                        }
                     }
+                    Trees[i, j, k, 5]=sum(Cover[ , k])
                 }
-                Trees[i, j, k, 5]=sum(Cover[ , k])
             }
             if(call) {
                 node.max=max(which(Trees[i, j, , 1]==2L))
@@ -102,16 +109,16 @@ read.trees=function(treedraws, ## treedraws item returned from BART
                 Trees.[[i]][[j]]$var  =integer(node.max)
                 Trees.[[i]][[j]]$cut  =double(node.max)
                 Trees.[[i]][[j]]$leaf =double(node.max)
-                Trees.[[i]][[j]]$cover=integer(node.max)
+                if(coverage) Trees.[[i]][[j]]$cover=integer(node.max)
                 k=which(Trees[i, j, , 1]==1L)
                 Trees.[[i]][[j]]$node[k] =1L ## branches
                 Trees.[[i]][[j]]$var[k]  =Trees[i, j, k, 2] ## variables
                 Trees.[[i]][[j]]$cut[k]  =Trees[i, j, k, 3] ## cut-points
-                Trees.[[i]][[j]]$cover[k]=Trees[i, j, k, 5] ## coverage
+                if(coverage) Trees.[[i]][[j]]$cover[k]=Trees[i, j, k, 5] ## coverage
                 k=which(Trees[i, j, , 1]==2L) ## leaves
                 Trees.[[i]][[j]]$node[k] =2L
                 Trees.[[i]][[j]]$leaf[k] =Trees[i, j, k, 4] ## leaves
-                Trees.[[i]][[j]]$cover[k]=Trees[i, j, k, 5] ## coverage
+                if(coverage) Trees.[[i]][[j]]$cover[k]=Trees[i, j, k, 5] ## coverage
             }
             if((j%%T)==0) {
                 i=i+1
