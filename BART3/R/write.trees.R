@@ -1,6 +1,7 @@
-## write.trees.R
+
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## write.trees.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -21,13 +22,14 @@ write.trees=function(treedraws, ## treedraws item returned from BART
                      thin = 1)  ## default to no thinning
 {
     Trees. = read.trees(treedraws, call=TRUE)
-    M = length(Trees.)              ## number of samples
+    M = length(Trees.)              ## number of samples read in
+    M. = length(seq(1, M, thin))    ## number of samples written out
     T = length(Trees.[[1]])         ## number of trees
     P = length(treedraws$cutpoints) ## number of variables
-    line.=paste0(M, ' ', T, ' ', P, '\n')
+    line.=paste0(M., ' ', T, ' ', P, '\n')
     l = 1
 
-    for(i in seq(1, M, thin)) 
+    for(i in seq(1, M, thin))
         for(j in 1:T) {
             C = length(Trees.[[i]][[j]]$node)
             C. = length(which(Trees.[[i]][[j]]$node>0))
@@ -41,12 +43,12 @@ write.trees=function(treedraws, ## treedraws item returned from BART
                     line.[l]=paste0(k, ' ', v-1, ' ',
                                     which(c==treedraws$cutpoints[[v]])-1,
                                     ' -0.00000000000\n')
-            } else if(Trees.[[i]][[j]]$node[k]==2) {
+                } else if(Trees.[[i]][[j]]$node[k]==2) {
                     l=l+1
                     line.[l]=paste0(k, ' 0 0 ',
                                     Trees.[[i]][[j]]$leaf[k], '\n')
-            }
+                }
         }
-    cat(line., file=file, sep="")
-    return(line.)
+    if(file!="") cat(line., file=file, sep="")
+    else return(line.)
 }
