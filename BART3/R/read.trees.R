@@ -1,6 +1,7 @@
-## read.trees.R
+
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## read.trees.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -21,7 +22,7 @@ read.trees=function(treedraws, ## treedraws item returned from BART
                                ## x.train to estimate coverage
                     call=FALSE)## default to R vs. C++ code
 {
-    
+
     N=nrow(x.train)
     coverage=(N>0)
     if(coverage) {

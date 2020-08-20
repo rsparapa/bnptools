@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2017-2018 Robert McCulloch and Rodney Sparapani
+## mc.surv.bart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,33 +20,33 @@
 ## run BART and generate survival in parallel
 
 mc.surv.bart <- function(
-    x.train = matrix(0,0,0),
-    y.train=NULL, times=NULL, delta=NULL, 
-    x.test = matrix(0,0,0),
-    K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
-    sparse=FALSE, theta=0, omega=1,
-    a=0.5, b=1, augment=FALSE, rho=NULL,
-    xinfo=matrix(0,0,0), usequants=FALSE,
-    ##cont=FALSE,
-    rm.const=TRUE, type='pbart',
-    ntype=as.integer(
-        factor(type, levels=c('wbart', 'pbart', 'lbart'))),
-    k = 2.0, ## BEWARE: do NOT use k for other purposes below
-    power = 2.0, base = 0.95,
-    offset = NULL, tau.num=c(NA, 3, 6)[ntype],
-    ##binaryOffset = NULL,
-    ntree = 50L, numcut = 100L,
-    ndpost = 1000L, nskip = 250L, keepevery = 10L,
-    ##nkeeptrain=ndpost, nkeeptest=ndpost,
-    ##nkeeptreedraws=ndpost,
-    printevery=100L,
-    ##treesaslists=FALSE,
-    ##keeptrainfits=TRUE,
-    id = NULL,     ## only used by surv.bart
-    seed = 99L,    ## only used by mc.surv.bart
-    mc.cores = 2L, ## ditto
-    nice=19L       ## ditto
-)
+                         x.train = matrix(0,0,0),
+                         y.train=NULL, times=NULL, delta=NULL,
+                         x.test = matrix(0,0,0),
+                         K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
+                         sparse=FALSE, theta=0, omega=1,
+                         a=0.5, b=1, augment=FALSE, rho=NULL,
+                         xinfo=matrix(0,0,0), usequants=FALSE,
+                         ##cont=FALSE,
+                         rm.const=TRUE, type='pbart',
+                         ntype=as.integer(
+                             factor(type, levels=c('wbart', 'pbart', 'lbart'))),
+                         k = 2.0, ## BEWARE: do NOT use k for other purposes below
+                         power = 2.0, base = 0.95,
+                         offset = NULL, tau.num=c(NA, 3, 6)[ntype],
+                         ##binaryOffset = NULL,
+                         ntree = 50L, numcut = 100L,
+                         ndpost = 1000L, nskip = 250L, keepevery = 10L,
+                         ##nkeeptrain=ndpost, nkeeptest=ndpost,
+                         ##nkeeptreedraws=ndpost,
+                         printevery=100L,
+                         ##treesaslists=FALSE,
+                         ##keeptrainfits=TRUE,
+                         id = NULL,     ## only used by surv.bart
+                         seed = 99L,    ## only used by mc.surv.bart
+                         mc.cores = 2L, ## ditto
+                         nice=19L       ## ditto
+                         )
 {
     if(.Platform$OS.type!='unix')
         stop('parallel::mcparallel/mccollect do not exist on windows')
@@ -92,8 +93,8 @@ mc.surv.bart <- function(
 
     if(mc.cores>mc.cores.detected) {
         message('The number of cores requested, ', mc.cores,
-                       ',\n exceeds the number of cores detected via detectCores() ',
-                       'reducing to ', mc.cores.detected)
+                ',\n exceeds the number of cores detected via detectCores() ',
+                'reducing to ', mc.cores.detected)
         mc.cores <- mc.cores.detected
     }
 
@@ -109,86 +110,97 @@ mc.surv.bart <- function(
 
     for(h in 1:H) {
         for(i in 1:mc.cores) {
-        parallel::mcparallel({psnice(value=nice);
-              surv.bart(x.train=x.train, y.train=y.train, x.test=x.test,
-                        sparse=sparse, theta=theta, omega=omega,
-                        a=a, b=b, augment=augment, rho=rho,
-                        xinfo=xinfo, usequants=usequants,
-                        ##cont=cont,
-                        rm.const=rm.const, type=type,
-                        k=k, power=power, base=base,
-                        offset=offset, tau.num=tau.num,
-                        ##binaryOffset=binaryOffset,
-                        ntree=ntree, numcut=numcut,
-                        ndpost=mc.ndpost, nskip=nskip, keepevery=keepevery,
-                        ##nkeeptrain=mc.ndpost, nkeeptest=mc.ndpost,
-                        ##nkeeptestmean=mc.ndpost,
-                        ##nkeeptreedraws=mc.ndpost,
-                        printevery=printevery)},
-              silent=(i!=1))
-              ## to avoid duplication of output
-              ## capture stdout from first posterior only
+            parallel::mcparallel({psnice(value=nice);
+                surv.bart(x.train=x.train, y.train=y.train, x.test=x.test,
+                          sparse=sparse, theta=theta, omega=omega,
+                          a=a, b=b, augment=augment, rho=rho,
+                          xinfo=xinfo, usequants=usequants,
+                          ##cont=cont,
+                          rm.const=rm.const, type=type,
+                          k=k, power=power, base=base,
+                          offset=offset, tau.num=tau.num,
+                          ##binaryOffset=binaryOffset,
+                          ntree=ntree, numcut=numcut,
+                          ndpost=mc.ndpost, nskip=nskip, keepevery=keepevery,
+                          ##nkeeptrain=mc.ndpost, nkeeptest=mc.ndpost,
+                          ##nkeeptestmean=mc.ndpost,
+                          ##nkeeptreedraws=mc.ndpost,
+                          printevery=printevery)},
+                silent=(i!=1))
+            ## to avoid duplication of output
+            ## capture stdout from first posterior only
         }
 
         post.list[[h]] <- parallel::mccollect()
     }
 
-    if((H==1 & mc.cores==1) | attr(post.list[[1]][[1]], 'class')!='survbart') return(post.list[[1]][[1]])
+    if((H==1 & mc.cores==1) | attr(post.list[[1]][[1]], 'class')!='survbart')
+        return(post.list[[1]][[1]])
     else {
-        for(h in 1:H) for(i in mc.cores:1) {
-            if(h==1 & i==mc.cores) {
-                post <- post.list[[1]][[mc.cores]]
-                post$ndpost <- H*mc.cores*mc.ndpost
-                
-                p <- ncol(x.train[ , post$rm.const])
-
-                old.text <- paste0(as.character(mc.ndpost), ' ',
-                                   as.character(ntree), ' ', as.character(p))
-                old.stop <- nchar(old.text)
-
-                post$treedraws$trees <- sub(old.text,
-                                            paste0(as.character(post$ndpost),
-                                                   ' ', as.character(ntree),
-                                                   ' ', as.character(p)),
-                                            post$treedraws$trees)
+        for(h in 1:H) {
+            ## mc.collect will sometimes return fewer items than requested
+            mc.cores. = length(post.list[[h]])
+            if(mc.cores!=mc.cores.) {
+                warning(paste0(
+                    'The number of items returned by mccollect is ', mc.cores.))
+                return(post.list[[h]])
             }
-            else {
-                ## if(length(x.test)==0) {
-                ##      post$yhat.train <- rbind(post$yhat.train, post.list[[h]][[i]]$yhat.train)
-                ##      post$prob.train <- rbind(post$prob.train, post.list[[h]][[i]]$prob.train)
-                ##      ##post$surv.train <- rbind(post$surv.train, post.list[[h]][[i]]$surv.train)
-                ## } else {
 
-                if(length(x.test)>0) {
-                    post$yhat.test <- rbind(post$yhat.test,
-                                            post.list[[h]][[i]]$yhat.test)
-                    post$prob.test <- rbind(post$prob.test,
-                                            post.list[[h]][[i]]$prob.test)
-                    post$surv.test <- rbind(post$surv.test,
-                                            post.list[[h]][[i]]$surv.test)
+            for(i in mc.cores:1) {
+                if(h==1 & i==mc.cores) {
+                    post <- post.list[[1]][[mc.cores]]
+                    post$ndpost <- H*mc.cores*mc.ndpost
+
+                    p <- ncol(x.train[ , post$rm.const])
+
+                    old.text <- paste0(as.character(mc.ndpost), ' ',
+                                       as.character(ntree), ' ', as.character(p))
+                    old.stop <- nchar(old.text)
+
+                    post$treedraws$trees <- sub(old.text,
+                                                paste0(as.character(post$ndpost),
+                                                       ' ', as.character(ntree),
+                                                       ' ', as.character(p)),
+                                                post$treedraws$trees)
                 }
+                else {
+                    ## if(length(x.test)==0) {
+                    ##      post$yhat.train <- rbind(post$yhat.train, post.list[[h]][[i]]$yhat.train)
+                    ##      post$prob.train <- rbind(post$prob.train, post.list[[h]][[i]]$prob.train)
+                    ##      ##post$surv.train <- rbind(post$surv.train, post.list[[h]][[i]]$surv.train)
+                    ## } else {
 
-                post$varcount <- rbind(post$varcount,
-                                       post.list[[h]][[i]]$varcount)
-                post$varprob <- rbind(post$varprob,
-                                      post.list[[h]][[i]]$varprob)
+                    if(length(x.test)>0) {
+                        post$yhat.test <- rbind(post$yhat.test,
+                                                post.list[[h]][[i]]$yhat.test)
+                        post$prob.test <- rbind(post$prob.test,
+                                                post.list[[h]][[i]]$prob.test)
+                        post$surv.test <- rbind(post$surv.test,
+                                                post.list[[h]][[i]]$surv.test)
+                    }
 
-                post$treedraws$trees <- paste0(post$treedraws$trees,
-                                               substr(post.list[[h]][[i]]$treedraws$trees, old.stop+2,
-                                                      nchar(post.list[[h]][[i]]$treedraws$trees)))
+                    post$varcount <- rbind(post$varcount,
+                                           post.list[[h]][[i]]$varcount)
+                    post$varprob <- rbind(post$varprob,
+                                          post.list[[h]][[i]]$varprob)
 
-                ## if(treesaslists) post$treedraws$lists <-
-                ##                      c(post$treedraws$lists, post.list[[h]][[i]]$treedraws$lists)
+                    post$treedraws$trees <- paste0(post$treedraws$trees,
+                                                   substr(post.list[[h]][[i]]$treedraws$trees, old.stop+2,
+                                                          nchar(post.list[[h]][[i]]$treedraws$trees)))
 
-                post$proc.time['elapsed'] <- max(post$proc.time['elapsed'],
-                                                 post.list[[h]][[i]]$proc.time['elapsed'])
-                for(j in 1:5)
-                    if(j!=3)
-                        post$proc.time[j] <- post$proc.time[j]+post.list[[h]][[i]]$proc.time[j]
+                    ## if(treesaslists) post$treedraws$lists <-
+                    ##                      c(post$treedraws$lists, post.list[[h]][[i]]$treedraws$lists)
+
+                    post$proc.time['elapsed'] <- max(post$proc.time['elapsed'],
+                                                     post.list[[h]][[i]]$proc.time['elapsed'])
+                    for(j in 1:5)
+                        if(j!=3)
+                            post$proc.time[j] <- post$proc.time[j]+post.list[[h]][[i]]$proc.time[j]
+                }
             }
 
             post.list[[h]][[i]] <- NULL
-            }
+        }
 
         ## if(length(post$yhat.train.mean)>0)
         ##     post$yhat.train.mean <- apply(post$yhat.train, 2, mean)

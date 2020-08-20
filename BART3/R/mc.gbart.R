@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2018 Robert McCulloch and Rodney Sparapani
+## mc.gbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -69,7 +70,7 @@ mc.gbart <- function(
         if(length(x.test)>0) {
             x.test = t(bartModelMatrix(x.test))
             if(class(rm.const)[1]=='logical' && rm.const)
-            x.test = rbind(x.test[temp$rm.const, ])
+                x.test = rbind(x.test[temp$rm.const, ])
         }
         ##rm.const <- temp$rm.const
         rm(temp)
@@ -102,8 +103,8 @@ mc.gbart <- function(
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery, printevery=printevery,
                   shards=shards, transposed=TRUE)},
-                  ##keeptestfits=keeptestfits,
-                  ##hostname=hostname,
+            ##keeptestfits=keeptestfits,
+            ##hostname=hostname,
             silent=(i!=1))
         ## to avoid duplication of output
         ## capture stdout from first posterior only
@@ -115,6 +116,13 @@ mc.gbart <- function(
 
     if(mc.cores==1 | attr(post, 'class')!=type) return(post)
     else {
+        mc.cores. = length(post.list)
+        if(mc.cores!=mc.cores.) {
+            warning(paste0(
+                'The number of items returned by mccollect is ', mc.cores.))
+            mc.cores = mc.cores.
+        }
+
         if(class(rm.const)[1]!='logical') post$rm.const <- rm.const
 
         post$ndpost <- mc.cores*mc.ndpost
@@ -142,7 +150,7 @@ mc.gbart <- function(
                                      post.list[[i]]$yhat.train)
 
             if(keeptestfits) post$yhat.test <- rbind(post$yhat.test,
-                                                 post.list[[i]]$yhat.test)
+                                                     post.list[[i]]$yhat.test)
 
             if(type=='wbart') {
                 post$sigma <- cbind(post$sigma, post.list[[i]]$sigma)
@@ -184,9 +192,9 @@ mc.gbart <- function(
             if(keeptestfits) {
                 post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
                 post$yhat.test.lower <- apply(post$yhat.test, 2, quantile,
-                                             probs=min(probs))
+                                              probs=min(probs))
                 post$yhat.test.upper <- apply(post$yhat.test, 2, quantile,
-                                             probs=max(probs))
+                                              probs=max(probs))
             }
         } else {
             post$prob.train.mean <- apply(post$prob.train, 2, mean)
