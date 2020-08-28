@@ -400,7 +400,7 @@ if(type==1) {
 	    XV(impute_mult[h], k)=1;
 	    prevXV[impute_mult[h]]=1;
 	  }
-	  else if(impute_miss[i]==2) 
+	  else if(impute_miss[k]==2) 
 	    for(size_t j=0; j<K; j++) 
 	      XV(impute_mult[j], k)=prevXV[impute_mult[j]];
 	}
