@@ -29,6 +29,7 @@ mc.gbart <- function(
                      rm.const=TRUE,
                      sigest=NA, sigdf=3, sigquant=0.90,
                      k=2, power=2, base=0.95,
+                     impute.mult=NULL, impute.prob=NULL,
                      ##sigmaf=NA,
                      lambda=NA, tau.num=c(NA, 3, 6)[ntype],
                      ##tau.interval=0.9973,
@@ -60,6 +61,9 @@ mc.gbart <- function(
     RNGkind("L'Ecuyer-CMRG")
     set.seed(seed)
     parallel::mc.reset.stream()
+    
+    if(length(impute.mult)==1)
+        stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
 
     if(!transposed) {
         temp = bartModelMatrix(x.train, numcut, usequants=usequants,
@@ -95,6 +99,7 @@ mc.gbart <- function(
                   rm.const=rm.const,
                   sigest=sigest, sigdf=sigdf, sigquant=sigquant,
                   k=k, power=power, base=base,
+                  impute.mult=impute.mult, impute.prob=impute.prob,
                   ##sigmaf=sigmaf,
                   lambda=lambda, tau.num=tau.num,
                   ##tau.interval=tau.interval,

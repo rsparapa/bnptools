@@ -27,7 +27,7 @@ for(i in 1:N)
     impute.prob[i, which(x[i, ]==1)]=0.9
 
 set.seed(34)
-post = gbart(X., y, impute.mult=1:3,
+post = mc.gbart(X., y, impute.mult=1:3,
              impute.prob=impute.prob,
              sparse=TRUE)
 
