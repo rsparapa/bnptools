@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2018 Robert McCulloch and Rodney Sparapani
+## gbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -27,7 +28,7 @@ gbart=function(
                rm.const=TRUE,
                sigest=NA, sigdf=3, sigquant=0.90,
                k=2, power=2, base=0.95,
-               impute.mult=NULL, impute.prob=NULL,
+               impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
                lambda=NA, tau.num=c(NA, 3, 6)[ntype],
                offset=NULL, w=rep(1, length(y.train)),
                ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
@@ -84,10 +85,12 @@ gbart=function(
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
     if(check>1) {
         impute.flag=TRUE
-        impute.miss=integer(n)
-        for(j in 1:check) {
-            i=impute.mult[j]
-            impute.miss = pmax(impute.miss, is.na(x.train[i, ]))
+        if(length(impute.miss)==0) {
+            impute.miss=integer(n)
+            for(j in 1:check) {
+                i=impute.mult[j]
+                impute.miss = pmax(impute.miss, is.na(x.train[i, ]))
+            }
         }
         if(length(impute.prob)==0) {
             impute.prob=double(check)

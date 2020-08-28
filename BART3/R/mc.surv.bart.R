@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017-2018 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2020 Robert McCulloch and Rodney Sparapani
 ## mc.surv.bart.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,7 @@ mc.surv.bart <- function(
                          k = 2.0, ## BEWARE: do NOT use k for other purposes below
                          power = 2.0, base = 0.95,
                          offset = NULL, tau.num=c(NA, 3, 6)[ntype],
+                         impute.mult=NULL, impute.prob=NULL,
                          ##binaryOffset = NULL,
                          ntree = 50L, numcut = 100L,
                          ndpost = 1000L, nskip = 250L, keepevery = 10L,
@@ -61,6 +62,10 @@ mc.surv.bart <- function(
     x.train <- bartModelMatrix(x.train)
     x.test <- bartModelMatrix(x.test)
 
+    impute = length(impute.mult)
+    if(impute==1)
+        stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
+
     if(length(y.train)==0) {
         pre <- surv.pre.bart(times, delta, x.train, x.test, K=K,
                              events=events, ztimes=ztimes, zdelta=zdelta)
@@ -69,6 +74,18 @@ mc.surv.bart <- function(
         x.train <- pre$tx.train
         x.test  <- pre$tx.test
 
+        if(impute>1) {
+            impute.mult=impute.mult+1 ## move columns over by 1 for t
+            pre=surv.pre.bart(times, delta, impute.prob, K=K, events=events)
+            impute.prob=pre$tx.train[ , -1]
+            impute.miss=pre$tx.train[ , 1]*0
+            for(j in 1:impute) {
+                i=impute.mult[j]
+                impute.miss = pmax(impute.miss, is.na(x.train[ , i]))
+            }
+            impute.mask=(pre$tx.train[ , 1]>pre$times[1])*impute.miss
+            impute.miss=impute.miss+impute.mask
+        }
         ##if(length(binaryOffset)==0) binaryOffset <- pre$binaryOffset
     }
     else {
@@ -119,6 +136,8 @@ mc.surv.bart <- function(
                           rm.const=rm.const, type=type,
                           k=k, power=power, base=base,
                           offset=offset, tau.num=tau.num,
+                          impute.mult=impute.mult, impute.prob=impute.prob,
+                          impute.miss=impute.miss,
                           ##binaryOffset=binaryOffset,
                           ntree=ntree, numcut=numcut,
                           ndpost=mc.ndpost, nskip=nskip, keepevery=keepevery,

@@ -299,6 +299,7 @@ if(type==1) {
    double *svec = new double[n]; 
    double *sign;
    if(type!=1) sign = new double[n]; 
+   Rcpp::IntegerVector prevXV(p);
 
    for(size_t i=0; i<n; i++) {
      if(type==1) {
@@ -317,11 +318,16 @@ if(type==1) {
 	 Rcpp::NumericVector impute_prob(impute_prior.row(i));
 	 k=gen.rcat(impute_prob); // use prior prob only
 	 for(size_t j=0; j<K; j++) {
-	   if(j==k) XV(impute_mult[j], i)=1;
-	   else XV(impute_mult[j], i)=0;
+	   XV(impute_mult[j], i)=0;
+	   prevXV[impute_mult[j]]=0;
 	 }
+	 XV(impute_mult[k], i)=1;
+	 prevXV[impute_mult[k]]=1;
        }
      }
+     else if(impute_miss[i]==2) 
+       for(size_t j=0; j<K; j++) 
+	 XV(impute_mult[j], i)=prevXV[impute_mult[j]];
    }
    //--------------------------------------------------
    //set up BART model
@@ -387,11 +393,16 @@ if(type==1) {
 	    }
 	    size_t h;
 	    h=gen.rcat(impute_post); 
-	    for(size_t j=0; j<K; j++) {
-	      if(j==h) XV(impute_mult[j], k)=1;
-	      else XV(impute_mult[j], k)=0;
-	    }	    
+	    for(size_t j=0; j<K; j++) { 
+	      XV(impute_mult[j], k)=0;
+	      prevXV[impute_mult[j]]=0;
+	    }
+	    XV(impute_mult[h], k)=1;
+	    prevXV[impute_mult[h]]=1;
 	  }
+	  else if(impute_miss[i]==2) 
+	    for(size_t j=0; j<K; j++) 
+	      XV(impute_mult[j], k)=prevXV[impute_mult[j]];
 	}
       }
 
