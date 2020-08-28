@@ -1,11 +1,14 @@
 
+Changes and New Features in 4.0 (2020-08-28):
+
 Changes and New Features in 3.9 (2020-07-30):
 	* Hot decked version of FPD, S3 method HDPFD, completed 
 	with its corresponding variance adjustment
 
 Changes and New Features in 3.8 (2020-07-13):
 	* New support for covariate missing imputation of a category
-	  see the new argument to gbart: impute.mult
+	  see the new arguments to gbart: impute.mult, impute.prob
+	  and impute.miss
 
 Changes and New Features in 3.7 (2020-06-10):
 	* Experimental support for Modified LISA: ml.gbart() function

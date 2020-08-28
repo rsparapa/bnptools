@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2018 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2018-2020 Robert McCulloch and Rodney Sparapani
 ## gbart.R
 
 ## This program is free software; you can redistribute it and/or modify
