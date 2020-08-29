@@ -252,7 +252,6 @@ gbart=function(
                 xinfo,
                 shards,
                 impute.mult,
-                ## as.integer(impute.mult-1), ## convert to C/C++ indices
                 impute.miss,
                 impute.prob
                 )

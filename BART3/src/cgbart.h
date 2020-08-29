@@ -313,14 +313,15 @@ if(type==1) {
        z[i] = sign[i];
      }
      if(K>0) {
-       if(impute_miss[i]==1) {
-	 size_t k;
-	 Rcpp::NumericVector impute_prob(impute_prior.row(i));
-	 k=gen.rcat(impute_prob); // use prior prob only
+       //if(impute_miss[i]==1) {
+       if(impute_miss[i]>0) {
 	 for(size_t j=0; j<K; j++) {
 	   XV(impute_mult[j], i)=0;
 	   prevXV[impute_mult[j]]=0;
 	 }
+	 size_t k;
+	 Rcpp::NumericVector impute_prob(impute_prior.row(i));
+	 k=gen.rcat(impute_prob); // use prior prob only
 	 XV(impute_mult[k], i)=1;
 	 prevXV[impute_mult[k]]=1;
        }
@@ -382,7 +383,8 @@ if(type==1) {
 
       if(K>0) {
 	for(size_t k=0; k<n; ++k) {
-	  if(impute_miss[k]==1) {
+	  //if(impute_miss[k]==1) {
+	  if(impute_miss[k]>0) {
 	    impute_Xrow_ptr=&XV(0, k);
 	    impute_post=impute_prior.row(k);
 	    for(size_t j=0; j<K; ++j) {
@@ -391,12 +393,12 @@ if(type==1) {
 	      bm.predict(p, 1, impute_Xrow_ptr, &impute_fhat_ptr[j]);
 	      impute_post[j] *= R::dnorm(z[k], impute_fhat_ptr[j], svec[k], 0); 
 	    }
-	    size_t h;
-	    h=gen.rcat(impute_post); 
 	    for(size_t j=0; j<K; j++) { 
 	      XV(impute_mult[j], k)=0;
 	      prevXV[impute_mult[j]]=0;
 	    }
+	    size_t h;
+	    h=gen.rcat(impute_post); 
 	    XV(impute_mult[h], k)=1;
 	    prevXV[impute_mult[h]]=1;
 	  }
