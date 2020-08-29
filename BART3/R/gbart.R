@@ -107,7 +107,7 @@ gbart=function(
         impute.flag=FALSE
         impute.mult=integer(0) ## integer vector of column indicators for missing covariates
         impute.miss=integer(0) ## integer vector of row indicators for missing values
-        impute.prob=matrix(nrow=0, ncol=0)  
+        impute.prob=matrix(nrow=0, ncol=0)
     }
 
     check <- unique(sort(y.train))
@@ -251,7 +251,7 @@ gbart=function(
                 printevery,
                 xinfo,
                 shards,
-                impute.mult, 
+                impute.mult,
                 ## as.integer(impute.mult-1), ## convert to C/C++ indices
                 impute.miss,
                 impute.prob
@@ -319,6 +319,7 @@ gbart=function(
     dimnames(res$varprob)[[2]] = as.list(dimnames(x.train)[[1]])
     res$varcount.mean <- apply(res$varcount, 2, mean)
     res$varprob.mean <- apply(res$varprob, 2, mean)
+    if(impute.flag) res$impute.miss = impute.miss
     res$rm.const <- rm.const
     res$ndpost = ndpost
     attr(res, 'class') <- type
