@@ -28,7 +28,8 @@ gbart=function(
                rm.const=TRUE,
                sigest=NA, sigdf=3, sigquant=0.90,
                k=2, power=2, base=0.95,
-               impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
+               impute.mult=NULL, impute.prob=NULL,
+               impute.miss=NULL,
                lambda=NA, tau.num=c(NA, 3, 6)[ntype],
                offset=NULL, w=rep(1, length(y.train)),
                ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
@@ -103,7 +104,10 @@ gbart=function(
                                nrow=n, ncol=check, byrow=TRUE)
         }
         impute.mult=as.integer(impute.mult-1) ## convert from R index to C/C++
+        ##impute=list(mult=impute.mult, miss=impute.miss)
+                   ## prior=impute.prob)
     } else {
+        ##impute=list()
         impute.flag=FALSE
         impute.mult=integer(0) ## integer vector of column indicators for missing covariates
         impute.miss=integer(0) ## integer vector of row indicators for missing values

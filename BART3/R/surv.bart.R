@@ -70,19 +70,25 @@ surv.bart <- function(
 
         times   <- pre$times
         K       <- pre$K
-        
+
         if(impute>1) {
+            N = length(y.train)
+            y.train = y.train[N:1] ## backwards
+            x.train = x.train[N:1, ]
             impute.mult=impute.mult+1 ## move columns over by 1 for t
             pre=surv.pre.bart(times, delta, impute.prob, K=K, events=events)
-            impute.prob=pre$tx.train[ , -1]
+            impute.prob=pre$tx.train[N:1, -1]
             impute.miss=pre$tx.train[ , 1]*0
             for(j in 1:impute) {
                 i=impute.mult[j]
                 impute.miss = pmax(impute.miss, is.na(x.train[ , i]))
             }
-            impute.mask=(pre$tx.train[ , 1]>pre$times[1])*impute.miss
-            impute.miss=impute.miss+impute.mask
-        }
+            impute.mask=impute.miss
+            j=c(1, which(x.train[ , 1]==pre$times[1])+1)
+            impute.mask[j[-length(j)]] = 0 ## the last j is N+1
+            ##impute.mask=(pre$tx.train[ , 1]>pre$times[1])*impute.miss
+            impute.miss=impute.miss+impute.mask ## 1 impute, 2 retain
+        }        
         ##if(length(binaryOffset)==0) binaryOffset <- pre$binaryOffset
     }
     else {

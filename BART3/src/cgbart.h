@@ -75,6 +75,22 @@ RcppExport SEXP cgbart(
    
    Rcpp::NumericMatrix xv(_ix); // transposed:  p rows, n columns
    double *ix = &XV(0, 0);
+
+/*
+   size_t K;
+   Rcpp::List impute(_impute);
+   Rcpp::IntegerVector impute_mult, impute_miss;
+//   Rcpp::NumericVector impute_y;
+//   Rcpp::NumericMatrix impute_prior;
+   if(impute.size()==0) K=0;
+   else {
+     K=impute_mult.size();
+     impute_mult=impute["mult"];
+     impute_miss=impute["miss"];
+//     impute_prior=impute["prior"];
+//     impute_y=impute["y"];
+   }
+*/
    Rcpp::IntegerVector impute_mult(_impute_mult); // integer vector of column indicators for missing covariates
    size_t K = impute_mult.size(); // number of columns to impute
    Rcpp::IntegerVector impute_miss(_impute_miss); // length n: integer vector of row indicators for missing values
@@ -313,8 +329,8 @@ if(type==1) {
        z[i] = sign[i];
      }
      if(K>0) {
-       //if(impute_miss[i]==1) {
-       if(impute_miss[i]>0) {
+       if(impute_miss[i]==1) {
+       //if(impute_miss[i]>0) {
 	 for(size_t j=0; j<K; j++) {
 	   XV(impute_mult[j], i)=0;
 	   prevXV[impute_mult[j]]=0;
@@ -383,8 +399,8 @@ if(type==1) {
 
       if(K>0) {
 	for(size_t k=0; k<n; ++k) {
-	  //if(impute_miss[k]==1) {
-	  if(impute_miss[k]>0) {
+	  if(impute_miss[k]==1) {
+	  //if(impute_miss[k]>0) {
 	    impute_Xrow_ptr=&XV(0, k);
 	    impute_post=impute_prior.row(k);
 	    for(size_t j=0; j<K; ++j) {
