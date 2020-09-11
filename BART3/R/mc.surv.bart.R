@@ -70,40 +70,45 @@ mc.surv.bart <- function(
         pre <- surv.pre.bart(times, delta, x.train, x.test, K=K,
                              events=events, ztimes=ztimes, zdelta=zdelta)
 
-        y.train <- pre$y.train
-        x.train <- pre$tx.train
-        x.test  <- pre$tx.test
+        tx.train <- pre$tx.train
+        tx.test  <- pre$tx.test
+        ## due to hot decking multiple imputation by child process
+        ## the following steps can only be performed by surv.bart
+        ## y.train <- pre$y.train
+        ## x.train <- pre$tx.train
+        ## x.test  <- pre$tx.test
 
-        if(impute>1) {
-            N = length(y.train)
-            y.train = y.train[N:1] ## backwards
-            x.train = x.train[N:1, ]
-            impute.mult=impute.mult+1 ## move columns over by 1 for t
-            pre=surv.pre.bart(times, delta, impute.prob, K=K, events=events)
-            impute.prob=pre$tx.train[N:1, -1]
-            impute.miss=pre$tx.train[ , 1]*0
-            for(j in 1:impute) {
-                i=impute.mult[j]
-                impute.miss = pmax(impute.miss, is.na(x.train[ , i]))
-            }
-            impute.mask=impute.miss
-            j=c(1, which(x.train[ , 1]==pre$times[1])+1)
-            impute.mask[j[-length(j)]] = 0 ## the last j is N+1
-            ##impute.mask=(pre$tx.train[ , 1]>pre$times[1])*impute.miss
-            impute.miss=impute.miss+impute.mask ## 1 impute, 2 retain
-        }
-        ##if(length(binaryOffset)==0) binaryOffset <- pre$binaryOffset
+        ## if(impute>1) {
+        ##     N = length(y.train)
+        ##     y.train = y.train[N:1] ## backwards
+        ##     x.train = x.train[N:1, ]
+        ##     impute.mult=impute.mult+1 ## move columns over by 1 for t
+        ##     pre=surv.pre.bart(times, delta, impute.prob, K=K, events=events)
+        ##     impute.prob=pre$tx.train[N:1, -1]
+        ##     impute.miss=pre$tx.train[ , 1]*0
+        ##     for(j in 1:impute) {
+        ##         i=impute.mult[j]
+        ##         impute.miss = pmax(impute.miss, is.na(x.train[ , i]))
+        ##     }
+        ##     impute.mask=impute.miss
+        ##     j=c(1, which(x.train[ , 1]==pre$times[1])+1)
+        ##     impute.mask[j[-length(j)]] = 0 ## the last j is N+1
+        ##     impute.miss=impute.miss+impute.mask ## 1 impute, 2 retain
+        ## }
     }
     else {
         if(length(unique(sort(y.train)))>2)
             stop('y.train has >2 values; make sure you specify times=times & delta=delta')
 
+        tx.train <- x.train
+        tx.test  <- x.test
         ##if(length(binaryOffset)==0) binaryOffset <- 0
     }
 
     H <- 1
     Mx <- 2^31-1
-    Nx <- max(nrow(x.train), nrow(x.test))
+    Nx <- max(nrow(tx.train), nrow(tx.test))
+    ##Nx <- max(nrow(x.train), nrow(x.test))
 
     if(Nx>Mx%/%ndpost) {
         H <- ceiling(ndpost / (Mx %/% Nx))
@@ -176,7 +181,7 @@ mc.surv.bart <- function(
                     post <- post.list[[1]][[mc.cores]]
                     post$ndpost <- H*mc.cores*mc.ndpost
 
-                    p <- ncol(x.train[ , post$rm.const])
+                    p <- ncol(tx.train[ , post$rm.const])
 
                     old.text <- paste0(as.character(mc.ndpost), ' ',
                                        as.character(ntree), ' ', as.character(p))
@@ -195,7 +200,7 @@ mc.surv.bart <- function(
                     ##      ##post$surv.train <- rbind(post$surv.train, post.list[[h]][[i]]$surv.train)
                     ## } else {
 
-                    if(length(x.test)>0) {
+                    if(length(tx.test)>0) {
                         post$yhat.test <- rbind(post$yhat.test,
                                                 post.list[[h]][[i]]$yhat.test)
                         post$prob.test <- rbind(post$prob.test,
@@ -236,7 +241,7 @@ mc.surv.bart <- function(
         ## if(length(post$yhat.test.mean)>0)
         ##     post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
 
-        if(length(x.test)>0)
+        if(length(tx.test)>0)
             post$surv.test.mean <- apply(post$surv.test, 2, mean)
 
         post$varcount.mean <- apply(post$varcount, 2, mean)
