@@ -22,6 +22,7 @@ FPD=function(object,  ## object returned from BART
              x.test,  ## settings of x.test: only x.test[ , S]
                       ## are used but they must all be given
              S,       ## indices of subset
+             dots=NULL,## list of extra parameters if needed
              mc.cores=1L,
              mult.impute=4L,
              seed=99L)

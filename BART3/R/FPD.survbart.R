@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## FPD.survbart
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,7 +18,7 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## Friedman's partial dependence (FPD) function
-FPD.wbart=function(object,  ## object returned from BART
+FPD.survbart=function(object,  ## object returned from BART
                    x.train, ## x.train to estimate coverage
                    x.test,  ## settings of x.test: only x.test[ , S]
                             ## are used but they must all be given
@@ -39,7 +40,7 @@ FPD.wbart=function(object,  ## object returned from BART
     if(P!=ncol(x.test))
         stop('the number of columns in x.train and x.test are not the same')
 
-    if(P!=length(object$treedraws$cutpoints))
+    if(P!=(length(object$treedraws$cutpoints)-1))
         stop(paste0('the number of columns in x.train and\n',
                     'the length of cutpoints are not the same'))
 
@@ -50,19 +51,47 @@ FPD.wbart=function(object,  ## object returned from BART
                 stop(paste0('Row ', i, ' and ', j,
                             ' of x.test are equal with respect to S'))
 
+    N=nrow(x.train)
+    K=object$K
+    NK=N*K
+    M=object$ndpost
+    probs=dots$probs
+    if(length(probs)==0) probs=c(0.025, 0.975)
     set.seed(seed)
     X.test = x.train
     for(i in 1:Q) {
-        for(j in S)
-            X.test[ , j]=x.test[i, j]
-        pred.=apply(predict(object, X.test, mc.cores=mc.cores,
-                            mult.impute=mult.impute, seed=NA), 1, mean)
-        if(i==1)
-            pred=cbind(pred.)
-        else
-            pred=cbind(pred, pred.)
+        for(j in S) X.test[ , j]=x.test[i, j]
+        pre=surv.pre.bart(times=dots$times, delta=dots$delta,
+                          x.train=X.test, x.test=X.test,
+                          K=dots$K, events=dots$events,
+                          ztimes=dots$ztimes, zdelta=dots$zdelta)
+        pred=predict(object, pre$tx.test, mc.cores=mc.cores,
+                            mult.impute=mult.impute, seed=NA)
+        prob.test.=matrix(nrow=M, ncol=K)
+        surv.test.=matrix(nrow=M, ncol=K)
+        for(k in 1:K) {
+            h=seq(k, NK, K)
+            prob.test.[ , k]=apply(pred$prob.test[ , h], 1, mean)
+            surv.test.[ , k]=apply(pred$surv.test[ , h], 1, mean)
+        }
+        if(i==1) {
+            prob.test=cbind(prob.test.)
+            surv.test=cbind(surv.test.)
+        } else {
+            prob.test=cbind(prob.test, prob.test.)
+            surv.test=cbind(surv.test, surv.test.)
+        }
     }
-
+    prob.test.mean=apply(prob.test, 2, mean)
+    prob.test.lower=apply(prob.test, 2, quantile, probs[1])
+    prob.test.upper=apply(prob.test, 2, quantile, probs[2])
+    surv.test.mean=apply(surv.test, 2, mean)
+    surv.test.lower=apply(surv.test, 2, quantile, probs[1])
+    surv.test.upper=apply(surv.test, 2, quantile, probs[2])
+    pred=list(surv.test=surv.test, surv.test.mean=surv.test.mean,
+              surv.test.lower=surv.test.lower, surv.test.upper=surv.test.upper,
+              prob.test=prob.test, prob.test.mean=prob.test.mean,
+              prob.test.lower=prob.test.lower, prob.test.upper=prob.test.upper)
     return(pred)
 }
 
