@@ -20,7 +20,7 @@
 HDimpute=function(x.train,
                   x.test=matrix(0, 0, 0),
                   impute.mult=NULL
-                 )
+                  )
 {   ## NOT TRANSPOSED
     P = ncol(x.train)
     N = nrow(x.train)
@@ -38,44 +38,61 @@ HDimpute=function(x.train,
     ## hot deck missing imputation
     ## ignore columns for multinomial imputation in training
 
-    check=(Q>0 && Q==N) ## are x.train and x.test the same?
+    miss.train=apply(is.na(x.train), 2, sum)
+    names(miss.train)=dimnames(x.train)[[2]]
+    if(impute.flag) miss.train[impute.mult]=0
+    miss.train.=(sum(miss.train)>0)
 
-    if(check)
-        for(i in 1:N) {
-            for(j in 1:P) {
-                check=((is.na(x.train[i, j]) &&
-                        is.na(x.test[i, j])) ||
-                       (!is.na(x.train[i, j]) &&
-                        !is.na(x.test[i, j]) &&
-                        x.train[i, j]==x.test[i, j]))
-                if(!check) break
-            }
-            if(!check) break
-        }
-
-    for(i in 1:N)
-        for(j in 1:P)
-            if(impute.flag && !(j %in% impute.mult)) {
-                k = is.na(x.train[i, ])
-                if(impute.flag) k[impute.mult]=FALSE
-                while(is.na(x.train[i, j])) {
-                    h=sample.int(N, 1)
-                    x.train[i, which(k)]=x.train[h, which(k)]
-                }
-            }
-
-    if(check && !impute.flag) x.test=x.train
-    else if(Q>0) {
-        if(check) x.test=x.train ## to hot-deck impute.mult columns only
-        for(i in 1:Q)
-            for(j in 1:P) {
-                k = is.na(x.train[i, ])
-                while(is.na(x.test[i, j])) {
-                    h=sample.int(Q, 1)
-                    x.test[i, which(k)]=x.test[h, which(k)]
-                }
-            }
+    miss.test.=0
+    miss.test=NULL
+    if(Q>0) {
+        miss.test=apply(is.na(x.test), 2, sum)
+        names(miss.test)=dimnames(x.test)[[2]]
+        if(impute.flag) miss.test[impute.mult]=0
+        miss.test.=(sum(miss.test)>0)
     }
 
-    return(list(x.train=x.train, x.test=x.test))
+    if(miss.train.>0 || miss.test.>0) {
+        check=(Q>0 && Q==N) ## are x.train and x.test the same?
+
+        if(check)
+            for(i in 1:N) {
+                for(j in 1:P) {
+                    check=((is.na(x.train[i, j]) &&
+                            is.na(x.test[i, j])) ||
+                           (!is.na(x.train[i, j]) &&
+                            !is.na(x.test[i, j]) &&
+                            x.train[i, j]==x.test[i, j]))
+                    if(!check) break
+                }
+                if(!check) break
+            }
+
+        for(i in 1:N)
+            for(j in 1:P)
+                if(impute.flag && !(j %in% impute.mult)) {
+                    k = is.na(x.train[i, ])
+                    if(impute.flag) k[impute.mult]=FALSE
+                    while(is.na(x.train[i, j])) {
+                        h=sample.int(N, 1)
+                        x.train[i, which(k)]=x.train[h, which(k)]
+                    }
+                }
+
+        if(check && !impute.flag) x.test=x.train
+        else if(Q>0) {
+            if(check) x.test=x.train ## to hot-deck impute.mult columns only
+            for(i in 1:Q)
+                for(j in 1:P) {
+                    k = is.na(x.train[i, ])
+                    while(is.na(x.test[i, j])) {
+                        h=sample.int(Q, 1)
+                        x.test[i, which(k)]=x.test[h, which(k)]
+                    }
+                }
+        }
+    }
+    
+    return(list(x.train=x.train, x.test=x.test,
+                miss.train=miss.train, miss.test=miss.test))
 }

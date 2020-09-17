@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017 Robert McCulloch and Rodney Sparapani
+## Copyright (C)-2020 2017 Robert McCulloch and Rodney Sparapani
+## predict.pbart
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -18,6 +19,7 @@
 
 predict.pbart <- function(object, newdata, mc.cores=1,
                           openmp=(mc.cores.openmp()>0),
+                          mult.impute=4L, seed=99L, 
                           probs=c(0.025, 0.975), ...) {
 
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
@@ -39,9 +41,20 @@ predict.pbart <- function(object, newdata, mc.cores=1,
 
     if(length(object$binaryOffset)==0) object$binaryOffset=object$offset
 
-    pred <- list(yhat.test=call(newdata, object$treedraws, mc.cores=mc.cores,
-                                mu=object$binaryOffset, ...))
+    ## HD imputation 
+    check = HDimpute(newdata)
 
+    if(sum(check$miss.train)==0) mult.impute=1
+
+    pred=list()
+    
+    for(i in 1:mult.impute) {
+        yhat.test=call(newdata, object$treedraws, mc.cores=mc.cores,
+                       mu=object$binaryOffset, ...)/mult.impute
+        if(i==1) pred$yhat.test=yhat.test
+        else pred$yhat.test=pred$yhat.test+yhat.test
+    }
+    
     pred$prob.test <- pnorm(pred$yhat.test)
     pred$prob.test.mean <- apply(pred$prob.test, 2, mean)
     pred$prob.test.lower <- apply(pred$prob.test, 2, quantile,
@@ -52,5 +65,19 @@ predict.pbart <- function(object, newdata, mc.cores=1,
     attr(pred, 'class') <- 'pbart'
 
     return(pred)
+    
+    ## pred <- list(yhat.test=call(newdata, object$treedraws, mc.cores=mc.cores,
+    ##                             mu=object$binaryOffset, ...))
+
+    ## pred$prob.test <- pnorm(pred$yhat.test)
+    ## pred$prob.test.mean <- apply(pred$prob.test, 2, mean)
+    ## pred$prob.test.lower <- apply(pred$prob.test, 2, quantile,
+    ##                               probs=min(probs))
+    ## pred$prob.test.upper <- apply(pred$prob.test, 2, quantile,
+    ##                               probs=max(probs))
+    ## pred$binaryOffset <- object$binaryOffset
+    ## attr(pred, 'class') <- 'pbart'
+
+    ## return(pred)
 }
 

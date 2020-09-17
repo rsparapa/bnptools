@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
-## FPD.wbart
+## FPD.pbart
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## Friedman's partial dependence (FPD) function
-FPD.wbart=function(object,  ## object returned from BART
+FPD.pbart=function(object,  ## object returned from BART
                    x.train, ## x.train to estimate coverage
                    x.test,  ## settings of x.test: only x.test[ , S]
                             ## are used but they must all be given
@@ -56,13 +56,20 @@ FPD.wbart=function(object,  ## object returned from BART
     for(i in 1:Q) {
         for(j in S)
             X.test[ , j]=x.test[i, j]
-        pred.=apply(predict(object, X.test, mc.cores=mc.cores,
-                            mult.impute=mult.impute, seed=NA), 1, mean)
-        if(i==1)
-            pred=cbind(pred.)
+        pred=apply(predict(object, X.test, mc.cores=mc.cores,
+                           mult.impute=mult.impute, seed=NA)$yhat.test,
+                   1, mean)
+        if(i==1) 
+            yhat.test=cbind(pred)
         else
-            pred=cbind(pred, pred.)
+            yhat.test=cbind(yhat.test, pred)
     }
+
+    prob.test=pnorm(yhat.test)
+    yhat.test.mean=apply(yhat.test, 2, mean)
+    prob.test.mean=apply(prob.test, 2, mean)
+    pred=list(prob.test=prob.test, prob.test.mean=prob.test.mean,
+              yhat.test=yhat.test, yhat.test.mean=yhat.test.mean)
 
     return(pred)
 }
