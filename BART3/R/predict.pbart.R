@@ -51,9 +51,13 @@ predict.pbart <- function(object, newdata, mc.cores=1,
     for(i in 1:mult.impute) {
         yhat.test=call(newdata, object$treedraws, mc.cores=mc.cores,
                        mu=object$binaryOffset, ...)/mult.impute
-        if(i==1) pred$yhat.test=yhat.test
+        if(i==1) {
+            sink('/dev/null')
+            pred$yhat.test=yhat.test
+        }
         else pred$yhat.test=pred$yhat.test+yhat.test
     }
+    sink()
     
     pred$prob.test <- pnorm(pred$yhat.test)
     pred$prob.test.mean <- apply(pred$prob.test, 2, mean)
