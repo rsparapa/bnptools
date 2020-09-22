@@ -18,7 +18,7 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 write.trees=function(treedraws, ## treedraws item returned from BART
-                     file = "", ## default prints to stdout
+                     ##file = "", ## default prints to stdout
                      thin = 1)  ## default to no thinning
 {
     Trees. = read.trees(treedraws, call=TRUE)
@@ -49,6 +49,7 @@ write.trees=function(treedraws, ## treedraws item returned from BART
                                     Trees.[[i]][[j]]$leaf[k], '\n')
                 }
         }
-    if(file!="") cat(line., file=file, sep="")
-    else return(line.)
+    ## if(file!="") cat(line., file=file, sep="")
+    ## else return(line.)
+    return(paste0(line., collapse=""))
 }
