@@ -41,6 +41,7 @@ HDimpute=function(x.train,
     miss.train=apply(is.na(x.train), 2, sum)
     names(miss.train)=dimnames(x.train)[[2]]
     if(impute.flag) miss.train[impute.mult]=0
+    else impute.mult=0
     miss.train.=(sum(miss.train)>0)
 
     miss.test.=0
@@ -53,24 +54,24 @@ HDimpute=function(x.train,
     }
 
     if(miss.train.>0 || miss.test.>0) {
-        check=(Q>0 && Q==N) ## are x.train and x.test the same?
+        same=(Q>0 && Q==N) ## are x.train and x.test the same?
 
-        if(check)
+        if(same)
             for(i in 1:N) {
                 for(j in 1:P) {
-                    check=((is.na(x.train[i, j]) &&
+                    same=((is.na(x.train[i, j]) &&
                             is.na(x.test[i, j])) ||
                            (!is.na(x.train[i, j]) &&
                             !is.na(x.test[i, j]) &&
                             x.train[i, j]==x.test[i, j]))
-                    if(!check) break
+                    if(!same) break
                 }
-                if(!check) break
+                if(!same) break
             }
 
         for(i in 1:N)
             for(j in 1:P)
-                if(impute.flag && !(j %in% impute.mult)) {
+                if(!(j %in% impute.mult)) {
                     k = is.na(x.train[i, ])
                     if(impute.flag) k[impute.mult]=FALSE
                     while(is.na(x.train[i, j])) {
@@ -79,9 +80,9 @@ HDimpute=function(x.train,
                     }
                 }
 
-        if(check && !impute.flag) x.test=x.train
+        if(same && !impute.flag) x.test=x.train
         else if(Q>0) {
-            if(check) x.test=x.train ## to hot-deck impute.mult columns only
+            if(same) x.test=x.train ## to hot-deck impute.mult columns only
             for(i in 1:Q)
                 for(j in 1:P) {
                     k = is.na(x.train[i, ])
@@ -92,7 +93,8 @@ HDimpute=function(x.train,
                 }
         }
     }
-    
+
     return(list(x.train=x.train, x.test=x.test,
-                miss.train=miss.train, miss.test=miss.test))
+                miss.train=miss.train, miss.test=miss.test,
+                impute.flag=impute.flag, same=same))
 }
