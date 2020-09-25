@@ -26,6 +26,7 @@ geweke.rs.pbart    Geweke diagnostics for binary outcomes with BART and random s
 geweke.surv.bart   Geweke diagnostics for survival analysis with BART
 geweke.lung.surv.bart   Geweke diagnostics for advanced lung cancer survival analysis with BART
 imputation         Imputing a categorical covariate variable with BART
+imputation.probit         Imputing a categorical covariate variable with proboit BART
 inform.null.gbart  Specifying an informative null hypothesis prior with BART
 inform.alt.gbart   Specifying an informative alternative hypothesis prior with BART
 dm.recur.bart	   Diabetes and hospital admission example for recurrent events with BART
