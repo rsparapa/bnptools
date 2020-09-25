@@ -448,8 +448,13 @@ if(type==1) {
             for(size_t k=0;k<n;k++) {
 	      TRDRAW(trcnt,k)=Offset+bm.f(k);
 	      if(K>0) {
-		IMPUTE_DRAW1(trcnt,k)=XV(impute_mult[0], k);
-		IMPUTE_DRAW2(trcnt,k)=XV(impute_mult[1], k);
+		if(impute_miss[k]==1) {
+		  IMPUTE_DRAW1(trcnt,k)=XV(impute_mult[0], k);
+		  IMPUTE_DRAW2(trcnt,k)=XV(impute_mult[1], k);
+		} else {
+		  IMPUTE_DRAW1(trcnt,k)=2;
+		  IMPUTE_DRAW2(trcnt,k)=2;
+		}
 	      }
 /*
 	      for(size_t j=0; j<K; ++j) {
