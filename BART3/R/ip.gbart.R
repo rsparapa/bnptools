@@ -83,23 +83,26 @@ ip.gbart <- function(
     shard. <- list()
     for(h in 1:shards) shard.[[h]] <- rs==h
 
-    post.list = list()
+    ##post.list = list()
     p = nrow(x.train) ## transposed: columns of x.train
     q = ncol(x.test)  ## transposed: rows of x.test
 
     for(h in 1:shards) {
         Y.train = y.train[ shard.[[h]] ]
         if(h==shards)  ## (h-1)/(shards-1)=1
-            Y.train = post.list[[h-1]]$yhat.test.mean
+            Y.train = post$yhat.test.mean
+            ##Y.train = post.list[[h-1]]$yhat.test.mean
         else if(h>1) { ## (h-1)/(shards-1)<1
             rs. <- stratrs(Y.train, shards-1, seed)
-            Y.train[rs.<h] = post.list[[h-1]]$yhat.test.mean[rs.<h]
-        } 
+            Y.train[rs.<h] = post$yhat.test.mean[rs.<h]
+            ##Y.train[rs.<h] = post.list[[h-1]]$yhat.test.mean[rs.<h]
+        }
 
         if(h==shards) X.test=x.test
         else X.test=x.train[ , shard.[[h+1]] ]
-        
-        post.list[[h]] = mc.gbart(x.train=x.train[ , shard.[[h]] ],
+
+        ##post.list[[h]] = mc.gbart(x.train=x.train[ , shard.[[h]] ],
+        post = mc.gbart(x.train=x.train[ , shard.[[h]] ],
                                   y.train=Y.train,
                                   x.test=X.test, type=type, ntype=ntype,
                                   sparse=sparse, theta=theta, omega=omega,
@@ -117,6 +120,7 @@ ip.gbart <- function(
                                   ##shards=shards, NO MODIFIED LISA TRICK
                                   transposed=TRUE)
         }
-    
-    return(post.list[[shards]])
+
+    return(post)
+    ##return(post.list[[shards]])
 }
