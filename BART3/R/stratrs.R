@@ -17,10 +17,12 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-stratrs <- function(y, C, seed=99)
+stratrs <- function(y, C, seed=NULL)
 {
-    set.seed(99)
     N <- length(y)
+    ## if(C*(N%/%C)!=N)
+    ##     stop("length of y is not divisible by C")
+    if(length(seed)>0) set.seed(seed)
     old.order = 1:N
     new.order = order(y)
     old.order = old.order[new.order]
@@ -29,6 +31,7 @@ stratrs <- function(y, C, seed=99)
         j=(i-1)*C
         strat[j+(1:C)]=sample.int(C)
     }
+##    strat=strat[1:N]
     return(strat[order(old.order)])
 }
 
