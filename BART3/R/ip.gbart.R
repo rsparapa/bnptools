@@ -79,30 +79,36 @@ ip.gbart <- function(
         rm(temp)
     }
 
-    rs <- stratrs(y.train, shards, seed)
-    shard. <- list()
-    for(h in 1:shards) shard.[[h]] <- rs==h
-
-    ##post.list = list()
-    p = nrow(x.train) ## transposed: columns of x.train
-    q = ncol(x.test)  ## transposed: rows of x.test
+    N = length(y.train)
+    s = 2*N*(shards:1)/(shards*(shards+1))
+    s[1]=s[shards]+s[1]
+    s[shards]=0
+    s=round(s)
+    s[1]=s[1]+N-sum(s)
+    strata = integer(N)
+    h=0
+    for(i in 1:(shards-1)) {
+        strata[h+(1:s[i])]=i
+        h=h+s[i]
+    }
 
     for(h in 1:shards) {
-        Y.train = y.train[ shard.[[h]] ]
-        if(h==shards)  ## (h-1)/(shards-1)=1
+        i=shards-h
+        if(h==1) {
+            Y.train = y.train[ strata==1 ]
+            X.train = x.train[ , strata==1 ]
+            X.test = x.train[ , strata==i ]
+        } else if(h==shards) {
             Y.train = post$yhat.test.mean
-            ##Y.train = post.list[[h-1]]$yhat.test.mean
-        else if(h>1) { ## (h-1)/(shards-1)<1
-            rs. <- stratrs(Y.train, shards-1, seed)
-            Y.train[rs.<h] = post$yhat.test.mean[rs.<h]
-            ##Y.train[rs.<h] = post.list[[h-1]]$yhat.test.mean[rs.<h]
+            X.train = x.train[ , strata==1 ]
+            X.test = x.test
+        } else {
+            Y.train = c(y.train[ strata==h ], post$yhat.test.mean)
+            X.train = cbind(x.train[ , strata==h ], X.test)
+            X.test = x.train[ , strata==i ]
         }
 
-        if(h==shards) X.test=x.test
-        else X.test=x.train[ , shard.[[h+1]] ]
-
-        ##post.list[[h]] = mc.gbart(x.train=x.train[ , shard.[[h]] ],
-        post = mc.gbart(x.train=x.train[ , shard.[[h]] ],
+        post = mc.gbart(x.train=X.train,
                                   y.train=Y.train,
                                   x.test=X.test, type=type, ntype=ntype,
                                   sparse=sparse, theta=theta, omega=omega,
@@ -122,5 +128,26 @@ ip.gbart <- function(
         }
 
     return(post)
-    ##return(post.list[[shards]])
 }
+
+    ## p = nrow(x.train) ## transposed: columns of x.train
+    ## q = ncol(x.test)  ## transposed: rows of x.test
+
+    ## rs <- stratrs(y.train, shards, seed)
+    ## shard. <- list()
+    ## for(h in 1:shards) shard.[[h]] <- rs==h
+
+    ## for(h in 1:shards) {
+    ##     Y.train = y.train[ shard.[[h]] ]
+    ##     if(h==shards)  ## (h-1)/(shards-1)=1
+    ##         Y.train = post$yhat.test.mean
+    ##     else if(h>1) { ## (h-1)/(shards-1)<1
+    ##         rs. <- stratrs(Y.train, shards-1, seed)
+    ##         Y.train[rs.<h] = post$yhat.test.mean[rs.<h]
+    ##     }
+
+    ##     if(h==shards) X.test=x.test
+    ##     else X.test=x.train[ , shard.[[h+1]] ]
+
+    ##     post = mc.gbart(x.train=x.train[ , shard.[[h]] ],
+
