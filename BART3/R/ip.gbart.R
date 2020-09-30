@@ -96,21 +96,27 @@ ip.gbart <- function(
         i=shards-h
         if(h==1) {
             Y.train = y.train[ strata==1 ]
+            n = length(Y.train)
+            z.draw = rep(1, n)
             X.train = x.train[ , strata==1 ]
             X.test = x.train[ , strata==i ]
         } else if(h==shards) {
             Y.train = post$yhat.test.mean
+            n = length(Y.train)
+            z.draw = rep(0, n)
             X.train = x.train[ , strata==1 ]
             X.test = x.test
         } else {
             Y.train = c(y.train[ strata==h ], post$yhat.test.mean)
+            n = length(Y.train)
+            m = length(post$yhat.test.mean)
+            z.draw = c(rep(1, n-m), rep(0, m))
             X.train = cbind(x.train[ , strata==h ], X.test)
             X.test = x.train[ , strata==i ]
         }
 
-        post = mc.gbart(x.train=X.train,
-                                  y.train=Y.train,
-                                  x.test=X.test, type=type, ntype=ntype,
+        post = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
+                        z.train=Y.train, z.draw=z.draw, type=type, ntype=ntype,
                                   sparse=sparse, theta=theta, omega=omega,
                                   a=a, b=b, augment=augment, rho=rho,
                                   xinfo=xinfo, usequants=usequants,
@@ -125,7 +131,9 @@ ip.gbart <- function(
                                   mc.cores=mc.cores, nice=nice, seed=seed,
                                   ##shards=shards, NO MODIFIED LISA TRICK
                                   transposed=TRUE)
-        }
+
+        if(class(post)[1]!=type) return(post)
+    }
 
     return(post)
 }

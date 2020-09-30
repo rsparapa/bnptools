@@ -18,8 +18,8 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 mc.gbart <- function(
-                     x.train, y.train,
-                     x.test=matrix(0,0,0), type='wbart',
+                     x.train, y.train, x.test=matrix(0,0,0),
+                     z.train=y.train, z.draw=NULL, type='wbart',
                      ntype=as.integer(
                          factor(type,
                                 levels=c('wbart', 'pbart', 'lbart'))),
@@ -46,14 +46,14 @@ mc.gbart <- function(
     if(is.na(ntype))
         stop("type argument must be set to either 'wbart', 'pbart' or 'lbart'")
 
-    check <- unique(sort(y.train))
+    ## check <- unique(sort(y.train))
 
-    if(length(check)==2) {
-        if(!all(check==0:1))
-            stop('Binary y.train must be coded as 0 and 1')
-        if(type=='wbart')
-            stop("The outcome is binary so set type to 'pbart' or 'lbart'")
-    }
+    ## if(length(check)==2) {
+    ##     if(!all(check==0:1))
+    ##         stop('Binary y.train must be coded as 0 and 1')
+    ##     if(type=='wbart')
+    ##         stop("The outcome is binary so set type to 'pbart' or 'lbart'")
+    ## }
 
     if(.Platform$OS.type!='unix')
         stop('parallel::mcparallel/mccollect do not exist on windows')
@@ -61,7 +61,7 @@ mc.gbart <- function(
     RNGkind("L'Ecuyer-CMRG")
     set.seed(seed)
     parallel::mc.reset.stream()
-    
+
     if(length(impute.mult)==1)
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
 
@@ -92,7 +92,8 @@ mc.gbart <- function(
     for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);
             gbart(x.train=x.train, y.train=y.train,
-                  x.test=x.test, type=type, ntype=ntype,
+                  x.test=x.test, z.draw=z.draw,
+                  type=type, ntype=ntype,
                   sparse=sparse, theta=theta, omega=omega,
                   a=a, b=b, augment=augment, rho=rho,
                   xinfo=xinfo, usequants=usequants,
@@ -100,7 +101,7 @@ mc.gbart <- function(
                   sigest=sigest, sigdf=sigdf, sigquant=sigquant,
                   k=k, power=power, base=base,
                   impute.mult=impute.mult, impute.prob=impute.prob,
-                  impute.miss=impute.miss, 
+                  impute.miss=impute.miss,
                   ##sigmaf=sigmaf,
                   lambda=lambda, tau.num=tau.num,
                   ##tau.interval=tau.interval,

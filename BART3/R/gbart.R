@@ -18,8 +18,8 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 gbart=function(
-               x.train, y.train,
-               x.test=matrix(0,0,0), type='wbart',
+               x.train, y.train, x.test=matrix(0,0,0),
+               z.train=y.train, z.draw=NULL, type='wbart',
                ntype=as.integer(
                    factor(type, levels=c('wbart', 'pbart', 'lbart'))),
                sparse=FALSE, theta=0, omega=1,
@@ -45,6 +45,8 @@ gbart=function(
         stop("type argument must be set to either 'wbart', 'pbart' or 'lbart'")
 
     n = length(y.train)
+
+    if(length(z.draw)==0) z.draw=rep(1, n)
 
     if(!transposed) {
         temp = bartModelMatrix(x.train, numcut, usequants=usequants,
@@ -114,14 +116,14 @@ gbart=function(
         impute.prob=matrix(nrow=0, ncol=0)
     }
 
-    check <- unique(sort(y.train))
+    ## check <- unique(sort(y.train))
 
-    if(length(check)==2) {
-        if(!all(check==0:1))
-            stop('Binary y.train must be coded as 0 and 1')
-        if(type=='wbart')
-            stop("The outcome is binary so set type to 'pbart' or 'lbart'")
-    }
+    ## if(length(check)==2) {
+    ##     if(!all(check==0:1))
+    ##         stop('Binary y.train must be coded as 0 and 1')
+    ##     if(type=='wbart')
+    ##         stop("The outcome is binary so set type to 'pbart' or 'lbart'")
+    ## }
 
     ## check <- c('wbart', 'pbart', 'lbart')
 
@@ -231,6 +233,8 @@ gbart=function(
                 x.train,   #pxn training data x
                 y.train,   #pxn training data x
                 x.test,    #p*np test data x
+                z.train,
+                as.integer(z.draw),
                 ntree,
                 numcut,
                 ndpost*keepevery,
