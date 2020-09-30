@@ -46,14 +46,14 @@ mc.gbart <- function(
     if(is.na(ntype))
         stop("type argument must be set to either 'wbart', 'pbart' or 'lbart'")
 
-    ## check <- unique(sort(y.train))
+    check <- unique(sort(y.train))
 
-    ## if(length(check)==2) {
-    ##     if(!all(check==0:1))
-    ##         stop('Binary y.train must be coded as 0 and 1')
-    ##     if(type=='wbart')
-    ##         stop("The outcome is binary so set type to 'pbart' or 'lbart'")
-    ## }
+    if(length(check)==2) {
+        if(!all(check==0:1))
+            stop('Binary y.train must be coded as 0 and 1')
+        if(type=='wbart')
+            stop("The outcome is binary so set type to 'pbart' or 'lbart'")
+    }
 
     if(.Platform$OS.type!='unix')
         stop('parallel::mcparallel/mccollect do not exist on windows')
@@ -218,6 +218,7 @@ mc.gbart <- function(
                                               probs=min(probs))
                 post$prob.test.upper <- apply(post$prob.test, 2, quantile,
                                               probs=max(probs))
+                post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
             }
         }
 

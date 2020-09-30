@@ -116,14 +116,14 @@ gbart=function(
         impute.prob=matrix(nrow=0, ncol=0)
     }
 
-    ## check <- unique(sort(y.train))
+    check <- unique(sort(y.train))
 
-    ## if(length(check)==2) {
-    ##     if(!all(check==0:1))
-    ##         stop('Binary y.train must be coded as 0 and 1')
-    ##     if(type=='wbart')
-    ##         stop("The outcome is binary so set type to 'pbart' or 'lbart'")
-    ## }
+    if(length(check)==2) {
+        if(!all(check==0:1))
+            stop('Binary y.train must be coded as 0 and 1')
+        if(type=='wbart')
+            stop("The outcome is binary so set type to 'pbart' or 'lbart'")
+    }
 
     ## check <- c('wbart', 'pbart', 'lbart')
 
