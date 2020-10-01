@@ -91,7 +91,7 @@ mc.gbart <- function(
 
     for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);
-            gbart(x.train=x.train, y.train=y.train,
+            gbart(x.train=x.train, y.train=y.train, z.train=z.train,
                   x.test=x.test,
                   type=type, ntype=ntype,
                   sparse=sparse, theta=theta, omega=omega,

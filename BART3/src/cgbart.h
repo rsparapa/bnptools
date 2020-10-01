@@ -335,7 +335,7 @@ if(type==1) {
        svec[i] = 1.;
        if(iy[i]==0) sign[i] = -1.;
        else sign[i] = 1.;
-       z[i] = sign[i];
+       if(iy[i]!=z[i]) z[i] = sign[i];
        //if(z_draw[i]==1) z[i] = sign[i];
      }
      if(K>0) {
