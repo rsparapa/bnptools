@@ -38,6 +38,7 @@ HDimpute=function(x.train,
     ## hot deck missing imputation
     ## ignore columns for multinomial imputation in training
 
+    same = FALSE
     miss.train=apply(is.na(x.train), 2, sum)
     names(miss.train)=dimnames(x.train)[[2]]
     if(impute.flag) miss.train[impute.mult]=0

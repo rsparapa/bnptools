@@ -37,7 +37,8 @@ ip.gbart <- function(
                      printevery=100L, transposed=FALSE,
                      probs=c(0.025, 0.975),
                      mc.cores = 2L, nice = 19L, seed = 99L,
-                     shards = 1L, weight=rep(NA, shards)
+                     shards = 1L, weight=rep(NA, shards),
+                     debug=FALSE
                      )
 {
     if(length(x.test)==0)
@@ -92,6 +93,7 @@ ip.gbart <- function(
 
     strata = stratrs(y.train, C)
     shards. = list()
+    post = list() ## DEBUGGING
     for(h in 1:shards) {
         if(h==1) {
             shards.[[h]] = 1:(shards+1)
@@ -110,31 +112,30 @@ ip.gbart <- function(
             z.train = y.train[ strata.h ]
             Y.train = z.train
             n = length(Y.train)
-            z.draw = rep(1, n)
             X.train = x.train[ , strata.h ]
             X.test = x.train[ , strata.i ]
         } else if(h==shards) {
-            z.train = post$yhat.test.mean
+            z.train = post[[h-1]]$yhat.test.mean
             if(type=="wbart") Y.train = z.train
-            else Y.train = 1*(z.train>=offset)
+            else Y.train = 1*(z.train>=0)
+            ##else Y.train = 1*(z.train>=offset)
             n = length(Y.train)
-            z.draw = rep(0, n)
             X.train = x.train[ , which(strata %in% shards.[[1]]) ]
             X.test = x.test
         } else {
-            z.train = c(y.train[ strata.h ], post$yhat.test.mean)
+            z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean)
             if(type=="wbart") Y.train = z.train
             else Y.train =
-                     c(y.train[ strata.h ], 1*(post$yhat.test.mean>=offset))
+                     c(y.train[ strata.h ], 1*(post[[h-1]]$yhat.test.mean>=0))
+                     ##c(y.train[ strata.h ], 1*(post$yhat.test.mean>=offset))
             n = length(Y.train)
-            m = length(post$yhat.test.mean)
-            z.draw = c(rep(1, n-m), rep(0, m))
+            m = length(post[[h-1]]$yhat.test.mean)
             X.train = cbind(x.train[ , strata.h ], X.test)
             X.test = x.train[ , strata.i ]
         }
 
-        post = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
-                        z.train=z.train, z.draw=z.draw, type=type, ntype=ntype,
+        post[[h]] = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
+                        z.train=z.train, type=type, ntype=ntype,
                                   sparse=sparse, theta=theta, omega=omega,
                                   a=a, b=b, augment=augment, rho=rho,
                                   xinfo=xinfo, usequants=usequants,
@@ -150,9 +151,17 @@ ip.gbart <- function(
                                   ##shards=shards, NO MODIFIED LISA TRICK
                                   transposed=TRUE)
 
-        if(class(post)[1]!=type) return(post)
+        if(class(post[[h]])[1]!=type) return(post)
     }
 
-    return(post)
+    if(debug) {
+        post$strata = strata
+        post$shards = shards.
+        return(post)
+    } else {
+        post[[h]]$strata = strata
+        post[[h]]$shards = shards.
+        return(post[[h]])
+    }
 }
 

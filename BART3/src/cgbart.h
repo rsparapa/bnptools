@@ -34,7 +34,7 @@ RcppExport SEXP cgbart(
    SEXP _iy,            //y, train,  nx1
    SEXP _ixp,           //x, test, pxnp (transposed so rows are contiguous in memory)
    SEXP _z_train,
-   SEXP _z_draw,
+   //SEXP _z_draw,
    SEXP _im,            //number of trees
    SEXP _inc,           //number of cut points
    SEXP _ind,           //number of kept draws (except for thinnning ..)
@@ -110,7 +110,7 @@ RcppExport SEXP cgbart(
    double *ixp = &xpv[0];
    Rcpp::NumericVector z_train(_z_train);
    double *z = &z_train[0];
-   Rcpp::IntegerVector z_draw(_z_draw);
+   //Rcpp::IntegerVector z_draw(_z_draw);
    size_t m = Rcpp::as<int>(_im);
    Rcpp::IntegerVector _nc(_inc);
    int *numcut = &_nc[0];
@@ -335,7 +335,8 @@ if(type==1) {
        svec[i] = 1.;
        if(iy[i]==0) sign[i] = -1.;
        else sign[i] = 1.;
-       if(z_draw[i]==1) z[i] = sign[i];
+       z[i] = sign[i];
+       //if(z_draw[i]==1) z[i] = sign[i];
      }
      if(K>0) {
        if(impute_miss[i]==1) {
@@ -399,7 +400,8 @@ if(type==1) {
 
       for(size_t k=0; k<n; k++) {
 	if(type==1) svec[k]=iw[k]*sigma;
-	else if(z_draw[k]==1) {
+	else {
+	//else if(z_draw[k]==1) {
 	  z[k]= sign[k]*rtnorm(sign[k]*bm.f(k), -sign[k]*Offset, svec[k], gen);
 	  if(type==3) 
 	    svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), sign[k]*bm.f(k), 1000, 1, gen));

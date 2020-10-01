@@ -19,7 +19,7 @@
 
 gbart=function(
                x.train, y.train, x.test=matrix(0,0,0),
-               z.train=y.train, z.draw=NULL, type='wbart',
+               z.train=y.train, type='wbart',
                ntype=as.integer(
                    factor(type, levels=c('wbart', 'pbart', 'lbart'))),
                sparse=FALSE, theta=0, omega=1,
@@ -46,7 +46,7 @@ gbart=function(
 
     n = length(y.train)
 
-    if(length(z.draw)==0) z.draw=rep(1, n)
+    ##if(length(z.draw)==0) z.draw=rep(1, n)
 
     if(!transposed) {
         temp = bartModelMatrix(x.train, numcut, usequants=usequants,
@@ -234,7 +234,7 @@ gbart=function(
                 y.train,   #pxn training data x
                 x.test,    #p*np test data x
                 z.train,
-                as.integer(z.draw),
+                ##as.integer(z.draw),
                 ntree,
                 numcut,
                 ndpost*keepevery,
