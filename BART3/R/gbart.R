@@ -46,8 +46,6 @@ gbart=function(
 
     n = length(y.train)
 
-    ##if(length(z.draw)==0) z.draw=rep(1, n)
-
     if(!transposed) {
         temp = bartModelMatrix(x.train, numcut, usequants=usequants,
                                xinfo=xinfo, rm.const=rm.const)
@@ -106,10 +104,7 @@ gbart=function(
                                nrow=n, ncol=check, byrow=TRUE)
         }
         impute.mult=as.integer(impute.mult-1) ## convert from R index to C/C++
-        ##impute=list(mult=impute.mult, miss=impute.miss)
-                   ## prior=impute.prob)
     } else {
-        ##impute=list()
         impute.flag=FALSE
         impute.mult=integer(0) ## integer vector of column indicators for missing covariates
         impute.miss=integer(0) ## integer vector of row indicators for missing values
@@ -267,6 +262,9 @@ gbart=function(
     res$proc.time <- proc.time()-ptm
 ##    res$hostname <- hostname
 
+    LPML=!((type=='wbart' && lambda==0) ||
+           (type=='pbart' && !all(y.train %in% 0:1)))
+
     Y=t(matrix(y.train, nrow=n, ncol=ndpost))
 
     if(type=='wbart') {
@@ -275,27 +273,31 @@ gbart=function(
                                       probs=min(probs))
         res$yhat.train.upper <- apply(res$yhat.train, 2, quantile,
                                       probs=max(probs))
-        SD=matrix(res$sigma[-(1:nskip)], nrow=ndpost, ncol=n)
-        ##CPO=1/apply(1/dnorm(Y, res$yhat.train, SD), 2, mean)
-        log.pdf=dnorm(Y, res$yhat.train, SD, TRUE)
-        res$sigma.mean=mean(SD[ , 1])
+        if(LPML) {
+            SD=matrix(res$sigma[-(1:nskip)], nrow=ndpost, ncol=n)
+            ##CPO=1/apply(1/dnorm(Y, res$yhat.train, SD), 2, mean)
+            log.pdf=dnorm(Y, res$yhat.train, SD, TRUE)
+            res$sigma.mean=mean(SD[ , 1])
+        }
     }
     else {
         if(type=='pbart') res$prob.train = pnorm(res$yhat.train)
         else if(type=='lbart') res$prob.train = plogis(res$yhat.train)
 
         ##CPO=1/apply(1/dbinom(Y, 1, res$prob.train), 2, mean)
-        log.pdf=dbinom(Y, 1, res$prob.train, TRUE)
+        if(LPML) log.pdf=dbinom(Y, 1, res$prob.train, TRUE)
 
         res$prob.train.mean <- apply(res$prob.train, 2, mean)
     }
 
-    min.log.pdf=t(matrix(apply(log.pdf, 2, min), nrow=n, ncol=ndpost))
-    log.CPO=log(ndpost)+min.log.pdf[1, ]-
-        log(apply(exp(min.log.pdf-log.pdf), 2, sum))
-    res$LPML=sum(log.CPO)
-    ##res$CPO=exp(log.CPO)
-    ##res$LPML=sum(log(CPO))
+    if(LPML) {
+        min.log.pdf=t(matrix(apply(log.pdf, 2, min), nrow=n, ncol=ndpost))
+        log.CPO=log(ndpost)+min.log.pdf[1, ]-
+            log(apply(exp(min.log.pdf-log.pdf), 2, sum))
+        res$LPML=sum(log.CPO)
+        ##res$CPO=exp(log.CPO)
+        ##res$LPML=sum(log(CPO))
+    }
 
     keeptestfits <- (np>0)
     ##if(length(keeptestfits)==0) keeptestfits <- (np>0)
