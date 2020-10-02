@@ -121,6 +121,9 @@ mc.gbart <- function(
 
     post <- post.list[[1]]
 
+    LPML=!((type=='wbart' && lambda==0) ||
+           (type=='pbart' && !all(y.train %in% 0:1)))
+
     if(mc.cores==1 | attr(post, 'class')!=type) return(post)
     else {
         mc.cores. = length(post.list)
@@ -148,7 +151,7 @@ mc.gbart <- function(
 
         ##keeptest <- length(x.test)>0
 
-        if(type=='wbart') sigma <- post$sigma[-(1:nskip)]
+        if(type=='wbart' && lambda!=0) sigma <- post$sigma[-(1:nskip)]
 
         for(i in 2:mc.cores) {
             ##post$hostname[i] <- post.list[[i]]$hostname
@@ -159,7 +162,7 @@ mc.gbart <- function(
             if(keeptestfits) post$yhat.test <- rbind(post$yhat.test,
                                                      post.list[[i]]$yhat.test)
 
-            if(type=='wbart') {
+            if(type=='wbart' && lambda!=0) {
                 post$sigma <- cbind(post$sigma, post.list[[i]]$sigma)
                 sigma <- c(sigma, post.list[[i]]$sigma[-(1:nskip)])
             }
@@ -191,10 +194,12 @@ mc.gbart <- function(
                                            probs=min(probs))
             post$yhat.train.upper <- apply(post$yhat.train, 2, quantile,
                                            probs=max(probs))
-            SD=matrix(sigma, nrow=post$ndpost, ncol=n)
-            ##CPO=1/apply(1/dnorm(Y, post$yhat.train, SD), 2, mean)
-            log.pdf=dnorm(Y, post$yhat.train, SD, TRUE)
-            post$sigma.mean=mean(SD[ , 1])
+            if(LPML) {
+                SD=matrix(sigma, nrow=post$ndpost, ncol=n)
+                ##CPO=1/apply(1/dnorm(Y, post$yhat.train, SD), 2, mean)
+                log.pdf=dnorm(Y, post$yhat.train, SD, TRUE)
+                post$sigma.mean=mean(SD[ , 1])
+            }
 
             if(keeptestfits) {
                 post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
@@ -206,7 +211,7 @@ mc.gbart <- function(
         } else {
             post$prob.train.mean <- apply(post$prob.train, 2, mean)
             ##CPO=1/apply(1/dbinom(Y, 1, post$prob.train), 2, mean)
-            log.pdf=dbinom(Y, 1, post$prob.train, TRUE)
+            if(LPML) log.pdf=dbinom(Y, 1, post$prob.train, TRUE)
 
             if(keeptestfits) {
                 if(type=='pbart')
@@ -222,13 +227,14 @@ mc.gbart <- function(
             }
         }
 
-        min.log.pdf=t(matrix(apply(log.pdf, 2, min),
-                             nrow=n, ncol=post$ndpost))
-        log.CPO=log(post$ndpost)+min.log.pdf[1, ]-
-            log(apply(exp(min.log.pdf-log.pdf), 2, sum))
+        if(LPML) {
+            min.log.pdf=t(matrix(apply(log.pdf, 2, min), nrow=n, ncol=post$ndpost))
+            log.CPO=log(post$ndpost)+min.log.pdf[1, ]-
+                log(apply(exp(min.log.pdf-log.pdf), 2, sum))
 
-        post$LPML=sum(log.CPO)
-        ##post$LPML=sum(log(CPO))
+            post$LPML=sum(log.CPO)
+            ##post$LPML=sum(log(CPO))
+        }
 
         post$varcount.mean <- apply(post$varcount, 2, mean)
         post$varprob.mean <- apply(post$varprob, 2, mean)

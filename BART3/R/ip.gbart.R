@@ -30,7 +30,7 @@ ip.gbart <- function(
                      sigest=NA, sigdf=3, sigquant=0.90,
                      k=2, power=2, base=0.95,
                      lambda=NA, tau.num=c(NA, 3, 6)[ntype],
-                     offset=NULL, w=rep(1, length(y.train)),
+                     offset=NULL, ##w=rep(1, length(y.train)),
                      ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
@@ -104,6 +104,8 @@ ip.gbart <- function(
         }
     }
 
+    pbart=(type=='pbart')
+    W=0
     for(h in 1:shards) {
         i=shards-h
         strata.h = which(strata %in% shards.[[h]])
@@ -112,27 +114,47 @@ ip.gbart <- function(
             z.train = y.train[ strata.h ]
             Y.train = z.train
             n = length(Y.train)
+            m = 0
+            w.train = rep(1, n)
             X.train = x.train[ , strata.h ]
             X.test = x.train[ , strata.i ]
         } else if(h==shards) {
             z.train = post[[h-1]]$yhat.test.mean
-            if(type=="wbart") Y.train = z.train
-            else Y.train = 1*(z.train>=0)
-            ##else Y.train = 1*(z.train>=offset)
+            ## z.train = rnorm(m, post[[h-1]]$yhat.test.mean,
+            ##                 post[[h-1]]$sigma.mean*sqrt(m/N))
+            ## if(type=="wbart") Y.train = z.train
+            ## else Y.train = 1*(z.train>=0)
+            Y.train = z.train
             n = length(Y.train)
+            m = n
+            w.train = rep(1, n)
             X.train = x.train[ , which(strata %in% shards.[[1]]) ]
             X.test = x.test
+            if(pbart) {
+                type='wbart'
+                ntype=1
+                lambda=0
+                sigest=1
+            }
         } else {
+            ## z.train = c(y.train[ strata.h ],
+            ##             rnorm(m, post[[h-1]]$yhat.test.mean,
+            ##                   post[[h-1]]$sigma.mean*sqrt(m/K)))
+                              ##post[[h-1]]$sigma.mean*sqrt((N-K)/N)))
+                              ##post[[h-1]]$sigma.mean*sqrt((n+m)/N)))
             z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean)
-            if(type=="wbart") Y.train = z.train
-            else Y.train =
-                     c(y.train[ strata.h ], 1*(post[[h-1]]$yhat.test.mean>=0))
-                     ##c(y.train[ strata.h ], 1*(post$yhat.test.mean>=offset))
+            Y.train = z.train
+            ## if(type=="wbart") Y.train = z.train
+            ## else Y.train =
+            ##          c(y.train[ strata.h ], 1*(z.train[n+(1:m)]>=0))
             n = length(Y.train)
             m = length(post[[h-1]]$yhat.test.mean)
+            w.train = c(rep(1, n-m), rep(sqrt(m/W), m))
             X.train = cbind(x.train[ , strata.h ], X.test)
             X.test = x.train[ , strata.i ]
         }
+        W=W+n-m
+        ##print(c(h=h, W=W, n-m))
 
         post[[h]] = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
                         z.train=z.train, type=type, ntype=ntype,
@@ -144,7 +166,7 @@ ip.gbart <- function(
                                   k=k, power=power, base=base,
                                   lambda=lambda, tau.num=tau.num,
                                   offset=offset,
-                                  w=w, ntree=ntree, numcut=numcut,
+                                  w=w.train, ntree=ntree, numcut=numcut,
                                   ndpost=ndpost, nskip=nskip,
                                   keepevery=keepevery, printevery=printevery,
                                   mc.cores=mc.cores, nice=nice, seed=seed,
@@ -152,6 +174,12 @@ ip.gbart <- function(
                                   transposed=TRUE)
 
         if(class(post[[h]])[1]!=type) return(post)
+        else if(type!='wbart') post[[h]]$sigma.mean = 1
+        else if(type=='wbart' && pbart) {
+            class(post[[h]])='pbart'
+            post[[h]]$prob.test=pnorm(post[[h]]$yhat.test)
+            post[[h]]$prob.test.mean=apply(post[[h]]$prob.test, 2, mean)
+        }
     }
 
     if(debug) {

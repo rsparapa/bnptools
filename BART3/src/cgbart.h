@@ -327,17 +327,14 @@ if(type==1) {
    Rcpp::IntegerVector prevXV(p);
 
    for(size_t i=0; i<n; i++) {
-     if(type==1) {
+     if(type==1 || iw[i]!=1.) {
        svec[i] = iw[i]*sigma; 
-       //z[i]=iy[i]; 
      }
      else {
        svec[i] = 1.;
        if(iy[i]==0) sign[i] = -1.;
        else sign[i] = 1.;
        z[i] = sign[i];
-       //if(iy[i]==z[i]) z[i] = sign[i];
-       //if(z_draw[i]==1) z[i] = sign[i];
      }
      if(K>0) {
        if(impute_miss[i]==1) {
@@ -378,7 +375,8 @@ if(type==1) {
    //size_t index;
    size_t trcnt=0; //count kept train draws
    size_t tecnt=0; //count kept test draws
-   bool keeptest,/*keeptestme*/keeptreedraw,type1sigest=(type==1 && lambda!=0.);
+   bool keeptest,/*keeptestme*/keeptreedraw,
+     type1sigest=(type==1 && lambda!=0.);
 
    time_t tp;
    int time1 = time(&tp), total=nd+burn;
@@ -401,8 +399,7 @@ if(type==1) {
 
       for(size_t k=0; k<n; k++) {
 	if(type==1) svec[k]=iw[k]*sigma;
-	else {
-	//else if(z_draw[k]==1) {
+	else if(iw[k]==1.) {
 	  z[k]= sign[k]*rtnorm(sign[k]*bm.f(k), -sign[k]*Offset, svec[k], gen);
 	  if(type==3) 
 	    svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), sign[k]*bm.f(k), 1000, 1, gen));
