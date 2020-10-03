@@ -120,10 +120,6 @@ ip.gbart <- function(
             X.test = x.train[ , strata.i ]
         } else if(h==shards) {
             z.train = post[[h-1]]$yhat.test.mean
-            ## z.train = rnorm(m, post[[h-1]]$yhat.test.mean,
-            ##                 post[[h-1]]$sigma.mean*sqrt(m/N))
-            ## if(type=="wbart") Y.train = z.train
-            ## else Y.train = 1*(z.train>=0)
             Y.train = z.train
             n = length(Y.train)
             m = n
@@ -137,16 +133,10 @@ ip.gbart <- function(
                 sigest=1
             }
         } else {
-            ## z.train = c(y.train[ strata.h ],
-            ##             rnorm(m, post[[h-1]]$yhat.test.mean,
-            ##                   post[[h-1]]$sigma.mean*sqrt(m/K)))
-                              ##post[[h-1]]$sigma.mean*sqrt((N-K)/N)))
-                              ##post[[h-1]]$sigma.mean*sqrt((n+m)/N)))
             z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean)
-            Y.train = z.train
-            ## if(type=="wbart") Y.train = z.train
-            ## else Y.train =
-            ##          c(y.train[ strata.h ], 1*(z.train[n+(1:m)]>=0))
+            if(type=='wbart') Y.train = z.train
+            else Y.train = c(y.train[ strata.h ],
+                             post[[h-1]]$yhat.test.mean>=0)
             n = length(Y.train)
             m = length(post[[h-1]]$yhat.test.mean)
             w.train = c(rep(1, n-m), rep(sqrt(m/W), m))

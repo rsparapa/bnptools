@@ -118,11 +118,12 @@ mc.gbart <- function(
     }
 
     post.list <- parallel::mccollect()
-
+    ##return(post.list)
     post <- post.list[[1]]
 
-    LPML=!((type=='wbart' && lambda==0) ||
-           (type=='pbart' && !all(y.train %in% 0:1)))
+    type1.sigest=(type=='wbart')
+    if(type=='wbart' && !is.na(sigest) && !is.na(lambda) && lambda==0)
+        type1.sigest=FALSE
 
     if(mc.cores==1 | attr(post, 'class')!=type) return(post)
     else {
@@ -151,7 +152,7 @@ mc.gbart <- function(
 
         ##keeptest <- length(x.test)>0
 
-        if(type=='wbart' && lambda!=0) sigma <- post$sigma[-(1:nskip)]
+        if(type1.sigest) sigma <- post$sigma[-(1:nskip)]
 
         for(i in 2:mc.cores) {
             ##post$hostname[i] <- post.list[[i]]$hostname
@@ -162,7 +163,7 @@ mc.gbart <- function(
             if(keeptestfits) post$yhat.test <- rbind(post$yhat.test,
                                                      post.list[[i]]$yhat.test)
 
-            if(type=='wbart' && lambda!=0) {
+            if(type1.sigest) {
                 post$sigma <- cbind(post$sigma, post.list[[i]]$sigma)
                 sigma <- c(sigma, post.list[[i]]$sigma[-(1:nskip)])
             }
@@ -194,11 +195,13 @@ mc.gbart <- function(
                                            probs=min(probs))
             post$yhat.train.upper <- apply(post$yhat.train, 2, quantile,
                                            probs=max(probs))
-            if(LPML) {
+            if(type1.sigest) {
                 SD=matrix(sigma, nrow=post$ndpost, ncol=n)
                 ##CPO=1/apply(1/dnorm(Y, post$yhat.train, SD), 2, mean)
                 log.pdf=dnorm(Y, post$yhat.train, SD, TRUE)
                 post$sigma.mean=mean(SD[ , 1])
+            } else {
+                post$sigma.mean = sigest
             }
 
             if(keeptestfits) {
@@ -211,7 +214,7 @@ mc.gbart <- function(
         } else {
             post$prob.train.mean <- apply(post$prob.train, 2, mean)
             ##CPO=1/apply(1/dbinom(Y, 1, post$prob.train), 2, mean)
-            if(LPML) log.pdf=dbinom(Y, 1, post$prob.train, TRUE)
+            log.pdf=dbinom(Y, 1, post$prob.train, TRUE)
 
             if(keeptestfits) {
                 if(type=='pbart')
@@ -227,8 +230,9 @@ mc.gbart <- function(
             }
         }
 
-        if(LPML) {
-            min.log.pdf=t(matrix(apply(log.pdf, 2, min), nrow=n, ncol=post$ndpost))
+        if(type1.sigest | type!='wbart') {
+            min.log.pdf=t(matrix(apply(log.pdf, 2, min), nrow=n,
+                                 ncol=post$ndpost))
             log.CPO=log(post$ndpost)+min.log.pdf[1, ]-
                 log(apply(exp(min.log.pdf-log.pdf), 2, sum))
 
