@@ -262,8 +262,9 @@ gbart=function(
     res$proc.time <- proc.time()-ptm
 ##    res$hostname <- hostname
 
-    LPML=!((type=='wbart' && lambda==0) ||
-           (type=='pbart' && !all(y.train %in% 0:1)))
+    type1.sigest=(type=='wbart')
+    if(type=='wbart' && !is.na(sigest) && !is.na(lambda) && lambda==0)
+        type1.sigest=FALSE
 
     Y=t(matrix(y.train, nrow=n, ncol=ndpost))
 
@@ -273,11 +274,13 @@ gbart=function(
                                       probs=min(probs))
         res$yhat.train.upper <- apply(res$yhat.train, 2, quantile,
                                       probs=max(probs))
-        if(LPML) {
+        if(type1.sigest) {
             SD=matrix(res$sigma[-(1:nskip)], nrow=ndpost, ncol=n)
             ##CPO=1/apply(1/dnorm(Y, res$yhat.train, SD), 2, mean)
             log.pdf=dnorm(Y, res$yhat.train, SD, TRUE)
             res$sigma.mean=mean(SD[ , 1])
+        } else {
+            res$sigma.mean = sigest
         }
     }
     else {
@@ -285,12 +288,12 @@ gbart=function(
         else if(type=='lbart') res$prob.train = plogis(res$yhat.train)
 
         ##CPO=1/apply(1/dbinom(Y, 1, res$prob.train), 2, mean)
-        if(LPML) log.pdf=dbinom(Y, 1, res$prob.train, TRUE)
+        log.pdf=dbinom(Y, 1, res$prob.train, TRUE)
 
         res$prob.train.mean <- apply(res$prob.train, 2, mean)
     }
 
-    if(LPML) {
+    if(type1.sigest | type!='wbart') {
         min.log.pdf=t(matrix(apply(log.pdf, 2, min), nrow=n, ncol=ndpost))
         log.CPO=log(ndpost)+min.log.pdf[1, ]-
             log(apply(exp(min.log.pdf-log.pdf), 2, sum))
