@@ -105,6 +105,8 @@ ss.gbart <- function(
             X.test = X.train
         } else {
             z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean)
+            ## if(type=='wbart') Y.train = z.train
+            ## else Y.train =  c(y.train[ strata.h ], y.train[ strata.h. ])
             Y.train = z.train
             if(type!='wbart') Y.train = 1*(z.train>0)
             n = length(Y.train)
@@ -114,6 +116,7 @@ ss.gbart <- function(
             if(h==shards) X.test = x.test
             else X.test = x.train[ , strata.h ]
         }
+        strata.h. = strata.h
         W=W+n-m
         print(c(h=h, W=W, n-m))
 
