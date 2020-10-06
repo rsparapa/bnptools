@@ -104,7 +104,7 @@ ss.gbart <- function(
             X.train = x.train[ , strata.h ]
             X.test = X.train
         } else {
-            z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean)
+            z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean-offset)
             ## if(type=='wbart') Y.train = z.train
             ## else Y.train =  c(y.train[ strata.h ], y.train[ strata.h. ])
             Y.train = z.train
