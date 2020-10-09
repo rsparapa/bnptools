@@ -19,7 +19,7 @@
 
 gbart=function(
                x.train, y.train, x.test=matrix(0,0,0),
-               z.train=y.train, type='wbart',
+               z.train=NULL, type='wbart',
                ntype=as.integer(
                    factor(type, levels=c('wbart', 'pbart', 'lbart'))),
                sparse=FALSE, theta=0, omega=1,
@@ -41,7 +41,7 @@ gbart=function(
                shards = 1L, weight=rep(NA, shards)
                )
 {
-    if(is.na(ntype))
+   if(is.na(ntype))
         stop("type argument must be set to either 'wbart', 'pbart' or 'lbart'")
 
     n = length(y.train)
@@ -218,6 +218,8 @@ gbart=function(
     ## else if(hostname)
     ##     hostname <- system('hostname', intern=TRUE)
 
+    if(length(z.train)==0) z.train=y.train
+
     ptm <- proc.time()
 
     res = .Call("cgbart",
@@ -226,8 +228,8 @@ gbart=function(
                 p,  #dimension of x
                 np, #number of observations in test data
                 x.train,   #pxn training data x
-                y.train,   #pxn training data x
-                x.test,    #p*np test data x
+                y.train,   #nx1 training data y
+                x.test,    #pxnp test data x
                 z.train,
                 ##as.integer(z.draw),
                 ntree,

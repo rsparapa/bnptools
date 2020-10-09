@@ -19,7 +19,7 @@
 
 mc.gbart <- function(
                      x.train, y.train, x.test=matrix(0,0,0),
-                     z.train=y.train, type='wbart',
+                     z.train=NULL, type='wbart',
                      ntype=as.integer(
                          factor(type,
                                 levels=c('wbart', 'pbart', 'lbart'))),
