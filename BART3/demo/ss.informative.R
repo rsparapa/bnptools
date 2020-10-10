@@ -30,7 +30,7 @@ x.test[ , 3]=x
 B=8
 file.='post/ss.cont.bart.rds'
 if(!file.exists(file.)) {
-    post = mc.gbart(x.train, y.train, x.test, offset=0,
+    post = mc.gbart(x.train, y.train, x.test, 
                     ##sparse=TRUE,
                     mc.cores=B, seed=12)
     saveRDS(post, file.)
@@ -38,9 +38,11 @@ if(!file.exists(file.)) {
     post = readRDS(file.)
 }
 
+shards=8
+
 file.='post/ss.cont.lisa.rds'
 if(!file.exists(file.)) {
-post2 = ml.gbart(x.train, y.train, x.test, shards=10, offset=0,
+post2 = ml.gbart(x.train, y.train, x.test, shards=shards, 
                  ##sparse=TRUE,
                  mc.cores=B, seed=12)
     saveRDS(post2, file.)
@@ -48,7 +50,6 @@ post2 = ml.gbart(x.train, y.train, x.test, shards=10, offset=0,
     post2 = readRDS(file.)
 }
 
-shards=8
 post3 = ss.gbart(x.train, y.train, x.test, shards=shards,
                  ##sparse=TRUE,
                  debug=TRUE, mc.cores=B, seed=12)
@@ -68,11 +69,11 @@ for(i in 1:shards) {
 plot(post$sigma[ , 1], type='l', ylim=c(0, 10),
      ylab=expression(sigma), sub='N=10000')
 for(i in 2:8) lines(post$sigma[ , i])
-for(i in 1:10) lines(post2$sigma[ , i]/sqrt(10), col=2, lty=2)
-for(i in 1:8) lines(post3[[shards]]$sigma[ , i]/sqrt(shards), col=8, lty=2)
-for(i in 1:7) lines(post3[[i]]$sigma[ , 1], col=i, lty=3)
-for(i in 1:10) lines(post2$sigma[ , i], col=2)
-for(i in 1:8) lines(post3[[shards]]$sigma[ , i], col=8)
+for(i in 1:shards) lines(post2$sigma[ , i]/sqrt(shards), col=2, lty=2)
+##for(i in 1:shards) lines(post2$sigma[ , i], col=2)
+##for(i in 1:shards) lines(post3[[shards]]$sigma[ , i]/sqrt(shards), col=8, lty=2)
+for(i in 1:shards) lines(post3[[i]]$sigma[ , 1], col=i, lty=3)
+for(i in 1:B) lines(post3[[shards]]$sigma[ , i], col=8)
 abline(v=100, h=0)
 abline(h=1, col='blue')
 legend('topright', c('True', 'BART', 'Modified LISA', 'Sequential shards'),
@@ -98,11 +99,11 @@ legend('topleft', col=c(4, 1:2, 1:8), lty=1,
        legend=c('True', 'BART', 'Modified LISA', paste0(1:8)), lwd=2)
 dev.copy2pdf(file='ss-informative2.pdf')
 
-plot(density(c(post3[[8]]$sigma[-(1:100), ])), ylab='pdf', ylim=c(0, 4),
+plot(density(c(post3[[shards]]$sigma[-(1:100), ])), ylab='pdf', ylim=c(0, 10),
      xlab=expression(sigma), type='l', xlim=c(0, 8), col=8, main='')
-for(i in 1:7) lines(density(c(post3[[i]]$sigma[-(1:100), ])), col=i)
-lines(density(c(post2$sigma[-(1:100), ])), col=2, lty=2)
+##for(i in 1:7) lines(density(c(post3[[i]]$sigma[-(1:100), ])), col=i)
+lines(density(c(post2$sigma[-(1:100), ])/sqrt(shards)), col=2, lty=2)
 lines(density(c(post$sigma[-(1:100), ])), lty=2)
 abline(v=1, h=0, lwd=2, lty=3)
-legend('topleft', col=1:8, lty=1, legend=paste0(1:8), lwd=2)
+##legend('topleft', col=1:8, lty=1, legend=paste0(1:8), lwd=2)
 dev.copy2pdf(file='ss-informative3.pdf')

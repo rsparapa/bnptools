@@ -86,8 +86,6 @@ ss.gbart <- function(
         else if(type=='lbart') offset=qlogis(offset)
     }
 
-    if(type=='wbart') y.train = y.train-offset
-
     N = length(y.train)
     strata = stratrs(y.train, shards)
     post = list() ## DEBUGGING
@@ -104,21 +102,21 @@ ss.gbart <- function(
             X.train = x.train[ , strata.h ]
             X.test = X.train
         } else {
-            z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean-offset)
+            z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean)
             ## if(type=='wbart') Y.train = z.train
             ## else Y.train =  c(y.train[ strata.h ], y.train[ strata.h. ])
             Y.train = z.train
             if(type!='wbart') Y.train = 1*(z.train>0)
             n = length(Y.train)
             m = length(post[[h-1]]$yhat.test.mean)
-            w.train = c(rep(1, n-m), rep(sqrt(m/W), m))
+            w.train = c(rep(sqrt(W/m), n-m), rep(1, m))
+            ##w.train = c(rep(1, n-m), rep(sqrt(m/W), m))
             X.train = cbind(x.train[ , strata.h ], X.test)
             if(h==shards) X.test = x.test
             else X.test = x.train[ , strata.h ]
         }
         strata.h. = strata.h
         W=W+n-m
-        print(c(h=h, W=W, n-m))
 
         post[[h]] = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
                         z.train=z.train, type=type, ntype=ntype,

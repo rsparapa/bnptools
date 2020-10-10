@@ -131,8 +131,11 @@ gbart=function(
         else if(type=='lbart') offset=qlogis(offset)
     }
 
+    if(length(z.train)==0) z.train=y.train
+
     if(type=='wbart') {
         y.train = y.train-offset
+        z.train = z.train-offset
 
         if(!is.na(sigest) && !is.na(lambda) && lambda==0) {
             ##no op: sigma is fixed and known at given sigest value
@@ -217,8 +220,6 @@ gbart=function(
     ## if(.Platform$OS.type!='unix') hostname <- FALSE
     ## else if(hostname)
     ##     hostname <- system('hostname', intern=TRUE)
-
-    if(length(z.train)==0) z.train=y.train
 
     ptm <- proc.time()
 
