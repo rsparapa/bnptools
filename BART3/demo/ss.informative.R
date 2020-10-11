@@ -59,7 +59,7 @@ post$yhat.test.975=apply(post$yhat.test, 2, quantile, probs=0.975)
 post2$yhat.test.025=apply(post2$yhat.test, 2, quantile, probs=0.025)
 post2$yhat.test.975=apply(post2$yhat.test, 2, quantile, probs=0.975)
 
-for(i in 1:shards) {
+for(i in shards) {
     pred=predict(post3[[i]], x.test)
     post3[[i]]$yhat.test.025=apply(pred, 2, quantile, probs=0.025)
     post3[[i]]$yhat.test.975=apply(pred, 2, quantile, probs=0.975)
@@ -107,3 +107,25 @@ lines(density(c(post$sigma[-(1:100), ])), lty=2)
 abline(v=1, h=0, lwd=2, lty=3)
 ##legend('topleft', col=1:8, lty=1, legend=paste0(1:8), lwd=2)
 dev.copy2pdf(file='ss-informative3.pdf')
+
+str(post3$strata)
+
+W=1
+w=1
+for(i in 2:shards) {
+    j=i-1
+    W[i]=sum(post3$strata==j)
+    w[i]=mean(apply(post3[[i]]$yhat.test, 2, sd)/post3[[i]]$sigma.mean)
+}
+W=cbind(W, cumsum(W)-1)
+W[1, 2]=1
+W=cbind(W, sqrt(W[ , 1]/W[ , 2]), sqrt(W[ , 2]/W[ , 1]), w)
+W
+
+for(i in 2:shards) {
+    j=i-1
+    w[i]=mean(apply(post3[[i]]$yhat.test, 2, sd)/
+              (post3[[i]]$sigma.mean*W[i, 4]))
+}
+W=cbind(W, w)
+W
