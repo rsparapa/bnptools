@@ -24,6 +24,7 @@ export(gewekediag, spectrum0ar)
 export(bartModelMatrix)
 export(srstepwise)
 export(read.trees, write.trees)
+export(read.forest)
 export(EXPVALUE, comb, perm)
 export(FPD)   ## new S3 method: Friedman's partial dependence function
 export(HDFPD) ## new S3 method: hot deck Friedman's partial dependence function
