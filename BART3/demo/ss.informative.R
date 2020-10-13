@@ -8,17 +8,10 @@ f = function(x)
 N = 10000
 sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
 P = 4       ##number of covariates
-## P = 10
 
-##V = diag(P)
-## V[3, 4] = 0.8
-## V[4, 3] = 0.8
-## L <- chol(V)
 set.seed(12)
 x.train=matrix(runif(N*P, -2, 2), N, P)
-##x.train=matrix(rnorm(N*P), N, P) %*% L
 dimnames(x.train)[[2]] <- paste0('x', 1:P)
-##round(cor(x.train), digits=2)
 
 y.train=(f(x.train)+sigma*rnorm(N))
 
@@ -30,7 +23,7 @@ x.test[ , 3]=x
 B=8
 file.='post/ss.cont.bart.rds'
 if(!file.exists(file.)) {
-    post = mc.gbart(x.train, y.train, x.test, 
+    post = mc.gbart(x.train, y.train, x.test,
                     ##sparse=TRUE,
                     mc.cores=B, seed=12)
     saveRDS(post, file.)
@@ -42,7 +35,7 @@ shards=8
 
 file.='post/ss.cont.lisa.rds'
 if(!file.exists(file.)) {
-post2 = ml.gbart(x.train, y.train, x.test, shards=shards, 
+post2 = ml.gbart(x.train, y.train, x.test, shards=shards,
                  ##sparse=TRUE,
                  mc.cores=B, seed=12)
     saveRDS(post2, file.)
@@ -52,6 +45,7 @@ post2 = ml.gbart(x.train, y.train, x.test, shards=shards,
 
 post3 = ss.gbart(x.train, y.train, x.test, shards=shards,
                  ##sparse=TRUE,
+                 RDSfile='post/ss.cont.gbart',
                  debug=TRUE, mc.cores=B, seed=12)
 
 post$yhat.test.025=apply(post$yhat.test, 2, quantile, probs=0.025)

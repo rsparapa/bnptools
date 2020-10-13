@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2017-2020 Robert McCulloch and Rodney Sparapani
-## s.gbart
+## ss.gbart
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ ss.gbart <- function(
                      ntype=as.integer(
                          factor(type,
                                 levels=c('wbart', 'pbart', 'lbart'))),
+                     RDSfile=NULL, strata=NULL,
                      sparse=FALSE, theta=0, omega=1,
                      a=0.5, b=1, augment=FALSE, rho=NULL,
                      xinfo=matrix(0,0,0), usequants=FALSE,
@@ -87,10 +88,10 @@ ss.gbart <- function(
     }
 
     N = length(y.train)
-    strata = stratrs(y.train, shards)
-    post = list() ## DEBUGGING
-    ## pbart=(type=='pbart')
+    if(length(strata)==0) strata = stratrs(y.train, shards)
+    post = list()
     W=0
+    ##W.=matrix(1, nrow=shards, ncol=2)
     for(h in 1:shards) {
         strata.h = which(strata == h)
         if(h==1) {
@@ -103,8 +104,6 @@ ss.gbart <- function(
             X.test = X.train
         } else {
             z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean)
-            ## if(type=='wbart') Y.train = z.train
-            ## else Y.train =  c(y.train[ strata.h ], y.train[ strata.h. ])
             Y.train = z.train
             if(type!='wbart') Y.train = 1*(z.train>0)
             n = length(Y.train)
@@ -114,12 +113,15 @@ ss.gbart <- function(
             X.train = cbind(x.train[ , strata.h ], X.test)
             if(h==shards) X.test = x.test
             else X.test = x.train[ , strata.h ]
+            ##W.[h, 1]=W
+            ##W.[h, 2]=m
         }
         strata.h. = strata.h
         W=W+n-m
+        ##if(h==shards) print(W.)
 
         post[[h]] = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
-                        z.train=z.train, type=type, ntype=ntype,
+                             z.train=z.train, type=type, ntype=ntype,
                                   sparse=sparse, theta=theta, omega=omega,
                                   a=a, b=b, augment=augment, rho=rho,
                                   xinfo=xinfo, usequants=usequants,
@@ -137,11 +139,9 @@ ss.gbart <- function(
 
         if(class(post[[h]])[1]!=type) return(post)
         else if(type!='wbart') post[[h]]$sigma.mean = 1
-        ## else if(type=='wbart' && pbart) {
-        ##     class(post[[h]])='pbart'
-        ##     post[[h]]$prob.test=pnorm(post[[h]]$yhat.test)
-        ##     post[[h]]$prob.test.mean=apply(post[[h]]$prob.test, 2, mean)
-        ## }
+
+        post[[h]]$shard = h
+        if(length(RDSfile)>0) saveRDS(post[[h]], paste0(RDSfile, '.', h))
     }
 
     if(debug) {
