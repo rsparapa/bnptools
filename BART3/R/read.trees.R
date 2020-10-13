@@ -22,7 +22,6 @@ read.trees=function(treedraws, ## treedraws item returned from BART
                                ## x.train to estimate coverage
                     call=FALSE)## default to R vs. C++ code
 {
-
     N=nrow(x.train)
     coverage=(N>0)
     if(coverage) {
