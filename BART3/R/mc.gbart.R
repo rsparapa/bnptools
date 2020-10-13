@@ -18,7 +18,9 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 mc.gbart <- function(
-                     x.train, y.train, x.test=matrix(0,0,0),
+                     x.train=matrix(0,0,0),
+                     y.train=NULL,
+                     x.test=matrix(0,0,0),
                      z.train=NULL, type='wbart',
                      ntype=as.integer(
                          factor(type,
@@ -46,6 +48,11 @@ mc.gbart <- function(
     if(is.na(ntype))
         stop("type argument must be set to either 'wbart', 'pbart' or 'lbart'")
 
+    if(length(y.train)==0)
+        stop('Supply a non-zero length y.train vector')
+    if(length(x.train)==0)
+        stop('Supply a non-zero length x.train matrix')
+    
     check <- unique(sort(y.train))
 
     if(length(check)==2) {
@@ -58,9 +65,11 @@ mc.gbart <- function(
     if(.Platform$OS.type!='unix')
         stop('parallel::mcparallel/mccollect do not exist on windows')
 
-    RNGkind("L'Ecuyer-CMRG")
-    set.seed(seed)
-    parallel::mc.reset.stream()
+    if(length(seed)>0) {
+        RNGkind("L'Ecuyer-CMRG")
+        set.seed(seed)
+        parallel::mc.reset.stream()
+    }
 
     if(length(impute.mult)==1)
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")

@@ -18,7 +18,8 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ss.gbart <- function(
-                     x.train, y.train,
+                     x.train=matrix(0,0,0),
+                     y.train=NULL,
                      x.test=matrix(0,0,0), type='wbart',
                      ntype=as.integer(
                          factor(type,
@@ -42,6 +43,10 @@ ss.gbart <- function(
                      debug=FALSE
                      )
 {
+    if(length(y.train)==0)
+        stop('Supply a non-zero length y.train vector')
+    if(length(x.train)==0)
+        stop('Supply a non-zero length x.train matrix')
     if(length(x.test)==0)
         stop('Supply a non-zero length x.test matrix')
 
@@ -103,11 +108,11 @@ ss.gbart <- function(
             X.train = x.train[ , strata.h ]
             X.test = X.train
         } else {
-            z.train = c(y.train[ strata.h ], post[[h-1]]$yhat.test.mean)
+            z.train = c(y.train[ strata.h ], post[[i]]$yhat.test.mean)
             Y.train = z.train
             if(type!='wbart') Y.train = 1*(z.train>0)
             n = length(Y.train)
-            m = length(post[[h-1]]$yhat.test.mean)
+            m = length(post[[i]]$yhat.test.mean)
             w.train = c(rep(sqrt(W/m), n-m), rep(1, m))
             ##w.train = c(rep(1, n-m), rep(sqrt(m/W), m))
             X.train = cbind(x.train[ , strata.h ], X.test)
@@ -120,36 +125,44 @@ ss.gbart <- function(
         W=W+n-m
         ##if(h==shards) print(W.)
 
-        post[[h]] = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
-                             z.train=z.train, type=type, ntype=ntype,
-                                  sparse=sparse, theta=theta, omega=omega,
-                                  a=a, b=b, augment=augment, rho=rho,
-                                  xinfo=xinfo, usequants=usequants,
-                                  rm.const=rm.const,
-                                  sigest=sigest, sigdf=sigdf, sigquant=sigquant,
-                                  k=k, power=power, base=base,
-                                  lambda=lambda, tau.num=tau.num,
-                                  offset=offset,
-                                  w=w.train, ntree=ntree, numcut=numcut,
-                                  ndpost=ndpost, nskip=nskip,
-                                  keepevery=keepevery, printevery=printevery,
-                                  mc.cores=mc.cores, nice=nice, seed=seed,
-                                  ##shards=shards, NO MODIFIED LISA TRICK
-                                  transposed=TRUE)
+        if(debug) i=h
+        else i=1
 
-        if(class(post[[h]])[1]!=type) return(post)
-        else if(type!='wbart') post[[h]]$sigma.mean = 1
+        if(!file.exists(paste0(RDSfile, '.', h))) {
+            print(c(shard=h))
+            post[[i]] = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
+                                 z.train=z.train, type=type, ntype=ntype,
+                                 sparse=sparse, theta=theta, omega=omega,
+                                 a=a, b=b, augment=augment, rho=rho,
+                                 xinfo=xinfo, usequants=usequants,
+                                 rm.const=rm.const,
+                                 sigest=sigest, sigdf=sigdf, sigquant=sigquant,
+                                 k=k, power=power, base=base,
+                                 lambda=lambda, tau.num=tau.num,
+                                 offset=offset,
+                                 w=w.train, ntree=ntree, numcut=numcut,
+                                 ndpost=ndpost, nskip=nskip,
+                                 keepevery=keepevery, printevery=printevery,
+                                 mc.cores=mc.cores, nice=nice, seed=NULL,
+                                 ##shards=shards, NO MODIFIED LISA TRICK
+                                 transposed=TRUE)
 
-        post[[h]]$shard = h
-        if(length(RDSfile)>0) saveRDS(post[[h]], paste0(RDSfile, '.', h))
+            if(class(post[[i]])[1]!=type) return(post)
+            else if(type!='wbart') post[[i]]$sigma.mean = 1
+
+            post[[i]]$shard = h
+            if(length(RDSfile)>0) saveRDS(post[[i]], paste0(RDSfile, '.', h))
+        } else {
+            post[[i]] = readRDS(paste0(RDSfile, '.', h))
+        }
     }
 
     if(debug) {
         post$strata = strata
         return(post)
     } else {
-        post[[h]]$strata = strata
-        return(post[[h]])
+        post[[1]]$strata = strata
+        return(post[[1]])
     }
 }
 

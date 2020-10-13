@@ -93,6 +93,14 @@ surv.pre.bart <- function(
     if(events[1]<=0)
         stop('Time points exist less than or equal to time zero.')
 
+    ## if(events[1]<0)
+    ##     stop('Time points exist less than time zero.')
+    ## else if(events[1]==0) {
+    ##     warning('Time points exist equal to time zero.')
+    ##     events=events[-1]
+    ##     K=K-1
+    ## }
+
     y.train <- integer(N) ## y.train is at least N long
 
     k <- 1
