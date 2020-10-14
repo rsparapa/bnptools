@@ -86,7 +86,7 @@ HDimpute=function(x.train,
             if(same) x.test=x.train ## to hot-deck impute.mult columns only
             for(i in 1:Q)
                 for(j in 1:P) {
-                    k = is.na(x.train[i, ])
+                    k = is.na(x.test[i, ])
                     while(is.na(x.test[i, j])) {
                         h=sample.int(Q, 1)
                         x.test[i, which(k)]=x.test[h, which(k)]
