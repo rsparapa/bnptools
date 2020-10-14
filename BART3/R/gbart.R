@@ -206,7 +206,7 @@ gbart=function(
     else if(np>0) {
         for(i in 1:np)
             for(j in 1:p) {
-                k = is.na(x.train[ , i])
+                k = is.na(x.test[ , i])
                 while(is.na(x.test[j, i])) {
                     h=sample.int(np, 1)
                     x.test[which(k), i]=x.test[which(k), h]

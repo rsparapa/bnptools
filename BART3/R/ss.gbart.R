@@ -47,8 +47,8 @@ ss.gbart <- function(
         stop('Supply a non-zero length y.train vector')
     if(length(x.train)==0)
         stop('Supply a non-zero length x.train matrix')
-    if(length(x.test)==0)
-        stop('Supply a non-zero length x.test matrix')
+    ## if(length(x.test)==0)
+    ##     stop('Supply a non-zero length x.test matrix')
 
     if(shards<=2) stop('The number of shards must be >2')
 
