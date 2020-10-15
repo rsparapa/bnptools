@@ -147,7 +147,8 @@ ip.gbart <- function(
         ##print(c(h=h, W=W, n-m))
 
         post[[h]] = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
-                        z.train=z.train, type=type, ntype=ntype,
+                        ##z.train=z.train,
+                             type=type, ntype=ntype,
                                   sparse=sparse, theta=theta, omega=omega,
                                   a=a, b=b, augment=augment, rho=rho,
                                   xinfo=xinfo, usequants=usequants,

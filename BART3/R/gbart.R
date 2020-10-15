@@ -19,7 +19,8 @@
 
 gbart=function(
                x.train, y.train, x.test=matrix(0,0,0),
-               z.train=NULL, type='wbart',
+               ##z.train=NULL,
+               type='wbart',
                ntype=as.integer(
                    factor(type, levels=c('wbart', 'pbart', 'lbart'))),
                sparse=FALSE, theta=0, omega=1,
@@ -131,11 +132,11 @@ gbart=function(
         else if(type=='lbart') offset=qlogis(offset)
     }
 
-    if(length(z.train)==0) z.train=y.train
+    ##if(length(z.train)==0) z.train=y.train
 
     if(type=='wbart') {
         y.train = y.train-offset
-        z.train = z.train-offset
+        ##z.train = z.train-offset
 
         if(!is.na(sigest) && !is.na(lambda) && lambda==0) {
             ##no op: sigma is fixed and known at given sigest value
@@ -231,8 +232,7 @@ gbart=function(
                 x.train,   #pxn training data x
                 y.train,   #nx1 training data y
                 x.test,    #pxnp test data x
-                z.train,
-                ##as.integer(z.draw),
+                ##z.train,
                 ntree,
                 numcut,
                 ndpost*keepevery,

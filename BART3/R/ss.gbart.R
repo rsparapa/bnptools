@@ -100,17 +100,20 @@ ss.gbart <- function(
     for(h in 1:shards) {
         strata.h = which(strata == h)
         if(h==1) {
-            z.train = y.train[ strata.h ]
-            Y.train = z.train
+            Y.train = y.train[ strata.h ]
+            ## z.train = y.train[ strata.h ]
+            ## Y.train = z.train
             n = length(Y.train)
             m = 0
             w.train = rep(1, n)
             X.train = x.train[ , strata.h ]
             X.test = X.train
         } else {
-            z.train = c(y.train[ strata.h ], post[[i]]$yhat.test.mean)
-            Y.train = z.train
-            if(type!='wbart') Y.train = 1*(z.train>0)
+            Y.train = c(y.train[ strata.h ], post[[i]]$yhat.test.mean)
+            if(type!='wbart') Y.train = 1*(Y.train>0)
+            ## z.train = c(y.train[ strata.h ], post[[i]]$yhat.test.mean)
+            ## Y.train = z.train
+            ## if(type!='wbart') Y.train = 1*(z.train>0)
             n = length(Y.train)
             m = length(post[[i]]$yhat.test.mean)
             w.train = c(rep(sqrt(W/m), n-m), rep(1, m))
@@ -130,13 +133,16 @@ ss.gbart <- function(
 
         if(!file.exists(paste0(RDSfile, '.', h))) {
             print(c(shard=h))
-            post[[i]] = mc.gbart(x.train=X.train, y.train=Y.train, x.test=X.test,
-                                 z.train=z.train, type=type, ntype=ntype,
+            post[[i]] = mc.gbart(x.train=X.train, y.train=Y.train,
+                                 x.test=X.test,
+                                 ##z.train=z.train,
+                                 type=type, ntype=ntype,
                                  sparse=sparse, theta=theta, omega=omega,
                                  a=a, b=b, augment=augment, rho=rho,
                                  xinfo=xinfo, usequants=usequants,
                                  rm.const=rm.const,
-                                 sigest=sigest, sigdf=sigdf, sigquant=sigquant,
+                                 sigest=sigest, sigdf=sigdf,
+                                 sigquant=sigquant,
                                  k=k, power=power, base=base,
                                  lambda=lambda, tau.num=tau.num,
                                  offset=offset,

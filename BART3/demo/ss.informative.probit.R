@@ -8,17 +8,9 @@ f = function(x)
 N = 10000
 sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
 P = 4       ##number of covariates
-## P = 10
-
-##V = diag(P)
-## V[3, 4] = 0.8
-## V[4, 3] = 0.8
-## L <- chol(V)
 set.seed(12)
 x.train=matrix(runif(N*P, -2, 2), N, P)
-##x.train=matrix(rnorm(N*P), N, P) %*% L
 dimnames(x.train)[[2]] <- paste0('x', 1:P)
-##round(cor(x.train), digits=2)
 
 y.train=(1*(f(x.train)+sigma*rnorm(N)>0))
 
