@@ -33,8 +33,7 @@ RcppExport SEXP cgbart(
    SEXP _ix,            //x, train,  pxn (transposed so rows are contiguous in memory)
    SEXP _iy,            //y, train,  nx1
    SEXP _ixp,           //x, test, pxnp (transposed so rows are contiguous in memory)
-   SEXP _z_train,
-   //SEXP _z_draw,
+   //SEXP _z_train,
    SEXP _im,            //number of trees
    SEXP _inc,           //number of cut points
    SEXP _ind,           //number of kept draws (except for thinnning ..)
@@ -108,8 +107,8 @@ RcppExport SEXP cgbart(
    double *iy = &yv[0];
    Rcpp::NumericVector  xpv(_ixp);
    double *ixp = &xpv[0];
-   Rcpp::NumericVector z_train(_z_train);
-   double *z = &z_train[0];
+   //Rcpp::NumericVector z_train(_z_train);
+   //double *z = &z_train[0];
    //Rcpp::IntegerVector z_draw(_z_draw);
    size_t m = Rcpp::as<int>(_im);
    Rcpp::IntegerVector _nc(_inc);
@@ -320,7 +319,7 @@ if(type==1) {
    //--------------------------------------------------
    //create temporaries
    double df=n+nu;
-//   double *z = new double[n]; 
+   double *z = new double[n]; 
    double *svec = new double[n]; 
    double *sign;
    if(type!=1) sign = new double[n]; 
@@ -513,7 +512,7 @@ if(type==1) {
    printf("trcnt,tecnt: %zu,%zu\n",trcnt,tecnt);
 
    if(fhattest) delete[] fhattest;
-//   delete[] z;
+   delete[] z;
    delete[] svec;
    if(type!=1) delete[] sign;
 
