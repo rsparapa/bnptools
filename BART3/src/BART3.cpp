@@ -29,6 +29,7 @@
 #include "cEXPVALUE.h"
 #include "cabart.h"
 #include "cgbart.h"
+#include "czbart.h"
 #include "chbart.h"
 #include "clbart.h"
 #include "cpbart.h"
