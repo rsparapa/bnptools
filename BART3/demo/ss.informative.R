@@ -5,7 +5,7 @@ f = function(x)
     5+10*sin(pi*x[ , 1]*x[ , 2]) +  3*x[ , 3]^3
 ##    10*sin(pi*x[ , 1]*x[ , 2]) + 5*x[ , 3]*x[ , 4]^2 + 20*x[ , 5]
 
-N = 10000
+N = 2000
 sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
 P = 4       ##number of covariates
 
@@ -61,7 +61,7 @@ for(i in shards) {
 }
 
 plot(post$sigma[ , 1], type='l', ylim=c(0, 10),
-     ylab=expression(sigma), sub='N=10000')
+     ylab=expression(sigma), sub=paste0('N=', N))
 for(i in 2:8) lines(post$sigma[ , i])
 for(i in 1:shards) lines(post2$sigma[ , i]/sqrt(shards), col=2, lty=2)
 ##for(i in 1:shards) lines(post2$sigma[ , i], col=2)
@@ -74,7 +74,7 @@ legend('topright', c('True', 'BART', 'Modified LISA', 'Sequential shards'),
        lty=1, col=c(4, 1:2, 8))
 dev.copy2pdf(file='ss-informative1.pdf')
 
-plot(x, f(x.test), type='l', col=4, lwd=2, sub='N=10000',
+plot(x, f(x.test), type='l', col=4, lwd=2, sub=paste0('N=', N),
      xlab=expression(x[3]), ylab=expression(f(x[3])))
 lines(x, post$yhat.test.mean, lwd=2, lty=1)
 lines(x, post$yhat.test.025, lwd=2, lty=1)
@@ -94,7 +94,8 @@ legend('topleft', col=c(4, 1:2, 1:8), lty=1,
 dev.copy2pdf(file='ss-informative2.pdf')
 
 plot(density(c(post3[[shards]]$sigma[-(1:100), ])), ylab='pdf', ylim=c(0, 10),
-     xlab=expression(sigma), type='l', xlim=c(0, 8), col=8, main='')
+     xlab=expression(sigma), type='l', xlim=c(0, 3), col=8,
+     sub=paste0('N=', N), main='')
 ##for(i in 1:7) lines(density(c(post3[[i]]$sigma[-(1:100), ])), col=i)
 lines(density(c(post2$sigma[-(1:100), ])/sqrt(shards)), col=2, lty=2)
 lines(density(c(post$sigma[-(1:100), ])), lty=2)

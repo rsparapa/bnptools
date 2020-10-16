@@ -5,7 +5,7 @@ f = function(x)
     5+10*sin(pi*x[ , 1]*x[ , 2]) +  3*x[ , 3]^3
 ##    10*sin(pi*x[ , 1]*x[ , 2]) + 5*x[ , 3]*x[ , 4]^2 + 20*x[ , 5]
 
-N = 10000
+N = 2000
 sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
 P = 4       ##number of covariates
 set.seed(12)
@@ -34,6 +34,7 @@ shards=8
 
 post3 = ss.gbart(x.train, y.train, x.test, shards=shards, type='pbart',
                  ##sparse=TRUE,
+                 RDSfile='post/ss.probit.gbart',
                  debug=TRUE, mc.cores=B, seed=12)
 
 post$prob.test.025=apply(post$prob.test, 2, quantile, probs=0.025)
@@ -45,7 +46,8 @@ for(i in shards) {
     post3[[i]]$prob.test.975=apply(post3[[i]]$prob.test, 2, quantile, probs=0.975)
 }
 
-plot(x, pnorm(f(x.test)), type='l', col=4, lwd=2, sub='N=10000',
+plot(x, pnorm(f(x.test)), type='l', col=4, lwd=2,
+     sub=paste0('N=', N),
      ylim=0:1, xlab=expression(x[3]), ylab=expression(f(x[3])))
 lines(x, post$prob.test.mean, lwd=2, lty=1)
 lines(x, post$prob.test.025, lwd=2, lty=1)
