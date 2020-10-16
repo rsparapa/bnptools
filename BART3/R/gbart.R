@@ -265,8 +265,8 @@ gbart=function(
     res$proc.time <- proc.time()-ptm
 ##    res$hostname <- hostname
 
-    type1.sigest=(type=='wbart')
-    if(type=='wbart' && !is.na(sigest) && !is.na(lambda) && lambda==0)
+    type1.sigest=(type=='wbart' && nskip>0)
+    if(type1.sigest && !is.na(sigest) && !is.na(lambda) && lambda==0)
         type1.sigest=FALSE
 
     Y=t(matrix(y.train, nrow=n, ncol=ndpost))
