@@ -328,6 +328,7 @@ if(type==1) {
    for(size_t i=0; i<n; i++) {
      if(type==1) {
        svec[i] = iw[i]*sigma; 
+       z[i] = iy[i];
      }
      else {
        svec[i] = iw[i];
