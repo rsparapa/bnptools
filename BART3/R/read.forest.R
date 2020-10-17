@@ -18,19 +18,20 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 read.forest=function(obj, ## object returned from randomForest
-                     ntree=200, node.max=15,
+                     ntree=200, maxnodes=4, node.max=2*maxnodes-1,
                      x.train=matrix(nrow=0, ncol=0))
                                ## x.train to estimate coverage
 {
-    coverage=FALSE
-    ## N=nrow(x.train)
-    ## coverage=(N>0)
+    N=nrow(x.train)
+    P=ncol(x.train)
+    coverage=(N>0)
     if(coverage) {
         for(v in 1:ncol(x.train))
             if(any(is.na(x.train[ , v])))
                 stop(paste0('x.train column with missing values:', v))
     }
 
+    string=paste(1, ntree, paste0(P, '\n'))
     tier.max=floor(log2(node.max))
     Trees=array(0, dim=c(ntree, node.max, 5))
     Trees. = list()
@@ -44,6 +45,7 @@ read.forest=function(obj, ## object returned from randomForest
     if(coverage) Cover=matrix(TRUE, nrow=N, ncol=node.max)
 
     for(i in 1:ntree) {
+        string=paste0(string, paste(node.max, NA, NA, NA), '\n')
         A=getTree(obj, i)
         h = nrow(A)
         Trees.[[i]]=list()
@@ -60,11 +62,13 @@ read.forest=function(obj, ## object returned from randomForest
                     Trees.[[i]]$var[j]=A[j, 3]
                     Trees[i, j, 3]=A[j, 4]
                     Trees.[[i]]$cut[j]=A[j, 4]
+                    string=paste0(string, paste(j, A[j, 3]-1, A[j, 4], 0), '\n')
                 } else { ## leaf
                     Trees[i, j, 1]=2
                     Trees.[[i]]$node[j]=2
                     Trees[i, j, 4]=A[j, 6]
                     Trees.[[i]]$leaf[j]=A[j, 6]
+                    string=paste0(string, paste(j, 0, 0, A[j, 6]), '\n')
                 }
             }
     }

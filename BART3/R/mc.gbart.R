@@ -53,7 +53,7 @@ mc.gbart <- function(
         stop('Supply a non-zero length y.train vector')
     if(length(x.train)==0)
         stop('Supply a non-zero length x.train matrix')
-    
+
     check <- unique(sort(y.train))
 
     if(length(check)==2) {
@@ -131,8 +131,8 @@ mc.gbart <- function(
     ##return(post.list)
     post <- post.list[[1]]
 
-    type1.sigest=(type=='wbart')
-    if(type=='wbart' && !is.na(sigest) && !is.na(lambda) && lambda==0)
+    type1.sigest=(type=='wbart' && nskip>0)
+    if(type1.sigest && !is.na(sigest) && !is.na(lambda) && lambda==0)
         type1.sigest=FALSE
 
     if(mc.cores==1 | attr(post, 'class')!=type) return(post)
