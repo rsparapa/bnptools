@@ -19,11 +19,22 @@
 
 read.forest=function(obj, ## object returned from randomForest
                      ntree=200, maxnodes=4, node.max=2*maxnodes-1,
-                     x.train=matrix(nrow=0, ncol=0))
+                     x.train=matrix(nrow=0, ncol=0),
                                ## x.train to estimate coverage
+                     xinfo=NULL, numcut=100L)
 {
+    if(length(x.train)==0) stop('"x.train" must be specified')
+
+    if(length(xinfo)==0) {
+        bMM = bartModelMatrix(x.train, numcut=numcut)
+        xinfo=bMM$xinfo
+        numcut=bMM$numcut
+    }
+
     N=nrow(x.train)
     P=ncol(x.train)
+    if(numcut<P && length(numcut)==1) numcut=rep(numcut, P)
+    if(length(numcut)!=P) stop(paste0('P=', P, ', numcut=', numcut))
     coverage=(N>0)
     if(coverage) {
         for(v in 1:ncol(x.train))
@@ -38,7 +49,7 @@ read.forest=function(obj, ## object returned from randomForest
     ## last index of Trees
     ## 1 for nodes: 1 is a branch and 2 is a leaf
     ## 2 for variable: R index (add 1 to C/C++ index)
-    ## 3 for cut-point
+    ## 3 for cut-point: R index (add 1 to C/C++ index)
     ## 4 for leaf value
     ## 5 for the number of training subjects passing through this node
     ## (data science/machine learning often calls this coverage)
@@ -58,12 +69,23 @@ read.forest=function(obj, ## object returned from randomForest
                 if(A[j, 1]>0) { ## branch
                     Trees[i, j, 1]=1
                     Trees.[[i]]$node[j]=1
-                    Trees[i, j, 2]=A[j, 3]
-                    Trees.[[i]]$var[j]=A[j, 3]
-                    Trees[i, j, 3]=A[j, 4]
-                    Trees.[[i]]$cut[j]=A[j, 4]
-                    string=paste0(string, paste(j, A[j, 3]-1, A[j, 4], 0), '\n')
+                    v=A[j, 3]
+                    Trees[i, j, 2]=v
+                    Trees.[[i]]$var[j]=v
+                    ## Trees[i, j, 3]=A[j, 4]
+                    ## Trees.[[i]]$cut[j]=A[j, 4]
+                    c=A[j, 4]
+                    ## RF is not using a grid: pick the nearest cutpoint
+                    abs.diff=abs(xinfo[v, 1:numcut[v]]-c)
+                    k=which(min(abs.diff)==abs.diff)
+                    C=xinfo[v, k]
+                    Trees[i, j, 3]=C
+                    ##Trees[i, j, 5]=c
+                    Trees.[[i]]$cut[j]=C
+                    string=paste0(string, paste(j, v-1, k-1, 0), '\n')
                 } else { ## leaf
+                    Trees[i, j, 3]=NA
+                    Trees[i, j, 5]=NA
                     Trees[i, j, 1]=2
                     Trees.[[i]]$node[j]=2
                     Trees[i, j, 4]=A[j, 6]
