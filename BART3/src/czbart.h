@@ -324,7 +324,8 @@ if(type==1) {
    double *sign;
    if(type!=1) sign = new double[n]; 
    Rcpp::IntegerVector prevXV(p);
-   std::vector<bool> zdraw(n);
+   //std::vector<bool> zdraw(n);
+   Rcpp::LogicalVector zdraw(n);
 
    for(size_t i=0; i<n; i++) {
      if(type==1) {
@@ -527,6 +528,7 @@ if(type==1) {
    ret["yhat.test"]=tedraw;
    ret["varcount"]=varcnt;
    ret["varprob"]=varprb;
+   ret["zdraw"]=zdraw;
 
    Rcpp::List xiret(xi.size());
    for(size_t i=0;i<xi.size();i++) {

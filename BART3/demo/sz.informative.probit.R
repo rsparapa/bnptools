@@ -37,6 +37,8 @@ post3 = ss.zbart(x.train, y.train, x.test, shards=shards, type='pbart',
                  ##RDSfile='post/sz.probit.gbart',
                  debug=TRUE, mc.cores=B, seed=12)
 
+table(post3[[shards]]$zdraw)
+
 post$prob.test.025=apply(post$prob.test, 2, quantile, probs=0.025)
 post$prob.test.975=apply(post$prob.test, 2, quantile, probs=0.975)
 
