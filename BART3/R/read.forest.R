@@ -43,57 +43,28 @@ read.forest=function(obj, ## object returned from randomForest
     }
 
     string=paste(1, ntree, paste0(P, '\n'))
-    tier.max=floor(log2(node.max))
-    Trees=array(0, dim=c(ntree, node.max, 5))
-    Trees. = list()
-    ## last index of Trees
-    ## 1 for nodes: 1 is a branch and 2 is a leaf
-    ## 2 for variable: R index (add 1 to C/C++ index)
-    ## 3 for cut-point: R index (add 1 to C/C++ index)
-    ## 4 for leaf value
-    ## 5 for the number of training subjects passing through this node
-    ## (data science/machine learning often calls this coverage)
-    if(coverage) Cover=matrix(TRUE, nrow=N, ncol=node.max)
 
     for(i in 1:ntree) {
-        string=paste0(string, paste(node.max, NA, NA, NA), '\n')
         A=getTree(obj, i)
         h = nrow(A)
-        Trees.[[i]]=list()
-        Trees.[[i]]$node =integer(h)
-        Trees.[[i]]$var  =integer(h)
-        Trees.[[i]]$cut  =double(h)
-        Trees.[[i]]$leaf =double(h)
+        string=paste0(string, paste(h, NA, NA, NA), '\n')
         if(h>0)
             for(j in 1:h) {
                 if(A[j, 1]>0) { ## branch
-                    Trees[i, j, 1]=1
-                    Trees.[[i]]$node[j]=1
                     v=A[j, 3]
-                    Trees[i, j, 2]=v
-                    Trees.[[i]]$var[j]=v
-                    ## Trees[i, j, 3]=A[j, 4]
-                    ## Trees.[[i]]$cut[j]=A[j, 4]
                     c=A[j, 4]
                     ## RF is not using a grid: pick the nearest cutpoint
                     abs.diff=abs(xinfo[v, 1:numcut[v]]-c)
                     k=which(min(abs.diff)==abs.diff)
                     C=xinfo[v, k]
-                    Trees[i, j, 3]=C
-                    ##Trees[i, j, 5]=c
-                    Trees.[[i]]$cut[j]=C
                     string=paste0(string, paste(j, v-1, k-1, 0), '\n')
                 } else { ## leaf
-                    Trees[i, j, 3]=NA
-                    Trees[i, j, 5]=NA
-                    Trees[i, j, 1]=2
-                    Trees.[[i]]$node[j]=2
-                    Trees[i, j, 4]=A[j, 6]
-                    Trees.[[i]]$leaf[j]=A[j, 6]
-                    string=paste0(string, paste(j, 0, 0, A[j, 6]), '\n')
+                    string=paste0(string,
+                                  paste(j, 0, 0,
+                                        format(A[j, 6], digits=22)), '\n')
                 }
             }
     }
 
-    return(list(Trees=Trees, Trees.=Trees.))
+    return(string)
 }
