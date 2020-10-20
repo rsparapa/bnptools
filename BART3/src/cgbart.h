@@ -47,6 +47,8 @@ RcppExport SEXP cgbart(
    SEXP _ilambda,
    SEXP _isigest,
    SEXP _iw,
+   SEXP _rfinit,
+   SEXP _itrees,
    SEXP _idart,         //dart prior: true(1)=yes, false(0)=no
    SEXP _itheta,
    SEXP _iomega,
@@ -125,6 +127,9 @@ RcppExport SEXP cgbart(
    double sigma=Rcpp::as<double>(_isigest);
    Rcpp::NumericVector  wv(_iw); 
    double *iw = &wv[0];
+   int rfinit=Rcpp::as<int>(_rfinit); 
+   Rcpp::CharacterVector itrees(_itrees); 
+   std::string itv(itrees[0]);
    bool dart;
    if(Rcpp::as<int>(_idart)==1) dart=true;
    else dart=false;
@@ -291,6 +296,7 @@ void cgbart(
 //printf("warning: missing elements in x multiply imputed with hot decking\n");
    if(np) printf("xp1,xp[np*p]: %lf, %lf\n",ixp[0],ixp[np*p-1]);
    printf("*****Number of Trees: %zu\n",m);
+   printf("*****Number of RFinit: %zu\n", rfinit);
    printf("*****Number of Cut Points: %d ... %d\n", numcut[0], numcut[p-1]);
    printf("*****burn,nd,thin: %zu,%zu,%zu\n",burn,nd,thin);
 // printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
@@ -360,6 +366,7 @@ if(type==1) {
    //set up BART model
    bm.setprior(alpha,mybeta,tau);
    bm.setdata(p,n,ix,z,numcut);
+   if(rfinit==1) bm.settree(itv);
    bm.setdart(a,b,rho,aug,dart);
 
    // dart iterations

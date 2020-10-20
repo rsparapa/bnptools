@@ -20,7 +20,18 @@ x=seq(-2, 2, length.out=H+1)[-(H+1)]
 x.test=matrix(0, nrow=H, ncol=P)
 x.test[ , 3]=x
 
-rf = randomForest(x.train, y.train, forest=TRUE, ntree=200, maxnodes=4)
+B=8
+post1=mc.gbart(x.train, y.train, mc.cores=B, seed=12)
+
+plot(post1$sigma[ , 1], type='l', ylim=c(0, max(c(post1$sigma))))
+for(i in 2:B) lines(post1$sigma[ , i], col=i)
+abline(h=sigma, lty=2)
+
+post2=mc.gbart(x.train, y.train, mc.cores=B, seed=12, rfinit=TRUE)
+
+for(i in 1:B) lines(post2$sigma[ , i], col=i, lty=2)
+
+rf = randomForest(x.train, y.train, ntree=200, maxnodes=4)
 getTree(rf, 1)
 
 str(rf)
@@ -32,13 +43,3 @@ str(bMM$xinfo)
 check = read.forest(rf, maxnodes=4, x.train=x.train)
 write(check, 'check.txt')
 
-## h=!is.na(c(check[[1]][ , , 3]))
-## cor(c(check[[1]][ , , 3])[h], c(check[[1]][ , , 5])[h])
-## summary(c(check[[1]][ , , 3])[h])
-## summary(c(check[[1]][ , , 5])[h])
-## summary(abs(c(check[[1]][ , , 3])[h]-c(check[[1]][ , , 5])[h]))
-
-## nodes = integer(200)
-## for(i in 1:200) nodes[i]=nrow(getTree(rf, i))
-## print(table(nodes))
-## for(i in which(nodes<7)) print(dimnames(getTree(rf, i))[[1]])

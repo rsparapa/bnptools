@@ -26,6 +26,7 @@ mc.gbart <- function(
                      ntype=as.integer(
                          factor(type,
                                 levels=c('wbart', 'pbart', 'lbart'))),
+                     rfinit=FALSE,
                      sparse=FALSE, theta=0, omega=1,
                      a=0.5, b=1, augment=FALSE, rho=NULL,
                      xinfo=matrix(0,0,0), usequants=FALSE,
@@ -103,7 +104,7 @@ mc.gbart <- function(
         parallel::mcparallel({psnice(value=nice);
             gbart(x.train=x.train, y.train=y.train, ##z.train=z.train,
                   x.test=x.test,
-                  type=type, ntype=ntype,
+                  type=type, ntype=ntype, rfinit=rfinit,
                   sparse=sparse, theta=theta, omega=omega,
                   a=a, b=b, augment=augment, rho=rho,
                   xinfo=xinfo, usequants=usequants,

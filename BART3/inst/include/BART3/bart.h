@@ -67,6 +67,11 @@ public:
    void startdart() {this->dartOn=!(this->dartOn);}
    void settau(double tau) {pi.tau=tau;}
    tree& gettree(size_t i ) { return t[i];}
+   void settree(std::string itv) {
+     std::stringstream ttss(itv);
+     for(size_t j=0; j<m; j++) ttss >> t[j];
+     //for(size_t j=0; j<m; j++) ttss >> this->t[j];
+   }
    xinfo& getxinfo() {return xi;}
    void setxinfo(xinfo& _xi);
    std::vector<size_t>& getnv() {return nv;}

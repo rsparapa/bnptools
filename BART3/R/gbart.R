@@ -23,6 +23,7 @@ gbart=function(
                type='wbart',
                ntype=as.integer(
                    factor(type, levels=c('wbart', 'pbart', 'lbart'))),
+               rfinit=FALSE,
                sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho=NULL,
                xinfo=matrix(0,0,0), usequants=FALSE,
@@ -133,6 +134,7 @@ gbart=function(
     }
 
     ##if(length(z.train)==0) z.train=y.train
+   trees=''
 
     if(type=='wbart') {
         y.train = y.train-offset
@@ -143,7 +145,13 @@ gbart=function(
         }
         else if(is.na(lambda)) {
             if(is.na(sigest)) {
-                if(p < n)
+                if(rfinit) {
+                    rf=randomForest(t(x.train), y.train, ntree=ntree,
+                                    maxnodes=4, forest=TRUE)
+                    sigest=sd(rf$predicted-y.train)
+                    trees=read.forest(rf, x.train=t(x.train))
+                }
+                else if(p < n)
                     sigest = summary(lm(y.train~.,
                                         data.frame(t(x.train),y.train)))$sigma
                 else sigest = sd(y.train)
@@ -246,6 +254,8 @@ gbart=function(
                 lambda,
                 sigest,
                 w,
+                as.integer(rfinit),
+                trees,
                 sparse,
                 theta,
                 omega,
@@ -337,6 +347,7 @@ gbart=function(
     if(impute.flag) res$impute.miss = impute.miss
     res$rm.const <- rm.const
     res$ndpost = ndpost
+    if(rfinit) res$trees = trees
     attr(res, 'class') <- type
     return(res)
 }
