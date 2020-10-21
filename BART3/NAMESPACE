@@ -41,6 +41,7 @@ importFrom(stats, ar, coef, cor, dbinom, dnorm, lm, plogis, pnorm, predict, qchi
 importFrom(survival, survfit, Surv, survreg)
 importFrom(tools, psnice)
 importFrom(utils, read.table)
+importFrom(randomForest, randomForest)
 S3method(FPD, wbart)
 S3method(FPD, pbart)
 S3method(FPD, survbart)

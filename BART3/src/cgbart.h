@@ -296,9 +296,9 @@ void cgbart(
 //printf("warning: missing elements in x multiply imputed with hot decking\n");
    if(np) printf("xp1,xp[np*p]: %lf, %lf\n",ixp[0],ixp[np*p-1]);
    printf("*****Number of Trees: %zu\n",m);
-   printf("*****Number of RFinit: %zu\n", rfinit);
    printf("*****Number of Cut Points: %d ... %d\n", numcut[0], numcut[p-1]);
    printf("*****burn,nd,thin: %zu,%zu,%zu\n",burn,nd,thin);
+   printf("*****Value of RFinit: %zu\n", rfinit);
 // printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
 //                    mybeta,alpha,tau,nu,lambda,Offset);
    cout << "*****Prior:beta,alpha,tau,nu,lambda,offset,shards: " 

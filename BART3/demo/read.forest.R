@@ -1,6 +1,5 @@
 
 library(BART3)
-library(randomForest)
 
 f = function(x)
     5+10*sin(pi*x[ , 1]*x[ , 2]) +  3*x[ , 3]^3
@@ -23,23 +22,15 @@ x.test[ , 3]=x
 B=8
 post1=mc.gbart(x.train, y.train, mc.cores=B, seed=12)
 
-plot(post1$sigma[ , 1], type='l', ylim=c(0, max(c(post1$sigma))))
-for(i in 2:B) lines(post1$sigma[ , i], col=i)
+post2=mc.gbart(x.train, y.train, mc.cores=B, seed=21, rfinit=TRUE)
+write(post2$trees, file='trees.txt')
+
+##pdf('read-forest.pdf')
+plot(post2$sigma[ , 1], type='n', ylim=c(0, max(c(post2$sigma))))
+for(i in 1:B) {
+    lines(post2$sigma[ , i], lty=1)
+    lines(post1$sigma[ , i], lty=2)
+}
 abline(h=sigma, lty=2)
-
-post2=mc.gbart(x.train, y.train, mc.cores=B, seed=12, rfinit=TRUE)
-
-for(i in 1:B) lines(post2$sigma[ , i], col=i, lty=2)
-
-rf = randomForest(x.train, y.train, ntree=200, maxnodes=4)
-getTree(rf, 1)
-
-str(rf)
-
-bMM = bartModelMatrix(x.train, numcut=100)
-
-str(bMM$xinfo)
-
-check = read.forest(rf, maxnodes=4, x.train=x.train)
-write(check, 'check.txt')
+##dev.off()
 

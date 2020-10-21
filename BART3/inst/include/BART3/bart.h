@@ -69,8 +69,14 @@ public:
    tree& gettree(size_t i ) { return t[i];}
    void settree(std::string itv) {
      std::stringstream ttss(itv);
-     for(size_t j=0; j<m; j++) ttss >> t[j];
-     //for(size_t j=0; j<m; j++) ttss >> this->t[j];
+     int _nd, _m, _p;
+     ttss >> _nd >> _m >> _p;
+     cout << _nd << ' ' << _m << ' ' << _p << '\n';
+     cout << t.size() << '\n';
+     for(size_t j=0; j<m; j++) {
+       ttss >> t[j];
+       if(j<5) cout << t[j];
+     }
    }
    xinfo& getxinfo() {return xi;}
    void setxinfo(xinfo& _xi);

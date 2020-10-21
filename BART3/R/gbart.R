@@ -149,7 +149,8 @@ gbart=function(
                     rf=randomForest(t(x.train), y.train, ntree=ntree,
                                     maxnodes=4, forest=TRUE)
                     sigest=sd(rf$predicted-y.train)
-                    trees=read.forest(rf, x.train=t(x.train))
+                    trees=read.forest(rf, xinfo=xinfo)
+                    ##trees=read.forest(rf, x.train=t(x.train))
                 }
                 else if(p < n)
                     sigest = summary(lm(y.train~.,
