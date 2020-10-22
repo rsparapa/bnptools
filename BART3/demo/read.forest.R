@@ -32,5 +32,6 @@ for(i in 1:B) {
     lines(post1$sigma[ , i], lty=2)
 }
 abline(h=sigma, lty=2)
+dev.copy2pdf(file='read-forest.pdf')
 ##dev.off()
 

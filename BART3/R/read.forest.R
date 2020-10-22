@@ -42,7 +42,6 @@ read.forest=function(obj, ## object returned from randomForest
         A=getTree(obj, i)
         h = nrow(A)
         string=paste0(string, h, '\n')
-        ##string=paste0(string, paste(h, NA, NA, NA), '\n')
         if(h>0)
             for(j in 1:h) {
                 if(A[j, 1]>0) { ## branch
@@ -59,7 +58,7 @@ read.forest=function(obj, ## object returned from randomForest
                 } else { ## leaf
                     string=paste0(string,
                                   paste(j, 0, 0,
-                                        format(A[j, 6], digits=22)), '\n')
+                                        format(A[j, 6]/ntree, digits=22)), '\n')
                 }
             }
     }
