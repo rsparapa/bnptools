@@ -97,7 +97,7 @@ mc.crisk3.bart <- function(
     ##if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
 
     post.list <- list()
-    print(paste0('Parallel BART with mc.cores=', mc.cores))
+    ##print(paste0('Parallel BART with mc.cores=', mc.cores))
     for(h in 1:H) {
         for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);
@@ -131,10 +131,20 @@ mc.crisk3.bart <- function(
         return(post.list[[1]][[1]])
     else {
         p <- ncol(post.list[[1]][[1]]$tx.train)
-        for(h in 1:H) for(i in mc.cores:1) {
-            if(h==1 & i==mc.cores) {
-                post <- post.list[[1]][[mc.cores]]
-                post$ndpost <- H*mc.cores*mc.ndpost
+
+        ndpost. <- 0
+        for(h in 1:H) {
+            mc.cores. = length(post.list[[h]])
+            if(mc.cores!=mc.cores.)
+                warning(paste0(
+                    'The number of items returned by mccollect is ', mc.cores.))
+            ndpost. <- ndpost.+mc.cores.*mc.ndpost
+
+            for(i in mc.cores.:1) {
+            if(h==1 & i==mc.cores.) {
+                post <- post.list[[1]][[mc.cores.]]
+                ##post$ndpost <- H*mc.cores*mc.ndpost
+                post$ndpost <- ndpost.
 
                 old.text <- paste0(as.character(mc.ndpost), ' ',
                                    as.character(ntree), ' ', as.character(p))
