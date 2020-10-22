@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2017-2018 Robert McCulloch and Rodney Sparapani
+## predict.crisk3bart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -109,8 +110,9 @@ predict.crisk3bart <- function(object, newdata,
                         else newdata[i, j]=object$treedraws$cutpoints[[j]][sample.int(h, 1)]
                     }
                     else while(is.na(newdata[i, j])) {
+                        l = is.na(newdata[i, ])
                         h=sample.int(n, 1)
-                        newdata[i, j]=newdata[h, j]
+                        newdata[i, l]=newdata[h, l]
                     }
                 }
 
@@ -131,8 +133,9 @@ predict.crisk3bart <- function(object, newdata,
                                 else newdata2[i, j]=object$treedraws2$cutpoints[[j]][sample.int(h, 1)]
                             }
                             else while(is.na(newdata2[i, j])) {
+                                l = is.na(newdata2[i, ])
                                 h=sample.int(n, 1)
-                                newdata2[i, j]=newdata2[h, j]
+                                newdata2[i, l]=newdata2[h, l]
                             }
                         }
                     if(!check3)
@@ -143,8 +146,9 @@ predict.crisk3bart <- function(object, newdata,
                                 else newdata3[i, j]=object$treedraws3$cutpoints[[j]][sample.int(h, 1)]
                             }
                             else while(is.na(newdata3[i, j])) {
+                                l = is.na(newdata3[i, ])
                                 h=sample.int(n, 1)
-                                newdata3[i, j]=newdata3[h, j]
+                                newdata3[i, l]=newdata3[h, l]
                             }
                         }
                 }
