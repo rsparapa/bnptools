@@ -402,7 +402,10 @@ if(type==1) {
       }
 
       for(size_t k=0; k<n; k++) {
-	if(type==1) svec[k]=iw[k]*sigma;
+	if(type==1) {
+	  svec[k]=iw[k]*sigma;
+	  //if(iw[k]!=1) z[k]=R::rnorm(bm.f(k), svec[k]);
+	}
 	else if(zdraw[k]) {
 	  z[k]=sign[k]*rtnorm(sign[k]*bm.f(k), -sign[k]*Offset, svec[k], gen);
 	  if(type==3) 
