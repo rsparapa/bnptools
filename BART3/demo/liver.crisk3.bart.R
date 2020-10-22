@@ -1,7 +1,7 @@
 
 library(BART3)
 
-##options(mc.cores=8)
+options(mc.cores=8)
 
 B <- getOption('mc.cores', 1)
 figures = getOption('figures', default='NONE')
