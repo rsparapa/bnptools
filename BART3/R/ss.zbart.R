@@ -24,7 +24,7 @@ ss.zbart <- function(
                      ntype=as.integer(
                          factor(type,
                                 levels=c('wbart', 'pbart', 'lbart'))),
-                     RDSfile=NULL, strata=NULL,
+                     RDSfile=NULL, strata=NULL, cum.weight=TRUE,
                      sparse=FALSE, theta=0, omega=1,
                      a=0.5, b=1, augment=FALSE, rho=NULL,
                      xinfo=matrix(0,0,0), usequants=FALSE,
@@ -114,7 +114,12 @@ ss.zbart <- function(
             n = length(Y.train)
             m = length(post[[i]]$yhat.test.mean)
             ##w.train = c(rep(sqrt(W/m), n-m), rep(1, m))
-            w.train = c(rep(1, n-m), rep(sqrt(m/W), m))
+            if(cum.weight) w.train = c(rep(1, n-m), rep(sqrt(m/W), m))
+            else {
+                SD=matrix(post[[i]]$sigma., nrow=ndpost, ncol=m)
+                w.train = c(rep(1, n-m),
+                            sqrt(apply(post[[i]]$yhat.test/SD, 2, var)))
+            }
             X.train = cbind(x.train[ , strata.h ], X.test)
             if(h==shards) X.test = x.test
             else X.test = x.train[ , strata.h ]
