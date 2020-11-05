@@ -34,7 +34,6 @@ mc.gbart <- function(
                      sigest=NA, sigdf=3, sigquant=0.90,
                      k=2, power=2, base=0.95,
                      impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
-                     ##sigmaf=NA,
                      lambda=NA, tau.num=c(NA, 3, 6)[ntype],
                      ##tau.interval=0.9973,
                      offset=NULL, w=rep(1, length(y.train)),
@@ -113,7 +112,6 @@ mc.gbart <- function(
                   k=k, power=power, base=base,
                   impute.mult=impute.mult, impute.prob=impute.prob,
                   impute.miss=impute.miss,
-                  ##sigmaf=sigmaf,
                   lambda=lambda, tau.num=tau.num,
                   ##tau.interval=tau.interval,
                   offset=offset,
@@ -163,7 +161,7 @@ mc.gbart <- function(
 
         ##keeptest <- length(x.test)>0
 
-        if(type1.sigest) sigma <- post$sigma[-(1:nskip)]
+        if(type1.sigest) post$sigma. <- post$sigma[-(1:nskip)]
 
         for(i in 2:mc.cores) {
             ##post$hostname[i] <- post.list[[i]]$hostname
@@ -176,7 +174,7 @@ mc.gbart <- function(
 
             if(type1.sigest) {
                 post$sigma <- cbind(post$sigma, post.list[[i]]$sigma)
-                sigma <- c(sigma, post.list[[i]]$sigma[-(1:nskip)])
+                post$sigma. <- c(post$sigma., post.list[[i]]$sigma[-(1:nskip)])
             }
 
             post$varcount <- rbind(post$varcount, post.list[[i]]$varcount)
@@ -207,7 +205,7 @@ mc.gbart <- function(
             post$yhat.train.upper <- apply(post$yhat.train, 2, quantile,
                                            probs=max(probs))
             if(type1.sigest) {
-                SD=matrix(sigma, nrow=post$ndpost, ncol=n)
+                SD=matrix(post$sigma., nrow=post$ndpost, ncol=n)
                 ##CPO=1/apply(1/dnorm(Y, post$yhat.train, SD), 2, mean)
                 log.pdf=dnorm(Y, post$yhat.train, SD, TRUE)
                 post$sigma.mean=mean(SD[ , 1])

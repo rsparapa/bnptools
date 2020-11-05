@@ -289,7 +289,8 @@ gbart=function(
         res$yhat.train.upper <- apply(res$yhat.train, 2, quantile,
                                       probs=max(probs))
         if(type1.sigest) {
-            SD=matrix(res$sigma[-(1:nskip)], nrow=ndpost, ncol=n)
+            res$sigma.=res$sigma[-(1:nskip)]
+            SD=matrix(res$sigma., nrow=ndpost, ncol=n)
             ##CPO=1/apply(1/dnorm(Y, res$yhat.train, SD), 2, mean)
             log.pdf=dnorm(Y, res$yhat.train, SD, TRUE)
             res$sigma.mean=mean(SD[ , 1])
