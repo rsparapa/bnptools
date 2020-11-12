@@ -339,6 +339,7 @@ if(type==1) {
 
        zdraw[i] = (iy[i]==z[i]); // draw latents
        if(zdraw[i]) z[i] = sign[i];
+       else z[i] -= Offset;
      }
      if(K>0) {
        if(impute_miss[i]==1) {
