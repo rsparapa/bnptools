@@ -24,7 +24,7 @@ ss.gbart <- function(
                      ntype=as.integer(
                          factor(type,
                                 levels=c('wbart', 'pbart', 'lbart'))),
-                     RDSfile=NULL, strata=NULL,
+                     RDSfile=NULL, strata=NULL, cum.weight=TRUE,
                      sparse=FALSE, theta=0, omega=1,
                      a=0.5, b=1, augment=FALSE, rho=NULL,
                      xinfo=matrix(0,0,0), usequants=FALSE,
@@ -96,37 +96,41 @@ ss.gbart <- function(
     if(length(strata)==0) strata = stratrs(y.train, shards)
     post = list()
     W=0
-    ##W.=matrix(1, nrow=shards, ncol=2)
     for(h in 1:shards) {
         strata.h = which(strata == h)
+        X.train = x.train[ , strata.h ]
+        if(h==shards) X.test = x.test
+        else {
+            j=h+1
+            strata.j = which(strata == j)
+            X.test = x.train[ , strata.j ]
+        }
         if(h==1) {
             Y.train = y.train[ strata.h ]
-            ## z.train = y.train[ strata.h ]
-            ## Y.train = z.train
             n = length(Y.train)
             m = 0
             w.train = rep(1, n)
-            X.train = x.train[ , strata.h ]
-            X.test = X.train
+            ##X.train = x.train[ , strata.h ]
+            ##X.test = X.train
         } else {
             Y.train = c(y.train[ strata.h ], post[[i]]$yhat.test.mean)
             if(type!='wbart') Y.train = 1*(Y.train>0)
-            ## z.train = c(y.train[ strata.h ], post[[i]]$yhat.test.mean)
-            ## Y.train = z.train
-            ## if(type!='wbart') Y.train = 1*(z.train>0)
             n = length(Y.train)
             m = length(post[[i]]$yhat.test.mean)
-            w.train = c(rep(sqrt(W/m), n-m), rep(1, m))
-            ##w.train = c(rep(1, n-m), rep(sqrt(m/W), m))
-            X.train = cbind(x.train[ , strata.h ], X.test)
-            if(h==shards) X.test = x.test
-            else X.test = x.train[ , strata.h ]
-            ##W.[h, 1]=W
-            ##W.[h, 2]=m
+            if(cum.weight)
+                ##w.train = c(rep(1, n-m), rep(sqrt(m/W), m))
+                w.train = c(rep(sqrt(W/m), n-m), rep(1, m))
+            else {
+                SD=matrix(post[[i]]$sigma., nrow=ndpost, ncol=m)
+                w.train = c(rep(1, n-m),
+                           sqrt(apply(post[[i]]$yhat.test/SD, 2, var)))
+            }
+            X.train = cbind(X.train, X.train)
+            ##X.train = cbind(x.train[ , strata.h ], X.test)
+            ##if(h==shards) X.test = x.test
+            ##else X.test = x.train[ , strata.h ]
         }
-        strata.h. = strata.h
         W=W+n-m
-        ##if(h==shards) print(W.)
 
         if(debug) i=h
         else i=1
@@ -135,7 +139,6 @@ ss.gbart <- function(
             print(c(shard=h))
             post[[i]] = mc.gbart(x.train=X.train, y.train=Y.train,
                                  x.test=X.test,
-                                 ##z.train=z.train,
                                  type=type, ntype=ntype,
                                  sparse=sparse, theta=theta, omega=omega,
                                  a=a, b=b, augment=augment, rho=rho,
@@ -157,6 +160,7 @@ ss.gbart <- function(
             else if(type!='wbart') post[[i]]$sigma.mean = 1
 
             post[[i]]$shard = h
+            post[[i]]$w.train = w.train
             if(length(RDSfile)>0) saveRDS(post[[i]], paste0(RDSfile, '.', h))
         } else {
             post[[i]] = readRDS(paste0(RDSfile, '.', h))
