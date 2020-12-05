@@ -1,0 +1,7 @@
+useDynLib(ivbart, .registration=TRUE)
+##exportPattern("^[[:alpha:]]+")
+export("ivbart")
+export("getaprior")
+export("amode")
+importFrom("Rcpp", "evalCpp")
+importFrom("stats", "lm", "var")

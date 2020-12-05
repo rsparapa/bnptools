@@ -1,0 +1,17 @@
+Package: ivbart
+Type: Package
+Title: Instrumental Variables with BART and DPM
+Version: 1.0
+Date: 2020-02-26
+Authors@R: c(person('Robert', 'McCulloch', role='aut'),
+  person('Rodney', 'Sparapani', role=c('aut', 'cre'), 
+  email='rsparapa@mcw.edu'))
+Author: Rodney Sparapani [aut, cre],
+  Robert McCulloch [aut]
+Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
+Description: A Bayesian nonparametric instrumental variable approach that does not require precarious restrictive assumptions.  Bayesian nonparametrics provides non-linear functions of the instruments and confounders via Bayesian Additive Regression Trees along with non-Normal errors by Dirichlet Process Mixtures.
+License: GPL (>= 2)
+Imports: Rcpp (>= 0.12.16)
+LinkingTo: Rcpp
+NeedsCompilation: yes
+Packaged: 

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -rf src/Makevars.win data/code_bk.txt data/read1.csv
+##       99_compsim_beta.pdf LinF_S14_Df3_bayesm-lin-nor_2sls_ls_biv.pdf
