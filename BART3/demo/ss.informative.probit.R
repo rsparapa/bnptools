@@ -2,8 +2,8 @@
 library(BART3)
 
 f = function(x)
+    ##10*sin(pi*x[ , 1]*x[ , 2]) +  3*x[ , 3]^3
     5+10*sin(pi*x[ , 1]*x[ , 2]) +  3*x[ , 3]^3
-##    10*sin(pi*x[ , 1]*x[ , 2]) + 5*x[ , 3]*x[ , 4]^2 + 20*x[ , 5]
 
 N = 2000
 sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
@@ -34,7 +34,12 @@ shards=8
 
 post3 = ss.gbart(x.train, y.train, x.test, shards=shards, type='pbart',
                  ##sparse=TRUE,
-                 RDSfile='post/ss.probit.gbart',
+                 ##RDSfile='post/ss.probit.gbart',
+                 debug=TRUE, mc.cores=B, seed=12)
+
+post4 = ss.gbart(x.train, y.train, x.test, shards=shards, type='pbart',
+                 ##sparse=TRUE,
+                 cum.weight=FALSE,
                  debug=TRUE, mc.cores=B, seed=12)
 
 post$prob.test.025=apply(post$prob.test, 2, quantile, probs=0.025)
@@ -44,6 +49,8 @@ for(i in shards) {
     ##pred=predict(post3[[i]], x.test)
     post3[[i]]$prob.test.025=apply(post3[[i]]$prob.test, 2, quantile, probs=0.025)
     post3[[i]]$prob.test.975=apply(post3[[i]]$prob.test, 2, quantile, probs=0.975)
+    post4[[i]]$prob.test.025=apply(post4[[i]]$prob.test, 2, quantile, probs=0.025)
+    post4[[i]]$prob.test.975=apply(post4[[i]]$prob.test, 2, quantile, probs=0.975)
 }
 
 plot(x, pnorm(f(x.test)), type='l', col=4, lwd=2,
@@ -56,9 +63,12 @@ for(i in shards) {
     lines(x, post3[[i]]$prob.test.mean, lwd=2, lty=3, col=i)
     lines(x, post3[[i]]$prob.test.025, lwd=2, lty=3, col=i)
     lines(x, post3[[i]]$prob.test.975, lwd=2, lty=3, col=i)
+    lines(x, post4[[i]]$prob.test.mean, lwd=2, lty=3, col=3)
+    lines(x, post4[[i]]$prob.test.025, lwd=2, lty=3, col=3)
+    lines(x, post4[[i]]$prob.test.975, lwd=2, lty=3, col=3)
 }
 ##abline(v=0)
-legend('topleft', col=c(4, 1, 8), lty=1,
-       legend=c('True', 'BART', paste0(8)), lwd=2)
+legend('bottomright', col=c(4, 1, 8, 3), lty=1,
+       legend=c('True', 'BART', 'Cum. weight', 'f weight'), lwd=2)
 dev.copy2pdf(file='ss-informative-probit.pdf')
 

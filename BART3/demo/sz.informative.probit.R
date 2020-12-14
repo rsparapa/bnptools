@@ -39,6 +39,12 @@ post3 = ss.zbart(x.train, y.train, x.test, shards=shards, type='pbart',
 
 table(post3[[shards]]$zdraw)
 
+post4 = ss.zbart(x.train, y.train, x.test, shards=shards, type='pbart',
+                 ##sparse=TRUE,
+                 ##RDSfile='post/sz.probit.gbart',
+                 cum.weight=FALSE,
+                 debug=TRUE, mc.cores=B, seed=12)
+
 post$prob.test.025=apply(post$prob.test, 2, quantile, probs=0.025)
 post$prob.test.975=apply(post$prob.test, 2, quantile, probs=0.975)
 
@@ -46,10 +52,13 @@ for(i in shards) {
     ##pred=predict(post3[[i]], x.test)
     post3[[i]]$prob.test.025=apply(post3[[i]]$prob.test, 2, quantile, probs=0.025)
     post3[[i]]$prob.test.975=apply(post3[[i]]$prob.test, 2, quantile, probs=0.975)
+    post4[[i]]$prob.test.025=apply(post4[[i]]$prob.test, 2, quantile, probs=0.025)
+    post4[[i]]$prob.test.975=apply(post4[[i]]$prob.test, 2, quantile, probs=0.975)
 }
 
 plot(x, pnorm(f(x.test)), type='l', col=4, lwd=2,
      sub=paste0('N=', N),
+     main="z's from previous shards are NOT latent",
      ylim=0:1, xlab=expression(x[3]), ylab=expression(f(x[3])))
 lines(x, post$prob.test.mean, lwd=2, lty=1)
 lines(x, post$prob.test.025, lwd=2, lty=1)
@@ -58,9 +67,12 @@ for(i in shards) {
     lines(x, post3[[i]]$prob.test.mean, lwd=2, lty=3, col=i)
     lines(x, post3[[i]]$prob.test.025, lwd=2, lty=3, col=i)
     lines(x, post3[[i]]$prob.test.975, lwd=2, lty=3, col=i)
+    lines(x, post4[[i]]$prob.test.mean, lwd=2, lty=3, col=3)
+    lines(x, post4[[i]]$prob.test.025, lwd=2, lty=3, col=3)
+    lines(x, post4[[i]]$prob.test.975, lwd=2, lty=3, col=3)
 }
 ##abline(v=0)
-legend('topleft', col=c(4, 1, 8), lty=1,
-       legend=c('True', 'BART', paste0(8)), lwd=2)
+legend('bottomright', col=c(4, 1, 3, 8), lty=1,
+       legend=c('True', 'BART', 'f weight', 'cum. weight'), lwd=2)
 dev.copy2pdf(file='sz-informative-probit.pdf')
 
