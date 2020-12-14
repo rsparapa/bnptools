@@ -173,9 +173,15 @@ ml.gbart <- function(
     for(h in 1:shards) {
         ## if(h==1) post$yhat.test = post$weight[[1]]*post$yhat.test/post$weight.
         ## else post$yhat.test = post$yhat.test+post$weight[[h]]*post.list[[h]]$yhat.test/post$weight.
-        if(h==1) post$yhat.test = post$weight[1]*(post$yhat.test-post$offset[1])
-        else post$yhat.test = post$yhat.test+
+        if(h==1) {
+            post$yhat.test.var = apply(post$yhat.test, 2, var)
+            post$yhat.test = post$weight[1]*(post$yhat.test-post$offset[1])
+        } else {
+            post$yhat.test.var = rbind(post$yhat.test.var,
+                                       apply(post.list[[h]]$yhat.test, 2, var))
+            post$yhat.test = post$yhat.test+
                  post$weight[h]*(post.list[[h]]$yhat.test-post$offset[h])
+        }
     }
 
     post$yhat.test = post$yhat.test+mean(post$offset)
@@ -186,6 +192,7 @@ ml.gbart <- function(
                                       probs=min(probs))
         post$yhat.test.upper <- apply(post$yhat.test, 2, quantile,
                                       probs=max(probs))
+        post$yhat.test.sd <- sqrt(apply(post$yhat.test.var, 2, mean)/shards)
      } else {
         if(type=='pbart')
             post$prob.test <- pnorm(post$yhat.test)
