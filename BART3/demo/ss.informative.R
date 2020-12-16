@@ -58,6 +58,8 @@ post$yhat.test.025=apply(post$yhat.test, 2, quantile, probs=0.025)
 post$yhat.test.975=apply(post$yhat.test, 2, quantile, probs=0.975)
 post2$yhat.test.025=apply(post2$yhat.test, 2, quantile, probs=0.025)
 post2$yhat.test.975=apply(post2$yhat.test, 2, quantile, probs=0.975)
+post2$yhat.test.025.=post2$yhat.test.mean-1.96*post2$yhat.test.sd
+post2$yhat.test.975.=post2$yhat.test.mean+1.96*post2$yhat.test.sd
 
 for(i in shards) {
     if(i==shards) pred=post3[[i]]$yhat.test
@@ -95,6 +97,8 @@ lines(x, post$yhat.test.975, lwd=2, lty=1)
 lines(x, post2$yhat.test.mean, lwd=2, lty=2, col=2)
 lines(x, post2$yhat.test.025, lwd=2, lty=2, col=2)
 lines(x, post2$yhat.test.975, lwd=2, lty=2, col=2)
+lines(x, post2$yhat.test.025., lwd=2, lty=3, col=5)
+lines(x, post2$yhat.test.975., lwd=2, lty=3, col=5)
 for(i in shards) {
     lines(x, post3[[i]]$yhat.test.mean, lwd=2, lty=3, col=i)
     lines(x, post3[[i]]$yhat.test.025, lwd=2, lty=3, col=i)
@@ -105,8 +109,8 @@ for(i in shards) {
 }
 ##abline(h=c(0, 5, 10))
 ##abline(v=0)
-legend('topleft', col=c(4, 1:3, 8), lty=1,
-       legend=c('True', 'BART', 'Modified LISA', 'f weight', 'cum. weight'), lwd=2)
+legend('topleft', col=c(4, 1:3, 8, 5), lty=1,
+       legend=c('True', 'BART', 'Modified LISA', 'f weight', 'cum. weight', 'Meta-analysis'), lwd=2)
 dev.copy2pdf(file='ss-informative2.pdf')
 
 plot(density(c(post3[[shards]]$sigma[-(1:100), ])/sqrt(shards)), ylab='pdf', ylim=c(0, 10),
