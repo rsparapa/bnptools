@@ -43,7 +43,8 @@ mc.gbart <- function(
                      printevery=100L, transposed=FALSE,
                      probs=c(0.025, 0.975),
                      mc.cores = 2L, nice = 19L, seed = 99L,
-                     shards = 1L, weight=rep(NA, shards)
+                     shards = 1L, weight=rep(NA, shards),
+                     meta = FALSE
                      )
 {
     if(is.na(ntype))
@@ -98,6 +99,11 @@ mc.gbart <- function(
 
     keeptestfits <- (length(x.test)>0)
     ##if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
+
+    if(meta && shards>1) {
+        weight=rep(1, shards)
+        shards=1 ## Meta-analysis-like: No Modified LISA adjustment
+    }
 
     for(i in 1:mc.cores) {
         parallel::mcparallel({psnice(value=nice);

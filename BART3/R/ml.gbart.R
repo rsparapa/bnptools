@@ -37,7 +37,8 @@ ml.gbart <- function(
                      printevery=100L, transposed=FALSE,
                      probs=c(0.025, 0.975),
                      mc.cores = 2L, nice = 19L, seed = 99L,
-                     shards = 1L, weight=rep(NA, shards)
+                     shards = 1L, weight=rep(NA, shards),
+                     meta=FALSE
                      )
 {
     if(length(x.test)==0)
@@ -103,7 +104,7 @@ ml.gbart <- function(
                                   ndpost=ndpost, nskip=nskip,
                                   keepevery=keepevery, printevery=printevery,
                                   mc.cores=mc.cores, nice=nice, seed=seed,
-                                  shards=shards, transposed=TRUE)
+                                  shards=shards, meta=meta, transposed=TRUE)
 
         if(h==1) {
             post <- post.list[[1]]
@@ -175,10 +176,12 @@ ml.gbart <- function(
         ## else post$yhat.test = post$yhat.test+post$weight[[h]]*post.list[[h]]$yhat.test/post$weight.
         if(h==1) {
             post$yhat.test.var = apply(post$yhat.test, 2, var)
+            ##post$yhat.test. = post$yhat.test/shards
             post$yhat.test = post$weight[1]*(post$yhat.test-post$offset[1])
         } else {
             post$yhat.test.var = rbind(post$yhat.test.var,
                                        apply(post.list[[h]]$yhat.test, 2, var))
+            ##post$yhat.test. = post$yhat.test.+post.list[[h]]$yhat.test/shards
             post$yhat.test = post$yhat.test+
                  post$weight[h]*(post.list[[h]]$yhat.test-post$offset[h])
         }
@@ -187,6 +190,7 @@ ml.gbart <- function(
     post$yhat.test = post$yhat.test+mean(post$offset)
 
     if(type=='wbart') {
+        ##post$yhat.test.mean. <- apply(post$yhat.test., 2, mean)
         post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
         post$yhat.test.lower <- apply(post$yhat.test, 2, quantile,
                                       probs=min(probs))

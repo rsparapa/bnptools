@@ -105,6 +105,16 @@ ss.gbart <- function(
             strata.j = which(strata == j)
             X.test = x.train[ , strata.j ]
         }
+        ## else if(h==1) X.test=X.train
+        ## else {
+        ##     X.test. = X.test
+        ##     M = ncol(X.test.)
+        ##     for(j in 1:(h-1)) {
+        ##         if(j==1) X.test = X.test.[ , seq(1, M, h)]
+        ##         else X.test = cbind(X.test, X.test.[ , seq(j, M, h)])
+        ##     }
+        ##     X.test = cbind(X.test, X.train[ , seq(h, ncol(X.train), h)])
+        ## }
         if(h==1) {
             Y.train = y.train[ strata.h ]
             n = length(Y.train)
