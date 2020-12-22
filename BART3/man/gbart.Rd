@@ -36,7 +36,6 @@ gbart(
       ndpost=1000L, nskip=100L, %keepevery=1L,
       keepevery=c(1L, 10L, 10L)[ntype],
       printevery=100L, transposed=FALSE,
-      hostname=FALSE,
       mc.cores = 1L, ## mc.gbart only
       nice = 19L,    ## mc.gbart only
       seed = 99L     ## mc.gbart only
@@ -61,7 +60,6 @@ mc.gbart(
          ndpost=1000L, nskip=100L, %keepevery=1L,
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
-         hostname=FALSE,
          mc.cores = 2L, nice = 19L, seed = 99L
 )
 
@@ -226,11 +224,11 @@ argument \code{type} to specify a logit BART model.
    calling \code{mc.gbart}.
  }
 
- \item{hostname}{
-   When running on a cluster occasionally it is useful
-   to track on which node each chain is running; to do so
-   set this argument to \code{TRUE}.
- }
+ %% \item{hostname}{
+ %%   When running on a cluster occasionally it is useful
+ %%   to track on which node each chain is running; to do so
+ %%   set this argument to \code{TRUE}.
+ %% }
  
     \item{seed}{
      Setting the seed required for reproducible MCMC.
