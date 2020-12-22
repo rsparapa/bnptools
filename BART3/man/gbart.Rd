@@ -2,7 +2,6 @@
 \title{Generalized BART for continuous and binary outcomes}
 \alias{gbart}
 \alias{mc.gbart}
-\alias{ml.gbart}
 \description{
 BART is a Bayesian \dQuote{sum-of-trees} model.\cr
 For a numeric response \eqn{y}, we have
@@ -29,18 +28,18 @@ gbart(
       rm.const=TRUE,
       sigest=NA, sigdf=3, sigquant=0.90,
       k=2, power=2, base=0.95,
-      lambda=NA, tau.num=c(NA, 3, 6)[ntype], 
+      %sigmaf=NA,
+      lambda=NA, tau.num=c(NA, 3, 6)[ntype], %tau.interval=0.9973,
       offset=NULL, w=rep(1, length(y.train)),
       ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
-      ndpost=1000L, nskip=100L, 
+      %ntree=200L, numcut=100L,
+      ndpost=1000L, nskip=100L, %keepevery=1L,
       keepevery=c(1L, 10L, 10L)[ntype],
       printevery=100L, transposed=FALSE,
-      probs=c(0.025, 0.975),
-      mc.cores = 1L,         ## mc.gbart only
-      nice = 19L,            ## mc.gbart only
-      seed = 99L,            ## mc.gbart only
-      shards = 1L,           ## ml.gbart only
-      weight=rep(NA, shards) ## ml.gbart only
+      hostname=FALSE,
+      mc.cores = 1L, ## mc.gbart only
+      nice = 19L,    ## mc.gbart only
+      seed = 99L     ## mc.gbart only
 )
 
 mc.gbart(
@@ -54,38 +53,16 @@ mc.gbart(
          rm.const=TRUE,
          sigest=NA, sigdf=3, sigquant=0.90,
          k=2, power=2, base=0.95,
-         lambda=NA, tau.num=c(NA, 3, 6)[ntype], 
+         %sigmaf=NA,
+         lambda=NA, tau.num=c(NA, 3, 6)[ntype], %tau.interval=0.9973,
          offset=NULL, w=rep(1, length(y.train)),
+         %ntree=200L, numcut=100L,
          ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
-         ndpost=1000L, nskip=100L, 
+         ndpost=1000L, nskip=100L, %keepevery=1L,
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
-         probs=c(0.025, 0.975),
-         mc.cores = 2L, nice = 19L, seed = 99L,
-         shards = 1L,           ## ml.gbart only
-         weight=rep(NA, shards) ## ml.gbart only
-)
-
-ml.gbart(
-         x.train, y.train,
-         x.test=matrix(0,0,0), type='wbart',
-         ntype=as.integer(
-             factor(type, levels=c('wbart', 'pbart', 'lbart'))),
-         sparse=FALSE, theta=0, omega=1,
-         a=0.5, b=1, augment=FALSE, rho=NULL,
-         xinfo=matrix(0,0,0), usequants=FALSE,
-         rm.const=TRUE,
-         sigest=NA, sigdf=3, sigquant=0.90,
-         k=2, power=2, base=0.95,
-         lambda=NA, tau.num=c(NA, 3, 6)[ntype], 
-         offset=NULL, w=rep(1, length(y.train)),
-         ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
-         ndpost=1000L, nskip=100L, 
-         keepevery=c(1L, 10L, 10L)[ntype],
-         printevery=100L, transposed=FALSE,
-         probs=c(0.025, 0.975),
-         mc.cores = 2L, nice = 19L, seed = 99L,
-         shards = 1L, weight=rep(NA, shards) 
+         hostname=FALSE,
+         mc.cores = 2L, nice = 19L, seed = 99L
 )
 
 }
@@ -249,20 +226,11 @@ argument \code{type} to specify a logit BART model.
    calling \code{mc.gbart}.
  }
 
- \item{probs}{
-   Quantiles for the definition of the lower and upper credible
-   interval endpoints.
+ \item{hostname}{
+   When running on a cluster occasionally it is useful
+   to track on which node each chain is running; to do so
+   set this argument to \code{TRUE}.
  }
-   %% \item{keeptestfits}{
-   %%   Only needed in edge cases such as when \code{gbart} is being
-   %%   called from \code{crisk3.bart} with no covariates besides time.
-   %% }
-   
- %% \item{hostname}{
- %%   When running on a cluster occasionally it is useful
- %%   to track on which node each chain is running; to do so
- %%   set this argument to \code{TRUE}.
- %% }
  
     \item{seed}{
      Setting the seed required for reproducible MCMC.
@@ -275,18 +243,6 @@ argument \code{type} to specify a logit BART model.
    \item{nice}{
      Set the job niceness.  The default
      niceness is 19: niceness goes from 0 (highest) to 19 (lowest).
-   }
-
-   \item{shards}{
-     The number of shards to break the data into for Modified LISA
-     BART with \code{ml.bart}.
-   }
-   
-   \item{weight}{
-     The weights for the weighted average of the posterior shards
-     in Modified LISA BART with \code{ml.bart}.  If not provided,
-     then continuous outcomes use inverse variance weighting and
-     binary outcomes use uniform weighting.
    }
 }
 \details{
@@ -351,45 +307,41 @@ argument \code{type} to specify a logit BART model.
    The rough error standard deviation (\eqn{\sigma}{sigma}) used in the prior.
    }
 }
-\references{
-Chipman, H., George, E., and McCulloch R. (2010)
-   Bayesian Additive Regression Trees.
-   \emph{The Annals of Applied Statistics}, \bold{4,1}, 266-298 <doi:10.1214/09-AOAS285>.
+%% \references{
+%% Chipman, H., George, E., and McCulloch R. (2010)
+%%    Bayesian Additive Regression Trees.
+%%    \emph{The Annals of Applied Statistics}, \bold{4,1}, 266-298 <doi:10.1214/09-AOAS285>.
 
-Chipman, H., George, E., and McCulloch R. (2006)
-   Bayesian Ensemble Learning.
-   Advances in Neural Information Processing Systems 19,
-   Scholkopf, Platt and Hoffman, Eds., MIT Press, Cambridge, MA, 265-272.
+%% Chipman, H., George, E., and McCulloch R. (2006)
+%%    Bayesian Ensemble Learning.
+%%    Advances in Neural Information Processing Systems 19,
+%%    Scholkopf, Platt and Hoffman, Eds., MIT Press, Cambridge, MA, 265-272.
 
-De Waal, T., Pannekoek, J. and Scholtus, S. (2011)
-   Handbook of statistical data editing and imputation.
-   John Wiley & Sons, Hoboken, NJ.
+%% De Waal, T., Pannekoek, J. and Scholtus, S. (2011)
+%%    Handbook of statistical data editing and imputation.
+%%    John Wiley & Sons, Hoboken, NJ.
+  
+%% Friedman, J.H. (1991)
+%%    Multivariate adaptive regression splines.
+%%    \emph{The Annals of Statistics}, \bold{19}, 1--67.
 
-Entezari, R., Craiu, R. V., & Rosenthal, J. S. (2018)
-   Likelihood inflating sampling algorithm.
-   \emph{Canadian Journal of Statistics}, \bold{46}, 147--175.
-   
-Friedman, J.H. (1991)
-   Multivariate adaptive regression splines.
-   \emph{The Annals of Statistics}, \bold{19}, 1--67.
+%% Gramacy, RB and Polson, NG (2012)
+%%    Simulation-based regularized logistic regression.
+%%    \emph{Bayesian Analysis}, \bold{7}, 567--590.
 
-Gramacy, RB and Polson, NG (2012)
-   Simulation-based regularized logistic regression.
-   \emph{Bayesian Analysis}, \bold{7}, 567--590.
+%% Holmes, C and Held, L (2006)
+%%    Bayesian auxiliary variable models for binary and multinomial regression.
+%%    \emph{Bayesian Analysis}, \bold{1}, 145--68.
 
-Holmes, C and Held, L (2006)
-   Bayesian auxiliary variable models for binary and multinomial regression.
-   \emph{Bayesian Analysis}, \bold{1}, 145--68.
-
-Linero, A. R. (2018)
-   Bayesian regression trees for high-dimensional
-   prediction and variable selection.
-   \emph{Journal of the American Statistical Association}, \bold{113}, 626--636.  
-}
-\author{
-Robert McCulloch: \email{robert.e.mcculloch@gmail.com},\cr
-Rodney Sparapani: \email{rsparapa@mcw.edu}.
-}
+%% Linero, A.R. (2016)
+%%   Bayesian regression trees for high dimensional prediction and variable
+%%   selection. \emph{JASA},
+%%   \url{http://dx.doi.org/10.1080/01621459.2016.1264957}  
+%% }
+%% \author{
+%% Robert McCulloch: \email{robert.e.mcculloch@gmail.com},\cr
+%% Rodney Sparapani: \email{rsparapa@mcw.edu}.
+%% }
 \seealso{
 \code{\link{pbart}}
 }

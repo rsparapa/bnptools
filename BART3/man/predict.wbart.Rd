@@ -20,9 +20,7 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-\method{predict}{wbart}(object, newdata, mc.cores=1,
-openmp=(mc.cores.openmp()>0),  mult.impute = 4,
-seed = 99, ...)
+\method{predict}{wbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
 %\method{predict}{pbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
 %\method{predict}{lbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
 %\method{predict}{mbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
@@ -46,13 +44,6 @@ seed = 99, ...)
      on your system which, by default, is verified with \code{mc.cores.openmp}.
    }
 
-   \item{mult.impute}{
-   Missing data imputed \code{mult.impute} times.
-   }
-
-   \item{seed}{
-     Random number generator seed needed for missing value imputation.
-   }
    \item{...}{
      Other arguments which will be passed on to \code{pwbart}.
    }
@@ -72,24 +63,24 @@ seed = 99, ...)
 
   Returns a matrix of predictions corresponding to \code{newdata}.
 }
-\references{
-Chipman, H., George, E., and McCulloch R. (2010)
-   Bayesian Additive Regression Trees.
-   \emph{The Annals of Applied Statistics}, \bold{4,1}, 266-298 <doi:10.1214/09-AOAS285>.
+%% \references{
+%% Chipman, H., George, E., and McCulloch R. (2010)
+%%    Bayesian Additive Regression Trees.
+%%    \emph{The Annals of Applied Statistics}, \bold{4,1}, 266-298 <doi:10.1214/09-AOAS285>.
 
-Chipman, H., George, E., and McCulloch R. (2006)
-   Bayesian Ensemble Learning.
-   Advances in Neural Information Processing Systems 19,
-   Scholkopf, Platt and Hoffman, Eds., MIT Press, Cambridge, MA, 265-272.
+%% Chipman, H., George, E., and McCulloch R. (2006)
+%%    Bayesian Ensemble Learning.
+%%    Advances in Neural Information Processing Systems 19,
+%%    Scholkopf, Platt and Hoffman, Eds., MIT Press, Cambridge, MA, 265-272.
 
-Friedman, J.H. (1991)
-   Multivariate adaptive regression splines.
-        \emph{The Annals of Statistics}, \bold{19}, 1--67.
-}
-\author{
-Robert McCulloch: \email{robert.e.mcculloch@gmail.com},\cr
-Rodney Sparapani: \email{rsparapa@mcw.edu}.
-}
+%% Friedman, J.H. (1991)
+%%    Multivariate adaptive regression splines.
+%%         \emph{The Annals of Statistics}, \bold{19}, 1--67.
+%% }
+%% \author{
+%% Robert McCulloch: \email{robert.e.mcculloch@gmail.com},\cr
+%% Rodney Sparapani: \email{rsparapa@mcw.edu}.
+%% }
 \seealso{
   \code{\link{wbart}}, \code{\link{mc.wbart}},
 %  \code{\link{pbart}}, \code{\link{mc.pbart}},

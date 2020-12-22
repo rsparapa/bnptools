@@ -39,6 +39,7 @@ mbart2(
       ndpost=1000L, nskip=100L,
       keepevery=c(1L, 10L, 10L)[ntype],
       printevery=100L, transposed=FALSE,
+      hostname=FALSE,
       mc.cores = 2L, ## mc.bart only
       nice = 19L,    ## mc.bart only
       seed = 99L     ## mc.bart only
@@ -61,6 +62,7 @@ mc.mbart2(
          ndpost=1000L, nskip=100L,
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
+         hostname=FALSE,
          mc.cores = 2L, ## mc.bart only
          nice = 19L,    ## mc.bart only
          seed = 99L     ## mc.bart only
@@ -199,11 +201,11 @@ mc.mbart2(
    calling \code{mc.mbart2}.
    }
 
- %% \item{hostname}{
- %%   When running on a cluster occasionally it is useful
- %%   to track on which node each chain is running; to do so
- %%   set this argument to \code{TRUE}.
- %% }
+ \item{hostname}{
+   When running on a cluster occasionally it is useful
+   to track on which node each chain is running; to do so
+   set this argument to \code{TRUE}.
+ }
  
     \item{seed}{
      Setting the seed required for reproducible MCMC.
@@ -263,33 +265,33 @@ mc.mbart2(
    %% \eqn{P(Y=y | x)} you need to apply the Normal CDF (\code{plogis})
    %% to these values.
 }
-\references{
-Chipman, H., George, E., and McCulloch R. (2010)
-   Bayesian Additive Regression Trees.
-   \emph{The Annals of Applied Statistics}, \bold{4,1}, 266-298 <doi: 10.1214/09-AOAS285>.
+%% \references{
+%% Chipman, H., George, E., and McCulloch R. (2010)
+%%    Bayesian Additive Regression Trees.
+%%    \emph{The Annals of Applied Statistics}, \bold{4,1}, 266-298 <doi: 10.1214/09-AOAS285>.
 
-Friedman, J.H. (1991)
-   Multivariate adaptive regression splines.
-   \emph{The Annals of Statistics}, \bold{19}, 1--67.
+%% Friedman, J.H. (1991)
+%%    Multivariate adaptive regression splines.
+%%    \emph{The Annals of Statistics}, \bold{19}, 1--67.
 
-Gramacy, RB and Polson, NG (2012)
-   Simulation-based regularized logistic regression.
-   \emph{Bayesian Analysis}, \bold{7}, 567--590.
+%% Gramacy, RB and Polson, NG (2012)
+%%    Simulation-based regularized logistic regression.
+%%    \emph{Bayesian Analysis}, \bold{7}, 567--590.
 
-Holmes, C and Held, L (2006)
-   Bayesian auxiliary variable models for binary and multinomial regression.
-   \emph{Bayesian Analysis}, \bold{1}, 145--68.
+%% Holmes, C and Held, L (2006)
+%%    Bayesian auxiliary variable models for binary and multinomial regression.
+%%    \emph{Bayesian Analysis}, \bold{1}, 145--68.
 	
-Linero, A.R. (2018)
-  Bayesian regression trees for high dimensional prediction and variable
-  selection. \emph{JASA}, \bold{113}, 626--36.
+%% Linero, A.R. (2018)
+%%   Bayesian regression trees for high dimensional prediction and variable
+%%   selection. \emph{JASA}, \bold{113}, 626--36.
 
-}
-\author{
-Robert McCulloch: \email{robert.e.mcculloch@gmail.com},\cr
-Rodney Sparapani: \email{rsparapa@mcw.edu},\cr
-Robert Gramacy: \email{rbg@vt.edu}.
-}
+%% }
+%% \author{
+%% Robert McCulloch: \email{robert.e.mcculloch@gmail.com},\cr
+%% Rodney Sparapani: \email{rsparapa@mcw.edu},\cr
+%% Robert Gramacy: \email{rbg@vt.edu}.
+%% }
 \seealso{
 \code{\link{gbart}}, \code{\link{alligator}}
 }

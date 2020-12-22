@@ -1,8 +1,8 @@
 Package: BART3
 Type: Package
 Title: Bayesian Additive Regression Trees
-Version: 4.1
-Date: 2020-10-05
+Version: 4.2
+Date: 2020-12-22
 Authors@R: c(person('Robert', 'McCulloch', role='aut'),
   person('Rodney', 'Sparapani', role=c('aut', 'cre'), 
   email='rsparapa@mcw.edu'),
@@ -13,7 +13,7 @@ Authors@R: c(person('Robert', 'McCulloch', role='aut'),
   person('Nicky', 'Best', role='ctb'),
   person('Kate', 'Cowles', role='ctb'), 
   person('Karen', 'Vines', role='ctb'))
-Authors: Robert McCulloch [aut],
+Author: Robert McCulloch [aut],
   Rodney Sparapani [aut, cre], 
   Charles Spanbauer [aut],
   Robert Gramacy [ctb],
@@ -23,7 +23,7 @@ Authors: Robert McCulloch [aut],
   Kate Cowles [ctb],
   Karen Vines [ctb]
 Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
-Description: Bayesian Additive Regression Trees (BART) provide flexible nonparametric modeling of covariates for continuous, binary, categorical and time-to-event outcomes.  For more information on BART, see Chipman, George and McCulloch (2010) <doi:10.1214/09-AOAS285> and Sparapani, Logan, McCulloch and Laud (2016) <doi:10.1002/sim.6893>.
+Description: Bayesian Additive Regression Trees (BART) provide flexible nonparametric modeling of covariates for continuous, binary, categorical and time-to-event outcomes.  For more information see Sparapani, Spanbauer and McCulloch <doi:10.18637/jss.v097.i01>.
 License: GPL (>= 2)
 Depends: R (>= 3.6), nlme, nnet, survival, randomForest
 Imports: Rcpp (>= 0.12.3), parallel, tools
