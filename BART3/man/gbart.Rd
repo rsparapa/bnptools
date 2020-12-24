@@ -22,12 +22,15 @@ gbart(
       x.test=matrix(0,0,0), type='wbart',
       ntype=as.integer(
           factor(type, levels=c('wbart', 'pbart', 'lbart'))),
+      rfinit=FALSE,
       sparse=FALSE, theta=0, omega=1,
       a=0.5, b=1, augment=FALSE, rho=NULL,
       xinfo=matrix(0,0,0), usequants=FALSE,
       rm.const=TRUE,
       sigest=NA, sigdf=3, sigquant=0.90,
       k=2, power=2, base=0.95,
+      impute.mult=NULL, impute.prob=NULL,
+      impute.miss=NULL,
       %sigmaf=NA,
       lambda=NA, tau.num=c(NA, 3, 6)[ntype], %tau.interval=0.9973,
       offset=NULL, w=rep(1, length(y.train)),
@@ -36,9 +39,11 @@ gbart(
       ndpost=1000L, nskip=100L, %keepevery=1L,
       keepevery=c(1L, 10L, 10L)[ntype],
       printevery=100L, transposed=FALSE,
+      probs=c(0.025, 0.975),
       mc.cores = 1L, ## mc.gbart only
       nice = 19L,    ## mc.gbart only
-      seed = 99L     ## mc.gbart only
+      seed = 99L,    ## mc.gbart only
+      shards = 1L, weight=rep(NA, shards)
 )
 
 mc.gbart(
@@ -46,12 +51,15 @@ mc.gbart(
          x.test=matrix(0,0,0), type='wbart',
          ntype=as.integer(
              factor(type, levels=c('wbart', 'pbart', 'lbart'))),
+         rfinit=FALSE,
          sparse=FALSE, theta=0, omega=1,
          a=0.5, b=1, augment=FALSE, rho=NULL,
          xinfo=matrix(0,0,0), usequants=FALSE,
          rm.const=TRUE,
          sigest=NA, sigdf=3, sigquant=0.90,
          k=2, power=2, base=0.95,
+         impute.mult=NULL, impute.prob=NULL,
+         impute.miss=NULL,
          %sigmaf=NA,
          lambda=NA, tau.num=c(NA, 3, 6)[ntype], %tau.interval=0.9973,
          offset=NULL, w=rep(1, length(y.train)),
@@ -60,7 +68,10 @@ mc.gbart(
          ndpost=1000L, nskip=100L, %keepevery=1L,
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
-         mc.cores = 2L, nice = 19L, seed = 99L
+         probs=c(0.025, 0.975),
+         mc.cores = 2L, nice = 19L, seed = 99L,
+         shards = 1L, weight=rep(NA, shards),
+         meta = FALSE
 )
 
 }
@@ -96,7 +107,8 @@ argument \code{type} to specify a logit BART model.
  \item{ntype}{ The integer equivalent of \code{type} where
   \code{'wbart'} is 1, \code{'pbart'} is 2 and
   \code{'lbart'} is 3.}
-
+ \item{rfinit}{ Whether to initialize BART with a greedy RandomForest
+   fit: the default is \code{FALSE}.}   
    \item{sparse}{Whether to perform variable selection based on a
      sparse Dirichlet prior rather than simply uniform; see Linero 2016.}
    \item{theta}{Set \eqn{theta} parameter; zero means random.}
@@ -156,8 +168,16 @@ argument \code{type} to specify a logit BART model.
 
    \item{base}{
    Base parameter for tree prior.
-   }
-
+ }
+ \item{impute.mult}{ A vector of the columns of \code{x.train}
+   which are multinomial indicators that require imputation:
+   the default is \code{NULL}.}
+ \item{impute.prob}{ A matrix of probabilities for the
+   multinomial indicators that require imputation:
+   the default is \code{NULL}.}
+ \item{impute.miss}{ A vector of missing indicators for
+   the multinomial indicators that require imputation:
+   the default is \code{NULL}.}
    %% \item{sigmaf}{
    %% The SD of \eqn{f}.  Not used if \eqn{y} is binary.
    %% }
@@ -221,8 +241,9 @@ argument \code{type} to specify a logit BART model.
    \item{transposed}{
    When running \code{gbart} in parallel, it is more memory-efficient
    to transpose \code{x.train} and \code{x.test}, if any, prior to
-   calling \code{mc.gbart}.
- }
+   calling \code{mc.gbart}.}
+   \item{probs}{ The lower and upper quantiles to summarize:
+     the default is \code{c(0.025, 0.975)}.}
 
  %% \item{hostname}{
  %%   When running on a cluster occasionally it is useful
@@ -242,6 +263,13 @@ argument \code{type} to specify a logit BART model.
      Set the job niceness.  The default
      niceness is 19: niceness goes from 0 (highest) to 19 (lowest).
    }
+   \item{shards}{ For the Modified LISA method, this is the number of
+     shards: the default is \code{1L}.}
+   \item{weight}{ For the Modified LISA method, this is a vector of
+     weights to combine the shards: the default is \code{rep(NA, shards)}.}
+   \item{meta}{ Whether or not to produce meta-analysis-like
+     estimates from a sharded analysis (as opposed to a Modified LISA
+     approach): default is \code{FALSE}.}
 }
 \details{
    BART is a Bayesian MCMC method.

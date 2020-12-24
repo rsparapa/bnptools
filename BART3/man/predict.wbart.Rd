@@ -20,10 +20,9 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-\method{predict}{wbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
-%\method{predict}{pbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
-%\method{predict}{lbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
-%\method{predict}{mbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
+\method{predict}{wbart}(object, newdata, mc.cores=1,
+    openmp=(mc.cores.openmp()>0),
+    mult.impute=4, seed=99, ...)
 }
 \arguments{
    \item{object}{
@@ -43,7 +42,10 @@ small amount to the overall fit.
      processing.  Of course, this depends on whether OpenMP is available
      on your system which, by default, is verified with \code{mc.cores.openmp}.
    }
-
+   \item{mult.impute}{ For missing values in \code{newdata}, perform
+     multiple imputation this many times: default is \code{4}.}
+   \item{seed}{ For missing values in \code{newdata}, perform
+     multiple imputation with this seed: default is \code{99}.}
    \item{...}{
      Other arguments which will be passed on to \code{pwbart}.
    }

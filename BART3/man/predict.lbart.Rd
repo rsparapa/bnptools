@@ -17,7 +17,8 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-\method{predict}{lbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
+\method{predict}{lbart}(object, newdata, mc.cores=1,
+    openmp=(mc.cores.openmp()>0), probs=c(0.025, 0.975), ...)
 }
 \arguments{
    \item{object}{
@@ -38,7 +39,8 @@ small amount to the overall fit.
      processing.  Of course, this depends on whether OpenMP is available
      on your system which, by default, is verified with \code{mc.cores.openmp}.
    }
-
+   \item{probs}{ The lower and upper quantiles to summarize:
+     the default is \code{c(0.025, 0.975)}.}
    \item{...}{
      Other arguments which will be passed on to \code{pwbart}.
    }

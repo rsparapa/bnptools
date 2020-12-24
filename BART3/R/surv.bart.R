@@ -32,7 +32,7 @@ surv.bart <- function(
         factor(type, levels=c('wbart', 'pbart', 'lbart'))),
     k = 2, ## BEWARE: do NOT use k for other purposes below
     power = 2, base = 0.95,
-    impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
+    ##impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
     offset = NULL, tau.num=c(NA, 3, 6)[ntype],
     ##binaryOffset = NULL,
     ntree = 50L, numcut = 100L,
@@ -47,6 +47,12 @@ surv.bart <- function(
     nice=19L       ## ditto
 )
 {
+    ## multinomial imputation does not appear to be well suited
+    ## time-to-event outcomes with discrete time method
+    impute.mult=NULL
+    impute.prob=NULL
+    impute.miss=NULL
+
     if(is.na(ntype) || ntype==1)
         stop("type argument must be set to either 'pbart' or 'lbart'")
 
@@ -55,7 +61,7 @@ surv.bart <- function(
     x.test <- bartModelMatrix(x.test)
 
     if(length(rho)==0) rho=ncol(x.train)
-    
+
     impute = length(impute.mult)
     if(impute==1)
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
@@ -92,7 +98,7 @@ surv.bart <- function(
             impute.mask[j[-length(j)]] = 0 ## the last j is N+1
             ##impute.mask=(pre$tx.train[ , 1]>pre$times[1])*impute.miss
             impute.miss=impute.miss+impute.mask ## 1 impute, 2 retain
-        }        
+        }
         ##if(length(binaryOffset)==0) binaryOffset <- pre$binaryOffset
     }
     else {
@@ -104,7 +110,7 @@ surv.bart <- function(
         times <- unique(sort(x.train[ , 1]))
         K     <- length(times)
     }
-    
+
     ##if(length(binaryOffset)==0) binaryOffset <- qnorm(mean(y.train))
 
     ## if(type=='pbart') call <- pbart

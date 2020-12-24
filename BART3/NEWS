@@ -1,6 +1,7 @@
 
 Changes and New Features in 4.2 (2020-12-22):
-	* Synchronizing docs with BART package
+	* Synchronizing docs with BART package:
+	from here on, the docs may diverge as needed
 
 	* fix bugs in mc.pwbart
 

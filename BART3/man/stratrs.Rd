@@ -5,13 +5,14 @@
   sampling to balance outcomes among the shards.
 }
 \usage{
-stratrs(y, C, seed=99)
+stratrs(y, C, seed=NULL)
 }
 
 \arguments{
   \item{y}{The binary/categorical/continuous outcome.}
   \item{C}{The number of shards to break the data set into.}
-  \item{seed}{The seed for the random sampling.}
+  \item{seed}{The seed for the random sampling:
+  defaults to \code{NULL}.}
 }
 
 \details{

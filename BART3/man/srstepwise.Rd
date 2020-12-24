@@ -2,14 +2,15 @@
 \alias{srstepwise}
 \title{Stepwise Variable Selection Procedure for survreg}
 \usage{
-srstepwise(x, times, delta, sle = 0.15, sls = 0.15, dist='lognormal')
+srstepwise(x, y, delta=1, sle = 0.15, sls = 0.15, dist='lognormal')
 }
 \arguments{
 \item{x}{Matrix of variables to consider.}
   
-\item{times}{The time to an event, if any.}
+\item{y}{The outcome which is either continuous or time to an event.}
 
-\item{delta}{The event indicator: 1 for event, 0 for no event.}
+\item{delta}{The event indicator: 1 for an event, 0 for censoring.
+Defaults to \code{1} for a continuous outcome with no censoring. }
 
 \item{sle}{The chosen significance level for entering.}
 

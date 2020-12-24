@@ -34,7 +34,7 @@ mc.surv.bart <- function(
                          k = 2.0, ## BEWARE: do NOT use k for other purposes below
                          power = 2.0, base = 0.95,
                          offset = NULL, tau.num=c(NA, 3, 6)[ntype],
-                         impute.mult=NULL, impute.prob=NULL,
+                         ##impute.mult=NULL, impute.prob=NULL,
                          ##binaryOffset = NULL,
                          ntree = 50L, numcut = 100L,
                          ndpost = 1000L, nskip = 250L, keepevery = 10L,
@@ -49,6 +49,12 @@ mc.surv.bart <- function(
                          nice=19L       ## ditto
                          )
 {
+    ## multinomial imputation does not appear to be well suited
+    ## time-to-event outcomes with discrete time method
+    impute.mult=NULL
+    impute.prob=NULL
+    impute.miss=NULL
+
     if(.Platform$OS.type!='unix')
         stop('parallel::mcparallel/mccollect do not exist on windows')
 
@@ -149,8 +155,8 @@ mc.surv.bart <- function(
                           rm.const=rm.const, type=type,
                           k=k, power=power, base=base,
                           offset=offset, tau.num=tau.num,
-                          impute.mult=impute.mult, impute.prob=impute.prob,
-                          impute.miss=impute.miss,
+                          ##impute.mult=impute.mult, impute.prob=impute.prob,
+                          ##impute.miss=impute.miss,
                           ##binaryOffset=binaryOffset,
                           ntree=ntree, numcut=numcut,
                           ndpost=mc.ndpost, nskip=nskip, keepevery=keepevery,
