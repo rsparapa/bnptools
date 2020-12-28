@@ -134,7 +134,16 @@ gbart=function(
     }
 
     ##if(length(z.train)==0) z.train=y.train
-   trees=''
+    ## trees=''
+    treeinit = (treeinit && length(trees)>0)
+    if(treeinit) {
+       if(trees=="") stop('Tree string is empty')
+       ## more likely a previous BART fit than a Random Forest
+       ## rf=randomForest(t(x.train), y.train, ntree=ntree,
+       ##                 maxnodes=4, forest=TRUE)
+       ## sigest=sd(rf$predicted-y.train)
+       ## trees=read.forest(rf, xinfo=xinfo)
+    }
 
     if(type=='wbart') {
         y.train = y.train-offset
@@ -145,17 +154,10 @@ gbart=function(
         }
         else if(is.na(lambda)) {
             if(is.na(sigest)) {
-                treeinit = (treeinit && length(trees)>0)
-                if(treeinit) {
-                    ## more likely a previous BART fit than a Random Forest
-                    ## rf=randomForest(t(x.train), y.train, ntree=ntree,
-                    ##                 maxnodes=4, forest=TRUE)
-                    ## sigest=sd(rf$predicted-y.train)
-                    ## trees=read.forest(rf, xinfo=xinfo)
-                }
-                else if(p < n)
-                    sigest = summary(lm(y.train~.,
-                                        data.frame(t(x.train),y.train)))$sigma
+                if(p < n)
+                    sigest =
+                        summary(lm(y.train~.,
+                                   data.frame(t(x.train),y.train)))$sigma
                 else sigest = sd(y.train)
             }
             qchi = qchisq(1-sigquant, sigdf)
@@ -350,7 +352,8 @@ gbart=function(
     if(impute.flag) res$impute.miss = impute.miss
     res$rm.const <- rm.const
     res$ndpost = ndpost
-    if(treeinit) res$trees = trees
+    res$trees = trees
+    ##if(treeinit) res$trees = trees
     attr(res, 'class') <- type
     return(res)
 }

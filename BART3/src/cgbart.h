@@ -128,8 +128,8 @@ RcppExport SEXP cgbart(
    Rcpp::NumericVector  wv(_iw); 
    double *iw = &wv[0];
    int treeinit=Rcpp::as<int>(_treeinit); 
-   Rcpp::CharacterVector itrees(_itrees); 
-   std::string itv(itrees[0]);
+   //Rcpp::CharacterVector itrees(_itrees); 
+   //std::string itv(itrees[0]);
    bool dart;
    if(Rcpp::as<int>(_idart)==1) dart=true;
    else dart=false;
@@ -366,7 +366,11 @@ if(type==1) {
    //set up BART model
    bm.setprior(alpha,mybeta,tau);
    bm.setdata(p,n,ix,z,numcut);
-   if(treeinit==1) bm.settree(itv);
+   if(treeinit==1) {
+     Rcpp::CharacterVector itrees(_itrees); 
+     std::string itv(itrees[0]);
+     bm.settree(itv);
+   }
    bm.setdart(a,b,rho,aug,dart);
 
    // dart iterations
