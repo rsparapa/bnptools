@@ -18,18 +18,19 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 write.trees=function(treedraws, ## treedraws item returned from BART
-                     ##file = "", ## default prints to stdout
                      thin = 1)  ## default to no thinning
 {
     Trees. = read.trees(treedraws, call=TRUE)
     M = length(Trees.)              ## number of samples read in
-    M. = length(seq(1, M, thin))    ## number of samples written out
+    if(thin == M) seq.=M
+    else seq. = seq(1, M, thin)
+    M. = length(seq.) ## number of samples written out
     T = length(Trees.[[1]])         ## number of trees
     P = length(treedraws$cutpoints) ## number of variables
     line.=paste0(M., ' ', T, ' ', P, '\n')
     l = 1
 
-    for(i in seq(1, M, thin))
+    for(i in seq.)
         for(j in 1:T) {
             C = length(Trees.[[i]][[j]]$node)
             C. = length(which(Trees.[[i]][[j]]$node>0))

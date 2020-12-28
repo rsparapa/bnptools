@@ -122,6 +122,8 @@ ss.gbart <- function(
             w.train = rep(1, n)
             ##X.train = x.train[ , strata.h ]
             ##X.test = X.train
+            treeinit=FALSE
+            trees=NULL
         } else {
             Y.train = c(y.train[ strata.h ], post[[i]]$yhat.test.mean)
             if(type!='wbart') Y.train = 1*(Y.train>0)
@@ -139,6 +141,12 @@ ss.gbart <- function(
             ##X.train = cbind(x.train[ , strata.h ], X.test)
             ##if(h==shards) X.test = x.test
             ##else X.test = x.train[ , strata.h ]
+            sigdf=10
+            sigquant=0.75
+            sigest=post[[i]]$sigma.mean
+            treeinit=TRUE
+            trees=write.trees(post[[i]]$treedraws, thin=ndpost)
+            ##return(list(post=post[[i]], trees=trees))
         }
         W=W+n-m
 
@@ -150,6 +158,7 @@ ss.gbart <- function(
             post[[i]] = mc.gbart(x.train=X.train, y.train=Y.train,
                                  x.test=X.test,
                                  type=type, ntype=ntype,
+                                 treeinit=treeinit, trees=trees,
                                  sparse=sparse, theta=theta, omega=omega,
                                  a=a, b=b, augment=augment, rho=rho,
                                  xinfo=xinfo, usequants=usequants,

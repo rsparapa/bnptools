@@ -23,7 +23,7 @@ gbart=function(
                type='wbart',
                ntype=as.integer(
                    factor(type, levels=c('wbart', 'pbart', 'lbart'))),
-               rfinit=FALSE,
+               treeinit=FALSE, trees=NULL,
                sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho=NULL,
                xinfo=matrix(0,0,0), usequants=FALSE,
@@ -145,12 +145,13 @@ gbart=function(
         }
         else if(is.na(lambda)) {
             if(is.na(sigest)) {
-                if(rfinit) {
-                    rf=randomForest(t(x.train), y.train, ntree=ntree,
-                                    maxnodes=4, forest=TRUE)
-                    sigest=sd(rf$predicted-y.train)
-                    trees=read.forest(rf, xinfo=xinfo)
-                    ##trees=read.forest(rf, x.train=t(x.train))
+                treeinit = (treeinit && length(trees)>0)
+                if(treeinit) {
+                    ## more likely a previous BART fit than a Random Forest
+                    ## rf=randomForest(t(x.train), y.train, ntree=ntree,
+                    ##                 maxnodes=4, forest=TRUE)
+                    ## sigest=sd(rf$predicted-y.train)
+                    ## trees=read.forest(rf, xinfo=xinfo)
                 }
                 else if(p < n)
                     sigest = summary(lm(y.train~.,
@@ -255,7 +256,7 @@ gbart=function(
                 lambda,
                 sigest,
                 w,
-                as.integer(rfinit),
+                as.integer(treeinit),
                 trees,
                 sparse,
                 theta,
@@ -349,7 +350,7 @@ gbart=function(
     if(impute.flag) res$impute.miss = impute.miss
     res$rm.const <- rm.const
     res$ndpost = ndpost
-    if(rfinit) res$trees = trees
+    if(treeinit) res$trees = trees
     attr(res, 'class') <- type
     return(res)
 }

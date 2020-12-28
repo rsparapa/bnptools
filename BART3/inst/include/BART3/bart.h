@@ -69,7 +69,8 @@ public:
    tree& gettree(size_t i ) { return t[i];}
    void settree(std::string itv) {
      std::stringstream ttss(itv);
-     int _nd, _m, _p;
+     size_t _nd, _m, _p;
+     //int _nd, _m, _p;
      ttss >> _nd >> _m >> _p;
      cout << _nd << ' ' << _m << ' ' << _p << '\n';
      cout << t.size() << '\n';
