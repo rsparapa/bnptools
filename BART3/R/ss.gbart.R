@@ -127,8 +127,8 @@ ss.gbart <- function(
         } else {
             Y.train = c(y.train[ strata.h ], post[[i]]$yhat.test.mean)
             if(type=='wbart') {
-                sigdf=10
-                sigquant=0.75
+                ##sigdf=10
+                ##sigquant=0.75
                 sigest=post[[i]]$sigma.mean
             } else {
                 Y.train = 1*(Y.train>0)

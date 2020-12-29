@@ -7,7 +7,7 @@ f = function(x)
 
 N = 2000
 sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
-P = 4       ##number of covariates
+P = 40       ##number of covariates
 
 set.seed(12)
 x.train=matrix(runif(N*P, -2, 2), N, P)

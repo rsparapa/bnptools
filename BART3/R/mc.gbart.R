@@ -101,7 +101,7 @@ mc.gbart <- function(
     ##if(length(keeptestfits)==0) keeptestfits <- (length(x.test)>0)
 
     if(meta && shards>1) {
-        weight=rep(1, shards)
+        ##weight=rep(1, shards)
         shards=1 ## Meta-analysis-like: No Modified LISA adjustment
     }
 

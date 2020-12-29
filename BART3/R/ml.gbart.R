@@ -87,6 +87,8 @@ ml.gbart <- function(
     p = nrow(x.train) ## transposed: columns of x.train
     q = ncol(x.test)  ## transposed: rows of x.test
 
+    if(meta && is.na(weight[1])) weight=rep(1, shards)
+
     for(h in 1:shards) {
         shard.[[h]] <- rs==h
         post.list[[h]] = mc.gbart(x.train=x.train[ , shard.[[h]] ],
