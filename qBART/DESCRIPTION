@@ -6,5 +6,5 @@ Date: 2020-02-21
 Authors@R: c(person('Xiao', 'Li', role=c('aut','cre'), email='xiaoli@mcw.edu'), person('Rodney', 'Sparapani', role='aut'), person('Brent', 'Logan', role='aut'))
 Description: One paragraph description of what the package does as one or more full sentences.
 License: GPL (>= 2)
-Imports: Rcpp (>= 1.0.1), RcppEigen, BART3, parallel, tools, flexsurvcure
-LinkingTo: Rcpp, RcppEigen, BART3
+Imports: Rcpp (>= 1.0.1), BART3, parallel, tools, flexsurvcure
+LinkingTo: Rcpp, BART3
