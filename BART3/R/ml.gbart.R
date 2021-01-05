@@ -177,12 +177,15 @@ ml.gbart <- function(
         ## if(h==1) post$yhat.test = post$weight[[1]]*post$yhat.test/post$weight.
         ## else post$yhat.test = post$yhat.test+post$weight[[h]]*post.list[[h]]$yhat.test/post$weight.
         if(h==1) {
-            post$yhat.test.var = apply(post$yhat.test, 2, var)
+            if(type=='wbart') post$yhat.test.var = apply(post$yhat.test, 2, var)
+            else post$prob.test.var = apply(post$prob.test, 2, var)
             ##post$yhat.test. = post$yhat.test/shards
             post$yhat.test = post$weight[1]*(post$yhat.test-post$offset[1])
         } else {
-            post$yhat.test.var = rbind(post$yhat.test.var,
+            if(type=='wbart') post$yhat.test.var = rbind(post$yhat.test.var,
                                        apply(post.list[[h]]$yhat.test, 2, var))
+            else post$prob.test.var = rbind(post$prob.test.var,
+                                       apply(post.list[[h]]$prob.test, 2, var))
             ##post$yhat.test. = post$yhat.test.+post.list[[h]]$yhat.test/shards
             post$yhat.test = post$yhat.test+
                  post$weight[h]*(post.list[[h]]$yhat.test-post$offset[h])
@@ -192,23 +195,35 @@ ml.gbart <- function(
     post$yhat.test = post$yhat.test+mean(post$offset)
 
     if(type=='wbart') {
-        ##post$yhat.test.mean. <- apply(post$yhat.test., 2, mean)
         post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
-        post$yhat.test.lower <- apply(post$yhat.test, 2, quantile,
-                                      probs=min(probs))
-        post$yhat.test.upper <- apply(post$yhat.test, 2, quantile,
-                                      probs=max(probs))
         post$yhat.test.sd <- sqrt(apply(post$yhat.test.var, 2, mean)/shards)
-     } else {
-        if(type=='pbart')
-            post$prob.test <- pnorm(post$yhat.test)
-        else if(type=='lbart')
-            post$prob.test <- plogis(post$yhat.test)
+        if(meta) {
+            post$yhat.test.lower <- post$yhat.test.mean +
+                qnorm(min(probs))*post$yhat.test.sd
+            post$yhat.test.upper <- post$yhat.test.mean +
+                qnorm(max(probs))*post$yhat.test.sd
+        } else {
+            post$yhat.test.lower <- apply(post$yhat.test, 2, quantile,
+                                          probs=min(probs))
+            post$yhat.test.upper <- apply(post$yhat.test, 2, quantile,
+                                          probs=max(probs))
+        }
+    } else {
+        if(type=='pbart') post$prob.test <- pnorm(post$yhat.test)
+        else if(type=='lbart') post$prob.test <- plogis(post$yhat.test)
         post$prob.test.mean <- apply(post$prob.test, 2, mean)
-        post$prob.test.lower <- apply(post$prob.test, 2, quantile,
-                                      probs=min(probs))
-        post$prob.test.upper <- apply(post$prob.test, 2, quantile,
-                                      probs=max(probs))
+        post$prob.test.sd <- sqrt(apply(post$prob.test.var, 2, mean)/shards)
+        if(meta) {
+            post$prob.test.lower <- post$prob.test.mean +
+                qnorm(min(probs))*post$prob.test.sd
+            post$prob.test.upper <- post$prob.test.mean +
+                qnorm(max(probs))*post$prob.test.sd
+        } else {
+            post$prob.test.lower <- apply(post$prob.test, 2, quantile,
+                                          probs=min(probs))
+            post$prob.test.upper <- apply(post$prob.test, 2, quantile,
+                                          probs=max(probs))
+        }
     }
 
     return(post)
