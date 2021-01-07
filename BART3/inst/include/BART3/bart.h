@@ -83,6 +83,9 @@ public:
    void setxinfo(xinfo& _xi);
    std::vector<size_t>& getnv() {return nv;}
    std::vector<double>& getpv() {return pv;}
+   void setpv(double *varprob) {
+     for(size_t j=0;j<p;j++) pv[j]=varprob[j];
+   }
    double gettheta() {return theta;}
    //------------------------------
    //public methods

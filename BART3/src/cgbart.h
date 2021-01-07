@@ -57,6 +57,7 @@ RcppExport SEXP cgbart(
    SEXP _ib,            //param b for sparsity prior
    SEXP _irho,          //param rho for sparsity prior (default to p)
    SEXP _iaug,          //categorical strategy: true(1)=data augment false(0)=degenerate trees
+   SEXP _varprob,
    SEXP _inprintevery,
    SEXP _Xinfo,
    SEXP _shards,
@@ -139,6 +140,7 @@ RcppExport SEXP cgbart(
    bool aug;
    if(Rcpp::as<int>(_iaug)==1) aug=true;
    else aug=false;
+   Rcpp::NumericVector varprob(_varprob);
    double theta = Rcpp::as<double>(_itheta);
    double omega = Rcpp::as<double>(_iomega);
    Rcpp::IntegerVector _grp(_igrp);
@@ -289,7 +291,7 @@ void cgbart(
    //--------------------------------------------------
    //print args
    printf("*****Data:\n");
-   printf("data:n,p,np: %zu, %zu, %zu\n",n,p,np);
+   printf("n,p,np: %zu, %zu, %zu\n",n,p,np);
    printf("y1,yn: %lf, %lf\n",iy[0],iy[n-1]);
    printf("x1,x[n*p]: %lf, %lf\n",ix[0],ix[n*p-1]);
 //   if(hotdeck) 
@@ -301,27 +303,26 @@ void cgbart(
    printf("*****Value of treeinit: %zu\n", treeinit);
 // printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
 //                    mybeta,alpha,tau,nu,lambda,Offset);
-   cout << "*****Prior:beta,alpha,tau,nu,lambda,offset,shards: " 
+   cout << "*****Prior:beta,alpha,tau,nu,lambda,offset,shards:\n" 
 	<< mybeta << ',' << alpha << ',' << tau << ',' 
         << nu << ',' << lambda << ',' << Offset << ',' << shards << endl;
 if(type==1) {
    printf("*****sigma: %lf\n",sigma);
    printf("*****w (weights): %lf ... %lf\n",iw[0],iw[n-1]);
 }
-   cout << "*****Dirichlet:sparse,theta,omega,a,b,rho,augment: " 
-	<< dart << ',' << theta << ',' << omega << ',' << a << ',' 
-	<< b << ',' << rho << ',' << aug << endl;
-   //printf("*****nkeeptrain,nkeeptest: %zu, %zu\n",nkeeptrain,nkeeptest);
    if(K>0) {
-     cout << "*****Missing imputation row indices: index 0=" << impute_miss[0] << ','
+     cout << "*****Missing imputation row indices:\n index 0=" << impute_miss[0] << ','
 	  << "index n-1=" << impute_miss[n-1] << endl;
-     cout << "*****Missing imputation column indices: index 0=" << impute_mult[0] << ','
+     cout << "*****Missing imputation column indices:\n index 0=" << impute_mult[0] << ','
 	  << "index K-1=" << impute_mult[K-1] << endl;
      // cout << "*****Missing imputation probability: prob[0]=" << impute_prior[0] << ','
      // 	  << "prob[K-1]=" << impute_prior[K-1] << endl;
    }
-   printf("*****printevery: %zu\n",printevery);
-
+   //printf("*****nkeeptrain,nkeeptest: %zu, %zu\n",nkeeptrain,nkeeptest);
+   //printf("*****printevery: %zu\n",printevery);
+   cout << "*****Dirichlet:sparse,theta,omega,a,b,rho,augment:\n" 
+	<< dart << ',' << theta << ',' << omega << ',' << a << ',' 
+	<< b << ',' << rho << ',' << aug << endl;
    //--------------------------------------------------
    //create temporaries
    double df=n+nu;
@@ -372,10 +373,15 @@ if(type==1) {
      bm.settree(itv);
    }
    bm.setdart(a,b,rho,aug,dart);
+   bm.setpv(&varprob[0]);
 
    // dart iterations
    std::vector<double> ivarprb (p,0.);
    std::vector<size_t> ivarcnt (p,0);
+   ivarprb=bm.getpv();
+   cout << "*****Variable selection probability pv[0],pv[p-1]:\n"
+        << ivarprb[0] << ',' << ivarprb[p-1] << endl;
+
    //--------------------------------------------------
    //temporary storage
    //out of sample fit

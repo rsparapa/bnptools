@@ -27,6 +27,7 @@ ss.gbart <- function(
                      RDSfile=NULL, strata=NULL, cum.weight=TRUE,
                      sparse=FALSE, theta=0, omega=1,
                      a=0.5, b=1, augment=FALSE, rho=NULL,
+                     varprob=NULL,
                      xinfo=matrix(0,0,0), usequants=FALSE,
                      rm.const=TRUE,
                      sigest=NA, sigdf=3, sigquant=0.90,
@@ -146,6 +147,7 @@ ss.gbart <- function(
                            sqrt(apply(post[[i]]$yhat.test/SD, 2, var)))
             }
             X.train = cbind(X.train, X.train)
+            varprob=post[[i]]$varprob.mean
             ##X.train = cbind(x.train[ , strata.h ], X.test)
             ##if(h==shards) X.test = x.test
             ##else X.test = x.train[ , strata.h ]
@@ -164,6 +166,7 @@ ss.gbart <- function(
                                  treeinit=treeinit, trees=trees,
                                  sparse=sparse, theta=theta, omega=omega,
                                  a=a, b=b, augment=augment, rho=rho,
+                                 varprob=varprob,
                                  xinfo=xinfo, usequants=usequants,
                                  rm.const=rm.const,
                                  sigest=sigest, sigdf=sigdf,
