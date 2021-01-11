@@ -184,6 +184,7 @@ mc.gbart <- function(
                 post$sigma <- cbind(post$sigma, post.list[[i]]$sigma)
                 post$sigma. <- c(post$sigma., post.list[[i]]$sigma[-(1:nskip)])
             }
+            post$accept <- cbind(post$accept, post.list[[i]]$accept)
 
             post$varcount <- rbind(post$varcount, post.list[[i]]$varcount)
             post$varprob <- rbind(post$varprob, post.list[[i]]$varprob)

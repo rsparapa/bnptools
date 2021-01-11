@@ -153,6 +153,7 @@ RcppExport SEXP cgbart(
    Rcpp::IntegerMatrix varcnt(nkeeptreedraws,p);
    Rcpp::NumericMatrix Xinfo(_Xinfo);
    Rcpp::NumericVector sdraw(nd+burn);
+   Rcpp::NumericVector accept(nd+burn);
    Rcpp::NumericMatrix trdraw(nkeeptrain,n);
    Rcpp::NumericMatrix tedraw(nkeeptest,np);
    Rcpp::NumericMatrix impute_draw1(nkeeptrain, n);
@@ -407,6 +408,7 @@ if(type==1) {
       if(i==(burn/2)&&dart) bm.startdart();
       //draw bart
       bm.draw(svec,gen,shards);
+      accept[i]=bm.getaccept();
 
       if(type1sigest) {
       //draw sigma
@@ -543,6 +545,7 @@ if(type==1) {
    ret["yhat.test"]=tedraw;
    ret["varcount"]=varcnt;
    ret["varprob"]=varprb;
+   ret["accept"]=accept;
 
    Rcpp::List xiret(xi.size());
    for(size_t i=0;i<xi.size();i++) {
