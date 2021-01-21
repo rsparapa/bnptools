@@ -1,0 +1,19 @@
+Package: hbart
+Type: Package
+Title: Heteroscedastic Bayesian Additive Regression Trees
+Version: 1.0
+Date: 2019-07-28
+Authors@R: c(person('Robert', 'McCulloch', role=c('aut','cre','cph'),email='robert.e.mcculloch@gmail.com'),
+  person('Matthew', 'Pratola', role=c('aut','cph')), person('Hugh','Chipman',role=c('aut','cph')))
+Description: A model of the form Y = f(x) + s(x) Z is fit where functions f and s are modeled with ensembles of trees and Z is standard normal. This model is developed in the paper 'Heteroscedastic BART Via Multiplicative Regression Trees' (Pratola, Chipman, George, and McCulloch, 2019, <arXiv:1709.07542v2>). BART refers to Bayesian Additive Regression Trees. See the R-package 'BART'. The predictor vector x may be high dimensional. A Markov Chain Monte Carlo (MCMC) algorithm provides Bayesian posterior uncertainty for both f and s. The MCMC uses the recent innovations in Efficient Metropolis--Hastings proposal mechanisms for Bayesian regression tree models (Pratola, 2015, Bayesian Analysis, <doi:10.1214/16-BA999>).
+License: GPL (>= 2)
+Depends: R (>= 3.5)
+Imports: Rcpp (>= 0.12.3)
+Suggests: knitr, rmarkdown, MASS, nnet
+LinkingTo: Rcpp
+NeedsCompilation: yes
+Author: Robert McCulloch [aut, cre, cph],
+  Matthew Pratola [aut, cph],
+  Hugh Chipman [aut, cph]
+Maintainer: Robert McCulloch <robert.e.mcculloch@gmail.com>
+Packaged: 
