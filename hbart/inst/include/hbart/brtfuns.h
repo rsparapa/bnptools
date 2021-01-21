@@ -44,6 +44,7 @@ using std::endl;
 #include "brtfuns.h"
 */
 
+/*
 //--------------------------------------------------
 //make xinfo = cutpoints
 void makexinfo(size_t p, size_t n, double *x, xinfo& xi, size_t nc);
@@ -51,6 +52,7 @@ void makexinfo(size_t p, size_t n, double *x, xinfo& xi, size_t nc);
 //compute prob of a birth, goodbots will contain all the good bottom nodes
 double getpb(tree& t, xinfo& xi, double pipb, tree::npv& goodbots);
 //--------------------------------------------------
+*/
 //bprop: function to generate birth proposal
 void bprop(tree& x, xinfo& xi, brt::tprior& tp, double pb, tree::npv& goodbots, double& PBx, tree::tree_p& nx, size_t& v, size_t& c, double& pr, rn& gen);
 //--------------------------------------------------
@@ -59,6 +61,7 @@ void dprop(tree& x, xinfo& xi, brt::tprior& tp, double pb, tree::npv& goodbots, 
 //--------------------------------------------------
 //get prob a node grows, 0 if no good vars, else alpha/(1+d)^beta
 double pgrow(tree::tree_p n, xinfo& xi, brt::tprior& tp);
+/*
 //--------------------------------------------------
 //calculate beginning and end points of data vector to be accessed in parallel computations
 void calcbegend(int n, int my_rank, int thread_count, int* beg, int* end);
@@ -108,7 +111,7 @@ bool mergecount(tree::tree_p tl, tree::tree_p tr, size_t v, size_t c, int* nways
 //--------------------------------------------------
 // End of functions to support rotate proposal
 //--------------------------------------------------
-
+*/
 
 //--------------------------------------------------
 //make xinfo = cutpoints
