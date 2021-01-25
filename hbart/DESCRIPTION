@@ -10,6 +10,7 @@ License: GPL (>= 2)
 Depends: R (>= 3.5)
 Imports: Rcpp (>= 0.12.3)
 Suggests: knitr, rmarkdown, MASS, nnet
+VignetteBuilder: knitr
 LinkingTo: Rcpp
 NeedsCompilation: yes
 Author: Robert McCulloch [aut, cre, cph],
