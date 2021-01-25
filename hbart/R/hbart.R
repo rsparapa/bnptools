@@ -43,21 +43,22 @@ xp = t(x.test)
 y.train = y.train-fmean
 #--------------------------------------------------
 #cutpoints
-if(!is.null(xicuts)) # use xicuts
-{
-   xi=xicuts
-}
-else # default to equal numcut per dimension
-{
-   xi=vector("list",p)
-   minx=apply(x,1,min)
-   maxx=apply(x,1,max)
-   for(i in 1:p)
-   {
-      xinc=(maxx[i]-minx[i])/(numcut+1)
-      xi[[i]]=(1:numcut)*xinc+minx[i]
-   }
-}
+if(is.null(xicuts)) xicuts=xicuts(x.train, numcut=numcut)
+## if(!is.null(xicuts)) # use xicuts
+## {
+##    xi=xicuts
+## }
+## else # default to equal numcut per dimension
+## {
+##    xi=vector("list",p)
+##    minx=apply(x,1,min)
+##    maxx=apply(x,1,max)
+##    for(i in 1:p)
+##    {
+##       xinc=(maxx[i]-minx[i])/(numcut+1)
+##       xi[[i]]=(1:numcut)*xinc+minx[i]
+##    }
+## }
 #--------------------------------------------------
 rgy = range(y.train)
 #tau =  (rgy[2]-rgy[1])/(sqrt(m)*k) this is not consistent with BART
@@ -140,7 +141,8 @@ res=.Call("cpsambrt",
    minnumboth,
    printevery,
 #   numcut,
-   xi,
+##   xi,
+   xicuts,
    summarystats,
    PACKAGE="hbart"
 )
@@ -150,8 +152,9 @@ res$y.train=y.train+fmean
 res$ntree=ntree
 res$ntreeh=ntreeh
 res$ndpost=ndpost
-class(xi)="BARTcutinfo"
-res$xicuts=xi
+## class(xi)="BARTcutinfo"
+## res$xicuts=xi
+res$xicuts=xicuts
 
 attr(res, 'class') <- 'hbart'
 
