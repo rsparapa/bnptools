@@ -1,12 +1,12 @@
-\name{rbart}
-\alias{rbart}
+\name{hbart}
+\alias{hbart}
 %\docType{package}
-\title{Fitting Bayesian Regression Tree models supported by rbart.}
+\title{Fitting Bayesian Regression Tree models supported by hbart.}
 \description{
-  The function \code{rbart()} is the main function for fitting Bayesian Regression Tree models, including single-tree models, Bayesian Additive Regression Tree (BART) models and Heteroscedastic BART models.  \code{rbart()} maintains some degree of backwards compatibility with \code{BayesTree::bart()}, while offering many new options.
+  The function \code{hbart()} is the main function for fitting Bayesian Regression Tree models, including single-tree models, Bayesian Additive Regression Tree (BART) models and Heteroscedastic BART models.  \code{hbart()} maintains some degree of backwards compatibility with \code{BayesTree::bart()}, while offering many new options.
 }
 \usage{
-rbart(x.train, y.train, x.test=matrix(0.0,0,0), ntree=200, ntreeh=40, ndpost=1000, 
+hbart(x.train, y.train, x.test=matrix(0.0,0,0), ntree=200, ntreeh=40, ndpost=1000, 
      nskip=100, k=2, power=2.0, base=.95, tc=1, sigmav=rep(1,length(y.train)), 
      fmean=mean(y.train), overallsd = sd(y.train), overallnu=10, 
      chv = cor(x.train,method="spearman"), pbd=.7, pb=.5, stepwpert=.1, probchv=.1,
@@ -43,7 +43,7 @@ rbart(x.train, y.train, x.test=matrix(0.0,0,0), ntree=200, ntreeh=40, ndpost=100
   \item{summarystats}{Return detailed summary statistics about the fitting procedure.}
 }
 \details{
-  \code{rbart()} is the main model fitting function for continuous response data.  The most general form of the model allowed is
+  \code{hbart()} is the main model fitting function for continuous response data.  The most general form of the model allowed is
   \eqn{Y({\bf x})=f({\bf x})+s({\bf x})Z}{Y(x)=f(x)+s(x)Z}
   where \eqn{Z} is \eqn{N(0,1)} and 
   \eqn{f({\bf x})=\sum_{j=1}^m g({\bf x};T_j,M_j)}{f(x)=sum g(x;T_j,M_j)} and
@@ -61,7 +61,7 @@ rbart(x.train, y.train, x.test=matrix(0.0,0,0), ntree=200, ntreeh=40, ndpost=100
 
 }
 \value{
-  \item{res}{Fitted model object of S3 class rbart.}
+  \item{res}{Fitted model object of S3 class hbart.}
 }
 \references{
   Chipman, Hugh A., George, Edward I., and McCulloch, Robert E. (1998)
@@ -85,7 +85,7 @@ Matthew T. Pratola <mpratola@stat.osu.edu> [aut, cre, cph], Robert E. McCulloch 
 Maintainer: Matthew T. Pratola <mpratola@stat.osu.edu>, Robert E. McCulloch <robert.e.mcculloch@gmail.com>
 }
 \seealso{
-\code{\link{predict.rbart}}
+\code{\link{predict.hbart}}
 }
 \examples{
 ##################################################
@@ -93,8 +93,8 @@ Maintainer: Matthew T. Pratola <mpratola@stat.osu.edu>, Robert E. McCulloch <rob
 ##  For more realistic examples, please see:
 ##   (i) the vignette at www.rob-mcculloch.org
 ##   (ii) the example simulated data (see ?simdat)
-##        and the longer run in ?rbartonsimd, 
-##        where a saved run of rbart is run on simdat is plotted. 
+##        and the longer run in ?hbartonsimd, 
+##        where a saved run of hbart is run on simdat is plotted. 
 ##################################################
 
 ##simulate data
@@ -115,7 +115,7 @@ fxp = 4*(xp[,1]^2)
 sxp = .2*exp(2*xp[,1])
 yp = fxp + sxp*rnorm(np)
 
-##run rbart MCMC
+##run hbart MCMC
 # The number of interations is kept small to make example run,
 ##!!!!  REAL APPLICATIONS MAY NEED LONGER RUNS !!!!
 #   nskip: burn in draws,
@@ -124,7 +124,7 @@ yp = fxp + sxp*rnorm(np)
 #   numcut: number of cutpoints used for each x
 #   k: bigger k gives smoother f (default is 2)
 set.seed(19)
-res = rbart(x,y,nskip=10,ndpost=20,nadapt=0,numcut=1000,k=5) #again, this is way too short a run!!!
+res = hbart(x,y,nskip=10,ndpost=20,nadapt=0,numcut=1000,k=5) #again, this is way too short a run!!!
 ## now predict to get inference
 resp = predict(res,x.test=xp)
 

@@ -1,12 +1,12 @@
-\name{predict.rbart}
-\alias{predict.rbart}
+\name{predict.hbart}
+\alias{predict.hbart}
 %\docType{package}
-\title{Drawing Posterior Predictive Realizations for rbart models.}
+\title{Drawing Posterior Predictive Realizations for hbart models.}
 \description{
-  The function \code{predict.rbart()} is the main function for drawing posterior predictive realizations at new inputs using a fitted model stored in a \code{rbart} object returned from \code{rbart()}.
+  The function \code{predict.hbart()} is the main function for drawing posterior predictive realizations at new inputs using a fitted model stored in a \code{hbart} object returned from \code{hbart()}.
 }
 \usage{
-\method{predict}{rbart}(
+\method{predict}{hbart}(
 object,
 x.test=object$x.train,
 tc=1,
@@ -15,24 +15,24 @@ q.lower=0.025,
 q.upper=0.975,...)
 }
 \arguments{
-  \item{object}{Object of type \code{rbart} from a previous call to \code{rbart()}}
+  \item{object}{Object of type \code{hbart} from a previous call to \code{hbart()}}
   \item{x.test}{New input settings in the form of an \code{npred x p} matrix at which to construct predictions.  Defaults to the training inputs.}
   \item{tc}{Number of OpenMP threads to use for parallel computing.}
-  \item{fmean}{Mean-centering vector for the training data.  Defaults to the value used by \code{rbart()} when fitting the model.  Usually should be left to the default.}
+  \item{fmean}{Mean-centering vector for the training data.  Defaults to the value used by \code{hbart()} when fitting the model.  Usually should be left to the default.}
   \item{q.lower}{Lower quantile to return.}
   \item{q.upper}{Upper quantile to return.}
    \item{...}{not used.}
 }
 \details{
-  \code{predict.rbart()} is the main function for calculating posterior predictions and uncertainties once a model has been fit by \code{rbart()}.  
+  \code{predict.hbart()} is the main function for calculating posterior predictions and uncertainties once a model has been fit by \code{hbart()}.  
 
-  Returns an object of type \code{rbart} with the following entries.
+  Returns an object of type \code{hbart} with the following entries.
 }
 \value{
   \item{mdraws}{Posterior realizations of the mean function, \eqn{f({\bf x})}{f(x)} stored in an \code{ndpost x npred} matrix,
-    where ndpost is the number of kept MCMC draws in the \code{rbart} run.}
+    where ndpost is the number of kept MCMC draws in the \code{hbart} run.}
   \item{sdraws}{Posterior realizations of the standard deviation function, \eqn{s({\bf x})}{s(x)} stored in an \code{ndpost x npred} matrix,
-    where ndpost is the number of kept MCMC draws in the \code{rbart} run.}
+    where ndpost is the number of kept MCMC draws in the \code{hbart} run.}
   \item{mmean}{Posterior predictive mean of \eqn{f({\bf x})}{f(x)}.}
   \item{smean}{Posterior predictive mean of the standard deviation, \eqn{s({\bf x})}{s(x)}.}
   \item{msd}{Posterior standard deviation of the mean, \eqn{f({\bf x})}{f(x)}.}
@@ -68,7 +68,7 @@ Matthew T. Pratola <mpratola@stat.osu.edu> [aut, cre, cph], Robert E. McCulloch 
 Maintainer: Matthew T. Pratola <mpratola@stat.osu.edu>, Robert E. McCulloch <robert.e.mcculloch@gmail.com>
 }
 \seealso{
-\code{\link{rbart}}
+\code{\link{hbart}}
 }
 \examples{
 ##################################################
@@ -76,8 +76,8 @@ Maintainer: Matthew T. Pratola <mpratola@stat.osu.edu>, Robert E. McCulloch <rob
 ##  For more realistic examples, please see:
 ##   (i) the vignette at www.rob-mcculloch.org
 ##   (ii) the example simulated data (see ?simdat)
-##        and the longer run in ?rbartonsimd, 
-##        where a saved run of rbart is run on simdat is plotted. 
+##        and the longer run in ?hbartonsimd, 
+##        where a saved run of hbart is run on simdat is plotted. 
 ##################################################
 
 ##simulate data
@@ -98,7 +98,7 @@ fxp = 4*(xp[,1]^2)
 sxp = .2*exp(2*xp[,1])
 yp = fxp + sxp*rnorm(np)
 
-##run rbart MCMC
+##run hbart MCMC
 # The number of interations is kept small to make example run,
 ##!!!!  REAL APPLICATIONS MAY NEED LONGER RUNS !!!!
 #   nskip: burn in draws,
@@ -107,7 +107,7 @@ yp = fxp + sxp*rnorm(np)
 #   numcut: number of cutpoints used for each x
 #   k: bigger k gives smoother f (default is 2)
 set.seed(19)
-res = rbart(x,y,nskip=10,ndpost=20,nadapt=0,numcut=1000,k=5) #again, this is way too short a run!!!
+res = hbart(x,y,nskip=10,ndpost=20,nadapt=0,numcut=1000,k=5) #again, this is way too short a run!!!
 ## now predict to get inference
 resp = predict(res,x.test=xp)
 

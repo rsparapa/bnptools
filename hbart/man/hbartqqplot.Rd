@@ -3,7 +3,7 @@
 \docType{package}
 \title{Predictive qqplot for heterbart}
 \description{
-Given results from predict.rbart, gets draws from the predictive distribution at each x
+Given results from predict.hbart, gets draws from the predictive distribution at each x
 and then computes the empirical inverse cdf to get draws which would be uniform if the predicitive
 were the true distribution.  Then draws a qqplot against the uniform.
 In large enough samples, if the model is correct, the qqplot should look like like a straight line
@@ -14,8 +14,8 @@ distribution, even if the model is correct.
 hbartqqplot(y,rbmod,nunif=10000,linecolor="red",linewd=3,...)
 }
 \arguments{
-\item{y}{y values corresponding to x values given to predict.rbart.}
-\item{rbmod}{Output list from predict.rbart.}
+\item{y}{y values corresponding to x values given to predict.hbart.}
+\item{rbmod}{Output list from predict.hbart.}
 \item{nunif}{Number of uniform(0,1) draws used in constructing the qqplot.}
 \item{linecolor,linewd}{Line color and width for (0,1) line.}
 \item{...}{Arguments passed on to stats::qqplot.}
@@ -29,11 +29,11 @@ hbartqqplot(y,rbmod,nunif=10000,linecolor="red",linewd=3,...)
 ## get simulated data
 data(simdat)
 
-##get rbart run on the simulated data
-data(rbartonsimd)
+##get hbart run on the simulated data
+data(hbartonsimd)
 
 ##  Predictive quantile-quantile plot
-temp = hbartqqplot(simdat$yp,rbartonsimd,xlab="predictive quantile",ylab="uniform",
+temp = hbartqqplot(simdat$yp,hbartonsimd,xlab="predictive quantile",ylab="uniform",
                       cex.axis=1.4,cex.lab=1.2)
 }
 

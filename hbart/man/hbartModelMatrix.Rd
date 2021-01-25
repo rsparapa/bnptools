@@ -1,9 +1,9 @@
-\name{rbartModelMatrix}
-\alias{rbartModelMatrix}
+\name{hbartModelMatrix}
+\alias{hbartModelMatrix}
 \docType{package}
 \title{Model Matrix for BART}
 \description{
-rbartModelMatrix takes a data frame of explanatory variables (x)
+hbartModelMatrix takes a data frame of explanatory variables (x)
 and turns it into a numeric matrix suitable for BART.
 This is used when some of the x variables are factors.
 The returned matrix will first have columns for all the numeric variables
@@ -15,7 +15,7 @@ So for example, a factor with two levels named xf, will result in
 two columns named xf1 and xf2.
 }
 \usage{
-rbartModelMatrix(xdf)
+hbartModelMatrix(xdf)
 }
 \arguments{
 \item{xdf}{
@@ -31,6 +31,6 @@ xdf = data.frame(x1=1:15,x2=as.factor(c(rep(1,5),rep(2,5),rep(3,5))),
            x3=runif(15),x4=as.factor(c(rep(1,5),rep(2,10))))
 print(head(xdf))
 
-xm = rbartModelMatrix(xdf)
+xm = hbartModelMatrix(xdf)
 print(head(xm))
 }
