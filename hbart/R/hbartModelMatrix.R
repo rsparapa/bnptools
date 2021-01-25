@@ -1,4 +1,4 @@
-rbartModelMatrix=function(xdf) {
+hbartModelMatrix=function(xdf) {
 #note: for BART, if a factor has k levels, use all k dummies (not k-1 as in linear regression).
 p=ncol(xdf)
 Xnum = NULL #this will be all the numeric columns

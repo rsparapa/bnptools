@@ -1,4 +1,4 @@
-predict.rbart = function(
+predict.hbart = function(
 object,
 x.test=object$x.train,
 tc=1,
@@ -32,7 +32,7 @@ res=.Call("cpsambrt_predict",
    xi,
    tc,
    object,
-   PACKAGE="rbart"
+   PACKAGE="hbart"
 )
 res$mdraws=res$mdraws+fmean
 res$mmean=apply(res$mdraws,2,mean)

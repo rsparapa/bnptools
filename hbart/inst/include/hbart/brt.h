@@ -235,6 +235,7 @@ protected:
 //#  endif
 };
 
+#include "brtfuns.h"
 
 //--------------------------------------------------
 //a single iteration of the MCMC for brt model

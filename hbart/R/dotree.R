@@ -4,6 +4,6 @@ dotree=function(x,tmat,check,tc=2) {
             tmat,
             check,
             tc,
-            PACKAGE="rbart")
+            PACKAGE="hbart")
    return(res)
 }

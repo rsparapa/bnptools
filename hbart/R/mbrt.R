@@ -76,7 +76,7 @@ res=.Call("cmbrt",
    stepwpert,
    probchv,
    minnumbot,
-   printevery,PACKAGE="rbart"
+   printevery,PACKAGE="hbart"
 )
 res$yhat.train.mean = res$yhat.train.mean+fmean
 res$yhat.train = res$yhat.train+fmean

@@ -1,4 +1,4 @@
-rbart = function(
+hbart = function(
 x.train,
 y.train,
 x.test=matrix(0.0,0,0),
@@ -142,7 +142,7 @@ res=.Call("cpsambrt",
 #   numcut,
    xi,
    summarystats,
-   PACKAGE="rbart"
+   PACKAGE="hbart"
 )
 
 res$x.train=x.train
@@ -153,7 +153,7 @@ res$ndpost=ndpost
 class(xi)="BARTcutinfo"
 res$xicuts=xi
 
-attr(res, 'class') <- 'rbart'
+attr(res, 'class') <- 'hbart'
 
 return(res)
 }
