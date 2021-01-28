@@ -29,6 +29,7 @@ mc.gbart <- function(
                      treeinit=FALSE, trees=NULL,
                      sparse=FALSE, theta=0, omega=1,
                      a=0.5, b=1, augment=FALSE, rho=NULL,
+                     varprob=NULL,
                      xinfo=matrix(0,0,0), usequants=FALSE,
                      rm.const=TRUE,
                      sigest=NA, sigdf=3, sigquant=0.90,
@@ -112,6 +113,7 @@ mc.gbart <- function(
                   type=type, ntype=ntype, treeinit=treeinit, trees=trees,
                   sparse=sparse, theta=theta, omega=omega,
                   a=a, b=b, augment=augment, rho=rho,
+                  varprob=varprob,
                   xinfo=xinfo, usequants=usequants,
                   rm.const=rm.const,
                   sigest=sigest, sigdf=sigdf, sigquant=sigquant,
@@ -182,6 +184,7 @@ mc.gbart <- function(
                 post$sigma <- cbind(post$sigma, post.list[[i]]$sigma)
                 post$sigma. <- c(post$sigma., post.list[[i]]$sigma[-(1:nskip)])
             }
+            post$accept <- cbind(post$accept, post.list[[i]]$accept)
 
             post$varcount <- rbind(post$varcount, post.list[[i]]$varcount)
             post$varprob <- rbind(post$varprob, post.list[[i]]$varprob)

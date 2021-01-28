@@ -26,6 +26,7 @@ gbart=function(
                treeinit=FALSE, trees=NULL,
                sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho=NULL,
+               varprob=NULL,
                xinfo=matrix(0,0,0), usequants=FALSE,
                rm.const=TRUE,
                sigest=NA, sigdf=3, sigquant=0.90,
@@ -82,6 +83,8 @@ gbart=function(
     if(length(rho)==0) rho=p
     if(length(rm.const)==0) rm.const <- 1:p
     if(length(grp)==0) grp <- 1:p
+    if(length(varprob)==0) varprob=rep(1, p)
+    varprob=varprob/sum(varprob)
 
     check = length(impute.mult)
     if(check==1)
@@ -268,6 +271,7 @@ gbart=function(
                 b,
                 rho,
                 augment,
+                varprob,
                 printevery,
                 xinfo,
                 shards,

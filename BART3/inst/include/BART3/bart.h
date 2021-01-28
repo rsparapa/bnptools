@@ -83,6 +83,9 @@ public:
    void setxinfo(xinfo& _xi);
    std::vector<size_t>& getnv() {return nv;}
    std::vector<double>& getpv() {return pv;}
+   void setpv(double *varprob) {
+     for(size_t j=0;j<p;j++) pv[j]=varprob[j];
+   }
    double gettheta() {return theta;}
    //------------------------------
    //public methods
@@ -94,8 +97,8 @@ public:
    void tonull() {for(size_t i=0;i!=t.size();i++) t[i].tonull();}
    void predict(size_t p, size_t n, double *x, double *fp);
    void draw(double sigma, rn& gen);
-//   void draw_s(rn& gen);
    double f(size_t i) {return allfit[i];}
+   double getaccept() {return accept;}
 protected:
    size_t m;  //number of trees
    std::vector<tree> t; //the trees
@@ -110,16 +113,17 @@ protected:
    double *ftemp;
    dinfo di;
    bool dart,dartOn,aug,const_theta;
-   double a,b,rho,theta,omega;
+   double a,b,rho,theta,omega,
+     accept; // MH acceptance rate from most recent draw
    std::vector<size_t> nv;
    std::vector<double> pv, lpv;
 };
 
 //--------------------------------------------------
 //constructor
-bart::bart():m(200),t(m),pi(),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false) {}
-bart::bart(size_t im):m(im),t(m),pi(),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false) {}
-bart::bart(const bart& ib):m(ib.m),t(m),pi(ib.pi),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false)
+bart::bart():m(200),t(m),pi(),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false),accept(0.) {}
+bart::bart(size_t im):m(im),t(m),pi(),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false),accept(0.) {}
+bart::bart(const bart& ib):m(ib.m),t(m),pi(ib.pi),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false),accept(0.)
 {
    this->t = ib.t;
 }
@@ -219,17 +223,19 @@ void bart::predict(size_t p, size_t n, double *x, double *fp)
 //--------------------------------------------------
 void bart::draw(double sigma, rn& gen)
 {
+   size_t i=0;
    for(size_t j=0;j<m;j++) {
       fit(t[j],xi,p,n,x,ftemp);
       for(size_t k=0;k<n;k++) {
          allfit[k] = allfit[k]-ftemp[k];
          r[k] = y[k]-allfit[k];
       }
-      bd(t[j],xi,di,pi,sigma,nv,pv,aug,gen);
+      if(bd(t[j],xi,di,pi,sigma,nv,pv,aug,gen)) i++;
       drmu(t[j],xi,di,pi,sigma,gen);
       fit(t[j],xi,p,n,x,ftemp);
       for(size_t k=0;k<n;k++) allfit[k] += ftemp[k];
    }
+   accept=i/(double)m;
    if(dartOn) {
      draw_s(nv,lpv,theta,gen);
      draw_theta0(const_theta,theta,lpv,a,b,rho,gen);

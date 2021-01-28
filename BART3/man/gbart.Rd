@@ -24,7 +24,7 @@ gbart(
           factor(type, levels=c('wbart', 'pbart', 'lbart'))),
       rfinit=FALSE,
       sparse=FALSE, theta=0, omega=1,
-      a=0.5, b=1, augment=FALSE, rho=NULL,
+      a=0.5, b=1, augment=FALSE, rho=NULL, varprob=NULL,
       xinfo=matrix(0,0,0), usequants=FALSE,
       rm.const=TRUE,
       sigest=NA, sigdf=3, sigquant=0.90,
@@ -53,7 +53,7 @@ mc.gbart(
              factor(type, levels=c('wbart', 'pbart', 'lbart'))),
          rfinit=FALSE,
          sparse=FALSE, theta=0, omega=1,
-         a=0.5, b=1, augment=FALSE, rho=NULL,
+         a=0.5, b=1, augment=FALSE, rho=NULL, varprob=NULL,
          xinfo=matrix(0,0,0), usequants=FALSE,
          rm.const=TRUE,
          sigest=NA, sigdf=3, sigquant=0.90,
@@ -117,10 +117,13 @@ argument \code{type} to specify a logit BART model.
      \eqn{0.5<=a<=1} where lower values inducing more sparsity.}
    \item{b}{Sparse parameter for \eqn{Beta(a, b)} prior; typically,
      \eqn{b=1}.}
-   \item{rho}{Sparse parameter: typically \eqn{rho=p} where \eqn{p} is the
-     number of covariates under consideration.}
+
    \item{augment}{Whether data augmentation is to be performed in sparse
      variable selection.}
+   \item{rho}{Sparse parameter: typically \eqn{rho=p} where \eqn{p} is the
+     number of covariates under consideration.}   
+   \item{varprob}{ You initialize the variable selection probability:
+     defaults to \code{NULL} that means \eqn{1/p}.}
    
    \item{xinfo}{ You can provide the cutpoints to BART or let BART
      choose them for you.  To provide them, use the \code{xinfo}

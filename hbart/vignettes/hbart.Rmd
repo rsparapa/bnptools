@@ -1,0 +1,718 @@
+---
+title: "hbart: Bayesian Tree Modeling"
+author: "Hugh Chipman, Edward George, Robert McCulloch, and Matthew Pratola"
+output: 
+  pdf_document :
+    toc: true
+    toc_depth: 2
+    number_sections: yes
+vignette: >
+  %\VignetteIndexEntry{hbart}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(hbart)
+```
+
+```{r colfun,echo=FALSE}
+library(knitr)
+#Color Format
+colFmt = function(x,color){
+   outputFormat = opts_knit$get("rmarkdown.pandoc.to")
+   if(outputFormat == 'latex')
+     paste("\\textcolor{",color,"}{",x,"}",sep="")
+   else if(outputFormat == 'html')
+     paste("<font color='",color,"'>",x,"</font>",sep="")
+   else
+    x
+}
+```
+
+\
+
+\  
+
+
+
+<!-- section: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+# HBART: Bayesian Ensemble Modeling for mean and variance 
+
+The \texttt{R} package \texttt{hbart} provides Bayesian tree ensemble  modeling  for predictor
+dependent mean and variance.  
+
+The basic model is:
+$$
+Y = f(x) + s(x) \, Z, \;\; Z \sim N(0,1)
+$$
+
+
+The functions $f$ and $s$ may depend on a high dimensional $x$.  
+
+The function $f$ is modeled as the sum of many trees and the function $s$
+is modeled  as the product of trees:  
+
+$$
+f(x) = \sum_{i=1}^m \, f(x ; T_i,M_i)
+$$
+
+$$
+s(x) = \prod_{i=1}^{m'} \, s(x ; \mathcal{T}_i,S_i)
+$$
+
+\texttt{hbart} is the core function in the package \texttt{hbart}.  
+
+First we will try \texttt{hbart} on simple simulated data with just one variable in $x$.  
+With just one variable in $x$, simple plots suffice to display the mean and variance functions
+underlying the data.
+
+Then we will try some real data with several variables (the cars data).  
+
+We will refer to our model as HBART, for heteroskedastic BART.  
+BART simply models the errors as iid normal.
+
+<!-- section: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+# Markov Chain Monte Carlo (MCMC)
+
+\texttt{hbart} runs a Markov Chain Monte Carlo (MCMC) algorithm.
+At each MCMC iteration we have  a draw of all the trees making up $f$
+and a draw of all the trees making up $s$.  
+We can think of ourselves as having draws of the functions $f$ and $s$ at each 
+iteration.
+
+
+The idea is that after initial burn-in the draws represent the posterior
+
+$$
+(f,s) \,|\, x,y
+$$
+
+where $(x,y)$ is the training data and $(f,s)$ are the two functions.
+
+The trees themselves are not very interpretable so typically we will look
+at draws of $f$ and $s$ evaluated at particular $x$ values.  
+
+We look at
+
+$$
+\{f_d(x)\}, \;\; \{s_d(x)\}, \;\; d=1,2,\ldots D
+$$
+
+where $d$ indexes draws 1 to $D$.
+
+
+So, for example, a prediction for $y$ given $x=\tilde{x}$ could be
+the estimate of the posterior mean 
+$\hat{f}(\tilde{x}) \approx \frac{1}{d} \sum_{i=1}^D \, f_d(\tilde{x})$.  
+
+Inference for $f(\tilde{x})$ could be summarized by quantiles of the draws $\{f_d(\tilde{x})\}$.
+Similarly for $s(\tilde{x})$.  
+
+Draws from the predictive distribution of $Y$ given $x=\tilde{x}$ are given by
+$f_d(\tilde{x}) + s_d(\tilde{x}) \, Z_d$ where the $Z_d \sim N(0,1), \; i.i.d$. 
+
+<!-- section: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+# Simulated Data
+
+
+Let's simulate some simple data to illustrate \texttt{hbart} with.  
+
+We will use just one variable in $x$ and let:
+
+$$
+f(x) = 4 x^2, \;\; s(x) = .2 \exp(2x)
+$$
+
+\  
+
+Simulate the data:
+
+```{r simdat,include=TRUE,echo=TRUE,collapse=TRUE,cache=TRUE}
+# y = f(x) + s(x) Z
+
+#basic parameters
+set.seed(27)
+n=500 #train (and test) sample sizes
+p=1 #just one x
+
+# train data
+x = matrix(sort(runif(n*p)),ncol=p) #iid uniform x values
+fx = 4*(x[,1]^2) #quadratric function f
+sx = .2*exp(2*x[,1]) # exponential function s
+y = fx + sx*rnorm(n)
+
+##test data (the p added to the variable names is for predict)
+np=1000
+xp = matrix(sort(runif(np*p)),ncol=p)
+fxp = 4*(xp[,1]^2)
+sxp = .2*exp(2*xp[,1])
+yp = fxp + sxp*rnorm(n)
+```
+
+Now, let's have a look at the simulated data:    
+
+
+```{r plotsim,include=TRUE,echo=TRUE,dependson="simdat",fig.height=10,fig.width=12,out.width='60%',fig.align='center'}
+plot(x,y,ylab="y",cex.axis=1.5,cex.lab=1.5)
+lines(x,fx,col="blue",lwd=2)
+lines(x,fx+2*sx,col="green",lwd=2,lty=2)
+lines(x,fx-2*sx,col="green",lwd=2,lty=2)
+```
+
+The solid blue line is $x \;versus\; f(x)$
+and the dashed green lines are  $x \;versus\; f(x) \pm 2 s(x)$.  
+
+So, we have a nice simple example with a nonlinear mean and heteroskedasticity.
+
+
+<!-- section: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+# Run hbart on the simulated data
+
+## \texttt{hbart}
+
+Let's run \texttt{hbart} on the simulated data.  
+
+We will run \texttt{hbart} twice.  
+First we will use the default settings (\texttt{resdef} below).  
+Second we will change the defaults to take advantage of the fact that we
+know we are estimating a nice smooth function and to make the function return faster
+by reducing the number of MCMC iterations.
+In the second run (\texttt{res} below) our choices of
+\texttt{nskip},
+\texttt{ndpost},
+and
+\texttt{nadapt}
+reduce the number of iterations relative to the default values
+while the choice of \texttt{k}=5 smooths the function.
+The parameters are explained below.
+
+\  
+
+```{r run-hbart,include=TRUE,echo=TRUE,message=FALSE,results="hide",cache=TRUE,dependson="simdat"}
+library(hbart)
+set.seed(99)
+
+# first run at default settings
+resdef = hbart(x,y) 
+
+# second run, this setting will give us a smoother function (k=5)
+#  and use fewer iterations at each MCMC stage so that it runs faster
+res = hbart(x,y,nskip=100,ndpost=400,k=5,numcut=1000,nadapt=200,adaptevery=20,tc=5)
+```
+
+The \texttt{hbart} MCMC runs in three stages of MCMC iterations.  
+
+In the first stage, the parameters determining how the MCMC is run are tuned to improve performance:
+
+* **nadapt** : number of tuning MCMC iterations in the first stage.
+* **adaptevery** : every *adaptevery* draws (out of the *nadapt* first stage tuning draws) update the MCMC parameters. 
+
+The second and third stage use fixed values of the MCMC parameters so that we have a legitimate Markov Chain.
+The second stage is a set of  ``burn-in'' draws which are not kept.
+The final, third set of iterations are
+the draws we keep to represent our MCMC inference.  
+
+* **nskip** : number of burn-in draws in the second stage. 
+* **ndpost** : number of kept draws in the third stage.
+
+Other arguments used in the second \texttt{hbart} call above are:
+
+* **k** : shrinkage parameter for bottom node mean parameters for the trees in the $f$ ensemble sum.
+              Bigger k means more shrinkage so you can get a smoother function.
+* **numcut** : number of cutpoints $c$ to be used in the decision rules $x_j < c$ in each tree.
+* **tc** : thread count, number of openmp threads to run.  To take advantage of multiple cores,
+your system must support openmp.  If unsupported, hbart will run on a single core.
+
+As usual, \texttt{hbart} returns a list.    
+
+Most of the components the list returned by \texttt{hbart} are not very useful by themselves.  
+We will call a predict method to get the inference conditional on test values for $x$.
+
+Here is the structure of the list returned by \texttt{hbart}:
+
+```{r str-hbart,include=TRUE,echo=TRUE,dependson="run-hbart",collapse=TRUE}
+str(res)
+```
+All of the ``external pointers'' reference information that will be used by the predict
+function.  
+
+Notable and understandable components of the list returned by \texttt{hbart} are:
+
+* **ndpost** : number of kept posterior MCMC draws.
+* **ntree** : the number of trees used in the ensemble sum for $f$. 
+* **ntreeh** : the number of trees used in the ensemble product for $s$. 
+* **xicuts** : these are the cutpoints $c$ used in constructing the decision rules of the form 
+                  $x<c$ in each individual tree.
+
+Since we only have one $x$ variable, <code>xicuts</code> is a list of length 1, whose only element
+gives the cutpoints used with our single $x$.  
+With $p$ variables in $x$, *xicuts* would be a list of length $p$, where the $j^{th}$
+list element gives the cutpoints used with $x_j$.
+The user can input a list of cutpoints in the call to \texttt{hbart}.
+The default behaviour uses **numcut** cutpoints equally spaced over the range of an $x_j$.
+
+
+<!-- subsection:   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-->
+## \texttt{predict.hbart}
+
+Now we call the predict function  using the lists \texttt{resdef} and \texttt{res} returned from \texttt{hbart} and the 
+test data $x_p$.  
+
+```{r call-predict,include=TRUE,echo=TRUE,dependson="run-hbart",cache=TRUE}
+resdefp = predict(resdef,x.test=xp) #get prediction for test x in xp, using resdef 
+resp = predict(res,x.test=xp) #get prediction for test x in xp, using res 
+```
+
+Here is the structure of the list returned by predict.hbart:
+
+```{r str-predict,include=TRUE,echo=TRUE,dependson="call-predict",collapse=FALSE}
+names(resp)
+str(resp)
+summary(resp$mmean-apply(resp$mdraws,2,mean))
+```
+
+Let nd be the number of kept draws (ndpost) and np be the number of test observations.  
+
+The two key components of resp are:  
+
+* **mdraws** : nd x np matrix.  $(d,j)$ element if the $d^{th}$ draw of the function $f$ evaluated at the $j^{th}$ test $x$.
+* **sdraws** : nd x np matrix.  $(d,j)$ element if the $d^{th}$ draw of the function $s$ evaluated at the $j^{th}$ test $x$.
+
+The rest of the components are convenience summaries of the np columns of mdraws and sdraws.  
+For example we see above the mmean is just the average over rows (MCMC draws) of the $f$ evaluation on the test $x$.
+
+* **mmean** and **smean** : posterior means of $f(x)$ and $s(x)$ for test $x$.
+* **msd** and **ssd** : posterior standard deviations of $f(x)$ and $s(x)$ for test $x$.
+* **q.lower**, **q.upper**: upper and lower quantiles used in summaries.
+* **m.lower**, **m.5**, **m.upper** : q.lower, q.upper and .5 quantiles of mdraws columns.
+* **s.lower**, **s.5**, **s.upper** : q.lower, q.upper and .5 quantiles of sdraws columns.
+
+
+<!-- section: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+#  Examine the model inference on the simulated data
+
+## Plot posterior means of $f(x)$ and $s(x)$
+
+First let's look at the posterior means of $f(x)$ and $s(x)$ at the test $x$ values.  
+
+We'll plot the data, the true $f(x) \pm 2 \, s(x)$
+and the estmated $\hat{f}(x) \pm 2 \, \hat{s}(x)$ where the ``hats'' indicate the posterior means.  
+
+The posterior means are returned in the list components **mmean** and **smean**.  
+
+```{r plot-predict,include=TRUE,echo=TRUE,dependson=c("call-predict","simdat"),fig.height=10,fig.width=12,out.width='80%'}
+#test data 
+plot(xp,yp,pch=1,cex=.8,cex.axis=1.5,cex.lab=1.5) #plot data
+
+##true
+lines(xp,fxp,col="blue",lwd=3,lty=2) #true f
+lines(xp,fxp+2*sxp,col="blue",lwd=3,lty=2) #true f + 2s
+lines(xp,fxp-2*sxp,col="blue",lwd=3,lty=2) #true f - 2s
+
+##estimated
+lines(xp,resp$mmean,col="black",lty=1,lwd=4) #estimate of f
+lines(xp,resp$mmean+2*resp$smean,col="black",lty=1,lwd=2) #fhat + 2 shat
+lines(xp,resp$mmean-2*resp$smean,col="black",lty=1,lwd=2) #fhat - 2 shat
+lines(xp,resdefp$mmean,col="green",lty=1,lwd=3) #estimate of f from the default setting
+```
+
+The posterior means of both $f(x)$ and $s(x)$ do a nice job of tracking the true values.  
+
+Notice that the posterior mean estimates from the default run (resdefp, solid green line) 
+and the alternative run (resp, solid black line) are very similar.
+The default setting gives us a somewhat less smooth estimate.
+
+## Inference for $f$
+
+We'll plot the true $f$ and pointwise 95\% intervals for $f(x)$ at each test $x$.  
+We can do this using the **mean**, **m.lower**, and **m.upper** components of the
+**resp** list.
+
+
+```{r plot-f-inf,include=TRUE,echo=TRUE,dependson=c("call-predict","simdat"),fig.height=10,fig.width=12,out.width='80%'}
+rgy = range(resp$mmean,resp$m.upper,resp$m.lower)
+plot(range(xp),rgy,xlab="x",ylab="f(x)",cex=.8,cex.axis=1.5,cex.lab=1.5,type="n")
+lines(xp,fxp,col="blue",lwd=3,lty=1) #true f
+lines(xp,resp$mmean,col="black",lwd=3,lty=1) 
+lines(xp,resp$m.5,col="grey",lwd=3,lty=1) 
+lines(xp,resp$m.upper,col="green",lwd=3,lty=2) 
+lines(xp,resp$m.lower,col="green",lwd=3,lty=2) 
+title(main="pointwise 95% posterior intervals for f(x) at test x",cex.main=1.5)
+```
+
+The posterior means and medians are so similar that the median (grey) overwrites the mean (black).  
+If you wanted different probabilities for the intervals you can change the \texttt{q.upper} and \texttt{q.lower}
+values in the call to \texttt{predict.hbart}.  
+
+Or you can just compute the intervals directly from \texttt{mdraws}
+or \texttt{sdraws}:  
+
+```{r check-quants,include=TRUE,echo=TRUE,dependson=c("call-predict","simdat")}
+oldmqupper = apply(resp$mdraws,2,quantile,probs=c(.975)) #compute quantile of each column.
+summary(abs(oldmqupper-resp$m.upper)) #compare to results returned from predict.hbart.
+```
+
+
+## Inference for $s$
+
+We can do the same for the function $s$.
+
+
+```{r plot-s-inf,include=TRUE,echo=TRUE,dependson=c("call-predict","simdat"),fig.height=10,fig.width=12,out.width='80%'}
+rgy = range(resp$smean,resp$s.upper,resp$s.lower)
+plot(range(xp),rgy,xlab="x",ylab="s(x)",cex=.8,cex.axis=1.5,cex.lab=1.5,type="n")
+lines(xp,sxp,col="blue",lwd=3,lty=1) #true s
+lines(xp,resp$smean,col="black",lwd=3,lty=1) 
+lines(xp,resp$s.5,col="grey",lwd=3,lty=1) 
+lines(xp,resp$s.upper,col="green",lwd=3,lty=2) 
+lines(xp,resp$s.lower,col="green",lwd=3,lty=2) 
+```
+
+Notice that both the mean intervals and the standard deviation intervals can ``miss'' a bit at the end points
+where there are not observations all around.  In this case there is less information and the shrinkage implicit
+in the priors takes over.
+
+<!-- subsection: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+##  Checking for Fit and Heteroskedasticity: \texttt{plotFunctionDraws}
+
+The function \texttt{plotFunctionDraws} provides a plot of the information in 
+\texttt{mdraws} or \texttt{sdraws}.
+
+First we will get a overall summary of the errors from the residual standard deviation
+and store it in \texttt{shat}.
+In addition, let's get the least squares predictions at \texttt{xp} and compare them
+to the inference for $f(x)$ from HBART.
+
+```{r sum-for-plot-sim-res,include=TRUE,echo=TRUE,dependson=c("call-predict","simdat")}
+shat = sqrt(mean((yp-resp$mmean)^2))
+lmfit = lm(y~x,data.frame(x,y)); yhatlm = predict(lmfit,data.frame(x=xp))
+```
+
+Now we use \texttt{plotFunctionDraws} to look at \texttt{mdraws} (left panel)
+and \texttt{sdraws} (right panel).
+
+```{r plot-s-checkheter,include=TRUE,echo=TRUE,dependson=c("call-predict","simdat"),fig.height=5,fig.width=12,out.width='100%'}
+par(mfrow=c(1,2))
+plotFunctionDraws(resp$mdraws,complevel=mean(y), probs=c(.05,.95),
+   xlab=expression(hat(f)(x)), pts=yhatlm, ptscol="black", 
+   cex.lab=1.2, cex.axis=1.4, main="intervals for f(x)")
+plotFunctionDraws(resp$sdraws, complevel=shat, xlab=expression(hat(s)(x)),
+   intervalcol="magenta", linecol="blue", 
+   cex.lab=1.2, cex.axis=1.4, main="intervals for s(x)")
+```
+
+In the left plot, $\hat{f}(x_j)$ for $x_j$ in \texttt{xp} are plotted on the x-axis and the green
+intervals are 90\% intervals for $f(x_j)$.
+The horizontal red line is plotted at the mean of \texttt{y} and the black points are the fitted values from
+the linear regression.
+The clear separation of the green intervals from horizontal red line indicates strong evidence for a function $f$
+which captures some \texttt{x} dependence.  The fact that most of the fitted values from the linear regression
+are in the green intervals suggest that the evidence against linearity is not overwhelming,
+a conclusion that seems reasonable given a glance back at the data.
+However, the systematic nature of the difference between the between the linear fits and the $f$ inference
+makes a  linear $f$ doubtful.  This illustrates the value of considering all intervals simultaneously.
+
+In the right plot $\hat{s}(x_j)$ for $x_j$ in \texttt{xp} are plotted on the x-axis and the magenta 
+intervals are 95\% intervals for $s(x_j)$.
+The horizontal blue line is plotted at \texttt{shat}.
+The clear departure of the intervals from the horizontal indicates strong evidence for heteroskedasticity.
+
+Arguments for \texttt{plotFunctionDraws} used above:  
+
+* **complevel**: value for horizontal comparison line.
+* **probs**: quantiles to use for the posterior interval, e.g. (.05,.95) gives a 90\% interval.
+* **pts**: A point is plotted at $(x_j,\text{pts}_j)$.
+* **ptscol**: color used to plot points pts.
+* **intervalcol**: color for the posterior intervals.
+* **linecol**: color for the horizontal line.
+* Additional arguments are passed on to \texttt{graphics::plot}.
+ 
+
+<!-- subsection: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+##  Predictive quantile-quantile plot: \texttt{hbartqqplot}
+
+To assess the overall fit of the HBART model, we:  
+
+* pick a set of $(x_j,y_j)$ points.
+* draw repeatedly from the predictive distribution conditional on $x=x_j$ for each $j$.
+* using the predictive draws, compute the quantile of $y_j$ in the draws.
+* Draw a qqplot of the $y_j$ quantiles vs uniform(0,1) draws.  
+
+If the predictive were the ``true'' conditional, the $y_j$ quantiles should look like uniform(0,1) draws.
+In small samples, the predictive may be dispersed relative to the true conditional even if the model is correct
+since the predictive reflects the estimation uncertainty.
+However, dramatic model failures can be evident from a marked departure from the $y=x$ straight line.  
+
+\  
+
+```{r plot-sim-qqplot,include=TRUE,echo=TRUE,results=FALSE, dependson=c("call-predict","simdat"),fig.height=10,fig.width=12,out.width='70%',fig.align="center"}
+hbartqqplot(yp,resp,xlab="predictive quantile",ylab="uniform",
+   cex.axis=1.4,cex.lab=1.2)
+```
+
+The points are pretty close to the reference 45-degree line $y=x$ indicating that 
+we have enough information in the data to see that our HBART model has
+captured the essential relationship between $y$ and $x$.
+
+<!-- section: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+#  The used cars data
+
+<!-- subsection: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+##  Read in the Cars data and run hbart: \texttt{hbartModelMatrix}
+
+Now we will illustrate the use of \texttt{hbart} with real data having a higher dimensional $x$.  
+
+Of course, some of the plots we used for our one dimensional simlulated example are no longer available!!!  
+
+We will use the same prices of used cars data set used in Pratola et. al.
+
+```{r read-cd,include=TRUE,echo=TRUE,cache=TRUE}
+data(ucarprice)
+ddf=ucarprice[,1:5] # price, trim, isOneOwner, mileage, year
+dim(ddf)
+head(ddf)
+summary(ddf)
+```
+
+The response is \texttt{y} = the price of a used car.
+These cars are very nice Mercedes, so even the used car prices are quite high!
+The \texttt{x} include the mileage and year of the car as well as a categorical variable \texttt{trim} which relates
+to features of the car such as the type of material used in the interior.
+We have dropped some of the other variables to keep things simple
+(but we know we have kept the most important ones).  
+
+For example, we can easily see that there is a strong, nonlinear relationship between the price of the used cars
+and the mileage.
+
+```{r plot-cd,include=TRUE,echo=TRUE,fig.height=8,fig.width=12,out.width='70%',fig.align="center",dependson="read-cd"}
+plot(ddf$mileage, ddf$price, xlab="mileage", ylab="price",
+   cex.axis=1.4, cex.lab=1.5, col="blue")
+```
+
+Let's do a linear fit to compare HBART to.
+
+```{r lm-cd,include=TRUE,echo=TRUE,dependson="read-cd",cache=TRUE}
+lmcars = lm(price~.,ddf)
+summary(lmcars)
+```
+
+To fit HBART, we first need to express the categorical variable \texttt{trim} as dummies.  
+Notice how a factor with $k$ levels is codes as $k$ dummies, not $k-1$ as is done in linear regression.  
+This gives BART/HBART greater flexibility to identify the most appropriate coding.
+
+```{r bmodmat,include=TRUE,echo=TRUE,dependson="read-cd",cache=TRUE}
+x = hbartModelMatrix(ddf[,-1])
+head(x)
+```
+
+Now we can run HBART
+
+```{r cars-hbart-run,include=TRUE,echo=TRUE,message=FALSE,results="hide",dependson=c("bmodmat","read-cd"),cache=TRUE}
+set.seed(99)
+resc = hbart(x,ddf$price,tc=5) #run the HBART MCMC
+rescp = predict(resc,x) #get the inference on the training x
+```
+
+Let's compare the fitted values from HBART and the linear regression with \texttt{y=price}.
+
+```{r plot-car-fits,include=TRUE,echo=TRUE,dependson=c("cars-hbart-run","read-cd","lm-cd"),fig.height=8,fig.width=12,out.width='70%',fig.align="center"}
+fitmat = cbind(ddf$price,rescp$mmean,lmcars$fitted)
+colnames(fitmat) = c("price","HBARTfhat","Linearfhat")
+cor(fitmat)
+pairs(fitmat,cex.axis=1.4,cex.lab=1.5)
+```
+
+The HBART fitted values ($\hat{f}(x)$) clearly track \texttt{y} much better than the linear fits.  
+The plots suggest that there may be heteroskedasticity!!
+
+
+
+<!-- subsection: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+##  Checking for Heteroskedasticity
+
+We use \texttt{plotFunctionDraws} applied to \texttt{rescp\$mdraws} and \texttt{rescp\$sdraws} it assess the evidence for non-linearity
+in the mean ($f(x)$) and heteroskedasticity ($s(x)$).  
+
+\  
+
+```{r plot-c-checkheter,include=TRUE,echo=TRUE,dependson=c("cars-hbart-run","read-cd","lm-cd"),fig.height=5,fig.width=12,out.width='100%'}
+par(mfrow=c(1,2))
+plotFunctionDraws(rescp$mdraws,complevel=mean(ddf$price), xlab=expression(hat(f)(x)), 
+   pts=lmcars$fitted, ptscol="magenta",ptspch=3,ptscex=.5, 
+   cex.lab=1.2, cex.axis=1.2, main="intervals for f(x)")
+plotFunctionDraws(rescp$sdraws, xlab=expression(hat(s)(x)), 
+   cex.lab=1.2, cex.axis=1.2, main="intervals for s(x)")
+```
+
+In the left panel we see that
+the fitted values from the linear regression are well outside the posterior intervals for $f(x)$.
+There is strong evidence against linearity.  
+
+In the right panel, we see that the intervals for $s(x)$ separate clearly from the horizontal reference line.  
+There is strong evidence for heteroskedasticity.
+
+<!-- subsection: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+##  Predictive quantile-quantile plot
+
+```{r plot-c-qqplot,include=TRUE,echo=TRUE,dependson=c("cars-hbart-run","read-cd"),fig.height=9,fig.width=12,out.width='70%',fig.align="center", results="hide"}
+hbartqqplot(ddf$price, rescp, xlab="predictive quantile", ylab="uniform", 
+   cex.axis=1.4, cex.lab=1.2)
+```
+
+Overall, the qqplot follows the 45\% line.  
+The departure is consistent with a predictive which is over-dispersed relative to the true conditional distributions.
+
+<!-- section: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+#  More \texttt{hbart} parameters
+
+In this section we explore some more options in the fundamental \texttt{hbart} function.  
+In particular, we show how to get a standard BART fit.  
+We will continue to use the used cars data.  
+
+We can control the number of trees used in the ensembles:  
+
+* **ntree**: Number of trees used in the ensemble for the mean function $f$.
+* **ntreeh**: Number of trees used in the ensemble for the standard deviation function $s$.  
+
+The MCMC uses four types of moves:  
+
+* The fundamental birth/death move in which pairs of bottom child nodes are added (*birth*) or deleted (*death*) from a tree in an ensemble.
+* Peturb, in which the cutpoint for a node decision rule is allowed to change.
+* change of variable, the decision rule, including the chosen variable (component of $x$), associated with an interior node change.
+* Rotate, the Pratola (2016) move in which a tree is ``rotated''.  This move enables more dramatic changes in the tree structure.  
+
+Several parameters allow the user to choose the probability with which these different types of moves are proposed by the Metropolis-Hastings move
+for a single tree in an ensemble.  
+
+The \texttt{pbd} parameter controls the probability of a birth/death move.  
+You can give a single number in which case this is used as the probability for both the $f$ and $s$ ensembles or you can give
+a vector of length 2, where the first number gives the probability for the $f$ ensemble and the second number is for the $s$ ensemble.  
+
+Let's use these parameters to run BART using \texttt{hbart}.  
+We can do this by:  
+
+* Using a single tree for the $s$ ensemble.
+* Setting the birth/death probability equal to zero for single tree representing $s$.  
+
+With these settings, the $s$ ensemble is a single tree consisting of a single node.  
+
+So, we use \texttt{ntreeh=1} to get a single $s$ tree and \texttt{pbd=c(0.7,0.0)} to say
+there is a 70\% chance that the MH will try a birth/death move for the $f$ ensemble and no chance of 
+a birth/death move for the $s$ ensemble (the single tree).
+
+\  
+
+```{r bart-cars, include=TRUE, echo=TRUE, results="hide", dependson= c("read-cd","bmodmat"), cache=TRUE}
+set.seed(99)
+bartres = hbart(x,ddf$price,ntreeh=1,pbd=c(0.7,0.0), tc=5) #bart
+bartresp = predict(bartres,x.text=x)
+```
+
+The structure of the list returned by \texttt{predict.hbart} is the same as an HBART fit.  
+The difference is that within a row of \texttt{sdraws} all the values are the same.  
+
+\
+
+```{r see-bart,include=TRUE, echo=TRUE, dependson="bart-cars"}
+summary(apply(bartresp$sdraws,1,sd))
+```
+
+While this obviously has a lot of redundancy we can easily compare a HBART fit with a BART fit using \texttt{hbartqqplot}.  
+ \  
+
+```{r hbart-bart-qqplot, include=TRUE, echo=TRUE, dependson=c("cars-hbart-run","read-cd", "bart-cars"), results="hide", fig.height=5,fig.width=12,out.width='100%', fig.align="center"}
+par(mfrow=c(1,2))
+hbartqqplot(ddf$price, rescp, xlab="predictive quantile", ylab="uniform",
+   cex.axis=1.4, cex.lab=1.2)
+hbartqqplot(ddf$price, bartresp, xlab="predictive quantile", ylab="uniform",
+   cex.axis=1.4, cex.lab=1.2)
+``` 
+
+The dramatic improvement in the HBART inference over the BART inference is clear from the qqplots.
+
+
+<!-- section: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  -->
+***
+# Checking MCMC burn in
+
+In BART the errors are iid Normal, $Y_i = f(x_i) + \sigma Z_i, \;\; Z_i \sim N(0,1)$.
+A simple way to get a sense of whether or not the MCMC has converged is to look at the draws
+of the one parameter $\sigma$.
+
+\  
+
+```{r mccconv1, include=TRUE, echo=TRUE, dependson=c("bart-cars"), fig.height=8,fig.width=12,out.width='80%', fig.align="center"}
+plot(bartresp$sdraws[,1], xlab="MCMC iteration", ylab="BART sigma draw", 
+   cex.axis=1.4, cex.lab=1.2, col="blue")
+```
+
+\  
+
+The draws are varying about a fixed level without substantial dependence so this plot indicates that
+at least as far as $\sigma$ is concerned, the MCMC has burnt in and is not too dependent.
+
+Let's run the BART MCMC again but this time skip the adapt and burn-in steps.  
+
+Run BART again:
+
+```{r bart-cars-1, include=TRUE, echo=TRUE, results="hide", dependson= c("read-cd","bmodmat"), cache=TRUE}
+ndbart = 500 #number of MCMC iterations
+set.seed(99)
+bartres1 = hbart(x,ddf$price,ntreeh=1,pbd=c(0.7,0.0), 
+   nadapt=0, nskip=0, ndpost=ndbart, tc=5) #BART, no adaptive learning, no burn-in
+bartresp1 = predict(bartres1,x.text=x)
+```
+
+\  
+
+Plot the $\sigma$ draws:  
+
+
+```{r mccconv2, include=TRUE, echo=TRUE, dependson=c("bart-cars-1"), fig.height=8,fig.width=12,out.width='80%', fig.align="center"}
+plot(bartresp1$sdraws[2:ndbart,1], xlab="MCMC iteration", ylab="BART sigma draw", 
+   cex.axis=1.4, cex.lab=1.2, col="blue") #(2:ndpbart) to drop the initial starting value
+```
+
+Now we can see the initial burn-in.
+As the MCMC iterates the trees in the ensemble evolve to find the fit in $f(x)$.
+
+Now let's do the same thing for HBART.
+However, now we do not have the single parameter $\sigma$ to monitor.
+A simple approach is to use the average of $s(x_i)$ over the training data.
+
+Run HBART again without adaption or burn-in.
+
+\  
+
+```{r cars-hbart-run-1,include=TRUE,echo=TRUE,message=FALSE,results="hide",dependson=c("bmodmat","read-cd"),cache=TRUE}
+ndhbart=500
+set.seed(99)
+resc1 = hbart(x,ddf$price, nadapt=0, nskip=0, ndpost=ndhbart, tc=5) #run the HBART MCMC
+rescp1 = predict(resc1,x) #get the inference on the training x
+```
+
+Now we plot the average $s(x)$:
+
+\  
+
+```{r cars-hbart-mccconv, include=TRUE,echo=TRUE, fig.height=8,fig.width=12,out.width='80%', fig.align="center"}
+plot(apply(rescp1$sdraws,1,mean)[2:ndhbart], xlab="MCMC iteration", ylab="HBART average s(x) draw",
+   cex.axis=1.4, cex.lab=1.2, col="blue") #(2:ndpbart) to drop the initial starting value
+```
+
+Again, without the adaption and burn-in we see the initial phase of the MCMC as the trees learn $f$ and $s$.
+
+  

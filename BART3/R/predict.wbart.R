@@ -33,12 +33,14 @@ predict.wbart <- function(object, newdata, mc.cores=1L,
 
     if(!is.na(mc.cores.detected) && mc.cores>mc.cores.detected) mc.cores <- mc.cores.detected
 
-    if(.Platform$OS.type != "unix" || openmp || mc.cores==1) 
+    if(.Platform$OS.type != "unix" || openmp || mc.cores==1)
         call <- pwbart
-    else 
+    else
         call <- mc.pwbart
 
     if(length(object$mu)==0) object$mu=object$offset
+    if(length(object$mu)==0) stop("The length of object item mu is zero")
+    if(is.na(object$mu)) stop("Object item mu is NA")
 
     ##return(call(newdata, object$treedraws, mc.cores=mc.cores, mu=object$mu, ...))
 

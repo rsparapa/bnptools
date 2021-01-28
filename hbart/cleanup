@@ -1,0 +1,6 @@
+#!/bin/sh
+
+rm -f config.* src/Makevars src/*.o src/*.so src/symbols.rds
+rm -f doinit.Rout
+rm -f ./vignettes/*.html
+rm -f ./vignettes/*.pdf
