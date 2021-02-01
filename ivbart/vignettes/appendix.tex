@@ -1,0 +1,264 @@
+
+\section{The ivbart R package}\label{ivbartR}
+
+All of the calculations in this article with respect to the IVBART
+model were performed with the {\bf ivbart R} package.  {\bf ivbart}
+is free open-source software that is publicly available at
+\url{https://github.com/rsparapa/bnptools}.  The following
+snippet of {\bf R} code installs {\bf ivbart} with the 
+{\tt install\_github}
+function from the {\bf remotes R} package (available on
+the Comprehensive R Archive Network at 
+\url{https://cran.r-project.org/package=remotes}).
+\begin{verbatim}
+R> library("remotes")
+R> install_github("rsparapa/bnptools/ivbart")
+\end{verbatim}
+The {\tt nlsym} object is a data frame providing the Card example data
+of Section~\ref{card}.  With {\tt system.file("demo/nlsym.R",
+  package="ivbart")}, you can find the installed {\bf R} program that
+analyzes the Card data with IVBART that is provided % with {\bf ivbart}
+as a demonstration.  You can run this program with the following
+snippet.
+\begin{verbatim}
+R> source(system.file("demo/nlsym.R", package="ivbart"), echo=TRUE)
+\end{verbatim}
+
+% Briefly, here is the portion of {\tt nlsym.R} that calls the 
+% {\tt ivbart} function.
+% \begin{verbatim}
+% R> post = ivbart(Z, X., T., Y.,
+%                  nd=1000, sigmaf=1, sigmah=1,
+%                  betas=tsls.$coeff[2], ## beta for scaled data
+%                  sTs=L[1, 1], gammas=L[2, 1], sYs=L[2, 2],
+%                  Imin=2, Imax=floor(0.5*length(Y))+1, gs=500)
+% \end{verbatim}
+See the documentation of the {\tt ivbart} function for more details.
+
+\section{Causal Identification}\label{appendix}
+
+In this section, we prove that the estimation of $\beta$ is causally
+identified.  First, let's return to the structural equations in the
+classic IV framework.  Here, we ignore the confounders for simplicity
+since they are not needed, i.e., we can simply assume that they are
+unobserved.  Furthermore, let the constant intercept terms be zero
+for convenience, i.e., $\mu_T=\mu_Y=0$.  And, finally, we substitute
+the first stage into the second stage.
+\begin{align}
+T_i & = \gamma' Z_i  + \epsilon_{Ti} \label{tsls1} \\
+Y_i & = \beta \, T_i + \epsilon_{Yi} \nonumber \\
+Y_i &=  \beta (\gamma' Z_i  + \epsilon_{Ti}) + \epsilon_{Yi} \label{tsls2}
+\end{align}
+
+We will show that $\beta$ is identifiable by resorting to the
+so-called instrumental variable formula \citep{BowdTurk90}.
+\begin{align}\label{IVformula}
+\beta & \triangleq \pderivf{ \E{Y|T} }{T} \nonumber \\
+& \triangleq \frac{\E{Y|Z}}{\E{T|Z}} \\
+& \triangleq \frac{r_{YZ}}{r_{TZ}} \nonumber 
+\end{align}
+The middle formula \eqref{IVformula}, a ratio of expectations, is the
+key to our proof of causal identification; rather than the last line
+which is the most cited form of this result.
+To apply the middle formula, we plug the first stage into
+the denominator \eqref{tsls1} and the re-written second stage into the
+numerator \eqref{tsls2} to show that $\beta$ is identifiable.
+% To apply this formula, we need to substitute the first stage into the
+% second stage, i.e., 
+% Y_i &=  \beta (\gamma' Z_i  + \epsilon_{Ti}) + \epsilon_{Yi} \label{tsls2}
+% Returning to the instrumental variable formula, we show that
+% $\beta$ is identifiable.
+\begin{align*}
+%\beta & \triangleq \pderivf{ \E{Y|T} }{T} \\
+%      & = \pderivf{ \beta T }{T} = \beta \\
+\beta & \triangleq \frac{\E{Y|Z}}{\E{T|Z}} \\
+& = \frac{\beta \gamma' Z_i }{\gamma' Z_i } = \beta
+\end{align*}
+This is a well-known result with respect to linear structural equations.
+
+Now, let's investigate our BART IV framework while, once again, ignoring
+confounders and letting the intercepts be zero.
+\begin{align}
+T_i & =  f(Z_i) + \epsilon_{Ti} \label{ivbart1} \\
+Y_i & =  \beta \, T_i + \epsilon_{Yi}  \nonumber \\
+   & =  \beta (f(Z_i) + \epsilon_{Ti}) + \epsilon_{Yi} \label{ivbart2}
+\end{align}
+And, we apply the instrumental variable formula \eqref{IVformula} as
+before to show that $\beta$ is identifiable, i.e., plug the first stage into
+the denominator \eqref{ivbart1} and the re-written second stage into the
+numerator \eqref{ivbart2}.
+\begin{align*}
+%\beta & \triangleq \pderivf{ \E{Y|T} }{T} \\
+%      & = \pderivf{ \beta T }{T} = \beta \\
+\beta & \triangleq \frac{\E{Y|Z}}{\E{T|Z}} \\
+& = \frac{\beta f(Z_i) }{ f(Z_i) } = \beta
+\end{align*}
+This is a more surprising result.  Generally, it is well-known that
+nonparametric methods are not identifiable without strong assumptions
+\citep{ImbeAngr94,Pear09}.  We illustrate the typical non-idenfiability
+of $\beta$ by a more general model as follows.
+\begin{align}
+T_i & =  f(Z_i) + \epsilon_{Ti} \label{nonpar1} \\
+Y_i & =  g(T_i) + \epsilon_{Yi}  \nonumber \\
+    & =  g(f(Z_i) + \epsilon_{Ti}) + \epsilon_{Yi} \label{nonpar2}
+\end{align}
+Now, apply the instrumental variable formula \eqref{IVformula}, i.e.,
+plug the first stage into the denominator \eqref{nonpar1} and the
+re-written second stage into the numerator \eqref{nonpar2}.
+\begin{align*}
+\frac{\E{Y|Z}}{\E{T|Z}} & = \frac{\E{g(f(Z_i) + \epsilon_{Ti})} }{ f(Z_i) } 
+ \not= \beta
+\end{align*}
+The denominator is unchanged.  However, the numerator
+does not have a simple form; therefore, the true
+value $\beta$ is not identifiable without further assumptions
+about $g(.)$.  For example, if we assume that $g(T_i)=\beta\, T_i$
+(as we have above), then $\beta$ is identifiable as we have shown.
+% , e.g., if we had assumed that
+% $\E{Y|Z} = g(Z)$ where $g(.)$ is nonparametric, then $\beta$ is not
+% identifiable.  Therefore, by assuming that $\E{Y|Z}=\beta f(Z)$ (via
+% substitution), we avoid the need to make any stronger assumption.
+
+\begin{comment}
+% actually, graph theory seems to be the hard way to do this
+
+\section{Causal Identification and Graph Theory}
+
+In this section, we prove that the estimation of $\beta$ is causally
+identified.  We resort to graph theory in the proof
+%in order to prove that the
+%estimation of $\beta$ is causally identified 
+by following the work of Pearl~\citep{Pear09}.  First, let's return to
+the structural equations in the classic IV framework.
+
+\begin{align*}
+T_i & = \mu_T + \gamma' z_i + \alpha' x_i + \epsilon_{Ti} & \eqref{liniv1} \\
+Y_i & = \mu_Y + \beta \, T_i + \delta' x_i + \epsilon_{Yi} & \eqref{liniv2}
+\end{align*}
+
+This framework can be represented by the causal diagram seen in
+Figure~XXX.  We will explain the meaning of the graph below.  
+% Each node or vertice of the graph is a circle.  Directed
+% solid lines or edges indicate causal relationships between the nodes.
+% Bidirected dashed lines indicate stochastic error terms that are
+% correlated with each other, e.g., this correlation could be the result
+% of an omitted variable that causes both variables connected by the
+% dashed arcs.  
+
+\subsection{Graph Theory}
+
+A graph, $G$, consists of a set of vertices (or nodes), $V$, and a set
+of edges (or links), $E$, that may connect pairs of vertices.
+Vertices in the graph correspond to variables.  Edges represent
+relationships between two variables.  Here, edges will be either
+one-way {\it directed} solid lines, or both-way {\it bidirected}
+dashed lines with direction denoted by
+arrows creating directed graphs (which we will refer to simply as
+graphs unless the distinction is important to the context).
+
+Directed edges are causal relationships.  Bidirected edges denote the
+existence of unobserved common causes or confounders.  Each bidirected
+arc can be interpreted as an unobserved, or latent, common cause, $z$,
+with $x \leftarrow z \rightarrow y$, i.e., create the equivalent graph
+by adding the node $z$ with its directed edges to $G$ while removing
+the bidirected arc arriving at $G^*$.  A graph may contain directed {\it
+  cycles} such as $x \rightarrow y,\ y \rightarrow x$ or
+$x \rightarrow y,\ y \rightarrow z,\ z \rightarrow x$, etc.\ where
+$(x, y, z) \in V$,
+%which represents mutual causes or feedback, 
+but not self-cycles like $x \rightarrow x$.  Directed graphs that
+contain no cycles are {\it acyclic} for which we use the term {\it
+  directed acyclic graphs} (DAG).  
+
+A {\it path} in a graph is a sequence of edges going either along or
+against the arrows.  Now suppose that we have three disjoint sets of
+variables: $A$, $B$ and $C$ in graph $G$.  To test whether $A$ is
+independent of $B$ given $C$ (for which, we have the familiar notation
+$A \perp B|C$), we need to test whether $C$ {\it blocks} all paths
+from nodes in $A$ to nodes in $B$.
+
+\begin{quote}
+\begin{definition}
+Directional-separation or d-separation.
+\end{definition} 
+A path $p$ is $d$-separated (or blocked) by a set of nodes $C$
+if and only if 
+\begin{enumerate}
+\item $p$ contains a chain $a \rightarrow c \rightarrow b$,
+or a fork $a \leftarrow c \rightarrow b$, such that the 
+middle node $c \in C$.
+\item Or $p$ contains an inverted fork (or collider) 
+$a \rightarrow d \leftarrow b$ such that the middle node
+$d \not\in C$ and no descendent of $d$ is in $C$.
+% \item $p$ contains a chain $i \rightarrow m \rightarrow j$,
+% or a fork $i \leftarrow m \rightarrow j$, such that the 
+% middle node $m \in C$.
+% \item Or $p$ contains an inverted fork (or collider) 
+% $i \rightarrow m \leftarrow j$ such that the middle node
+% $m \not\in C$ and no descendent of $m \in C$.
+\end{enumerate}
+So, a set $C$ is said to $d$-separate $A$ from $B$
+if and only if $C$ blocks every path from a node in $A$
+to a node in $B$.
+\end{quote}
+
+\begin{quote}
+\begin{theorem}
+d-separation in general linear models.
+\end{theorem}
+For any linear model structured according to a diagram $G$, which
+may include cycles and bidirected arcs, the partial correlation
+$\rho_{ab|C}$ vanishes if the nodes corresponding to the set of
+variables $C\ d$-separate node $a$ from node $b$ in $G$
+where $A=\{a\}$ and $B=\{b\}$. % N.B. each bidirected arc connected
+% by a dashed line is interpreted as an unobserved, or latent, 
+% common cause, $d$, with $e \leftarrow d \rightarrow f$
+% where $D=\{D\}$, i.e., create the equivalent graph 
+% by adding the node $d$ to $G$ arriving at $G^*$.
+\end{quote}
+So, for example, $\rho_{ab|C}$ is the partial correlation between
+variables $a$ and $b$ holding all variables $c \in C$ constant;
+equivalent to a regression of dependent variable $a$ that also
+includes independent variables $C$, i.e., $\rho_{ab|C}=\beta_1$ where
+$a=\beta_0+\beta_1 b + \gamma'C+\epsilon$.  
+
+\begin{quote}
+\begin{theorem}
+Single-door criterion for direct effects.
+\end{theorem}
+Let $G$ be any path diagram in which $\beta$ is the path coefficient
+associated with the link $b \rightarrow a$ where $A=\{a\}$ and
+$B=\{b\}$.  Let $G^*$ denote the diagram that results 
+when $b \rightarrow a$ is deleted from $G$.  The coefficient
+$\beta$ is identifiable if there exists a set of variables $C$
+such that
+\begin{enumerate}
+\item[(i)] $C$ contains no descendent of $a$, and
+\item[(ii)] $C\ d$-separates $b$ from $a$ in $G^*$.  If $C$
+  satisfies these two conditions, then $\beta$ is equal to the
+  regression coefficient $r_{ab|C}$.  Conversely, if $C$ does not
+  satisfy these conditions, then $r_{ab|C}$ is almost surely not a
+  consistent estimand of $\beta$.
+\end{enumerate}
+\end{quote}
+So, for example, $r_{ab|C}$ is the coefficient of independent variable 
+$b$ for a regression of dependent variable $a$ that also includes 
+independent variables $C$, i.e., $r_{ab|C}=\beta_1$ where
+$a=\beta_0+\beta_1 b + \gamma'C+\epsilon$.
+
+% The idea of the model is that the instrumental variable $z$ provides ``good variation'' in 
+% $T$ analogous to variation introduced by an experimenter.
+
+% Our goal is to eliminate the need to assume that the relationships are linear and to make minimal assuptions about
+% the nature of the errors.
+% We simply replace the linear functions in Equations \ref{liniv1} and \ref{liniv2} above 
+% with general functions. 
+% To factilitate the modeling of the errros, we also combine the error terms with the means.
+% We have:
+
+% \begin{eqnarray}\label{nliniv}
+% T_i & = & f(z_i,x_i) + \epsilon_{Ti} \label{n-liniv1} \\
+% Y_i & = & \beta \, T_i + h(x_i) + \epsilon_{Yi} \label{n-liniv2}
+% \end{eqnarray}
+
+\end{comment}

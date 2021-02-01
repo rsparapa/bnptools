@@ -1,0 +1,53 @@
+
+The linear instrumental variables model has long been fundamental in causal analysis.
+It simply and elegantly captures the fundamental intuition
+that an instrumental variable $z$, may provide
+a source of variation in a treatment $T$, comparable to that of an experiment
+in which
+variation is induced by an investigator who
+controls the value of $T$. 
+
+However the assumption of linearity is rarely one that we can  comfortably impose.
+In practice, this usually leads to a search for a set of transformations of the instruments
+$z$ and the additional variables $x$ which are then used in the linear setting.
+Even with modern methods for finding transformations this process is tedious and depends on
+choices for the set of transformations considered.
+
+Our use of Bayesian Additive Regression trees (BART) allows us to capture a wide
+range of possible functions with no user input and still do a full Bayesian analysis including nonparametric
+modeling of the error terms.
+
+For our nonparametric error term analysis we have followed \cite{CHMR08} closely given its success.
+This as led to a prior-sensitivity approach in which we vary the prior beliefs about the nonlinear functions $f$ and $h$.
+Also, our goal here is inferential in that we seek to learn $\beta$ while in BART, the prior development has been
+more focused on the goal of out of sample prediction.
+The BART models for these two functions allow for a relatively simple scheme for varying our prior beliefs.
+We hope that the top-left plot of Figure~\ref{fig:alldraws} and the analysis of the Card data in Figure~\ref{fig:card-data-2w-sens-1}
+will suggest to practictioners that IVBART provides a relatively simple alternative to the difficult challenges presented
+by the general sensitivity of inference for the treatment effect $\beta$ to the model specification.
+
+In future work we will consider the use of more informative data based priors for the error distribution 
+as in \citep{ChipGeor10} and \citep{DPMBART}.
+In addition, future work will seek to relax the additive linear assumption for the treatment effect.
+While are current analysis is very flexible and allows for simple interpretation of the causal effect through
+the parameter $\beta$, we wish to consider the possibility of hetergeneous treatment effects.
+We note that our current model is already very flexible and powerful and extentions to a still more flexible model
+will entail careful prior choices as in \citep{BCF}.
+
+We note that the simlulation study presented in this paper provides further support for the
+efficacy of the linear approaches provided by the \texttt{R} package
+\texttt{bayesm} \citep{RPbayesm} in the functions
+\texttt{rivGibbs} for the linear model with correlated normal errors and \texttt{rivDP} for the linear model
+with nonparametrically modeled errors.
+
+
+%Our new approach offers a dramatic improvement in model flexibility to
+%applied researchers with very little extra effort expended.
+
+% Future work notes
+% More settings for beta such as 0 and -1
+% A table of the bias for simulation settings
+% Informative priors for beta
+% Relaxing linearity assumption for beta that is identifiable
+% More functionality of the ivbart package like multi-threading,
+% variable selection, etc.

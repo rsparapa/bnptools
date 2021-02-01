@@ -1,0 +1,137 @@
+In this section we provide some details for the Gibbs sampler.
+
+For some of the development it will be useful to work in terms of the Cholesky root of 
+$\Sigma_i$.
+
+Let,
+\begin{equation*}
+L_i = \left[\begin{array}{cc}
+\label{eq:L}
+ \sigma_{Ti}  &  0\\
+ \gamma_i & \sigma_{Yi}\\
+ \end{array}\right]
+\end{equation*}
+
+so, that
+
+$$
+\Sigma_i = L_i \, L_i'.
+$$
+
+We can then write our model as:
+
+\begin{eqnarray}\label{nliniv}
+T_i & = & \mu_{Ti} + f(z_i,x_i) + \sigma_{Ti} \, Z_{Ti} \label{Liv1} \\
+Y_i & = & \mu_{Yi} + \beta \, T_i + h(x_i) + \gamma_i Z_{Ti} + \sigma_{Yi} \, Z_{Yi} \label{Liv2}
+\end{eqnarray}
+where we recall that $\Sigma_i$ and the corresponding $(\sigma_{Ti}, \gamma_i, \sigma_{Yi})$ along with 
+$(\mu_{Ti}, \mu_{Yi})$,  comprise the $\theta_i$ of Section~\ref{flex-mod}.
+
+We now detail the four conditionals in the Gibbs sampler of Section~\ref{flex-mod}.
+We present them in an order which we believe corresponds to increasing difficulty.
+The first three are quite easy, while the last one, the draw of $f$, takes a little work.
+
+Note also that for the model
+\begin{equation}\label{bartpost}
+Y_i = f(x_i) + \epsilon_i, \; \epsilon_i \sim N(0,w_i^2),
+\end{equation}
+with known $w_i$,
+the BART prior and MCMC algorithm allows us to iterate a Markov Chain whose stationary distribution
+the posterior of $f$.
+We will have BART draws for both $f$ and $h$ conditional on the other parameters.
+In each case we will see that we can write the information in the data in the form of 
+Equation~\ref{bartpost} where the $Y_i$ and the $w_i$ depend on the data and the values of the
+known parameters.
+
+\subsection{The $\beta$ Conditional}\label{betacond}
+
+Given all of the parameters except $\beta$ we can compute
+\begin{equation}\label{zeq}
+Z_{Ti} = (T_i - \mu_{Ti} + f(z_i,x_i))/\sigma_{Ti}
+\end{equation}
+from Equation~\ref{Liv1}.
+
+We let
+$$
+V_i = (Y_i - \mu_{Yi} - h(x_i) - \gamma_i Z_{Ti})/\sigma_{Yi} \;\;  \mbox{and} \;\; W_i = T_i/\sigma_{Yi},
+$$
+from Equation~\ref{Liv2}.
+
+This gives,
+$$
+V_i = \beta \, W_i + Z_{Yi}, \;\; Z_{Yi} 
+\stackrel{\scriptstyle iid}{\sim} N(0,1)\ .
+%V_i = \beta \, W_i + Z_{Yi}, \;\; Z_{Yi} \sim N(0,1), iid.
+$$
+
+Given the normal prior for $\beta$ we have standard normal draw for the conditional.
+
+
+\subsection{The $h$ Conditional}\label{hcond}
+
+This is similar to the $\beta$ conditional.
+
+We then let
+$$
+V_i = (Y_i - \mu_{Yi} - \beta \, T_i - \gamma_i Z_{Ti}),
+$$
+from Equations \ref{zeq} and \ref{Liv2}.
+
+This gives,
+$$
+V_i = h(x_i) + \sigma_{Yi} Z_{Yi},
+$$
+which allows for a BART draw of $h$ using \ref{bartpost}.
+
+\subsection{The $\{\theta_i\}$ Conditional}\label{tcond}
+
+Let,
+\begin{equation}\label{tcond}
+\tilde{Y} = (\tilde{Y}_{i1}, \tilde{Y}_{i2})' = (T_i - f(z_i,x), (Y_i - \beta \, T_i - h(x_i))'.
+\end{equation}
+
+Then,
+$$
+\tilde{Y}_i \sim N(\mu_i,\Sigma_i).
+$$
+
+Then, given $\{\tilde{Y}_i\}$, we can draw $\{\theta_i\} = \{(\mu_i,\Sigma_i)\}$ using the standard DPM 
+methodology as described in \cite{ROSSI14}, \cite{CHMR08}, 
+and originally in \cite{EW95}. 
+
+\subsection{The $f$ Conditional}\label{fcond}
+
+Finally, we draw $f$.
+
+
+From Equations \ref{Liv1} and \ref{Liv2},
+
+\begin{eqnarray*}
+Y_i - \mu_{Yi} - h(x_i) & = & \beta \, T_i + \gamma_i \, Z_{Ti} + \sigma_{Yi} Z_{Yi} \\
+                        & = & \beta (\mu_{Ti} +f(z_i,x_i) + \sigma_{Ti} Z_{Ti}) +  \gamma_i \, Z_{Ti} + \sigma_{Yi} Z_{Yi}.
+\end{eqnarray*}
+
+So,
+$$
+Y_i - \mu_{Yi} - h(x_i) - \beta \mu_{Ti} = \beta f(z_i,x_i) + Z_{Ti} (\beta \sigma_{Ti} + \gamma_i) + \sigma_{Yi} Z_{Yi}.
+$$
+
+We then let,
+\begin{eqnarray*}
+R_i & = & (\beta \sigma_{Ti} + \gamma_i)(T_i - \mu_{Ti}) - \sigma_{Ti}(Y_i - \mu_{Yi} - h(x_i) - \beta \mu_{Ti}) \\
+    & = & \gamma_i f(z_i,x_i) - \sigma_{Ti} \sigma_{Yi} Z_{Yi}.
+\end{eqnarray*}
+
+Thus, for each $i=1,2,\ldots,n$ we have the pair of independent observations,
+$$
+T_i - \mu_{Ti} = f(z_i,x_i) +  \sigma_{Zi} Z_{Ti}, \;\; 
+\frac{R_i}{\gamma_i} = f(z_i,x_i) - \frac{\sigma_{Ti} \sigma_{Yi}}{\gamma_i} Z_{Yi}.
+$$
+
+This gives us $2n$ observations which may be put in the form of Equation~\ref{bartpost}.
+
+Note that if $|\gamma_i|$ is small, then we automatically throw out the information in the 
+$\frac{R_i}{\gamma_i}$ observation since the resulting large error variance will downweight the observation.
+This makes intuitive sense since if $|\gamma_i|$ is small the errors in the two equations are independent so
+that our information about $f$ comes soley from the first equation.
+
