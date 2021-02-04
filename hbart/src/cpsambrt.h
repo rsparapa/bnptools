@@ -148,7 +148,7 @@ RcppExport SEXP cpsambrt(
    Rcpp::NumericVector sigmav(_isigmav);
    double *sig = &sigmav[0];
    dinfo disig;
-   disig.n=n;disig.p=p,disig.x = x; disig.y = sig; disig.tc=tc;
+   disig.n=n;disig.p=p;disig.x = x; disig.y = sig; disig.tc=tc;
 
    //change variable
    Rcpp::NumericMatrix chvm(_ichv);
@@ -250,7 +250,7 @@ RcppExport SEXP cpsambrt(
    //--------------------------------------------------
    //dinfo
    dinfo di;
-   di.n=n;di.p=p,di.x = x; di.y = y; di.tc=tc;
+   di.n=n;di.p=p;di.x = x; di.y = y; di.tc=tc;
    //--------------------------------------------------
    // set up ambrt object
    ambrt ambm(m);
@@ -286,7 +286,7 @@ RcppExport SEXP cpsambrt(
    dinfo dips;
    double *r = new double[n];
    for(size_t i=0;i<n;i++) r[i]=sigmav[i];
-   dips.x = x; dips.y=r; dips.p=p, dips.n=n; dips.tc=tc;
+   dips.x = x; dips.y=r; dips.p=p; dips.n=n; dips.tc=tc;
 
    double opm=1.0/((double)mh);
    double nu=2.0*pow(overallnu,opm)/(pow(overallnu,opm)-pow(overallnu-2.0,opm));

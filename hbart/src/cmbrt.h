@@ -182,7 +182,7 @@ RcppExport SEXP cmbrt(
    //--------------------------------------------------
    //dinfo
    dinfo di;
-   di.n=n;di.p=p,di.x = x; di.y = y;
+   di.n=n;di.p=p;di.x = x; di.y = y;
 
    //--------------------------------------------------
    //setup mbrt object
