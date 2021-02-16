@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2021 Robert McCulloch and Rodney Sparapani
+## bartModelMatrix.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -27,20 +28,25 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
     }
 
     grp=NULL
+    rho=NULL
 
     if(X.class=='data.frame') {
         p=dim(X)[2]
+        rho=p
         xnm = names(X)
         for(i in 1:p) {
             if(is.factor(X[[i]])) {
                 Xtemp = class.ind(X[[i]])
                 colnames(Xtemp) = paste(xnm[i],1:ncol(Xtemp),sep='')
                 X[[i]]=Xtemp
-                grp=c(grp, rep(i, ncol(Xtemp)))
+                m=ncol(Xtemp)
+                grp=c(grp, rep(m, m))
+                ##grp=c(grp, rep(i, ncol(Xtemp)))
             } else {
                 X[[i]]=cbind(X[[i]])
                 colnames(X[[i]])=xnm[i]
-                grp=c(grp, i)
+                grp=c(grp, 1)
+                ##grp=c(grp, i)
             }
         }
         Xtemp=cbind(X[[1]])
@@ -49,7 +55,7 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
     }
     else if(X.class=='numeric' | X.class=='integer') {
         X=cbind(as.numeric(X))
-        grp=1
+        ##grp=1
     }
     else if(X.class=='NULL') return(X)
     else if(X.class!='matrix')
@@ -137,5 +143,5 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
 
     if(numcut==0) return(X)
     else return(list(X=X, numcut=as.integer(nc), rm.const=rm.vars,
-                     xinfo=xinfo, grp=grp))
+                     xinfo=xinfo, rho=rho*grp))
 }
