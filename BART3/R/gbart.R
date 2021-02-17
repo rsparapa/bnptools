@@ -25,7 +25,7 @@ gbart=function(
                    factor(type, levels=c('wbart', 'pbart', 'lbart'))),
                treeinit=FALSE, trees=NULL,
                sparse=FALSE, theta=0, omega=1,
-               a=0.5, b=1, augment=FALSE, rho=NULL,
+               a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
                varprob=NULL,
                xinfo=matrix(0,0,0), usequants=FALSE,
                rm.const=TRUE,
@@ -63,12 +63,12 @@ gbart=function(
                 x.test = rbind(x.test[temp$rm.const, ])
         }
         rm.const <- temp$rm.const
-        grp <- temp$grp
+        if(length(grp)==0) grp <- temp$grp
         rm(temp)
     }
     else {
         rm.const <- NULL
-        grp <- NULL
+        ##grp <- NULL
     }
 
     if(n!=ncol(x.train))
@@ -80,9 +80,11 @@ gbart=function(
     if(np>0 && p!=nrow(x.test))
         stop('The number of columns in x.train and x.test must be identical')
 
-    if(length(rho)==0) rho=p
+    if(length(grp)==0) grp=rep(1, p)
+    if(rho==0) rho=sum(1/grp)
+    ##if(length(rho)==0) rho=p
     if(length(rm.const)==0) rm.const <- 1:p
-    if(length(grp)==0) grp <- 1:p
+    ##if(length(grp)==0) grp <- 1:p
     if(length(varprob)==0) varprob=rep(1, p)
     varprob=varprob/sum(varprob)
 
@@ -357,6 +359,8 @@ gbart=function(
     res$rm.const <- rm.const
     res$ndpost = ndpost
     res$trees = trees
+    res$grp = grp
+    res$rho = rho
     ##if(treeinit) res$trees = trees
     attr(res, 'class') <- type
     return(res)

@@ -62,11 +62,11 @@ double drawnodemu(size_t n, double sy, double tau, double sigma, rn& gen);
 //--------------------------------------------------
 //draw variable splitting probabilities from Dirichlet (Linero, 2018)
 void draw_s(std::vector<size_t>& nv, std::vector<double>& lpv, double& theta, rn& gen);
+void draw_s_grp(std::vector<size_t>& nv, std::vector<double>& lpv, double& theta, rn& gen, double* grp, double rho=0.);
 //--------------------------------------------------
 //draw Dirichlet sparsity parameter from posterior using grid
 void draw_theta0(bool const_theta, double& theta, std::vector<double>& lpv,
 		 double a, double b, double rho, rn& gen);
-
 //--------------------------------------------------
 //make xinfo = cutpoints
 void makexinfo(size_t p, size_t n, double *x, xinfo& xi, size_t numcut)
@@ -421,8 +421,32 @@ void draw_s(std::vector<size_t>& nv, std::vector<double>& lpv, double& theta, rn
   lpv=gen.log_dirichlet(_theta);
 }
 
+void draw_s_grp(std::vector<size_t>& nv, std::vector<double>& lpv, double& theta, rn& gen, double * grp, double rho){
+  size_t p=nv.size();
+// Now draw s, the vector of splitting probabilities
+  std::vector<double> _theta(p);
+  for(size_t j=0;j<p;j++) {
+    if(grp) _theta[j]=theta/(rho*grp[j])+(double)nv[j];
+    else _theta[j]=theta/rho+(double)nv[j];
+  }
+  //gen.set_alpha(_theta);
+  lpv=gen.log_dirichlet(_theta);
+}
+
 //--------------------------------------------------
 //draw Dirichlet sparsity parameter from posterior using grid
+/*
+void draw_theta0(bool const_theta, double& theta, std::vector<double>& lpv,
+		 double a, double b, double rho, rn& gen){
+  if(!const_theta){
+    size_t p=lpv.size();
+    double* rhov = new double[p];
+    for(size_t i=0; i<p; ++i) rhov[i]=rho;
+    draw_theta0(const_theta, theta, lpv, a, b, rhov, gen);
+    if(rhov) delete[] rhov;
+  }
+}
+*/
 void draw_theta0(bool const_theta, double& theta, std::vector<double>& lpv,
 		 double a, double b, double rho, rn& gen){
   // Draw sparsity parameter theta_0 (Linero calls it alpha); see Linero, 2018

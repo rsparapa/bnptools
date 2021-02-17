@@ -136,6 +136,8 @@ RcppExport SEXP cgbart(
    else dart=false;
    double a = Rcpp::as<double>(_ia);
    double b = Rcpp::as<double>(_ib);
+//   Rcpp::NumericVector irho(_irho);
+//   double *rho = &irho[0];
    double rho = Rcpp::as<double>(_irho);
    bool aug;
    if(Rcpp::as<int>(_iaug)==1) aug=true;
@@ -144,7 +146,8 @@ RcppExport SEXP cgbart(
    double theta = Rcpp::as<double>(_itheta);
    double omega = Rcpp::as<double>(_iomega);
    Rcpp::IntegerVector _grp(_igrp);
-//   int *grp = &_grp[0];
+   int *grp = &_grp[0];
+//   if(rho==0.) for(size_t i=0; i<p; ++i) rho += (1./grp[i]);
    size_t nkeeptrain = nd/thin;     //Rcpp::as<int>(_inkeeptrain);
    size_t nkeeptest = nd/thin;      //Rcpp::as<int>(_inkeeptest);
    size_t nkeeptreedraws = nd/thin; //Rcpp::as<int>(_inkeeptreedraws);
@@ -206,7 +209,7 @@ void cgbart(
    int* grp,
    double a,		//param a for sparsity prior                                          
    double b,		//param b for sparsity prior                                          
-   double rho,		//param rho for sparsity prior (default to p)                         
+//   double rho,		//param rho for sparsity prior (default to p)                         
    bool aug,		//categorical strategy: true(1)=data augment false(0)=degenerate trees
 //   size_t nkeeptrain, //   size_t nkeeptest, //   size_t nkeeptreedraws,
    size_t printevery,
@@ -321,9 +324,9 @@ if(type==1) {
    }
    //printf("*****nkeeptrain,nkeeptest: %zu, %zu\n",nkeeptrain,nkeeptest);
    //printf("*****printevery: %zu\n",printevery);
-   cout << "*****Dirichlet:sparse,theta,omega,a,b,rho,augment:\n" 
-	<< dart << ',' << theta << ',' << omega << ',' << a << ',' 
-	<< b << ',' << rho << ',' << aug << endl;
+cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n" 
+     << dart << ',' << theta << ',' << omega << ',' << rho << ',' << a << ',' 
+     << b << ',' << aug << ',' << grp[0] << ',' << grp[p-1] << endl;
    //--------------------------------------------------
    //create temporaries
    double df=n+nu;
@@ -373,7 +376,8 @@ if(type==1) {
      std::string itv(itrees[0]);
      bm.settree(itv);
    }
-   bm.setdart(a,b,rho,aug,dart);
+   bm.setdart(a,b,grp,aug,dart,rho);
+   //bm.setdart(a,b,rho,aug,dart);
    bm.setpv(&varprob[0]);
 
    // dart iterations

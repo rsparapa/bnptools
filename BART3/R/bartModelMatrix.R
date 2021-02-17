@@ -28,11 +28,9 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
     }
 
     grp=NULL
-    rho=NULL
 
     if(X.class=='data.frame') {
         p=dim(X)[2]
-        rho=p
         xnm = names(X)
         for(i in 1:p) {
             if(is.factor(X[[i]])) {
@@ -143,5 +141,5 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
 
     if(numcut==0) return(X)
     else return(list(X=X, numcut=as.integer(nc), rm.const=rm.vars,
-                     xinfo=xinfo, rho=rho*grp))
+                     xinfo=xinfo, grp=grp))
 }
