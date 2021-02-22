@@ -89,6 +89,7 @@ mc.gbart <- function(
                 x.test = rbind(x.test[temp$rm.const, ])
         }
         ##rm.const <- temp$rm.const
+        if(length(grp)==0) grp <- temp$grp
         rm(temp)
     }
 

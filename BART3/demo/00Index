@@ -51,6 +51,7 @@ nox		   Boston air pollution: Nitrogen Oxides and Housing Values
 replication	   Replication script for JSS article
 SHAP		   SHAP marginal expectation
 sigma.known.gbart	Sigma is fixed and known
+sparse.dart	   Dirichlet sparsity prior: categories vs. continuous
 sparse.lbart	   Dirichlet sparsity prior with logit BART
 sparse.pbart	   Dirichlet sparsity prior with probit BART
 sparse.wbart	   Dirichlet sparsity prior with continuous BART
