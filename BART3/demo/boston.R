@@ -14,7 +14,7 @@ plot(x[,1],x[,2],xlab="x1=rm",ylab="x2=lstat",cex.axis=1.3,cex.lab=1.2) > par(mf
 if(figures!='NONE')
     dev.copy2pdf(file=paste(figures, 'boston1.pdf', sep='/'))
 
-library(BART) ## load library
+library(BART3) ## load library
 set.seed(99)  ## MCMC posterior sampling: set seed for reproducibility
 nd=200        ## number of draws to keep
 burn=50       ## number of draws to discard
