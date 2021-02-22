@@ -32,10 +32,9 @@ for(i in 1:2) {
 
     plot(post[[i]]$varprob.mean, col=c(rep(2, 5), rep(1, p-5)),
          pch=1+44*(post[[i]]$varprob.mean<=1/p),
-         ##sub=expression(-1.5+sin(pi*x[1]*x[2]) + 2*(x[3]-.5)^2+x[4]+0.5*x[5]),
-         ylab='Selection Probability', ylim=0:1)
+         ylab='Selection Probability', ylim=c(0, 1))
     lines(c(0, 100), c(1/p, 1/p))
-    abline(v=3)
+    abline(v=3.5)
 }
 par(mfrow=c(1, 1))
 
@@ -45,3 +44,12 @@ post[[1]]$rho
 check2=bartModelMatrix(X, numcut=100)
 post[[2]]$grp
 post[[2]]$rho
+
+plot(post[[1]]$varprob.mean, col=2, xlim=c(1, 5),
+     ylab='Selection Probability', ylim=c(0.05, 0.45))
+points(post[[2]]$varprob.mean, col=4, xlim=c(1, 5))
+lines(c(0, 100), c(1/p, 1/p))
+abline(v=3.5)
+legend('topleft', c('matrix', 'data.frame/factor'),
+       col=c(2, 4), pch=1)
+
