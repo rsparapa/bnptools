@@ -425,7 +425,8 @@ RcppExport SEXP cpsambrt(
    if(summarystats) {
       COUT << "Calculating summary statistics" << endl;
       //unsigned int varcount[p];
-      std::vector<unsigned int> varcount(p);
+      //std::vector<unsigned int> varcount(p);
+      Rcpp::IntegerVector varcount(p);
       for(size_t i=0;i<p;i++) varcount[i]=0;
       unsigned int tmaxd=0;
       unsigned int tmind=0;
@@ -436,9 +437,10 @@ RcppExport SEXP cpsambrt(
       ret["mu.tavgd"]=tavgd;
       ret["mu.tmaxd"]=tmaxd;
       ret["mu.tmind"]=tmind;
-      Rcpp::NumericVector vc(p);
-      for(size_t i=0;i<p;i++) vc[i]=varcount[i];
-      ret["mu.varcount"]=vc;
+      //Rcpp::NumericVector vc(p);
+      //for(size_t i=0;i<p;i++) vc[i]=varcount[i];
+      //ret["mu.varcount"]=vc;
+      ret["mu.varcount"]=Rcpp::clone(varcount);
 
       for(size_t i=0;i<p;i++) varcount[i]=0;
       tmaxd=0; tmind=0; tavgd=0.0;
@@ -447,9 +449,10 @@ RcppExport SEXP cpsambrt(
       ret["sd.tavgd"]=tavgd;
       ret["sd.tmaxd"]=tmaxd;
       ret["sd.tmind"]=tmind;
-      Rcpp::NumericVector sdvc(p);
-      for(size_t i=0;i<p;i++) sdvc[i]=varcount[i];
-      ret["sd.varcount"]=sdvc;
+      //Rcpp::NumericVector sdvc(p);
+      //for(size_t i=0;i<p;i++) sdvc[i]=varcount[i];
+      //ret["sd.varcount"]=sdvc;
+      ret["sd.varcount"]=varcount;
    }
 
    if(r) delete [] r;

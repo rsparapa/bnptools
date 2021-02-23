@@ -23,7 +23,7 @@ numcut=100,
 xicuts=NULL,
 nadapt=1000,
 adaptevery=100,
-summarystats=FALSE
+summarystats=TRUE
 )
 {
 #require(Rcpp)
@@ -149,6 +149,10 @@ res=.Call("cpsambrt",
 
 res$x.train=x.train
 res$y.train=y.train+fmean
+if(summarystats) {
+    res$mu.varprob=res$mu.varcount/sum(res$mu.varcount)
+    res$sd.varprob=res$sd.varcount/sum(res$sd.varcount)
+}
 res$ntree=ntree
 res$ntreeh=ntreeh
 res$ndpost=ndpost

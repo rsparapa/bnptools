@@ -12,15 +12,17 @@ set.seed(99)
 
 # train data
 n=500 #train data sample size
-p=1 #just one x
-x = matrix(sort(runif(n*p)),ncol=p) #iid uniform x values
+p=10 
+x = matrix(runif(n*p),ncol=p) #iid uniform x values
 fx = 4*(x[,1]^2) #quadratric function f
 sx = .2*exp(2*x[,1]) # exponential function s
 y = fx + sx*rnorm(n) # y = f(x) + s(x) Z
 
 #test data (the p added to the variable names is for predict)
 np=500 #test data sample size
-xp = matrix(sort(runif(np*p)),ncol=p)
+xp = matrix(runif(np*p),ncol=p)
+i=order(xp[,1])
+xp=xp[i,]
 fxp = 4*(xp[,1]^2)
 sxp = .2*exp(2*xp[,1])
 yp = fxp + sxp*rnorm(np)
@@ -34,7 +36,8 @@ yp = fxp + sxp*rnorm(np)
 #   numcut: number of cutpoints used for each x
 #   k: bigger k gives smoother f (default is 2)
 set.seed(19)
-res = hbart(x,y,nskip=10,ndpost=20,nadapt=0,numcut=1000,k=5) #again, this is way too short a run!!!
+res = hbart(x,y,nskip=10,ndpost=20,nadapt=0,numcut=1000,k=5,
+            summarystats=TRUE) #again, this is way too short a run!!!
 ## now predict to get inference
 resp = predict(res,x.test=xp)
 
@@ -44,12 +47,15 @@ cat("out of sample cor(s,shat) is ",cor(sxp,resp$smean),"\n")
 
 ##plot estimated vs. true
 ##plot the data
-plot(xp,yp,cex.axis=1.5,cex.lab=1.5)
-lines(xp,fxp,col="blue")
-lines(xp,fx+2*sxp,col="blue",lty=2)
-lines(xp,fxp-2*sxp,col="blue",lty=2)
+plot(xp[,1],yp,cex.axis=1.5,cex.lab=1.5)
+lines(xp[,1],fxp,col="blue")
+lines(xp[,1],fxp+2*sxp,col="blue",lty=2)
+lines(xp[,1],fxp-2*sxp,col="blue",lty=2)
 
 ## add the fit
-lines(xp,resp$mmean) #estimate of f
-lines(xp,resp$mmean+2*resp$smean) #estimate of sd
-lines(xp,resp$mmean-2*resp$smean) #estimate of sd
+lines(xp[,1],resp$mmean) #estimate of f
+lines(xp[,1],resp$mmean+2*resp$smean) #estimate of sd
+lines(xp[,1],resp$mmean-2*resp$smean) #estimate of sd
+
+print(res$mu.varprob*p)
+print(res$sd.varprob*p)
