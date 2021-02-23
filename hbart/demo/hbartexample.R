@@ -12,7 +12,7 @@ set.seed(99)
 
 # train data
 n=500 #train data sample size
-p=10 
+p=100 
 x = matrix(runif(n*p),ncol=p) #iid uniform x values
 fx = 4*(x[,1]^2) #quadratric function f
 sx = .2*exp(2*x[,1]) # exponential function s
@@ -34,10 +34,10 @@ yp = fxp + sxp*rnorm(np)
 #   ndpost:kept draws,
 #   nadapt: initial draws to tune MCMC,
 #   numcut: number of cutpoints used for each x
-#   k: bigger k gives smoother f (default is 2)
 set.seed(19)
-res = hbart(x,y,nskip=10,ndpost=20,nadapt=0,numcut=1000,k=5,
-            summarystats=TRUE) #again, this is way too short a run!!!
+res = hbart(x,y)
+     ##,nskip=10,ndpost=20,nadapt=0,numcut=1000,summarystats=TRUE)
+##again, this is way too short a run!!!
 ## now predict to get inference
 resp = predict(res,x.test=xp)
 
@@ -59,3 +59,10 @@ lines(xp[,1],resp$mmean-2*resp$smean) #estimate of sd
 
 print(res$mu.varprob*p)
 print(res$sd.varprob*p)
+
+plot(res$mu.varprob, ylim=0:1,
+     pch=1+44*(res$mu.varprob<1/p))
+points(res$sd.varprob, col=2,
+     pch=1+44*(res$sd.varprob<1/p))
+abline(h=c(0, 1/p), v=1.5)
+legend('topright', c('mu', 'sd'), col=1:2, pch=1)

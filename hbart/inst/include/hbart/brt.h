@@ -325,12 +325,12 @@ void brt::adapt()
    mi.pertaccept=0; mi.baccept=0; mi.rotaccept=0; mi.daccept=0;
    mi.pertproposal=1; mi.bproposal=1; mi.rotproposal=1; mi.dproposal=1;
    //if(mi.dostats) {
-   COUT << "pert_rate=" << pert_rate << " pertalpha=" << mi.pertalpha << " chgv_rate=" << chgv_rate;
+   // COUT << "pert_rate=" << pert_rate << " pertalpha=" << mi.pertalpha << " chgv_rate=" << chgv_rate;
    // COUT << "   b_rate=" << b_rate << endl;
    // COUT << "   d_rate=" << d_rate << endl;
    // COUT << "   bd_rate=" << bd_rate << endl;
    // COUT << " rot_rate=" << rot_rate << endl;
-   COUT << "   m_rate=" << m_rate;
+   // COUT << "   m_rate=" << m_rate;
    //   COUT << "mi.pbd=" << mi.pbd << "  mi.pb=" << mi.pb<< "  mi.pertalpha=" << mi.pertalpha << endl;
    //   COUT << endl;
    //}

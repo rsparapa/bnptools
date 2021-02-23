@@ -152,7 +152,7 @@ void ambrt::draw(rn& gen)
 void ambrt::adapt()
 {
   for(size_t j=0;j<m;j++) {
-    COUT << "\nAdapt ambrt[" << j << "]:";
+    //COUT << "\nAdapt ambrt[" << j << "]:";
     mb[j].adapt();
   }
 }

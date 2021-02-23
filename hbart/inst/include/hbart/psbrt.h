@@ -151,7 +151,7 @@ void psbrt::draw(rn& gen)
 void psbrt::adapt()
 {
   for(size_t j=0;j<m;j++) {
-    COUT << "\nAdapt sbrt[" << j << "]:";
+    //COUT << "\nAdapt sbrt[" << j << "]:";
     sb[j].adapt();
   }
 }
