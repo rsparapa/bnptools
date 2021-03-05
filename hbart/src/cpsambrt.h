@@ -370,6 +370,12 @@ RcppExport SEXP cpsambrt(
       psbm.savetree(i,mh,snn,sid,svar,sc,stheta);
    }
 
+/*
+  std::stringstream mtrees, strees;  
+  mtrees=ambm.gettrees(nd,m,onn,oid,ovar,oc,otheta);
+  strees=psbm.gettrees(nd,mh,snn,sid,svar,sc,stheta);
+*/
+
    //Flatten posterior trees to a few (very long) vectors so we can just pass pointers
    //to these vectors back to R (which is much much faster than copying all the data back).
    std::vector<int>* e_ots=new std::vector<int>(nd*m);
@@ -410,7 +416,12 @@ RcppExport SEXP cpsambrt(
    Rcpp::XPtr< std::vector<int> > extern_sc(e_sc,true);
    Rcpp::XPtr< std::vector<double> > extern_stheta(e_stheta,true);
 
-   Rcpp::List ret = Rcpp::List::create(Rcpp::Named("ots")=extern_ots,
+   Rcpp::List ret = Rcpp::List::create(
+/*
+Rcpp::Named("f.trees")=Rcpp::CharacterVector(mtrees.str()),				      
+Rcpp::Named("s.trees")=Rcpp::CharacterVector(strees.str()),
+*/
+				       Rcpp::Named("ots")=extern_ots,
                                        Rcpp::Named("oid")=extern_oid,
                                        Rcpp::Named("ovar")=extern_ovar,
                                        Rcpp::Named("oc")=extern_oc,

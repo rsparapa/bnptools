@@ -159,6 +159,12 @@ res$ndpost=ndpost
 ## class(xi)="BARTcutinfo"
 ## res$xicuts=xi
 res$xicuts=xicuts
+## res$treedraws=list()
+## res$treedraws$cutpoints=xicuts
+## res$treedraws$f.trees=res$f.trees
+## res$f.trees=NULL
+## res$treedraws$s.trees=res$s.trees
+## res$s.trees=NULL
 
 attr(res, 'class') <- 'hbart'
 

@@ -1,11 +1,4 @@
-##################################################
-## This is just a stub (runs fast) example for testing.
-##  For more realistic examples, please see:
-##   (i) the vignette at www.rob-mcculloch.org
-##   (ii) the example simulated data (see ?simdat)
-##        and the longer run in ?hbartonsimd, 
-##        where a saved run of hbart is run on simdat is plotted. 
-##################################################
+
 library(hbart)
 ##simulate data
 set.seed(99)
@@ -36,6 +29,8 @@ yp = fxp + sxp*rnorm(np)
 #   numcut: number of cutpoints used for each x
 set.seed(19)
 res = hbart(x,y)
+saveRDS(res, 'res.rds')
+##res=readRDS('res.rds')
      ##,nskip=10,ndpost=20,nadapt=0,numcut=1000,summarystats=TRUE)
 ##again, this is way too short a run!!!
 ## now predict to get inference

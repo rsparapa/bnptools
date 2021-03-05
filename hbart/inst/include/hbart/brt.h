@@ -160,6 +160,11 @@ public:
    std::vector<double>* getf() { return &yhat; }
    std::vector<double>* getr() { return &resid; }
    void predict(dinfo* dipred); // predict y at the (npred x p) settings *di.x
+  std::stringstream gettrees(size_t nd, size_t m, std::vector<int>& nn, 
+				std::vector<std::vector<int> >& id, 
+				std::vector<std::vector<int> >& v,
+				std::vector<std::vector<int> >& c, 
+				std::vector<std::vector<double> >& theta);
 //   void savetree(int* id, int* v, int* c, double* theta);  //save tree to vector output format
    void savetree(size_t iter, size_t m, std::vector<int>& nn, std::vector<std::vector<int> >& id, std::vector<std::vector<int> >& v,
                   std::vector<std::vector<int> >& c, std::vector<std::vector<double> >& theta);
@@ -240,6 +245,26 @@ protected:
 };
 
 #include "brtfuns.h"
+
+std::stringstream brt::gettrees(size_t nd, size_t m, std::vector<int>& nn, 
+				std::vector<std::vector<int> >& id, 
+				std::vector<std::vector<int> >& v,
+				std::vector<std::vector<int> >& c, 
+				std::vector<std::vector<double> >& theta) {
+   std::stringstream trees;  
+   trees.precision(10);
+   trees << nd << " " << m << " " << this->di->p << std::endl;
+   for(size_t h, i=0; i<nd; ++i) 
+     for(size_t j=0; j<m; ++j) {
+       h=i*nd+j;
+       trees << nn[h] << std::endl;
+       for(size_t k=0; k<nn[h]; ++k) {
+	 trees << id[h][k] << ' ' << v[h][k] << ' ' << c[h][k] << ' ' 
+	       << theta[h][k] << std::endl;
+       }
+     }
+   return trees;
+}
 
 //--------------------------------------------------
 //a single iteration of the MCMC for brt model
