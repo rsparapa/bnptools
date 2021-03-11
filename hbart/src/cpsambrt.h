@@ -370,11 +370,9 @@ RcppExport SEXP cpsambrt(
       psbm.savetree(i,mh,snn,sid,svar,sc,stheta);
    }
 
-/*
   std::stringstream mtrees, strees;  
   mtrees=ambm.gettrees(nd,m,onn,oid,ovar,oc,otheta);
   strees=psbm.gettrees(nd,mh,snn,sid,svar,sc,stheta);
-*/
 
    //Flatten posterior trees to a few (very long) vectors so we can just pass pointers
    //to these vectors back to R (which is much much faster than copying all the data back).
@@ -417,10 +415,6 @@ RcppExport SEXP cpsambrt(
    Rcpp::XPtr< std::vector<double> > extern_stheta(e_stheta,true);
 
    Rcpp::List ret = Rcpp::List::create(
-/*
-Rcpp::Named("f.trees")=Rcpp::CharacterVector(mtrees.str()),				      
-Rcpp::Named("s.trees")=Rcpp::CharacterVector(strees.str()),
-*/
 				       Rcpp::Named("ots")=extern_ots,
                                        Rcpp::Named("oid")=extern_oid,
                                        Rcpp::Named("ovar")=extern_ovar,
@@ -430,11 +424,13 @@ Rcpp::Named("s.trees")=Rcpp::CharacterVector(strees.str()),
                                        Rcpp::Named("sid")=extern_sid,
                                        Rcpp::Named("svar")=extern_svar,
                                        Rcpp::Named("sc")=extern_sc,
-                                       Rcpp::Named("stheta")=extern_stheta);
+                                       Rcpp::Named("stheta")=extern_stheta,
+Rcpp::Named("f.trees")=Rcpp::CharacterVector(mtrees.str()),
+Rcpp::Named("s.trees")=Rcpp::CharacterVector(strees.str()));
 
    // summary statistics
    if(summarystats) {
-      COUT << "Calculating summary statistics" << endl;
+      //COUT << "Calculating summary statistics" << endl;
       //unsigned int varcount[p];
       //std::vector<unsigned int> varcount(p);
       Rcpp::IntegerVector varcount(p);

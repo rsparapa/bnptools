@@ -29,6 +29,7 @@ yp = fxp + sxp*rnorm(np)
 #   numcut: number of cutpoints used for each x
 set.seed(19)
 res = hbart(x,y)
+##     ##nskip=10,ndpost=20,nadapt=10)
 saveRDS(res, 'res.rds')
 ##res=readRDS('res.rds')
      ##,nskip=10,ndpost=20,nadapt=0,numcut=1000,summarystats=TRUE)
@@ -36,9 +37,12 @@ saveRDS(res, 'res.rds')
 ## now predict to get inference
 resp = predict(res,x.test=xp)
 
+cor(resp$mmean, resp$f.test.mean)^2
+cor(resp$smean, resp$s.test.mean)^2
+
 ##check out of sample fit
-cat("out of sample cor(f,fhat) is ",cor(fxp,resp$mmean),"\n")
-cat("out of sample cor(s,shat) is ",cor(sxp,resp$smean),"\n")
+cat("out of sample cor(f,fhat) is ",cor(fxp,resp$mmean)^2,"\n")
+cat("out of sample cor(s,shat) is ",cor(sxp,resp$smean)^2,"\n")
 
 ##plot estimated vs. true
 ##plot the data
@@ -61,3 +65,5 @@ points(res$sd.varprob, col=2,
      pch=1+44*(res$sd.varprob<1/p))
 abline(h=c(0, 1/p), v=1.5)
 legend('topright', c('mu', 'sd'), col=1:2, pch=1)
+
+##hbart_Rexport(x, res$ntree, res$ntreeh, res$ndpost, res$xicuts, res)

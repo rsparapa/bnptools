@@ -256,7 +256,8 @@ std::stringstream brt::gettrees(size_t nd, size_t m, std::vector<int>& nn,
    trees << nd << " " << m << " " << this->di->p << std::endl;
    for(size_t h, i=0; i<nd; ++i) 
      for(size_t j=0; j<m; ++j) {
-       h=i*nd+j;
+       h=i*m+j;
+       //h=i*nd+j;
        trees << nn[h] << std::endl;
        for(size_t k=0; k<nn[h]; ++k) {
 	 trees << id[h][k] << ' ' << v[h][k] << ' ' << c[h][k] << ' ' 

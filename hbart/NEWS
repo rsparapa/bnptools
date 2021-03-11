@@ -4,3 +4,7 @@ Changes and New Features in 1.0 (2021-02-04):
 
 Changes and New Features in 1.1 (2021-02-23):
 	* Fix varcount uninitialized bug
+
+Changes and New Features in 1.2 (2021-03-11):
+	* Due to some challenges with XPtr's, adding an alternative
+	storage mechanism for the trees as strings

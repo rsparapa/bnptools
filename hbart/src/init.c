@@ -16,6 +16,7 @@ extern SEXP cpsambrt_vartivity(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cpsambrt_save(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cpsambrt_Rexport(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cpsambrt_Rimport(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP cphbart(SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"cdotree",          (DL_FUNC) &cdotree,           4},
@@ -26,6 +27,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"cpsambrt_save",    (DL_FUNC) &cpsambrt_save,     7},
     {"cpsambrt_Rexport", (DL_FUNC) &cpsambrt_Rexport,  6},
     {"cpsambrt_Rimport", (DL_FUNC) &cpsambrt_Rimport,  6},
+    {"cphbart",          (DL_FUNC) &cphbart,           3},
     {NULL, NULL, 0}
 };
 
