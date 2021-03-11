@@ -619,6 +619,7 @@ RcppExport SEXP cpsambrt_predict(
    ret["mdraws"]=tedraw;
    ret["sdraws"]=tedrawh;
 
+   if(fp) delete [] fp;
    return ret;
 }
 
