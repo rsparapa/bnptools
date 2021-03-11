@@ -19,8 +19,9 @@ sxp = .2*exp(2*xp[,1])
 yp = fxp + sxp*rnorm(np)
 
 ##run hbart MCMC
+rerun=TRUE
 file.='res.rds'
-if(file.exists(file.)) {
+if(file.exists(file.) && !rerun) {
     res=readRDS(file.)
     XPtr=FALSE
 } else {
@@ -34,8 +35,8 @@ if(file.exists(file.)) {
 resp = predict(res,x.test=xp,XPtr=XPtr)
 
 if(XPtr) {
-    cor(resp$mmean, resp$f.test.mean)^2
-    cor(resp$smean, resp$s.test.mean)^2
+    print(cor(resp$mmean, resp$f.test.mean)^2)
+    print(cor(resp$smean, resp$s.test.mean)^2)
 
     ##check out of sample fit
     cat("out of sample cor(f,fhat) is ",cor(fxp,resp$mmean)^2,"\n")
