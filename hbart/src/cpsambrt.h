@@ -494,12 +494,12 @@ RcppExport SEXP cpsambrt_predict(
    size_t np = xpm.ncol();
    size_t p = xpm.nrow();
    double *xp = nullptr;
-   if(np)  xp = &xpm[0];
+   if(np>0)  xp = &xpm[0];
 
    //x training points
    Rcpp::NumericMatrix xm(_ix);
-   //size_t n = xm.ncol();
-   //double *x = &xm[0];
+   size_t n = xm.ncol();
+   double *x = &xm[0];
 
    //make xinfo
    xinfo xi;
@@ -542,10 +542,13 @@ RcppExport SEXP cpsambrt_predict(
    Rcpp::XPtr< std::vector<double> > e_stheta(Rcpp::as<SEXP>(fit["stheta"]));
 
    //objects where we'll store the realizations
+   Rcpp::NumericMatrix trdraw(nd,n);
    Rcpp::NumericMatrix tedraw(nd,np);
+   Rcpp::NumericMatrix trdrawh(nd,n);
    Rcpp::NumericMatrix tedrawh(nd,np);
-   double *fp = new double[np];
-   dinfo dip;
+   double *f = new double[n], *fp = new double[np];
+   dinfo di, dip;
+   di.x = x;   di.y=f;   di.p = p;  di.n=n;   di.tc=tc;
    dip.x = xp; dip.y=fp; dip.p = p; dip.n=np; dip.tc=tc;
 
    // Temporary vectors used for loading one model realization at a time.
@@ -584,6 +587,8 @@ RcppExport SEXP cpsambrt_predict(
 
       ambm.loadtree(0,m,onn,oid,ov,oc,otheta);
       // draw realization
+      ambm.predict(&di);
+      for(size_t j=0;j<n;j++) trdraw(i,j) = f[j];
       ambm.predict(&dip);
       for(size_t j=0;j<np;j++) tedraw(i,j) = fp[j];
    }
@@ -610,15 +615,22 @@ RcppExport SEXP cpsambrt_predict(
 
       psbm.loadtree(0,mh,snn,sid,sv,sc,stheta);
       // draw realization
+      psbm.predict(&di);
+      for(size_t j=0;j<n;j++) trdrawh(i,j) = f[j];
       psbm.predict(&dip);
       for(size_t j=0;j<np;j++) tedrawh(i,j) = fp[j];
    }
 
    // Save the draws and return to R.
    Rcpp::List ret;
-   ret["mdraws"]=tedraw;
-   ret["sdraws"]=tedrawh;
+   ret["f.train"]=trdraw;
+   ret["s.train"]=trdrawh;
+   if(np>0) {
+     ret["mdraws"]=tedraw;
+     ret["sdraws"]=tedrawh;
+   }
 
+   if(f) delete [] f;
    if(fp) delete [] fp;
    return ret;
 }
