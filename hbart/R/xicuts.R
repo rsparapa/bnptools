@@ -30,15 +30,20 @@ xicuts = function(x, transposed=FALSE, numcut=100) {
         p=nrow(x)
         n=ncol(x)
         for(i in 1:p) grid[[i]]=unique(sort(x[i, ]))
+        names.=dimnames(x)[[1]]
     } else {
         p=ncol(x)
         n=nrow(x)
         for(i in 1:p) grid[[i]]=unique(sort(x[ , i]))
+        names.=dimnames(x)[[2]]
     }
     ##return(grid)
+    if(length(names.)==0) names.=paste0('x', 1:p)
     xicuts.=list()
     for(i in 1:p) {
         numcut.[i]=length(grid[[i]])-1
+        if(numcut.[i]==0)
+            warning(paste0('The following column is constant:', i))
         if(numcut.[i]>=numcut || numcut.[i]==(n-1)) {
             xinc=(grid[[i]][numcut.[i]+1]-grid[[i]][1])/(numcut+1)
             xicuts.[[i]]=(1:numcut)*xinc+grid[[i]][1]
@@ -48,6 +53,7 @@ xicuts = function(x, transposed=FALSE, numcut=100) {
                 xicuts.[[i]][j]=mean(grid[[i]][c(j, j+1)])
         }
     }
+    names(xicuts.)=names.
     class(xicuts.)="BARTcutinfo"
     return(xicuts.)
 }

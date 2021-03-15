@@ -150,7 +150,9 @@ res=.Call("cpsambrt",
 res$x.train=x.train
 res$y.train=y.train+fmean
 if(summarystats) {
+    names(res$mu.varcount)=names(xicuts)
     res$mu.varprob=res$mu.varcount/sum(res$mu.varcount)
+    names(res$sd.varcount)=names(xicuts)
     res$sd.varprob=res$sd.varcount/sum(res$sd.varcount)
 }
 res$ntree=ntree
