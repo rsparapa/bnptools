@@ -5,7 +5,7 @@ predict.hbart = function(
                          fmean=mean(object$y.train),
                          probs=c(0.025, 0.975),
                          XPtr=TRUE,
-                         b0=NULL,
+                         soffset=object$soffset,
                          ...)
 {
     nd=object$ndpost
@@ -67,16 +67,19 @@ predict.hbart = function(
         if(XPtr) {
             res.$s.test.mean=apply(res.$s.test,2,mean)
             fit=lm(log(res$smean)~res.$s.test.mean)
-            if(length(b0)==0) b0=-coef(fit)[1]
+            if(length(soffset)==0) soffset=-coef(fit)[1]
+            ## fit=lm(log(res$smean)~0+I(res.$s.test.mean-mh))
+            ## if(length(soffset)==0) soffset=coef(fit)[1]
         } else {
-            if(length(b0)==0) b0=mh
+            if(length(soffset)==0) soffset=mh
         }
         
-        res$s.test=exp(res.$s.test-b0)
+        ##res$s.test=exp((res.$s.test-mh)*soffset)
+        res$s.test=exp(res.$s.test-soffset)
         res$s.test.mean=apply(res$s.test,2,mean)
         res$s.test.lower=apply(res$s.test,2,quantile,q.lower)
         res$s.test.upper=apply(res$s.test,2,quantile,q.upper)
-        res$b0=b0
+        res$soffset=soffset
         if(XPtr) res$coef=coef(fit)
         res$f.test=res.$f.test+fmean
         res$f.test.mean=apply(res$f.test,2,mean)

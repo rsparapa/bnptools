@@ -170,6 +170,11 @@ res$xicuts=xicuts
 
 attr(res, 'class') <- 'hbart'
 
+    res$pred=predict(res, res$x.train, soffset=0)
+    res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
+                   mean(res$pred$s.train.mean^2)) ## for stability
+    ##if(!is.finite(res$b0)) res$b0=NA
+    
 return(res)
 }
 
