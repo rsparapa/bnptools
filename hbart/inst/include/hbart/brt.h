@@ -164,7 +164,8 @@ public:
 				std::vector<std::vector<int> >& id, 
 				std::vector<std::vector<int> >& v,
 				std::vector<std::vector<int> >& c, 
-				std::vector<std::vector<double> >& theta);
+				std::vector<std::vector<double> >& theta,
+			     double offset);
 //   void savetree(int* id, int* v, int* c, double* theta);  //save tree to vector output format
    void savetree(size_t iter, size_t m, std::vector<int>& nn, std::vector<std::vector<int> >& id, std::vector<std::vector<int> >& v,
                   std::vector<std::vector<int> >& c, std::vector<std::vector<double> >& theta);
@@ -250,7 +251,8 @@ std::stringstream brt::gettrees(size_t nd, size_t m, std::vector<int>& nn,
 				std::vector<std::vector<int> >& id, 
 				std::vector<std::vector<int> >& v,
 				std::vector<std::vector<int> >& c, 
-				std::vector<std::vector<double> >& theta) {
+				std::vector<std::vector<double> >& theta,
+				double offset) {
    std::stringstream trees;  
    trees.precision(10);
    trees << nd << " " << m << " " << this->di->p << std::endl;
@@ -261,7 +263,7 @@ std::stringstream brt::gettrees(size_t nd, size_t m, std::vector<int>& nn,
        trees << nn[h] << std::endl;
        for(size_t k=0; k<nn[h]; ++k) {
 	 trees << id[h][k] << ' ' << v[h][k] << ' ' << c[h][k] << ' ' 
-	       << theta[h][k] << std::endl;
+	       << (offset+theta[h][k]) << std::endl;
        }
      }
    return trees;

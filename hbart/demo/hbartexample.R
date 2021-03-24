@@ -35,33 +35,45 @@ if(file.exists(file.) && !rerun) {
 resp = predict(res,x.test=xp,XPtr=XPtr)
 
 if(XPtr) {
-    print(cor(resp$mmean, resp$f.test.mean)^2)
-    print(cor(resp$smean, resp$s.test.mean)^2)
 
     ##check out of sample fit
     cat("out of sample cor(f,fhat) is ",cor(fxp,resp$mmean)^2,"\n")
+    print(cor(resp$mmean, resp$f.test.mean)^2)
+    plot(fxp, resp$f.test.mean, pch='.', col=2, asp=1)
+    points(fxp, resp$mmean, pch='.', col=4)
+    abline(a=0, b=1)
+
     cat("out of sample cor(s,shat) is ",cor(sxp,resp$smean)^2,"\n")
+    print(cor(resp$smean, resp$s.test.mean)^2)
+    plot(sxp, resp$s.test.mean, pch='.', col=2, asp=1)
+    points(sxp, resp$smean, pch='.', col=4)
+    abline(a=0, b=1)
 
-    ##plot estimated vs. true
-    ##plot the data
-    plot(xp[,1],yp,cex.axis=1.5,cex.lab=1.5)
-    lines(xp[,1],fxp,col="blue")
-    lines(xp[,1],fxp+2*sxp,col="blue",lty=2)
-    lines(xp[,1],fxp-2*sxp,col="blue",lty=2)
+    plot(resp$smean, resp$s.test.mean, pch='.', asp=1)
+    abline(a=0, b=1)
 
-    ## add the fit
-    lines(xp[,1],resp$mmean) #estimate of f
-    lines(xp[,1],resp$mmean+2*resp$smean) #estimate of sd
-    lines(xp[,1],resp$mmean-2*resp$smean) #estimate of sd
+    if(FALSE) {
+        ##plot estimated vs. true
+        ##plot the data
+        plot(xp[,1],yp,cex.axis=1.5,cex.lab=1.5)
+        lines(xp[,1],fxp,col="blue")
+        lines(xp[,1],fxp+2*sxp,col="blue",lty=2)
+        lines(xp[,1],fxp-2*sxp,col="blue",lty=2)
 
-    print(res$mu.varprob*p)
-    print(res$sd.varprob*p)
+        ## add the fit
+        lines(xp[,1],resp$mmean) #estimate of f
+        lines(xp[,1],resp$mmean+2*resp$smean) #estimate of sd
+        lines(xp[,1],resp$mmean-2*resp$smean) #estimate of sd
 
-    plot(res$mu.varprob, ylim=0:1,
-         pch=1+44*(res$mu.varprob<1/p))
-    points(res$sd.varprob, col=2,
-           pch=1+44*(res$sd.varprob<1/p))
-    abline(h=c(0, 1/p), v=1.5)
-    legend('topright', c('mu', 'sd'), col=1:2, pch=1)
+        print(res$mu.varprob*p)
+        print(res$sd.varprob*p)
+
+        plot(res$mu.varprob, ylim=0:1,
+             pch=1+44*(res$mu.varprob<1/p))
+        points(res$sd.varprob, col=2,
+               pch=1+44*(res$sd.varprob<1/p))
+        abline(h=c(0, 1/p), v=1.5)
+        legend('topright', c('mu', 'sd'), col=1:2, pch=1)
+    }
 }
 

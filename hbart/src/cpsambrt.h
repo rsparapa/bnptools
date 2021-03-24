@@ -371,8 +371,8 @@ RcppExport SEXP cpsambrt(
    }
 
   std::stringstream mtrees, strees;  
-  mtrees=ambm.gettrees(nd,m,onn,oid,ovar,oc,otheta);
-  strees=psbm.gettrees(nd,mh,snn,sid,svar,sc,stheta);
+  mtrees=ambm.gettrees(nd,m,onn,oid,ovar,oc,otheta,0.);
+  strees=psbm.gettrees(nd,mh,snn,sid,svar,sc,stheta,-1.);
 
    //Flatten posterior trees to a few (very long) vectors so we can just pass pointers
    //to these vectors back to R (which is much much faster than copying all the data back).
