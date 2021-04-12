@@ -17,12 +17,31 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-predict.wbart <- function(object, newdata, mc.cores=1L,
+predict.wbart <- function(object,
+                          newdata,
+                          mc.cores=1L,
                           openmp=(mc.cores.openmp()>0),
-                          mult.impute=4L, seed=99L, ...)
+                          mult.impute=4L,
+                          seed=99L,
+                          mu=NULL,
+                          cutpoints=NULL,
+                          trees=NULL,
+                          ...)
 {
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
 
+    if(length(object$treedraws)==0) object$treedraws=list()
+    if(length(object$treedraws$cutpoints)==0) {
+        if(length(cutpoints)>0)
+            object$treedraws$cutpoints=cutpoints
+        else stop('The cutpoints item was not found in the object')
+    }
+    if(length(object$treedraws$trees)==0) {
+        if(length(trees)>0)
+            object$treedraws$trees=trees
+        else stop('The trees string was not found in the object')
+    }
+    
     p <- length(object$treedraws$cutpoints)
 
     if(p!=ncol(newdata))
@@ -38,8 +57,11 @@ predict.wbart <- function(object, newdata, mc.cores=1L,
     else
         call <- mc.pwbart
 
-    if(length(object$mu)==0) object$mu=object$offset
-    if(length(object$mu)==0) stop("The length of object item mu is zero")
+    if(length(mu)>0) object$mu=mu  
+    else if(length(object$mu)==0) {
+        if(length(object$offset)>0) object$mu=object$offset
+        else stop("The length of object item mu is zero")
+    }
     if(is.na(object$mu)) stop("Object item mu is NA")
 
     ##return(call(newdata, object$treedraws, mc.cores=mc.cores, mu=object$mu, ...))

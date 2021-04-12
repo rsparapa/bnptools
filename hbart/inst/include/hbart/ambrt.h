@@ -81,7 +81,8 @@ public:
              { mi.pbd=pbd; mi.pb=pb; mi.minperbot=minperbot; mi.dopert=dopert;
                mi.pertalpha=pertalpha; mi.pchgv=pchgv; mi.corv=chgv; 
                for(size_t j=0;j<m;j++) mb[j].setmi(pbd,pb,minperbot,dopert,pertalpha,pchgv,chgv); }
-   void setstats(bool dostats) { mi.dostats=dostats; for(size_t j=0;j<m;j++) mb[j].setstats(dostats); if(dostats) mi.varcount=new unsigned int[xi->size()]; }
+   void setstats(bool dostats) { mi.dostats=dostats; for(size_t j=0;j<m;j++) mb[j].setstats(dostats); if(dostats) mi.varcount=new int[xi->size()]; this->resetstats(); }
+   //void setstats(bool dostats) { mi.dostats=dostats; for(size_t j=0;j<m;j++) mb[j].setstats(dostats); if(dostats) mi.varcount=new unsigned int[xi->size()]; }
    void pr();
    // drawnodetheta, lm, add_observation_to_suff and newsinfo/newsinfovec unused here.
 
@@ -151,7 +152,7 @@ void ambrt::draw(rn& gen)
 void ambrt::adapt()
 {
   for(size_t j=0;j<m;j++) {
-    COUT << "\nAdapt ambrt[" << j << "]:";
+    //COUT << "\nAdapt ambrt[" << j << "]:";
     mb[j].adapt();
   }
 }

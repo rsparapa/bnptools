@@ -51,9 +51,16 @@ public:
    void setpi(pinfo& pi) {this->pi = pi;}
    void setprior(double alpha, double beta, double tau)
       {pi.alpha=alpha; pi.mybeta = beta; pi.tau=tau;}
+   void setdart(double _a, double _b, int *_grp, bool _aug, bool _dart, 
+		double _rho=0., double _theta=0., double _omega=1.) {
+     grp= new double[p];
+     for(size_t i=0; i<p; ++i) grp[i]=_grp[i];
+     if(_rho==0.) for(size_t i=0; i<p; ++i) _rho += 1./grp[i];
+     this->setdart(_a, _b, _rho, _aug, _dart, _theta, _omega); 
+   }
    void setdart(double _a, double _b, double _rho, bool _aug, bool _dart, 
 		double _theta=0., double _omega=1.) {
-     this->a=_a; this->b=_b; this->rho=_rho; this->aug=_aug; 
+     this->a=_a; this->b=_b; this->rho=_rho; this->aug=_aug;
      this->dart=_dart; this->omega=_omega; 
      if(_theta==0.){
        this->const_theta=false;
@@ -115,15 +122,16 @@ protected:
    bool dart,dartOn,aug,const_theta;
    double a,b,rho,theta,omega,
      accept; // MH acceptance rate from most recent draw
+   double *grp;
    std::vector<size_t> nv;
    std::vector<double> pv, lpv;
 };
 
 //--------------------------------------------------
 //constructor
-bart::bart():m(200),t(m),pi(),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false),accept(0.) {}
-bart::bart(size_t im):m(im),t(m),pi(),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false),accept(0.) {}
-bart::bart(const bart& ib):m(ib.m),t(m),pi(ib.pi),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false),accept(0.)
+bart::bart():m(200),t(m),pi(),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false),accept(0.),grp(0) {}
+bart::bart(size_t im):m(im),t(m),pi(),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false),accept(0.),grp(0) {}
+bart::bart(const bart& ib):m(ib.m),t(m),pi(ib.pi),p(0),n(0),x(0),y(0),xi(),allfit(0),r(0),ftemp(0),di(),dartOn(false),accept(0.),grp(0)
 {
    this->t = ib.t;
 }
@@ -132,6 +140,7 @@ bart::~bart()
    if(allfit) delete[] allfit;
    if(r) delete[] r;
    if(ftemp) delete[] ftemp;
+   if(grp) delete[] grp;
 }
 
 //--------------------------------------------------
@@ -237,7 +246,8 @@ void bart::draw(double sigma, rn& gen)
    }
    accept=i/(double)m;
    if(dartOn) {
-     draw_s(nv,lpv,theta,gen);
+     if(grp) draw_s_grp(nv,lpv,theta,gen,grp,rho);
+     else draw_s(nv,lpv,theta,gen);
      draw_theta0(const_theta,theta,lpv,a,b,rho,gen);
      for(size_t j=0;j<p;j++) pv[j]=::exp(lpv[j]);
    }

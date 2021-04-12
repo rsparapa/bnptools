@@ -20,7 +20,9 @@
 read.trees=function(treedraws, ## treedraws item returned from BART
                     x.train=matrix(nrow=0, ncol=0),
                                ## x.train to estimate coverage
-                    call=FALSE)## default to R vs. C++ code
+                    call=FALSE,## default to R vs. C++ code
+                    cutpoints=NULL,
+                    trees=NULL)
 {
     N=nrow(x.train)
     coverage=(N>0)
@@ -30,7 +32,19 @@ read.trees=function(treedraws, ## treedraws item returned from BART
                 stop(paste0('x.train column with missing values:', v))
     }
 
-    tc <- textConnection(treedraws$tree)
+    if(length(treedraws$cutpoints)==0) {
+        if(length(cutpoints)>0)
+            treedraws$cutpoints=cutpoints
+        else stop('The cutpoints item was not found in treedraws')
+    }
+    if(length(treedraws$trees)==0) {
+        if(length(trees)>0)
+            treedraws$trees=trees
+        else stop('The trees string was not found in treedraws')
+    }
+    
+    ##print(paste0('tc <- textConnection(treedraws$', name., ')'))
+    tc <- textConnection(treedraws$trees)
     trees <- read.table(file=tc, fill=TRUE,
                         row.names=NULL, header=FALSE,
                         col.names=c('node', 'var', 'cut', 'leaf'))

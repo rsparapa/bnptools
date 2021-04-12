@@ -1,0 +1,143 @@
+\documentclass{article}
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{The BART R package}
+\usepackage{thumbpdf,lmodern}
+%\graphicspath{{figures/}}  % folder with figures
+\usepackage[]{graphicx}
+\usepackage[]{color}
+\usepackage{tikz}
+\usepackage{upquote}
+\usepackage{Sweave}
+
+\usepackage{alltt}
+%\usepackage{verbatim}
+\usepackage{statex2}
+\usepackage[authoryear,round]{natbib}
+\usepackage{rotating}
+%\usepackage{pdfsync}
+%\synctex=1
+
+%\documentclass[12pt]{article}
+\usepackage{hyperref}
+%\usepackage[dvips]{graphics,color}
+\usepackage{natbib}
+%\usepackage{graphicx,color}
+\usepackage{amsmath}
+%\usepackage{harvard}
+%\usepackage{fancybox}
+\usepackage{geometry}
+%\usepackage{titlesec}
+\usepackage{verbatim}
+\usepackage{amsthm}
+\newtheorem{definition}{Definition}  
+\usepackage{statex2}
+\usepackage{amsbsy}
+
+\renewcommand{\baselinestretch}{1.2}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{1.4ex plus0.5ex minus0.2ex} %covered by package parskip
+
+\geometry{letterpaper,textwidth=6.5in,textheight=8.5in}
+
+\def\sko {\vspace{.1in}}
+\def\skoo {\vspace{.2in}}
+\def\skooo {\vspace{.3in}}
+\def\C {\,|\:}
+
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ib}{\end{itemize}}
+\newcommand{\p}{\item}
+\newcommand{\be}{\begin{enumerate}[(i)]}
+\newcommand{\eb}{\end{enumerate}}
+
+\newtheorem{theorem}{Theorem}
+
+\title{
+\Large Causal Inference with the Instrumental Variable Approach
+and Bayesian Nonparametric Machine Learning
+}
+\author{%
+Robert McCulloch 
+\footnote{%
+Robert E. McCulloch, School of Mathematical and Statistical Sciences, Arizona State University,
+Robert.McCulloch@asu.edu.
+Rodney Sparapani, Division of Biostatistics, Medical College of Wisconsin.
+Brent Logan, Division of Biostatistics, Medical College of Wisconsin.
+Purushottam Laud, Division of Biostatistics, Medical College of Wisconsin.
+} \and Rodney Sparapani \and Brent Logan \and Purushottam Laud 
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+
+\begin{abstract}
+\noindent 
+\input{abstract.tex}
+\end{abstract}
+
+\newpage
+
+\setcounter{page}{0}
+\tableofcontents
+\thispagestyle{empty}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}\label{sec:introduction}
+\input{introduction.tex}
+
+%\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Flexible IV Modeling}\label{flex-mod}
+\input{flex-mod.tex}
+
+%\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Simulated Examples}\label{simulated}
+\input{simulated-examples.tex}
+
+%\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Card Example}\label{card}
+\input{card.tex}
+
+%\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Details for the Gibbs Sampler}\label{gibbs}
+\input{gibbs.tex}
+
+%\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Prior Details}\label{details}
+\input{prior-run-details.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage
+\section{Conclusion}\label{sec:conclusion}
+\input{conclusion.tex}
+
+
+\section{Acknowledgment}
+
+Research reported in this publication was supported in part by the
+National Cancer Institute of the National Institutes of Health under
+award number RC4CA155846.  The content is solely the responsibility of
+the authors and does not necessarily represent the official views of
+the National Institutes of Health.
+ 
+\newpage
+\appendix
+\input{appendix.tex}
+
+
+\newpage
+%\bibliographystyle{plain}
+\bibliographystyle{abbrvnat}
+\bibliography{ivbart}
+
+
+\end{document}

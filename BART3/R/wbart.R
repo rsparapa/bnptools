@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2021 Robert McCulloch and Rodney Sparapani
+## wbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -147,9 +148,9 @@ res = .Call("cwbart",
             printevery,
             xinfo
 )
-    
+
 res$proc.time <- proc.time()-ptm
-    
+
 res$mu = fmean
 res$yhat.train.mean = res$yhat.train.mean+fmean
 res$yhat.train = res$yhat.train+fmean
@@ -163,6 +164,7 @@ if(nkeeptreedraws>0)
     res$varcount.mean <- apply(res$varcount, 2, mean)
     res$varprob.mean <- apply(res$varprob, 2, mean)
     res$rm.const <- rm.const
+    res$rho = rho
 attr(res, 'class') <- 'wbart'
 return(res)
 }

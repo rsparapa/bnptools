@@ -1,0 +1,178 @@
+In this section we provide details on the choice of prior.
+As illustrated in sections \ref{simulated} and \ref{card}, the choice of prior is influential.
+This is inevitable in a flexible Bayesian model.
+In our basic model (equations \ref{n-liniv1} and \ref{n-liniv2}) the nature of $(T,Y)$
+can be captured by nonparametrically modeling the error $(\epsilon_T,\epsilon_Y)$ or the functions
+$f$ and $h$ and we are doing both.
+
+Priors must be chosen for $\beta$, the functions $f$ and $h$, and the Dirichlet process mixture for
+$\epsilon$.  We discuss each of these in turn.
+
+As in many Bayesian analyses, we want to be able to inject prior information when available and we want
+reasonable defaults that enable users to get sensible results with minimal input.
+In order to have sensible default choices we typically start by standardizing the data.
+In all of the examples run in Sections \ref{simulated} and \ref{card} we  started by stardizing the data
+to have zero mean and standard deviation one:
+\begin{equation}\label{eq-scale}
+T \rightarrow \frac{T - \bar{T}}{s_T}, \;\;  Y \rightarrow \frac{Y - \bar{Y}}{s_Y}
+\end{equation}
+where $\bar{x}$ and $s_x$ are the sample mean and standard deviation of the data in $x$.
+
+\subsection{Prior on $\beta$}\label{subsec:beta-prior}
+
+While the simple linear specification for the treatment effect is a limitation, it facilitates
+the very simple prior specification
+\begin{equation}\label{eq.beta-prior}
+\beta \sim N(\bar{\beta},A_\beta^{-1}).
+\end{equation}
+
+Important prior information about $\beta$ may well be available in application.
+As often the information in the data is not overwhelmingly strong, inclusion of sensible prior information
+may be an essential part of the analysis.
+
+Note that if we standardize the data as in (\ref{eq-scale}), 
+then
+\begin{equation*}
+\beta_s = \beta \, \frac{s_T}{s_Y},
+\end{equation*}
+where $\beta_s$ is the coefficient on the standardized scale and $\beta$ is the coefficient on the original
+scale.
+
+In all the examples, the prior in (\ref{eq.beta-prior}) is applied to $\beta_s$.
+The posterior draws of $\beta_s$ are then transformed back to the original $\beta$ scale.
+
+\subsection{Priors for $f$ and $h$}\label{subsec:fh-prior}
+
+
+A major strength of the BART approach is the remarkably simple specification for the prior on an unknown 
+function.  We have:
+\begin{equation}
+f(z,x) \sim N(0,\sigma_f^2), \;\; h(x) \sim N(0,\sigma_h^2).
+\end{equation}
+We need only choose the two standard deviations $\sigma_f$ and $\sigma_h$.
+Note that the marginal prior for $f(z,x)$ does not depend on $(z,x)$.  Similarly, the prior
+for $h(x)$ does not depend on $x$.
+
+There are additional details to the full BART specification.
+For example, there are prior choices that describe beliefs about the trees underlying 
+the functions $f$ and $h$.  All such choices are done as discussed in \citep{ChipGeor10} and
+implemented in the package \citep{BARTRP} in \citep{RENV}.
+
+Given the data has been standardized, a diffuse but hopefully not too spread out prior is obtained
+by letting $\sigma_f$ and $\sigma_h$ be in the neighborhood of one.
+In our examples, our exploration of prior sensitivity consists of varying $\sigma_f$ and $\sigma_f$ about one
+with the choice $\sigma_f = \sigma_h = 1.2$ being highlighted 
+(Figures \ref{fig:sim-prisens-500}, \ref{fig:sim-prisens-2000}, \ref{fig:card-data-2w-sens-1}, and \ref{fig:card-data-2w-sens-4}).
+The motivation for the choice 1.2 is that it gives a prior which allows for more variation than the more obvious choice of 1, 
+while hopefully not being too spread out.
+More spread out priors (that is, larger $\sigma_f$ and $\sigma_h$) give $f$ and $h$ more freedom to fit the data.
+Of course, we live in constant fear of over-fitting.
+As is standard practice in applied Machine Learning we could reasonably use some kind of out-of-sample test
+to guide our choices.
+
+
+This approach to choosing $\sigma_f$ and $\sigma_h$ 
+is roughly in accordance with the standard choice in \citep{ChipGeor10} and \citep{BARTRP}.
+There, the default is chosen so that twice the standard deviation of $f$ covers the range of $Y$ in the simpler
+model $Y = f(x) + \epsilon$.
+However, even our simple two equation IV model is highly nonlinear and the consequences of prior choices
+may be hard to anticipate.  These considerations motivate the prior sensitivity approach taken in 
+Sections \ref{simulated} and \ref{card}.
+We explore values of $\sigma_f$ and $\sigma_h$ in neighborhoods of one.
+
+\subsection{Dirichlet process mixture Prior}\label{subsec:DPM-prior}
+
+In this section we describe the choice of $G_0$ and prior on $\alpha$.
+Recall (Section~\ref{flex-mod}) that the atoms of the discrete distribution from which we draw $\theta_i = (\mu_i,\Sigma_i)$ are draws
+form $G_0$ and $\alpha$ determines the distribution of the number of unique $\theta_i$.
+
+Our choices follow \citep{CHMR08} exactly.  
+In particular we review the basic rational and argue that the same choices are reasonable in our more flexible model.
+As previously noted, \citep{ROSSI14} is also an excellent reference, giving a less terse textbook style presentation.
+
+The basic idea is to calibrate these fundamental prior choices by considering the scenario where $\beta$, $f$, and $h$ are all zero.
+In this case, $(\epsilon_{Ti},\epsilon_{Yi})' = (T_i,Y_i)'$ and 
+our DPM model should nonparametically estimate the 
+bivariate joint distribution of the standardized $(T,Y)$.  
+%Our thinking is that the rational of \citep{CHMR08} applies directly as the assumption in that paper is that
+%the linear specifications for $f$ and $h$ are correct.
+These choices are ``noninformative'' but not so spread out as to limit the effectiveness of the DPM.
+The examples in \cite{CHMR08}  and Section~\ref{simulated}
+suggest that these choices are quite generally effective in the linear case.
+
+Note however that this approach deviates from the approach motivating the prior choices made in \citep{ChipGeor10}.
+In \citep{ChipGeor10}, we have the single equation $Y = f(x) + \epsilon$ with $\epsilon \sim N(0,\sigma^2)$. 
+The data on $Y$ are demeaned, $f$ is shrunk to zero, and the prior on $\sigma$ is chosen to suggest that $f$ will fit $Y$ better
+than a linear function would.
+That is, the prior on the single parameter $\sigma$ is designed to suggest that it is smaller than that obtained from
+a linear fit.  Here the prior is calibrated be even more spread out that needed to completely fit the data.
+The \cite{CHMR08} DPM prior is less informative about the errors so that our prior sensitivity approach is useful in uncovering
+the range of plausible inferences.
+Note that in \citep{DPMBART}, a single equation $Y = f(x) + \epsilon$ was considered and the DPM modeling approach was used
+to univariate distribution of $\epsilon$.  In that paper, the DPM choices were motivated by a desire to mimic the kind of prior
+information used in \citep{ChipGeor10} rather than the relatively noninformative specification used here for the joint distribution
+of $(\epsilon_{T},\epsilon_{Y})'$.
+
+\subsection{Specification of $G_0$}
+
+%v=.17,nu=2.004,a=.016,
+
+The base prior $G_0$ is a prior on $\theta = (\mu,\Sigma)$.
+We start from the standard conjugate setup:
+$$
+\Sigma^{-1} \sim \text{Wishart}_\nu(V^{-1}), \;\; \mu \,|\, \Sigma \sim N(\bar{\mu}, \frac{\Sigma}{a}).
+$$
+The parametrization of the Wishart distribution is such that $E(\Sigma^{-1}) = \nu \, V^{-1}$.
+
+Given our standardization of $T$ and $Y$, $\bar{\mu}$ is set to zero.  We also let $V = v \, I$ where $I$ is the $2 \times 2$ identity matrix.
+
+With these simplifications we only have to choose the three numbers $(a,\nu,v)$.
+Using $\sigma_1 = \sqrt{\sigma_{11}}$,
+we first choose $c_1,c_2,c_3,\kappa$ and then find $(a,\nu,v)$ such that
+$$
+P(-c_3 < \mu_1 < c_3) = 1 - \kappa, \;\; P(\sigma_1 < c_1) = \kappa/2, \, P(\sigma_1 > c_2) = \kappa/2,
+$$
+so that $P(c_1 < \sigma_1 < c_2) = 1-\kappa$.
+The defaults used throughout this paper are $c_3 = 10$, $c_1 = .25$, $c_2 = 3.25$, and $\kappa = .2$,
+giving $a = .016$, $\nu = 2.004$ and $v=.17$.
+Again, this is exactly as in \citep{CHMR08}.
+
+The value of $c_3$ is very large and the value of $\nu$ is very small.
+These priors are chosen to be very diffuse but not so diffuse as to derail our basic DPM MCMC algorithm.
+
+%It may well be of interest to consider less diffuse choices for our IVBART model.
+%In addition, the diagonal $V$ may not be appropriate as information about $\sigma_1$ could be incorporated along
+%the lines of  \citep{ChipGeor10} and \citep{DPMBART} where the 
+%prior suggests the error is smaller than in the linear case.	
+
+Note that the marginals from the conjugate prior are analytically available with,
+$$
+\sigma_{11} \sim \frac{v}{\chi^2_{\nu-1}}, \; \text{and} \; \mu_1 \sim \sqrt{\frac{v}{a(\nu-1)}} \, t_{\nu-1}.
+$$
+
+\subsection{Prior on $\alpha$}
+
+%Imin = 2,
+%Imax=floor(.5*length(Y))+1,
+% gs=500
+
+%Imin=1,Imax=floor(.1*length(Y))+1,psi=.5,gs=100,
+
+
+%The prior on $\alpha$ is exactly the same as in  \citep{CHMR08} and \citep{ROSSI14}.
+The idea of the prior is to relate $\alpha$ to the number of unique $\theta_i$.
+Let $I$ denote the number of unique $\theta_i$. 
+The user chooses a minimum and maximum number of components $I_{min}$ and $I_{max}$.
+We then solve for $\alpha_{min}$ so that the mode of the consequent distribution for $I$
+is $I_{min}$.
+Similarly, we obtain $\alpha_{max}$ from $I_{max}$.
+We then let
+$$
+p(\alpha) \propto (1 - \frac{\alpha - \alpha_{min}}{\alpha_{max} - \alpha_{min}})^\psi.
+$$
+The default values for $I_{min}$, $I_{max}$, and $\psi$ are 2, $[.1n]+1$, and .5, where
+$[]$ denotes the integer part  and $n$ is the sample size.
+A nice thing about this prior is it automatically scales sensibly with $n$.
+
+
+

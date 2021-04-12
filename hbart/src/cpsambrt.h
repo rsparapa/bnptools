@@ -148,7 +148,7 @@ RcppExport SEXP cpsambrt(
    Rcpp::NumericVector sigmav(_isigmav);
    double *sig = &sigmav[0];
    dinfo disig;
-   disig.n=n;disig.p=p,disig.x = x; disig.y = sig; disig.tc=tc;
+   disig.n=n;disig.p=p;disig.x = x; disig.y = sig; disig.tc=tc;
 
    //change variable
    Rcpp::NumericMatrix chvm(_ichv);
@@ -250,7 +250,7 @@ RcppExport SEXP cpsambrt(
    //--------------------------------------------------
    //dinfo
    dinfo di;
-   di.n=n;di.p=p,di.x = x; di.y = y; di.tc=tc;
+   di.n=n;di.p=p;di.x = x; di.y = y; di.tc=tc;
    //--------------------------------------------------
    // set up ambrt object
    ambrt ambm(m);
@@ -286,7 +286,7 @@ RcppExport SEXP cpsambrt(
    dinfo dips;
    double *r = new double[n];
    for(size_t i=0;i<n;i++) r[i]=sigmav[i];
-   dips.x = x; dips.y=r; dips.p=p, dips.n=n; dips.tc=tc;
+   dips.x = x; dips.y=r; dips.p=p; dips.n=n; dips.tc=tc;
 
    double opm=1.0/((double)mh);
    double nu=2.0*pow(overallnu,opm)/(pow(overallnu,opm)-pow(overallnu-2.0,opm));
@@ -370,6 +370,10 @@ RcppExport SEXP cpsambrt(
       psbm.savetree(i,mh,snn,sid,svar,sc,stheta);
    }
 
+  std::stringstream mtrees, strees;  
+  mtrees=ambm.gettrees(nd,m,onn,oid,ovar,oc,otheta,0.);
+  strees=psbm.gettrees(nd,mh,snn,sid,svar,sc,stheta,-1.);
+
    //Flatten posterior trees to a few (very long) vectors so we can just pass pointers
    //to these vectors back to R (which is much much faster than copying all the data back).
    std::vector<int>* e_ots=new std::vector<int>(nd*m);
@@ -410,7 +414,8 @@ RcppExport SEXP cpsambrt(
    Rcpp::XPtr< std::vector<int> > extern_sc(e_sc,true);
    Rcpp::XPtr< std::vector<double> > extern_stheta(e_stheta,true);
 
-   Rcpp::List ret = Rcpp::List::create(Rcpp::Named("ots")=extern_ots,
+   Rcpp::List ret = Rcpp::List::create(
+				       Rcpp::Named("ots")=extern_ots,
                                        Rcpp::Named("oid")=extern_oid,
                                        Rcpp::Named("ovar")=extern_ovar,
                                        Rcpp::Named("oc")=extern_oc,
@@ -419,13 +424,16 @@ RcppExport SEXP cpsambrt(
                                        Rcpp::Named("sid")=extern_sid,
                                        Rcpp::Named("svar")=extern_svar,
                                        Rcpp::Named("sc")=extern_sc,
-                                       Rcpp::Named("stheta")=extern_stheta);
+                                       Rcpp::Named("stheta")=extern_stheta,
+Rcpp::Named("f.trees")=Rcpp::CharacterVector(mtrees.str()),
+Rcpp::Named("s.trees")=Rcpp::CharacterVector(strees.str()));
 
    // summary statistics
    if(summarystats) {
-      COUT << "Calculating summary statistics" << endl;
+      //COUT << "Calculating summary statistics" << endl;
       //unsigned int varcount[p];
-      std::vector<unsigned int> varcount(p);
+      //std::vector<unsigned int> varcount(p);
+      Rcpp::IntegerVector varcount(p);
       for(size_t i=0;i<p;i++) varcount[i]=0;
       unsigned int tmaxd=0;
       unsigned int tmind=0;
@@ -436,9 +444,10 @@ RcppExport SEXP cpsambrt(
       ret["mu.tavgd"]=tavgd;
       ret["mu.tmaxd"]=tmaxd;
       ret["mu.tmind"]=tmind;
-      Rcpp::NumericVector vc(p);
-      for(size_t i=0;i<p;i++) vc[i]=varcount[i];
-      ret["mu.varcount"]=vc;
+      //Rcpp::NumericVector vc(p);
+      //for(size_t i=0;i<p;i++) vc[i]=varcount[i];
+      //ret["mu.varcount"]=vc;
+      ret["mu.varcount"]=Rcpp::clone(varcount);
 
       for(size_t i=0;i<p;i++) varcount[i]=0;
       tmaxd=0; tmind=0; tavgd=0.0;
@@ -447,9 +456,10 @@ RcppExport SEXP cpsambrt(
       ret["sd.tavgd"]=tavgd;
       ret["sd.tmaxd"]=tmaxd;
       ret["sd.tmind"]=tmind;
-      Rcpp::NumericVector sdvc(p);
-      for(size_t i=0;i<p;i++) sdvc[i]=varcount[i];
-      ret["sd.varcount"]=sdvc;
+      //Rcpp::NumericVector sdvc(p);
+      //for(size_t i=0;i<p;i++) sdvc[i]=varcount[i];
+      //ret["sd.varcount"]=sdvc;
+      ret["sd.varcount"]=varcount;
    }
 
    if(r) delete [] r;
@@ -484,12 +494,12 @@ RcppExport SEXP cpsambrt_predict(
    size_t np = xpm.ncol();
    size_t p = xpm.nrow();
    double *xp = nullptr;
-   if(np)  xp = &xpm[0];
+   if(np>0)  xp = &xpm[0];
 
    //x training points
    Rcpp::NumericMatrix xm(_ix);
-   //size_t n = xm.ncol();
-   //double *x = &xm[0];
+   size_t n = xm.ncol();
+   double *x = &xm[0];
 
    //make xinfo
    xinfo xi;
@@ -532,10 +542,13 @@ RcppExport SEXP cpsambrt_predict(
    Rcpp::XPtr< std::vector<double> > e_stheta(Rcpp::as<SEXP>(fit["stheta"]));
 
    //objects where we'll store the realizations
+   Rcpp::NumericMatrix trdraw(nd,n);
    Rcpp::NumericMatrix tedraw(nd,np);
+   Rcpp::NumericMatrix trdrawh(nd,n);
    Rcpp::NumericMatrix tedrawh(nd,np);
-   double *fp = new double[np];
-   dinfo dip;
+   double *f = new double[n], *fp = new double[np];
+   dinfo di, dip;
+   di.x = x;   di.y=f;   di.p = p;  di.n=n;   di.tc=tc;
    dip.x = xp; dip.y=fp; dip.p = p; dip.n=np; dip.tc=tc;
 
    // Temporary vectors used for loading one model realization at a time.
@@ -574,6 +587,8 @@ RcppExport SEXP cpsambrt_predict(
 
       ambm.loadtree(0,m,onn,oid,ov,oc,otheta);
       // draw realization
+      ambm.predict(&di);
+      for(size_t j=0;j<n;j++) trdraw(i,j) = f[j];
       ambm.predict(&dip);
       for(size_t j=0;j<np;j++) tedraw(i,j) = fp[j];
    }
@@ -600,15 +615,23 @@ RcppExport SEXP cpsambrt_predict(
 
       psbm.loadtree(0,mh,snn,sid,sv,sc,stheta);
       // draw realization
+      psbm.predict(&di);
+      for(size_t j=0;j<n;j++) trdrawh(i,j) = f[j];
       psbm.predict(&dip);
       for(size_t j=0;j<np;j++) tedrawh(i,j) = fp[j];
    }
 
    // Save the draws and return to R.
    Rcpp::List ret;
-   ret["mdraws"]=tedraw;
-   ret["sdraws"]=tedrawh;
+   ret["f.train"]=trdraw;
+   ret["s.train"]=trdrawh;
+   if(np>0) {
+     ret["mdraws"]=tedraw;
+     ret["sdraws"]=tedrawh;
+   }
 
+   if(f) delete [] f;
+   if(fp) delete [] fp;
    return ret;
 }
 

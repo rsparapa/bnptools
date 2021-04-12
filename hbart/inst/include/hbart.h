@@ -25,7 +25,6 @@ using std::endl;
 #endif
 
 #include "hbart/rn.h"
-#include "hbart/rrn.h"
 #include "hbart/tree.h"
 #include "hbart/treefuns.h"
 #include "hbart/dinfo.h"

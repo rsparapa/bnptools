@@ -56,7 +56,8 @@ void heterbart::draw(double *sigma, rn& gen, int shards)
    }
    accept=i/(double)m;
    if(dartOn) {
-     draw_s(nv,lpv,theta,gen);
+     if(grp) draw_s_grp(nv,lpv,theta,gen,grp,rho);
+     else draw_s(nv,lpv,theta,gen);
      draw_theta0(const_theta,theta,lpv,a,b,rho,gen);
      for(size_t j=0;j<p;j++) pv[j]=::exp(lpv[j]);
    }

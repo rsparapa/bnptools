@@ -115,7 +115,8 @@ public:
       std::vector<std::vector<double> >* corv; //initial proposal distribution for changing variables in pert
       //statistics
       bool dostats;    //keep track of statistics yes or no?
-      unsigned int* varcount;//count number of splits in tree on each variable
+      int* varcount;//count number of splits in tree on each variable
+      //unsigned int* varcount;//count number of splits in tree on each variable
       double tavgd;         //average tree depth
       unsigned int tmaxd;   //maximum tree depth
       unsigned int tmind;   //minimum tree depth
@@ -140,9 +141,12 @@ public:
    void setmi(double pbd, double pb, size_t minperbot, bool dopert, double pertalpha, double pchgv, std::vector<std::vector<double> >* chgv)
              {mi.pbd=pbd; mi.pb=pb; mi.minperbot=minperbot; mi.dopert=dopert;
               mi.pertalpha=pertalpha; mi.pchgv=pchgv; mi.corv=chgv; }
-   void setstats(bool dostats) { mi.dostats=dostats; if(dostats) mi.varcount=new unsigned int[xi->size()]; }
-   void getstats(unsigned int* vc, double* tad, unsigned int* tmd, unsigned int* tid) { *tad=mi.tavgd; *tmd=mi.tmaxd; *tid=mi.tmind; for(size_t i=0;i<xi->size();i++) vc[i]=mi.varcount[i]; }
-   void addstats(unsigned int* vc, double* tad, unsigned int* tmd, unsigned int* tid) { *tad+=mi.tavgd; *tmd=std::max(*tmd,mi.tmaxd); *tid=std::min(*tid,mi.tmind); for(size_t i=0;i<xi->size();i++) vc[i]+=mi.varcount[i]; }
+   void setstats(bool dostats) { mi.dostats=dostats; if(dostats) mi.varcount=new int[xi->size()]; this->resetstats(); }
+   //void setstats(bool dostats) { mi.dostats=dostats; if(dostats) mi.varcount=new unsigned int[xi->size()]; }
+   void getstats(int* vc, double* tad, unsigned int* tmd, unsigned int* tid) { *tad=mi.tavgd; *tmd=mi.tmaxd; *tid=mi.tmind; for(size_t i=0;i<xi->size();i++) vc[i]=mi.varcount[i]; }
+   //void getstats(unsigned int* vc, double* tad, unsigned int* tmd, unsigned int* tid) { *tad=mi.tavgd; *tmd=mi.tmaxd; *tid=mi.tmind; for(size_t i=0;i<xi->size();i++) vc[i]=mi.varcount[i]; }
+   void addstats(int* vc, double* tad, unsigned int* tmd, unsigned int* tid) { *tad+=mi.tavgd; *tmd=std::max(*tmd,mi.tmaxd); *tid=std::min(*tid,mi.tmind); for(size_t i=0;i<xi->size();i++) vc[i]+=mi.varcount[i]; }
+   //void addstats(unsigned int* vc, double* tad, unsigned int* tmd, unsigned int* tid) { *tad+=mi.tavgd; *tmd=std::max(*tmd,mi.tmaxd); *tid=std::min(*tid,mi.tmind); for(size_t i=0;i<xi->size();i++) vc[i]+=mi.varcount[i]; }
    void resetstats() { mi.tavgd=0.0; mi.tmaxd=0; mi.tmind=0; for(size_t i=0;i<xi->size();i++) mi.varcount[i]=0; }
    void setci() {}
    void draw(rn& gen);
@@ -156,6 +160,12 @@ public:
    std::vector<double>* getf() { return &yhat; }
    std::vector<double>* getr() { return &resid; }
    void predict(dinfo* dipred); // predict y at the (npred x p) settings *di.x
+  std::stringstream gettrees(size_t nd, size_t m, std::vector<int>& nn, 
+				std::vector<std::vector<int> >& id, 
+				std::vector<std::vector<int> >& v,
+				std::vector<std::vector<int> >& c, 
+				std::vector<std::vector<double> >& theta,
+			     double offset);
 //   void savetree(int* id, int* v, int* c, double* theta);  //save tree to vector output format
    void savetree(size_t iter, size_t m, std::vector<int>& nn, std::vector<std::vector<int> >& id, std::vector<std::vector<int> >& v,
                   std::vector<std::vector<int> >& c, std::vector<std::vector<double> >& theta);
@@ -236,6 +246,28 @@ protected:
 };
 
 #include "brtfuns.h"
+
+std::stringstream brt::gettrees(size_t nd, size_t m, std::vector<int>& nn, 
+				std::vector<std::vector<int> >& id, 
+				std::vector<std::vector<int> >& v,
+				std::vector<std::vector<int> >& c, 
+				std::vector<std::vector<double> >& theta,
+				double offset) {
+   std::stringstream trees;  
+   trees.precision(10);
+   trees << nd << " " << m << " " << this->di->p << std::endl;
+   for(size_t h, i=0; i<nd; ++i) 
+     for(size_t j=0; j<m; ++j) {
+       h=i*m+j;
+       //h=i*nd+j;
+       trees << nn[h] << std::endl;
+       for(size_t k=0; k<nn[h]; ++k) {
+	 trees << id[h][k] << ' ' << v[h][k] << ' ' << c[h][k] << ' ' 
+	       << (offset+theta[h][k]) << std::endl;
+       }
+     }
+   return trees;
+}
 
 //--------------------------------------------------
 //a single iteration of the MCMC for brt model
@@ -321,12 +353,12 @@ void brt::adapt()
    mi.pertaccept=0; mi.baccept=0; mi.rotaccept=0; mi.daccept=0;
    mi.pertproposal=1; mi.bproposal=1; mi.rotproposal=1; mi.dproposal=1;
    //if(mi.dostats) {
-   COUT << "pert_rate=" << pert_rate << " pertalpha=" << mi.pertalpha << " chgv_rate=" << chgv_rate;
+   // COUT << "pert_rate=" << pert_rate << " pertalpha=" << mi.pertalpha << " chgv_rate=" << chgv_rate;
    // COUT << "   b_rate=" << b_rate << endl;
    // COUT << "   d_rate=" << d_rate << endl;
    // COUT << "   bd_rate=" << bd_rate << endl;
    // COUT << " rot_rate=" << rot_rate << endl;
-   COUT << "   m_rate=" << m_rate;
+   // COUT << "   m_rate=" << m_rate;
    //   COUT << "mi.pbd=" << mi.pbd << "  mi.pb=" << mi.pb<< "  mi.pertalpha=" << mi.pertalpha << endl;
    //   COUT << endl;
    //}

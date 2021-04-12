@@ -5,7 +5,7 @@ x.test=matrix(0.0,0,0),
 ntree=200,
 ntreeh=40,
 ndpost=1000, nskip=100,
-k=2,
+k=5, ##2,
 power=2.0, base=.95,
 tc=1,
 sigmav=rep(1,length(y.train)),
@@ -23,7 +23,7 @@ numcut=100,
 xicuts=NULL,
 nadapt=1000,
 adaptevery=100,
-summarystats=FALSE
+summarystats=TRUE
 )
 {
 #require(Rcpp)
@@ -149,15 +149,32 @@ res=.Call("cpsambrt",
 
 res$x.train=x.train
 res$y.train=y.train+fmean
+if(summarystats) {
+    names(res$mu.varcount)=names(xicuts)
+    res$mu.varprob=res$mu.varcount/sum(res$mu.varcount)
+    names(res$sd.varcount)=names(xicuts)
+    res$sd.varprob=res$sd.varcount/sum(res$sd.varcount)
+}
 res$ntree=ntree
 res$ntreeh=ntreeh
 res$ndpost=ndpost
 ## class(xi)="BARTcutinfo"
 ## res$xicuts=xi
 res$xicuts=xicuts
+## res$treedraws=list()
+## res$treedraws$cutpoints=xicuts
+## res$treedraws$f.trees=res$f.trees
+## res$f.trees=NULL
+## res$treedraws$s.trees=res$s.trees
+## res$s.trees=NULL
 
 attr(res, 'class') <- 'hbart'
 
+    res$pred=predict(res, res$x.train, soffset=0)
+    res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
+                   mean(res$pred$s.train.mean^2)) ## for stability
+    ##if(!is.finite(res$b0)) res$b0=NA
+    
 return(res)
 }
 

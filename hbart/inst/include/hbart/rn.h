@@ -25,15 +25,104 @@
 #ifndef GUARD_rn
 #define GUARD_rn
 
+#include <R.h>
+#include <Rmath.h>
+
 //pure virtual base class for random numbers
 class rn
 {
 public:
-   virtual double normal() = 0; //standard normal
-   virtual double uniform() = 0; //uniform(0,1)
+   virtual double beta(double a, double b) = 0;
+   virtual double chi_square(double _df) = 0;
    virtual double chi_square() = 0; //chi-square
+   virtual double exp() = 0;
+   virtual double gamma(double shape, double rate=1., double small=0.1) = 0;
+   virtual double log_gamma(double shape) = 0; 
+   virtual double normal() = 0; //standard normal
+   virtual double normal(double mu, double sd) = 0; 
+   virtual int rcat(Rcpp::NumericVector prob) = 0;
+   virtual double rtnorm(double tau, double mu=0., double sd=1.) = 0; 
    virtual void set_df(int df) = 0; //set df for chi-square
+   virtual double uniform() = 0; //uniform(0,1)
    virtual ~rn() {}
+};
+
+class rrn: public rn
+{
+public:
+//constructor
+   rrn():df(1) {}
+//virtual
+   virtual ~rrn() {}
+   virtual double normal() {return norm_rand();}
+   virtual double normal(double mu, double sd) 
+   {return mu+sd*R::norm_rand();}
+   virtual double uniform() { return unif_rand();}
+   virtual double chi_square(double _df) {return R::rchisq(_df);}
+   virtual double chi_square() {return R::rchisq((double)df);}
+   virtual double exp() {return exp_rand();}
+   virtual void set_df(int df) {this->df=df;}
+   virtual double beta(double a, double b) {return R::rbeta(a, b);} 
+
+   virtual double log_gamma(double shape) {
+    double y=log(R::rgamma(shape+1., 1.)), z=log(this->uniform())/shape;
+    return y+z; 
+   }
+
+   virtual double gamma(double shape, double rate=1., double small=0.1) {
+      if(shape<=small) {
+	double z;
+	do { z=::exp(this->log_gamma(shape)-log(rate)); } while (z==0.);
+	return z;
+      }
+      else return R::rgamma(shape, 1.)/rate; 
+   } 
+
+   virtual int rcat(Rcpp::NumericVector _p) {
+      double c=Rcpp::sum(_p), d=Rcpp::min(_p);
+      if(c==0. || d<0.) {
+//#ifdef DEBUG
+	COUT << "rcat returning -1\n";
+	COUT << _p << '\n';
+//#endif
+	return -1;
+      }
+      int K=_p.size();
+      Rcpp::NumericVector p = _p/c;
+      Rcpp::IntegerVector x(K);
+      R::rmultinom(1, &p[0], K, &x[0]);
+      for(int j=0; j<K; ++j) if(x[j]==1) return j;
+      return -2;
+    }
+
+    virtual double rtnorm(double tau, double mean=0., double sd=1.) {
+      double x, z, lambda;
+
+      tau = (tau - mean)/sd;
+
+      if(tau<=0.) {
+	/* draw until we get to the right of tau */
+	do { z=this->normal(); } while (z < tau);
+      }
+      else {
+	/* optimal exponential rate parameter */
+	lambda = 0.5*(tau + sqrt(pow(tau, 2.) + 4.));
+
+	/* rejection sampling */
+	do { z = this->exp()/lambda + tau; } 
+	while (this->uniform() > ::exp(-0.5*pow(z - lambda, 2.)));
+      }
+
+      /* put x back on the right scale */
+      x = z*sd + mean;
+
+      return(x);
+    }
+
+//get,set
+   int get_df() {return df;}
+private:
+   int df;
 };
 
 #endif

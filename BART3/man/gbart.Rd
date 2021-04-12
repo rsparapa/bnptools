@@ -24,7 +24,7 @@ gbart(
           factor(type, levels=c('wbart', 'pbart', 'lbart'))),
       rfinit=FALSE,
       sparse=FALSE, theta=0, omega=1,
-      a=0.5, b=1, augment=FALSE, rho=NULL, varprob=NULL,
+      a=0.5, b=1, augment=FALSE, rho=0, grp=NULL, varprob=NULL,
       xinfo=matrix(0,0,0), usequants=FALSE,
       rm.const=TRUE,
       sigest=NA, sigdf=3, sigquant=0.90,
@@ -53,7 +53,7 @@ mc.gbart(
              factor(type, levels=c('wbart', 'pbart', 'lbart'))),
          rfinit=FALSE,
          sparse=FALSE, theta=0, omega=1,
-         a=0.5, b=1, augment=FALSE, rho=NULL, varprob=NULL,
+         a=0.5, b=1, augment=FALSE, rho=0, grp=NULL, varprob=NULL,
          xinfo=matrix(0,0,0), usequants=FALSE,
          rm.const=TRUE,
          sigest=NA, sigdf=3, sigquant=0.90,
@@ -120,8 +120,17 @@ argument \code{type} to specify a logit BART model.
 
    \item{augment}{Whether data augmentation is to be performed in sparse
      variable selection.}
-   \item{rho}{Sparse parameter: typically \eqn{rho=p} where \eqn{p} is the
-     number of covariates under consideration.}   
+   \item{rho}{A multiplier for the inverse weights of the Dirichlet prior
+     arguments.  For sparsity, \eqn{rho=p} where \eqn{p} is the
+     number of covariates under consideration: the default, \code{rho=0}
+     means \eqn{rho=p} (computed by \code{rho=sum(1/grp)}). For more sparsity,
+     \eqn{rho<p}, set this argument manually.  See also \code{grp}.}
+   \item{grp}{A vector of inverse weights for the Dirichlet prior arguments.
+     If all the variables are continuous, then \code{grp} is a vector of 1s.
+     However, for categorical variables (like factors in a data.frame), the
+   inverse weights are the number of categories.  See \code{bartModelMatrix}
+   for the details of the default automated derivation when \code{grp=NULL}.
+     }   
    \item{varprob}{ You initialize the variable selection probability:
      defaults to \code{NULL} that means \eqn{1/p}.}
    
@@ -372,7 +381,7 @@ argument \code{type} to specify a logit BART model.
 %% Rodney Sparapani: \email{rsparapa@mcw.edu}.
 %% }
 \seealso{
-\code{\link{pbart}}
+\code{\link{bartModelMatrix}}
 }
 \examples{
 ##simulate data (example from Friedman MARS paper)

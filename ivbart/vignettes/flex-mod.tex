@@ -1,0 +1,147 @@
+
+In this section we present our model and basic computational approach.
+
+The classic TSLS linear approach to IV modeling is expressed by 
+the following two equations:
+
+\begin{eqnarray}\label{liniv}
+T_i & = & \mu_T + \gamma' z_i + \alpha' x_i + \epsilon_{Ti} \label{liniv1} \\
+Y_i & = & \mu_Y + \beta \, T_i + \delta' x_i +
+          \epsilon_{Yi} \label{liniv2}\ .
+\end{eqnarray}
+
+Equation \ref{liniv1} is the {\it treatment} or {\it first stage} equation
+where $z$ are the instruments and $x$ are the confounders.
+Equation \ref{liniv2} is the {\it outcome} or {\it second stage} equation.
+%A simple intuitive description of the model.
+We do not want to assume that the errors $\epsilon_{Ti}$ and $\epsilon_{Yi}$ are independent
+since unmeasured variables may be affecting both $T$ and $Y$.
+%The idea of the model is that the instrumental variable $z$ provides ``good variation'' in 
+%$T$ analogous to variation introduced by an experimenter. RAS: WHY IS THAT IN QUOTES?
+The idea of the model is that the instrumental variable $z$ provides a
+{\it source of variation} in $T$, such as a {\it natural experiment}, that
+is analogous to the variation induced by an experimenter who
+controls the value of $T$ assigned.
+
+Our goal is to eliminate the need to assume that the relationships are
+linear and to make minimal assumptions about the nature of the errors.
+We simply replace the linear functions in Equations \ref{liniv1} and
+\ref{liniv2} above with general functions.  To facilitate the modeling
+of the errors, we combine the error terms with the means as follows:
+%.  We have:
+
+\begin{eqnarray}\label{nliniv}
+T_i & = & f(z_i,x_i) + \epsilon_{Ti} \label{n-liniv1} \\
+Y_i & = & \beta \, T_i + h(x_i) + \epsilon_{Yi}\ . \label{n-liniv2}
+\end{eqnarray}
+
+We model each of the functions $f$ and $h$ using the BART methodology and we model the errors using
+Bayesian nonparametrics as in \cite{CHMR08}.
+Our hope is that the model given by Equations
+\ref{n-liniv1} and \ref{n-liniv2} will be tremendously appealing to
+applied investigators.  Our belief is that the relaxation of the linearity
+assumption is a much more powerful elaboration of the model than the
+relaxation of the normal error assumption.  In practice, applied
+investigations typically struggle to deal with potential nonlinearity by
+transformations of $z$ and/or $x$ in the model.  This leads to an
+unappealing model specification since $z$ and/or $x$ have been
+transformed from their natural representation.  A basic goal of
+Machine Learning is to learn the functions $f$ and $h$ fairly
+automatically from the data.  In practice, Machine Learning can
+involve a complex model training phase and extensive use of
+cross-validation to select the tuning parameters.  Our choice of BART
+as the method for learning has some fundamental advantages. 
+
+\bi 
+\p BART is able to learn high-dimensional, complex, non-linear
+relationships \p BART is a fully Bayesian procedure with an effective
+MCMC algorithm that inherently provides an assessment of uncertainty.
+\p BART often obtains an adequate fit with minimal tuning. \p Multiple
+additive BART models can be embedded in a larger model \\ 
+(as in Equations \ref{n-liniv1} and \ref{n-liniv2} above).
+\ib
+
+
+%The model is then completed with the prior specifications:
+%\begin{equation}\label{prior1}
+%f \sim BART(\cdot), \;\; h \sim BART(\cdot), \;\; 
+%\beta \sim N(\mu_\beta,\sigma_\beta^2), \;\; \tilde{\epsilon}|G \sim G, \;\;
+%G|\alpha \sim DP(\alpha G_0), \;\; \alpha \sim ?.
+%\end{equation}
+%Here the notation $(\cdot)$ denotes hyperparameters whose structure and choice will be detailed below.
+%
+%$DP$ denotes the Dirichlet Process approach to modeling the
+%joint distribution of the errors via mixtures of Dirichlet Processes
+%\citep{EW95}.
+
+To model the error terms we use the Dirichlet process mixture (DPM) approach 
+of \cite{EW95}.
+A simple way to think about the DPM model is to let
+$$
+\epsilon_i = (\epsilon_{Ti},\epsilon_{Yi})' \sim N(\mu_i,\Sigma_i)
+$$
+so that 
+%%%/home/rob/do/research/prakash/dpmbart/paper
+each error $\epsilon_i$  has its own mean $\mu_i$ and variance matrix $\Sigma_i$.
+Of course, this model
+is too flexible without further structure.
+Let $\theta_i = (\mu_i,\Sigma_i)$.
+The DPM method adds a hierarchical model for the set of  $\theta_i$ so that
+there is a random number of unique values.
+Each observation can have its own $\theta$, but observations share $\theta$ values
+so that the number of unique values is far less than the sample size.
+This reduces the effective complexity of the parameter space.
+%DPM model is very much like a mixture of normals with a random number of mixture components.
+
+The DPM hierarchical model draws a discrete distribution using the  Dirichlet process (DP)
+and then draws the $\theta_i$ from the discrete distribution.  Because the distribution
+is discrete, with positive probability, some of the $\theta_i$ values will be repeats.
+To simplify notation, let $\{x_i\}$ represent $\{x_i\}_{i=1}^n$ in (\ref{eq:DPM}).
+Letting $G$ denote the random discrete distribution, our hierarchical model is:
+\begin{equation}\label{eq:DPM}
+\{\epsilon_i\} \C \{\theta_i\}, \;\;  \{\theta_i\}\C G, \;\;  G \C G_0,\alpha
+\end{equation}
+where
+$$
+\epsilon_i \sim N(\mu_i,\Sigma_i), \;\; \theta_i = (\mu_i,\Sigma_i) \sim G, \;\; G \sim DP(G_0,\alpha).
+$$
+
+$DP$ denotes the Dirichlet process distribution over discrete
+distributions given parameters $G_0$ and $\alpha$.  We refer the
+reader to \cite{CHMR08} for the complete details.  Briefly, to
+motivate our prior choices, we need some basic intuition about how the
+choices for $G_0$ and $\alpha$ affect the inference.  $G_0$ is the
+{\it central} distribution over the space of $\theta=(\mu,\Sigma)$.
+The atoms of $G$ are independent and identically distributed, 
+or {\it iid}, draws from $G_0$.  The {\it concentration}
+parameter $\alpha$ determines the distribution of the weights given to
+each atom of the discrete $G$.  A larger $\alpha$ tends to give you a
+discrete $G$ with more atoms receiving non-negligible weight.  A
+smaller $\alpha$ means only of few of the weights are likely to be
+large so that $G$ tends to have most of its mass concentrated on just
+a few atoms.  In terms of the {\it mixture of normals} interpretation,
+$G_0$ tells us what normal distributions are likely (what
+$\theta = (\mu,\Sigma)$ are likely); and $\alpha$ tells us how many
+normals there are and with what weight.
+
+Thus, our parameter space can be thought as:
+$$
+f,\; h,\; \beta,\; \{\theta_i\}.
+$$
+
+Our computational algorithm is the obvious Gibbs sampler
+\citep{GelfSmit90}:
+
+\begin{eqnarray}\label{gibbs}
+f \C h,\beta,\{\theta_i\},D \label{gibbsf} \\
+h \C f,\beta,\{\theta_i\},D \label{gibbsh} \\
+\beta \C f,h,\{\theta_i\},D \label{gibbsb} \\
+\{\theta_i\} \C f,h,\beta,D \label{gibbsb} \\
+\end{eqnarray}
+where $D$ denotes the observed data $\{T_i,Y_i,x_i,z_i\}_{i=1}^n$.
+Most of these draws are straightforward and follow \cite{CHMR08}.
+The exception is the draw of $f$ where the nonlinearity calls for special treatment.
+Details of the draws are given in Section~\ref{gibbs}.
+
+
+
