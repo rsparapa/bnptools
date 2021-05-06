@@ -177,6 +177,9 @@ mc.gbart <- function(
 
             post$yhat.train <- rbind(post$yhat.train,
                                      post.list[[i]]$yhat.train)
+            if(type!='wbart')
+                post$prob.train <- rbind(post$prob.train,
+                                     post.list[[i]]$prob.train)
 
             if(keeptestfits) post$yhat.test <- rbind(post$yhat.test,
                                                      post.list[[i]]$yhat.test)

@@ -3,7 +3,7 @@
 rm -rf src/Makevars.win
 
 for i in README src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
-	 inst/cxx-ex/*.o inst/cxx-ex/*.out inst/cxx-ex/core* \
+	 inst/cxx-ex/*.o inst/cxx-ex/*.out inst/cxx-ex/core* demo/core* \
 	 demo/myeloid.multi.state.R vignettes/wbart.Rmd vignettes/jss.* \
 	 vignettes/Sweave.sty vignettes/jsslogo.* \
 	 vignettes/*.aux vignettes/*.bbl vignettes/*.blg \
