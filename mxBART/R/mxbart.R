@@ -40,9 +40,8 @@ mxbart=function(
                hostname=FALSE
                )
 {
-    
-    ntype <- 1
-    type <- 'wbart'
+    if(type=='wbart') ntype <- 1
+    else if(type=='pbart') ntype <- 2
 
     n = length(y.train)
     if(length(id.train)==0)
@@ -118,14 +117,7 @@ mxbart=function(
         else mixed.prior[i] <- mxps[[i]]$prior
         if(length(mxps[[i]]$df)==0) mixed.prior.df[i] <- 3
         else mixed.prior.df[i] <- mxps[[i]]$df
-        if(length(mxps[[i]]$scale)==0) mixed.prior.scale[[i]] <- 1
-        else mixed.prior.scale[[i]] <- mxps[[i]]$scale
-        if(length(mixed.prior.scale[[i]])!=z.cols[i]) mixed.prior.scale[[i]] <- rep(mixed.prior.scale[[i]][1],z.cols[i])
         ## cmxbart.cpp uses an Inverse-Gamma distribution instead of a Scaled-Inverse ChiSquare so the parameters need to be converted.
-        if(mixed.prior[i]==2){
-            mixed.prior.df[i] <- .5*mixed.prior.df[i]
-            mixed.prior.scale[[i]] <- mixed.prior.df[i]*mixed.prior.scale[[i]]
-        }
     }
     mixed.prior.scale <- unlist(mixed.prior.scale)
     if(!transposed) {
@@ -188,8 +180,8 @@ mxbart=function(
             if(is.na(sigest)) {
                 if(p < n) {
                     tx.train <- t(x.train)
-                    tmp.lmer <- stats::lm(y.train~tx.train)
-                    sdu.est <- attr(summary(tmp.lmer)$varcor[[1]],'stddev')
+                    tmp.lmer <- lme4::lmer(y.train~tx.train+(1|id.train))
+                    sdu.est <- sqrt(lme4::VarCorr(tmp.lmer)[1]$id[1])
                     sigest <- summary(tmp.lmer)$sigma
                 } else sigest = stats::sd(y.train)
             }
@@ -200,21 +192,40 @@ mxbart=function(
             sigest=sqrt(lambda)
         }
     }
-    ## else {
-    ##     tau <- 3/(k*sqrt(ntree))
-    ##     if(p<n) {
-    ##         tx.train <- t(x.train)
-    ##         con <- glmerControl(optimizer='nloptwrap',optCtrl=list(maxfun=1000000))
-    ##         tmp.glmer <- glmer(y.train~tx.train+(1|id.train),family=binomial("probit"),control=con,nAGQ=0)
-    ##         sdu.est <- attr(summary(tmp.glmer)$varcor[[1]],'stddev')
-    ##     }
-    ## }
-            ## tau=1-tau.interval
-
-            ## if(type=='pbart')
-            ##     tau=qnorm(1-0.5*tau)/(k*sqrt(ntree))
-            ## else if(type=='lbart')
-            ##     tau=qlogis(1-0.5*tau)/(k*sqrt(ntree))
+    else {
+         tau <- 3/(k*sqrt(ntree))
+         if(p<n) {
+             tx.train <- t(x.train)
+             tmp.glmer <- lme4::glmer(y.train~tx.train+(1|id.train),family=binomial("probit"))
+             sdu.est <- sqrt(lme4::VarCorr(tmp.glmer)[1]$id[1])
+         }
+    }
+    for(i in 1:NCOL(id.train)) {
+        if(mixed.prior[i]==1){
+            if(length(mxps[[i]]$scale)==0)
+                mixed.prior.scale[[i]] <- sdu.est^2/stats::qt(.5*1.95,df=mixed.prior.df[i])
+            else
+                mixed.prior.scale[[i]] <- mxps[[i]]$scale
+            if(length(mxps[[i]]$scale!=z.cols[i]))
+               mixed.prior.scale[[i]] <- rep(mixed.prior.scale[[i]][1],z.cols[i])
+        }
+        else {
+            if(length(mxps[[i]]$scale)==0)
+                mixed.prior.scale[[i]] <- sdu.est^2*stats::qchisq(0.95,mixed.prior.df[i])/mixed.prior.df[i]
+            else
+                mixed.prior.scale[[i]] <- mxps[[i]]$scale
+            if(length(mxps[[i]]$scale)!=z.cols[i])
+                mixed.prior.scale[[i]] <- rep(mixed.prior.scale[[i]][1],z.cols[i])
+            ## Convert from scaled-inverse Chi-square parameterization to inverse-gamma parameterization
+            mixed.prior.df[i] <- .5*mixed.prior.df[i]
+            mixed.prior.scale[[i]] <- mixed.prior.df[i]*mixed.prior.scale[[i]]
+        }
+    }
+    if(type=='pbart')
+        tau=qnorm(1-0.5*tau)/(k*sqrt(ntree))
+    
+    #else if(type=='lbart')
+    ##     tau=qlogis(1-0.5*tau)/(k*sqrt(ntree))
 
     ## hot deck missing imputation
     ## must be conducted here since it would
@@ -320,22 +331,16 @@ mxbart=function(
     res$re.train.mean <- tmp.re.mean
 
     
-    if(type=='wbart')
-        res$fhat.train.mean <- apply(res$fhat.train, 2, mean)
-    else {
-        if(type=='pbart') res$prob.train = stats::pnorm(res$yhat.train)
+    res$fhat.train.mean <- apply(res$fhat.train, 2, mean)
+    if(type=='pbart') {
+        res$prob.train = stats::pnorm(res$fhat.train)
         ##else if(type=='lbart') res$prob.train = plogis(res$yhat.train)
-
         res$prob.train.mean <- apply(res$prob.train, 2, mean)
     }
-
     if(np>0) {
-        if(type=='wbart')
-            res$fhat.test.mean <- apply(res$fhat.test, 2, mean)
-        else {
-            if(type=='pbart') res$prob.test = stats::pnorm(res$yhat.test)
-            ##else if(type=='lbart') res$prob.test = plogis(res$yhat.test)
-
+        res$fhat.test.mean <- apply(res$fhat.test, 2, mean)
+        if(type=='pbart') {
+            res$prob.test = stats::pnorm(res$fhat.test)
             res$prob.test.mean <- apply(res$prob.test, 2, mean)
         }
     }
@@ -370,19 +375,36 @@ mxbart=function(
     res$rm.const <- rm.const
     res$sigest <- sigest
     res$z.cols <- z.cols
-    if(!sparse) {
-        res <- res[c('fhat.train','fhat.train.mean','fhat.test','fhat.test.mean','sigma',
-                       're.train','re.train.mean','re.varcov','re.varcov.mean',
-                       're.corr','re.corr.mean','z.cols','offset','sigest',
-                       'varprob','varprob.mean','varcount','varcount.mean',
-                       'rm.const','hostname','proc.time')]
+    if(type=='wbart'){
+        if(!sparse) 
+            res <- res[c('fhat.train','fhat.train.mean','fhat.test','fhat.test.mean','sigma',
+                         're.train','re.train.mean','re.varcov','re.varcov.mean',
+                         're.corr','re.corr.mean','z.cols','offset','sigest',
+                         'varprob','varprob.mean','varcount','varcount.mean',
+                         'rm.const','hostname','proc.time')]
+        else
+            res <- res[c('fhat.train','fhat.train.mean','fhat.test','fhat.test.mean','sigma',
+                         're.train','re.train.mean','re.varcov','re.varcov.mean',
+                         're.corr','re.corr.mean','z.cols','offset','sigest',
+                         'varprob','varprob.mean','varcount','varcount.mean','theta.train',
+                         'rm.const','hostname','proc.time')]
     }
-    else
-        res <- res[c('fhat.train','fhat.train.mean','fhat.test','fhat.test.mean','sigma',
-                       're.train','re.train.mean','re.varcov','re.varcov.mean',
-                       're.corr','re.corr.mean','z.cols','offset','sigest',
-                       'varprob','varprob.mean','varcount','varcount.mean','theta.train',
-                       'rm.const','hostname','proc.time')]
-    attr(res, 'class') <- 'mxbart'
-    return(res)
+    else {
+        if(!sparse)
+            res <- res[c('fhat.train','fhat.train.mean','fhat.test','fhat.test.mean',
+                         'prob.train','prob.train.mean','prob.test','prob.test.mean',
+                         're.train','re.train.mean','re.varcov','re.varcov.mean',
+                         're.corr','re.corr.mean','z.cols','offset','sigest',
+                         'varprob','varprob.mean','varcount','varcount.mean',
+                         'rm.const','hostname','proc.time')]
+        else
+            res <- res[c('fhat.train','fhat.train.mean','fhat.test','fhat.test.mean',
+                         'prob.train','prob.train.mean','prob.test','prob.test.mean',
+                         're.train','re.train.mean','re.varcov','re.varcov.mean',
+                         're.corr','re.corr.mean','z.cols','offset','sigest',
+                         'varprob','varprob.mean','varcount','varcount.mean','theta.train',
+                         'rm.const','hostname','proc.time')]
+        }
+        attr(res, 'class') <- 'mxbart'
+        return(res)
 }
