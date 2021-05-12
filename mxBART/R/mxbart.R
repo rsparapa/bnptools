@@ -196,14 +196,16 @@ mxbart=function(
          tau <- 3/(k*sqrt(ntree))
          if(p<n) {
              tx.train <- t(x.train)
-             tmp.glmer <- lme4::glmer(y.train~tx.train+(1|id.train),family=binomial("probit"))
+             tmp.glmer <- lme4::glmer(y.train~tx.train+(1|id.train),family=binomial("probit"),
+                                      control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=2e5)))
+             if(is.null(tmp.glmer)) stop("glmer() did not converge")
              sdu.est <- sqrt(lme4::VarCorr(tmp.glmer)[1]$id[1])
          }
     }
     for(i in 1:NCOL(id.train)) {
         if(mixed.prior[i]==1){
             if(length(mxps[[i]]$scale)==0)
-                mixed.prior.scale[[i]] <- sdu.est^2/stats::qt(.5*1.95,df=mixed.prior.df[i])
+                mixed.prior.scale[[i]] <- sdu.est/stats::qt(.5*1.95,df=mixed.prior.df[i])
             else
                 mixed.prior.scale[[i]] <- mxps[[i]]$scale
             if(length(mxps[[i]]$scale!=z.cols[i]))
