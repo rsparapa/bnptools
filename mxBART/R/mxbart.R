@@ -193,13 +193,15 @@ mxbart=function(
         }
     }
     else {
-         tau <- 3/(k*sqrt(ntree))
+        tau <- 3/(k*sqrt(ntree))
          if(p<n) {
              tx.train <- t(x.train)
-             tmp.glmer <- lme4::glmer(y.train~tx.train+(1|id.train),family=binomial("probit"),
-                                      control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=2e5)))
-             if(is.null(tmp.glmer)) stop("glmer() did not converge")
-             sdu.est <- sqrt(lme4::VarCorr(tmp.glmer)[1]$id[1])
+             if(is.null(mxps)){
+                 tmp.glmer <- lme4::glmer(y.train~tx.train+(1|id.train),family=binomial("probit"),
+                                          control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=2e5)))
+                 sdu.est <- sqrt(lme4::VarCorr(tmp.glmer)[1]$id[1])
+                 if(is.null(tmp.glmer)) stop("glmer() did not converge")
+             }
          }
     }
     for(i in 1:NCOL(id.train)) {
@@ -223,6 +225,7 @@ mxbart=function(
             mixed.prior.scale[[i]] <- mixed.prior.df[i]*mixed.prior.scale[[i]]
         }
     }
+    if(typeof(mixed.prior.scale)=='list') mixed.prior.scale <- do.call(cbind,mixed.prior.scale)
     if(type=='pbart')
         tau=qnorm(1-0.5*tau)/(k*sqrt(ntree))
     
