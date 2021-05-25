@@ -76,19 +76,26 @@ surv.pre.bart <- function(
         else if(!all(events==unique(events)))
             stop(paste0('events must be unique: ', events))
 
+        K <- length(events)
         attr(events, 'names') <- NULL
 
         for(i in 1:N) {
-            k <- min(which(times[i]<=events))
-            times[i] <- events[k]
+            if(times[i]>events[K]) {
+                delta[i]=0
+                times[i]=events[K]
+            } else {
+                k <- min(which(times[i]<=events))
+                times[i] <- events[k]
+            }
         }
     }
     else {
         events <- unique(sort(times))
         ## time grid of events including censoring times
+        K <- length(events)
     }
 
-    K <- length(events)
+    ##K <- length(events)
 
     if(events[1]<=0)
         stop('Time points exist less than or equal to time zero.')
@@ -130,9 +137,14 @@ surv.pre.bart <- function(
 
         X.train <- matrix(nrow=m, ncol=1, dimnames=list(NULL, 't'))
     } else {
+        if(class(x.train)[1]=='data.frame') x.train=bartModelMatrix(x.train)
+
         p <- ncol(x.train)
 
-        if(length(x.test)>0) n <- nrow(x.test)
+        if(length(x.test)>0) {
+            if(class(x.test)[1]=='data.frame') x.test=bartModelMatrix(x.test)
+            n <- nrow(x.test)
+        }
 
         X.train <- matrix(nrow=m, ncol=p+1)
 
@@ -142,7 +154,7 @@ surv.pre.bart <- function(
     }
 
     k <- 1
-
+    
     for(i in 1:N) for(j in 1:K) if(events[j] <= times[i]) {
         ##if(makeU) U.train[k] <- u.train[i]
         if(p==0) X.train[k, ] <- c(events[j])
