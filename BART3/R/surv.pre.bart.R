@@ -75,9 +75,10 @@ surv.pre.bart <- function(
             events <- unique(quantile(times, probs=(1:K)/K))
         else if(!all(events==unique(events)))
             stop(paste0('events must be unique: ', events))
-
-        K <- length(events)
         attr(events, 'names') <- NULL
+
+        events=sort(events)
+        K <- length(events)
 
         for(i in 1:N) {
             if(times[i]>events[K]) {
