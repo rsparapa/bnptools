@@ -1,6 +1,10 @@
 
-Changes and New Features in 4.3 (2021-02-17):
+Changes and New Features in 4.3 (2021-06-09):
 	* Experimental: grouped categorical variables for DART
+
+	* Removing randomForest package as a Depends in DESCRIPTION
+	but the code remains: you just need to add it to DESCRIPTION
+	and uncomment it in NAMESPACE to get that functionality
 
 Changes and New Features in 4.2 (2020-12-22):
 	* Synchronizing docs with BART package:
@@ -9,7 +13,7 @@ Changes and New Features in 4.2 (2020-12-22):
 	* fix bugs in mc.pwbart
 
 Changes and New Features in 4.1 (2020-10-05):
-	* New function for sequential sharding: ss.gbart
+	* Experimental function for sequential sharding: ss.gbart
 
 Changes and New Features in 4.0 (2020-08-28):
 	* New function for hot-deck missing imputation of

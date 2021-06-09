@@ -25,7 +25,7 @@ Author: Robert McCulloch [aut],
 Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
 Description: Bayesian Additive Regression Trees (BART) provide flexible nonparametric modeling of covariates for continuous, binary, categorical and time-to-event outcomes.  For more information see Sparapani, Spanbauer and McCulloch <doi:10.18637/jss.v097.i01>.
 License: GPL (>= 2)
-Depends: R (>= 3.6), nlme, nnet, survival, randomForest
+Depends: R (>= 3.6), nlme, nnet, survival
 Imports: Rcpp (>= 0.12.3), parallel, tools
 LinkingTo: Rcpp
 Suggests: MASS, knitr, rmarkdown
