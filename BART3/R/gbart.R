@@ -159,11 +159,11 @@ gbart=function(
         }
         else if(is.na(lambda)) {
             if(is.na(sigest)) {
-                if(p < n)
+                if(p < n) 
                     sigest =
                         summary(lm(y.train~.,
                                    data.frame(t(x.train),y.train)))$sigma
-                else sigest = sd(y.train)
+                if(is.na(sigest)) sigest = sd(y.train)
             }
             qchi = qchisq(1-sigquant, sigdf)
             lambda = (sigest^2)*qchi/sigdf #lambda parameter for sigma prior
