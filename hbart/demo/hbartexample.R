@@ -26,13 +26,13 @@ if(file.exists(file.) && !rerun) {
     XPtr=FALSE
 } else {
     set.seed(19)
-    res = hbart(x,y)
+    res = hbart(x,y,tc=8)
     ##     ##nskip=10,ndpost=20,nadapt=10)
     saveRDS(res, file.)
     XPtr=TRUE
 }
 ## now predict to get inference
-resp = predict(res,x.test=xp,XPtr=XPtr)
+resp = predict(res,x.test=xp,XPtr=XPtr,tc=8)
 
 if(XPtr) {
 
