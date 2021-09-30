@@ -150,10 +150,18 @@ res=.Call("cpsambrt",
 res$x.train=x.train
 res$y.train=y.train+fmean
 if(summarystats) {
-    names(res$mu.varcount)=names(xicuts)
-    res$mu.varprob=res$mu.varcount/sum(res$mu.varcount)
-    names(res$sd.varcount)=names(xicuts)
-    res$sd.varprob=res$sd.varcount/sum(res$sd.varcount)
+    ## names(res$mu.varcount)=names(xicuts)
+    ## res$mu.varprob=res$mu.varcount/sum(res$mu.varcount)
+    ## names(res$sd.varcount)=names(xicuts)
+    ## res$sd.varprob=res$sd.varcount/sum(res$sd.varcount)
+    dimnames(res$mu.varcount)[[2]]=names(xicuts)
+    res$mu.varcount[2:ndpost, ]=res$mu.varcount[2:ndpost, ]-res$mu.varcount[1:(ndpost-1), ]
+    res$mu.varcount.mean=apply(res$mu.varcount, 2, mean)
+    res$mu.varprob=res$mu.varcount.mean/sum(res$mu.varcount.mean)
+    dimnames(res$sd.varcount)[[2]]=names(xicuts)
+    res$sd.varcount[2:ndpost, ]=res$sd.varcount[2:ndpost, ]-res$sd.varcount[1:(ndpost-1), ]
+    res$sd.varcount.mean=apply(res$sd.varcount, 2, mean)
+    res$sd.varprob=res$sd.varcount.mean/sum(res$sd.varcount.mean)
 }
 res$ntree=ntree
 res$ntreeh=ntreeh

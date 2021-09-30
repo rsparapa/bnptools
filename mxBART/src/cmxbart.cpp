@@ -42,6 +42,7 @@ typedef std::vector<v2d> v3d;
 
 #ifndef NoRcpp
 
+#define EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
 #define TRDRAW(a, b) trdraw(a, b)
 #define TEDRAW(a, b) tedraw(a, b)
 
@@ -384,7 +385,8 @@ RcppExport SEXP cmxbart(
     RE_sumzdiff.setZero();
     for(size_t obs=0;obs<n;obs++){
       if(cur_clust!=id_train[lev][obs]){
-	get_reParams(RE_varcov, RE_mean, current_varianceComponents[lev], RE_sumzzt, RE_sumzdiff, sigma);
+	if(type==1) get_reParams(RE_varcov, RE_mean, current_varianceComponents[lev], RE_sumzzt, RE_sumzdiff, sigma);
+	else get_reParams(RE_varcov, RE_mean, current_varianceComponents[lev], RE_sumzzt, RE_sumzdiff, 1.);
 	RE_tmpre.setZero();
 	draw_randomEffects(RE_tmpre, RE_mean, RE_varcov, gen);
 	current_randomEffects[lev].row(cur_clust)=RE_tmpre.transpose();
@@ -400,7 +402,8 @@ RcppExport SEXP cmxbart(
       RE_sumzdiff+=RE_z[lev][obs]*(iy[obs]-0-RE_sumother);
       RE_sumother=0;
     }
-    get_reParams(RE_varcov, RE_mean, current_varianceComponents[lev], RE_sumzzt, RE_sumzdiff, sigma);
+    if(type==1) get_reParams(RE_varcov, RE_mean, current_varianceComponents[lev], RE_sumzzt, RE_sumzdiff, sigma);
+    else get_reParams(RE_varcov, RE_mean, current_varianceComponents[lev], RE_sumzzt, RE_sumzdiff, 1.);
     RE_tmpre.setZero();
     draw_randomEffects(RE_tmpre, RE_mean, RE_varcov, gen);
     current_randomEffects[lev].row(cur_clust)=RE_tmpre.transpose();
@@ -555,7 +558,8 @@ RcppExport SEXP cmxbart(
 	Eigen::MatrixXd RE_varcov(z_cols[lev],z_cols[lev]);
 	Eigen::VectorXd RE_mean(z_cols[lev]);
 	Eigen::VectorXd RE_tmpre(z_cols[lev]);
-	get_reParams(RE_varcov,RE_mean,current_varianceComponents[lev],RE_sumzzt,RE_sumzdiff,sigma);
+	if(type==1) get_reParams(RE_varcov,RE_mean,current_varianceComponents[lev],RE_sumzzt,RE_sumzdiff,sigma);
+	else get_reParams(RE_varcov,RE_mean,current_varianceComponents[lev],RE_sumzzt,RE_sumzdiff,1.);
 	RE_tmpre.setZero();
 	draw_randomEffects(RE_tmpre, RE_mean, RE_varcov, gen);
 	current_randomEffects[lev].row(cur_clust)=RE_tmpre.transpose();
@@ -575,7 +579,8 @@ RcppExport SEXP cmxbart(
     Eigen::MatrixXd RE_varcov(z_cols[lev],z_cols[lev]);
     Eigen::VectorXd RE_mean(z_cols[lev]);
     Eigen::VectorXd RE_tmpre(z_cols[lev]);
-    get_reParams(RE_varcov, RE_mean, current_varianceComponents[lev], RE_sumzzt, RE_sumzdiff, sigma);
+    if(type==1) get_reParams(RE_varcov, RE_mean, current_varianceComponents[lev], RE_sumzzt, RE_sumzdiff, sigma);
+    else get_reParams(RE_varcov,RE_mean,current_varianceComponents[lev],RE_sumzzt,RE_sumzdiff,1.);
     RE_tmpre.setZero();
     draw_randomEffects(RE_tmpre, RE_mean, RE_varcov, gen);
     current_randomEffects[lev].row(cur_clust)=RE_tmpre.transpose();
@@ -602,9 +607,12 @@ RcppExport SEXP cmxbart(
 
     if(i>=burn) {
       if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {
-	sdraw[trcnt]=sigma;
+	if(type==1) sdraw[trcnt]=sigma;
 	thetadraws[trcnt]=bm.gettheta();
-	for(size_t k=0;k<n;k++) TRDRAW(trcnt,k)=Offset+bm.f(k);
+	for(size_t k=0;k<n;k++) {
+	  TRDRAW(trcnt,k)=Offset+bm.f(k);
+	  //	  cout << TRDRAW(trcnt,k) << '\n';
+	}
 	for(size_t lev=0;lev<id_train_no;lev++){
 	  redraws[lev][trcnt]=current_randomEffects[lev];
 	  varcovdraws[lev][trcnt]=current_varianceComponents[lev];

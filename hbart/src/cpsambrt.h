@@ -176,7 +176,12 @@ RcppExport SEXP cpsambrt(
    if(probchv<0) dopert=false;
    if(probchvh<0) doperth=false;
 
-   //summary statistics yes/no
+   //summary statistics 
+    unsigned int tmaxd=0;
+    unsigned int tmind=0;
+    double tavgd=0.0;
+   Rcpp::IntegerMatrix fvc(nd, p), svc(nd, p);
+   Rcpp::IntegerVector varcount(p);
    bool summarystats = Rcpp::as<bool>(_isummarystats);
 
    //--------------------------------------------------
@@ -368,6 +373,11 @@ RcppExport SEXP cpsambrt(
       //save tree to vec format
       ambm.savetree(i,m,onn,oid,ovar,oc,otheta);
       psbm.savetree(i,mh,snn,sid,svar,sc,stheta);
+
+      ambm.getstats(&varcount[0],&tavgd,&tmaxd,&tmind);
+      for(size_t k=0;k<p;k++) fvc(i, k)=varcount[k];
+      psbm.getstats(&varcount[0],&tavgd,&tmaxd,&tmind);
+      for(size_t k=0;k<p;k++) svc(i, k)=varcount[k];
    }
 
   std::stringstream mtrees, strees;  
@@ -433,11 +443,13 @@ Rcpp::Named("s.trees")=Rcpp::CharacterVector(strees.str()));
       //COUT << "Calculating summary statistics" << endl;
       //unsigned int varcount[p];
       //std::vector<unsigned int> varcount(p);
+/*
       Rcpp::IntegerVector varcount(p);
       for(size_t i=0;i<p;i++) varcount[i]=0;
       unsigned int tmaxd=0;
       unsigned int tmind=0;
       double tavgd=0.0;
+*/
 
       ambm.getstats(&varcount[0],&tavgd,&tmaxd,&tmind);
       tavgd/=(double)(nd*m);
@@ -447,10 +459,11 @@ Rcpp::Named("s.trees")=Rcpp::CharacterVector(strees.str()));
       //Rcpp::NumericVector vc(p);
       //for(size_t i=0;i<p;i++) vc[i]=varcount[i];
       //ret["mu.varcount"]=vc;
-      ret["mu.varcount"]=Rcpp::clone(varcount);
+      //ret["mu.varcount"]=Rcpp::clone(varcount);
+      ret["mu.varcount"]=fvc;
 
-      for(size_t i=0;i<p;i++) varcount[i]=0;
-      tmaxd=0; tmind=0; tavgd=0.0;
+      //for(size_t i=0;i<p;i++) varcount[i]=0;
+      //tmaxd=0; tmind=0; tavgd=0.0;
       psbm.getstats(&varcount[0],&tavgd,&tmaxd,&tmind);
       tavgd/=(double)(nd*mh);
       ret["sd.tavgd"]=tavgd;
@@ -459,7 +472,8 @@ Rcpp::Named("s.trees")=Rcpp::CharacterVector(strees.str()));
       //Rcpp::NumericVector sdvc(p);
       //for(size_t i=0;i<p;i++) sdvc[i]=varcount[i];
       //ret["sd.varcount"]=sdvc;
-      ret["sd.varcount"]=varcount;
+      //ret["sd.varcount"]=varcount;
+      ret["sd.varcount"]=svc;
    }
 
    if(r) delete [] r;

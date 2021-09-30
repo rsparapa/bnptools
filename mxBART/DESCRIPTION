@@ -1,7 +1,7 @@
 Package: mxBART
 Type: Package
 Title: Bayesian Additive Regression Trees with Mixed Effects
-Version: 1.0
+Version: 1.1
 Date: 2020-01-31
 Authors@R: c(person('Charles', 'Spanbauer', role=c('aut','cre'),
   email='cspanbauer@mcw.edu'),
