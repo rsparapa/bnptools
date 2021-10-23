@@ -1,0 +1,10 @@
+#!/bin/sh
+
+rm -f config.* src/Makevars 
+
+for i in  demo/*.pdf demo/*.Rout demo/*.rds demo/core.*
+do
+    if [ -e $i ]
+       then rm -rf $i
+    fi
+done
