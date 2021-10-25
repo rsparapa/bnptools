@@ -61,14 +61,15 @@ void getpred(int beg, int end, size_t p, size_t m, size_t np, xinfo& xi,
 RcppExport SEXP cprnft(
    SEXP _itrees,		//treedraws list from fbart
    SEXP _ix,			//x matrix to predict at
-   SEXP _itc,			//thread count
-   SEXP _idraws
+   SEXP _itc			//thread count
+   //SEXP _idraws
 )
 {
    //Rprintf("*****In main of C++ for bart prediction\n");
    //--------------------------------------------------
    //get threadcount
-   int draws = Rcpp::as<int>(_idraws), tc = Rcpp::as<int>(_itc);
+   int /*draws = Rcpp::as<int>(_idraws),*/ 
+     tc = Rcpp::as<int>(_itc);
    COUT << "tc (threadcount): " << tc << endl;
    //--------------------------------------------------
    //process trees
@@ -131,7 +132,8 @@ RcppExport SEXP cprnft(
    Rcpp::List ret;
    ret["f.test"] = fhat;
 
-if(draws) {
+//if(draws) 
+   {
    Rcpp::CharacterVector strees(Rcpp::wrap(trees["s.trees"])); 
    std::string stv(strees[0]);
    std::stringstream stss(stv);

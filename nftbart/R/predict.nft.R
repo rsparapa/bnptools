@@ -20,38 +20,36 @@
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
 predict.nft = function(
-                         object,
-                         x.test=object$x.train,
-                         mc.cores=1,
-                         tc=mc.cores,
-                         fmu=object$fmu,
-                         probs=c(0.025, 0.975),
-                         XPtr=TRUE,
-                         draws=object$draws,
-                         soffset=object$soffset,
-                         drawMuTau=object$drawMuTau,
-                         K=0,
-                         events=object$times,
-                         take.logs=TRUE,
-                         FPD=FALSE,
-                         AFT=FALSE,
-                         na.rm=FALSE,
-                         ...)
+                       object,
+                       x.test=object$x.train,
+                       mc.cores=1,
+                       tc=mc.cores,
+                       fmu=object$fmu,
+                       probs=c(0.025, 0.975),
+                       XPtr=TRUE,
+                       ##draws=object$draws,
+                       soffset=object$soffset,
+                       drawMuTau=object$drawMuTau,
+                       K=0,
+                       events=object$events,
+                       take.logs=TRUE,
+                       FPD=FALSE,
+                       AFT=FALSE,
+                       na.rm=FALSE,
+                       ...)
 {
     ptm <- proc.time()
     nd=object$ndpost
     m=object$ntree[1]
-    if(!draws) mh=0
-    else if(length(object$ntree)==2) mh=object$ntree[2]
+    if(length(object$ntree)==2) mh=object$ntree[2]
     else mh=object$ntreeh
     xi=object$xicuts
     n = nrow(object$x.train)
     p = ncol(object$x.train)
     np = nrow(x.test)
-    x = t(object$x.train)
+    ## x = t(object$x.train)
     xp = t(x.test)
     if(is.null(object)) stop("No fitted model specified!\n")
-    if(length(draws)==0) draws=0
     if(length(K)==0) {
         K=0
         take.logs=FALSE
@@ -63,7 +61,7 @@ predict.nft = function(
 
     if(XPtr) {
         res=.Call("cpsambrt_predict",
-                  x,
+                  ##x,
                   xp,
                   m,
                   mh,
@@ -73,19 +71,21 @@ predict.nft = function(
                   object,
                   PACKAGE="nftbart"
                   )
-        res$mdraws=res$mdraws+fmu
-        res$mmean=apply(res$mdraws,2,mean)
-        res$msd=apply(res$mdraws,2,sd)
+        res$f.test.=res$f.test.+fmu
+        res$f.test.mean.=apply(res$f.test.,2,mean)
+        ##res$msd=apply(res$mdraws,2,sd)
         ##res$m.q2=apply(res$mdraws,2,quantile,0.5)
-        res$m.lower=apply(res$mdraws,2,quantile,probs=q.lower,na.rm=na.rm)
-        res$m.upper=apply(res$mdraws,2,quantile,probs=q.upper,na.rm=na.rm)
-        if(draws) {
-            res$smean=apply(res$sdraws,2,mean)
-            res$ssd=apply(res$sdraws,2,sd)
-            ##res$s.q2=apply(res$sdraws,2,quantile,0.5)
-            res$s.lower=apply(res$sdraws,2,quantile,probs=q.lower,na.rm=na.rm)
-            res$s.upper=apply(res$sdraws,2,quantile,probs=q.upper,na.rm=na.rm)
-        }
+        res$f.test.lower.=
+            apply(res$f.test.,2,quantile,probs=q.lower,na.rm=na.rm)
+        res$f.test.upper.=
+            apply(res$f.test.,2,quantile,probs=q.upper,na.rm=na.rm)
+        res$s.test.mean.=apply(res$s.test.,2,mean)
+        ##res$ssd=apply(res$sdraws,2,sd)
+        ##res$s.q2=apply(res$sdraws,2,quantile,0.5)
+        res$s.test.lower.=
+            apply(res$s.test.,2,quantile,probs=q.lower,na.rm=na.rm)
+        res$s.test.upper.=
+            apply(res$s.test.,2,quantile,probs=q.upper,na.rm=na.rm)
     } else {
         res=list()
     }
@@ -95,50 +95,44 @@ predict.nft = function(
                    object,
                    xp,
                    tc,
-                   as.integer(draws),
+                   ##as.integer(draws),
                    PACKAGE="nftbart"
                    )
         res$f.test=res.$f.test+fmu
-        res$f.test.mask=is.finite(apply(abs(res$f.test), 1, max))
+        ##res$f.test.mask=is.finite(apply(abs(res$f.test), 1, max))
         res$fmu=fmu
         
-        if(draws) {
-            ## if(XPtr) {
-            ##     res.$s.test.mean=apply(res.$s.test,2,mean)
-            ##     fit=lm(log(res$smean)~res.$s.test.mean)
-            ##     if(length(soffset)==0) soffset=-coef(fit)[1]
-            ##     res$coef=coef(fit)
-            ## } else {
-            ##     if(length(soffset)==0) soffset=mh
-            ## }
+        m=length(soffset)
+        if(m==0) soffset=0
+        else if(m>1) 
+            soffset=sqrt(mean(soffset^2, na.rm=TRUE)) ## Inf set to NA
+        
+        res$s.test=exp(res.$s.test-soffset)
+        ##res$s.test.mask=is.finite(apply(res$s.test, 1, max))
+        ##res$f.test.mask=(res$f.test.mask&res$s.test.mask)
+        res$s.test.mean =apply(res$s.test, 2, mean)
+        ##res$s.test.mean =apply(res$s.test[res$f.test.mask, ], 2, mean)
+        ##res$s.test.lower=apply(res$s.test[res$f.test.mask, ], 2,
+        res$s.test.lower=apply(res$s.test, 2,
+                               quantile, probs=q.lower, na.rm=na.rm)
+        ##res$s.test.upper=apply(res$s.test[res$f.test.mask, ], 2,
+        res$s.test.upper=apply(res$s.test, 2,
+                               quantile, probs=q.upper, na.rm=na.rm)
+        res$soffset=soffset
 
-            m=length(soffset)
-            if(m==0) soffset=0
-            else if(m>1) 
-                soffset=sqrt(mean(soffset^2, na.rm=TRUE)) ## Inf set to NA
-            
-            res$s.test=exp(res.$s.test-soffset)
-            res$s.test.mask=is.finite(apply(res$s.test, 1, max))
-            res$f.test.mask=(res$f.test.mask&res$s.test.mask)
-            res$s.test.mean =apply(res$s.test[res$f.test.mask, ], 2, mean)
-            res$s.test.lower=apply(res$s.test[res$f.test.mask, ], 2,
-                                   quantile, probs=q.lower, na.rm=na.rm)
-            res$s.test.upper=apply(res$s.test[res$f.test.mask, ], 2,
-                                   quantile, probs=q.upper, na.rm=na.rm)
-            res$soffset=soffset
-        } 
-
-        res$f.test.mean =apply(res$f.test[res$f.test.mask, ], 2, mean)
-        res$f.test.lower=apply(res$f.test[res$f.test.mask, ], 2,
+        res$f.test.mean =apply(res$f.test, 2, mean)
+        ##res$f.test.mean =apply(res$f.test[res$f.test.mask, ], 2, mean)
+        ##res$f.test.lower=apply(res$f.test[res$f.test.mask, ], 2,
+        res$f.test.lower=apply(res$f.test, 2,
                                quantile,probs=q.lower,na.rm=na.rm)
-        res$f.test.upper=apply(res$f.test[res$f.test.mask, ], 2,
+        ##res$f.test.upper=apply(res$f.test[res$f.test.mask, ], 2,
+        res$f.test.upper=apply(res$f.test, 2,
                                quantile,probs=q.upper,na.rm=na.rm)
         
         if(K>0) {
             if(length(events)==0) {
                 events <- unique(quantile(object$z.train.mean,
                                           probs=(1:K)/(K+1)))
-                                          ##probs=(0:(K-1))/(K-1)))
                 attr(events, 'names') <- NULL
             } else if(take.logs) events=log(events)
             events.matrix=(class(events)[1]=='matrix')
@@ -157,15 +151,14 @@ predict.nft = function(
                             sd. = cbind(sd., object$dpsd)
                         }
                     }
-                    if(draws) {
-                        mu. = mu.*res$s.test
-                        sd. = sd.*res$s.test
-                    } 
+                    mu. = mu.*res$s.test
+                    sd. = sd.*res$s.test
                     mu. = mu.+res$f.test
                 } else {
                     mu. = res$f.test
-                    if(draws) sd. = res$s.test
-                    else sd. = matrix(object$sigma, nrow=nd, ncol=np)
+                    sd. = res$s.test
+                    ##if(draws) sd. = res$s.test
+                    ##else sd. = matrix(object$sigma, nrow=nd, ncol=np)
                 }
 
                 ## these FPD predict objects can become too large
@@ -220,17 +213,22 @@ predict.nft = function(
                     }
                 }
                 
-                mask=res$f.test.mask
-                
-                res$surv.fpd.mean=apply(cbind(res$surv.fpd[mask, ]), 2, mean)
+                ##mask=res$f.test.mask
+                res$surv.fpd.mean=apply(cbind(res$surv.fpd), 2, mean)
+                ##res$surv.fpd.mean=apply(cbind(res$surv.fpd[mask, ]), 2, mean)
                 res$surv.fpd.lower=
-                    apply(cbind(res$surv.fpd[mask, ]), 2, quantile, probs=q.lower)
+                    apply(cbind(res$surv.fpd), 2, quantile, probs=q.lower)
+                ##apply(cbind(res$surv.fpd[mask, ]), 2, quantile, probs=q.lower)
                 res$surv.fpd.upper=
-                    apply(cbind(res$surv.fpd[mask, ]), 2, quantile, probs=q.upper)
-                res$pdf.fpd.mean =apply(cbind(res$pdf.fpd[mask, ]), 2, mean)
+                    apply(cbind(res$surv.fpd), 2, quantile, probs=q.upper)
+                ##apply(cbind(res$surv.fpd[mask, ]), 2, quantile, probs=q.upper)
+                res$pdf.fpd.mean =apply(cbind(res$pdf.fpd), 2, mean)
+                ##res$pdf.fpd.mean =apply(cbind(res$pdf.fpd[mask, ]), 2, mean)
                 if(K==1) {
-                    res$surv.test.mean=apply(res$surv.test[mask, ], 2, mean)
-                    res$pdf.test.mean =apply(res$pdf.test[mask, ],  2, mean)
+                    res$surv.test.mean=apply(res$surv.test, 2, mean)
+                    ##res$surv.test.mean=apply(res$surv.test[mask, ], 2, mean)
+                    res$pdf.test.mean =apply(res$pdf.test,  2, mean)
+                    ##res$pdf.test.mean =apply(res$pdf.test[mask, ],  2, mean)
                 }
             } else if(drawMuTau>0) {
                 res$surv.test=matrix(0, nrow=nd, ncol=np*K)
@@ -240,16 +238,16 @@ predict.nft = function(
                 for(i in 1:np) {
                     if(events.matrix) events.=events[i, ]
                     mu.=res$f.test[ , i]
-                    if(draws) sd.=res$s.test[ , i]
+                    sd.=res$s.test[ , i]
                     for(j in 1:K) {
                         k=(i-1)*K+j
                         for(h in 1:H) {
                             ##if(draws)
-                                res$surv.test[ , k]=res$surv.test[ , k]+
-                                    object$dpwt.[ , h]*
-                                    pnorm(events.[j],
-                                          mu.+sd.*object$dpmu.[ , h],
-                                          sd.*object$dpsd.[ , h], FALSE)
+                            res$surv.test[ , k]=res$surv.test[ , k]+
+                                object$dpwt.[ , h]*
+                                pnorm(events.[j],
+                                      mu.+sd.*object$dpmu.[ , h],
+                                      sd.*object$dpsd.[ , h], FALSE)
                             ## else
                             ##     res$surv.test[ , k]=res$surv.test[ , k]+
                             ##         object$dpwt.[ , h]*
@@ -262,10 +260,13 @@ predict.nft = function(
                 res$surv.test.mean=apply(res$surv.test, 2, mean)
             }
 
-            if(take.logs) res$times=exp(events)
-            else res$times=events
+            if(take.logs) res$events=exp(events)
+            else res$events=events
         }
         res$K=K
+    } else {
+        res$f.test=res$f.test.
+        res$s.test=res$s.test.
     }
 
     res$probs=probs

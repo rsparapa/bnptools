@@ -34,7 +34,7 @@
 // predicitons in parallel, tc and the R output of the fitted
 // MCMC, fit.
 RcppExport SEXP cpsambrt_predict(
-   SEXP _ix, //training points
+   //SEXP _ix, //training points
    SEXP _ixp, //prediction points
    SEXP _im,  //number of trees in mean model
    SEXP _imh, //number of trees in variance model
@@ -54,9 +54,7 @@ RcppExport SEXP cpsambrt_predict(
    if(np)  xp = &xpm[0];
 
    //x training points
-   Rcpp::NumericMatrix xm(_ix);
-   //size_t n = xm.ncol();
-   //double *x = &xm[0];
+   //Rcpp::NumericMatrix xm(_ix);
 
    //make xinfo
    xinfo xi;
@@ -130,7 +128,7 @@ RcppExport SEXP cpsambrt_predict(
 
    // Save the draws and return to R.
    Rcpp::List ret;
-   ret["mdraws"]=tedraw;
+   ret["f.test."]=tedraw;
 
 if(mh>0) {
    Rcpp::NumericMatrix tedrawh(nd,np);
@@ -177,7 +175,7 @@ if(mh>0) {
       // draw realization
       psbm.predict(&dip);
       for(size_t j=0;j<np;j++) tedrawh(i,j) = fp[j];
-      ret["sdraws"]=tedrawh;
+      ret["s.test."]=tedrawh;
    }
 }
    if(fp) delete [] fp;

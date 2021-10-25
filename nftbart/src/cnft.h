@@ -87,7 +87,7 @@ RcppExport SEXP cnft(
 		     SEXP _states, 
 		     SEXP _phi,
 		     SEXP _prior,
-		     SEXP _idraws,
+		     //SEXP _idraws,
 		     SEXP _idrawMuTau,
 		     SEXP _impute_bin, 
 		     SEXP _impute_prior 
@@ -176,13 +176,12 @@ RcppExport SEXP cnft(
     strees << nd << " " << mh << " " << p << endl;
   */
 
-  int draws = Rcpp::as<int>(_idraws), 
+  int //draws = Rcpp::as<int>(_idraws), 
     drawMuTau = Rcpp::as<int>(_idrawMuTau), 
     drawsd=0; //(1-draws)*(1-drawMuTau);
 
   Rcpp::NumericMatrix mdraws(nd, n), //sdraws(nd, pow(n, draws)),
-    sdraws(nd*draws, n*draws),  
-    mpred(nd, np), spred(nd*draws, np*draws), zdraws(nd, n);
+    sdraws(nd, n), mpred(nd, np), spred(nd, np), zdraws(nd, n);
   Rcpp::NumericVector sddraws((nd+burn)*drawsd);
 
   // for varcounts
@@ -329,7 +328,8 @@ RcppExport SEXP cnft(
   Rprintf("alpha draw: alpha_a=%lf, alpha_b=%lf\n", 
 	  Rcpp::as<double>(prior["alpha.a"]),
 	  Rcpp::as<double>(prior["alpha.b"]));
-  Rprintf("draw: s=%ld, MuTau=%ld\n", draws, drawMuTau);
+  Rprintf("draw: MuTau=%ld\n", drawMuTau);
+  //Rprintf("draw: s=%ld, MuTau=%ld\n", draws, drawMuTau);
   if(impute_flag) {
     cout << "Missing imputation column index:\n" << impute_bin << endl;
     cout << "Missing imputation probabilities:\n index 0=" << impute_prior[0]
@@ -560,21 +560,24 @@ RcppExport SEXP cnft(
 	  Xt(impute_bin, k)=0;
 	  f0.x=impute_Xrow_ptr;
 	  ambm.predict(&f0); // result in fhat0
+/*
 	  if(draws) {
 	    s0.x=impute_Xrow_ptr;
 	    psbm.predict(&s0); // result in shat0
 	  }
+*/
 	  Xt(impute_bin, k)=1;
 	  f1.x=impute_Xrow_ptr;
 	  ambm.predict(&f1); // result in fhat1
 // imputation too simplistic if drawDP: need mvec/svec
-	  if(draws) {
-	    s1.x=impute_Xrow_ptr;
-	    psbm.predict(&s1); // result in shat1
-	    impute_post0 *= R::dnorm(z[k], fhat0, shat0, 0);
-	    impute_post1 *= R::dnorm(z[k], fhat1, shat1, 0);
-	  }
-	  else {
+	  // if(draws) {
+	  //   s1.x=impute_Xrow_ptr;
+	  //   psbm.predict(&s1); // result in shat1
+	  //   impute_post0 *= R::dnorm(z[k], fhat0, shat0, 0);
+	  //   impute_post1 *= R::dnorm(z[k], fhat1, shat1, 0);
+	  // }
+	  // else
+	    {
 	    impute_post0 *= R::dnorm(z[k], fhat0, sig[k], 0);
 	    impute_post1 *= R::dnorm(z[k], fhat1, sig[k], 0);
 	  }
@@ -585,8 +588,9 @@ RcppExport SEXP cnft(
 
       if(drawDP) {
 	z[k] = z[k]-mvec[k]*sig[k];
-	if(draws) sig[k] = sig[k]*svec[k];
-	else sig[k] = svec[k];
+	sig[k] = sig[k]*svec[k];
+	//if(draws) sig[k] = sig[k]*svec[k];
+	//else sig[k] = svec[k];
       }
     }
 
@@ -594,7 +598,8 @@ RcppExport SEXP cnft(
     for(size_t k=0;k<n;k++) fun[k]=ambm.f(k);
     if(adapting_every) ambm.adapt();
 
-    if(draws) {
+    //if(draws) 
+    {
       for(size_t k=0;k<n;k++) { 
 	r[k]=z[k]-fun[k]; 
 	//r[k]=z[k]-ambm.f(k); 
@@ -611,6 +616,7 @@ RcppExport SEXP cnft(
       //disig = fpsbm;
       if(adapting_every) psbm.adapt(); 
     }
+/*
     else if(!drawDP) {
       double rss, sigma;
       rss=nuo*lambdao;
@@ -622,6 +628,7 @@ RcppExport SEXP cnft(
       for(size_t k=0;k<n;k++) sig[k]=sigma;
       sddraws[h] = sigma; 
     }
+*/
 
     if(drawDP) {
       for(size_t k=0;k<n;k++) {
@@ -659,10 +666,10 @@ RcppExport SEXP cnft(
 	for(size_t k=0;k<n;k++) {
 	  mvec[k] = mvec[k]-mu0;
 	  phi(C[k], 0)=mvec[k];
-	  if(draws) {
+	  //if(draws) {
 	    svec[k] = svec[k]/sd0;
 	    phi(C[k], 1)=pow(svec[k], -2.);
-	  }
+	  //}
 	}
       }
 
@@ -770,14 +777,16 @@ RcppExport SEXP cnft(
       //save tree to vec format
 
       ambm.savetree(j,m,onn,oid,ovar,oc,otheta);
-      if(draws) psbm.savetree(j,mh,snn,sid,svar,sc,stheta);
+      //if(draws) 
+      psbm.savetree(j,mh,snn,sid,svar,sc,stheta);
 
       if(drawMuTau>0) dalpha[j]=hyper["alpha"];
 
       ambm.getstats(&varcount[0],&tavgd,&tmaxd,&tmind);
       for(size_t k=0;k<p;k++) fvc(j, k)=varcount[k];
 
-      if(draws) {
+      //if(draws) 
+      {
 	psbm.getstats(&varcount[0],&tavgd,&tmaxd,&tmind);
 	for(size_t k=0;k<p;k++) svc(j, k)=varcount[k];
       }
@@ -786,10 +795,10 @@ RcppExport SEXP cnft(
       for(size_t k=0;k<n;k++) {
 	//mdraws(j, k) = ambm.f(k);
 	mdraws(j, k) = fun[k];
-	if(draws) {
+	//if(draws) {
 	  //sdraws(j, k) = psbm.f(k);
 	  sdraws(j, k) = sig[k];
-	}
+	//}
 	if(drawMuTau>0) {
 	  dmu(j, k) = mvec[k];
 	  dsig(j, k) = svec[k];
@@ -802,11 +811,13 @@ RcppExport SEXP cnft(
 
       if(np) {
 	ambm.predict(&f);
-	if(draws) psbm.predict(&s);
+	//if(draws) 
+	psbm.predict(&s);
 
 	for(size_t k=0;k<np;k++) {
 	  mpred(j, k) = f.y[k];
-	  if(draws) spred(j, k) = s.y[k];
+	  //if(draws) 
+	  spred(j, k) = s.y[k];
 	}
       }
     }
@@ -818,7 +829,8 @@ RcppExport SEXP cnft(
 
   std::stringstream mtrees, strees;  
   mtrees=ambm.gettrees(nd,m,onn,oid,ovar,oc,otheta,0.);
-  if(draws) strees=psbm.gettrees(nd,mh,snn,sid,svar,sc,stheta,-1.);
+  //if(draws) 
+  strees=psbm.gettrees(nd,mh,snn,sid,svar,sc,stheta,-1.);
 
   /*
     Flatten posterior trees to a few XXL vectors so we can just pass pointers
@@ -860,7 +872,8 @@ RcppExport SEXP cnft(
 				      Rcpp::Named("f.train")=mdraws,
 				      Rcpp::Named("f.trees")=Rcpp::CharacterVector(mtrees.str()));
 
-  if(draws) {
+  //if(draws) 
+  {
     std::vector<int>* e_sts=new std::vector<int>(nd*mh);
     std::vector<int>* e_sid=new std::vector<int>;
     std::vector<int>* e_svar=new std::vector<int>;
@@ -889,7 +902,7 @@ RcppExport SEXP cnft(
     ret["s.train"]=sdraws;
     ret["s.trees"]=Rcpp::CharacterVector(strees.str());
   }
-  else if(drawMuTau==0) ret["sigma"]=sddraws;
+//  else if(drawMuTau==0) ret["sigma"]=sddraws;
 
   if(drawMuTau>0) {
     ret["dpalpha"]=dalpha;
@@ -904,7 +917,8 @@ RcppExport SEXP cnft(
 
   if(np) {
     ret["f.test"]=mpred;
-    if(draws) ret["s.test"]=spred;
+    //if(draws) 
+    ret["s.test"]=spred;
   }
 
   ret["z.train"]=zdraws;
@@ -933,7 +947,8 @@ RcppExport SEXP cnft(
     //for(size_t i=0;i<p;i++) vc[i]=(int)varcount[i];
     //ret["f.varcount"]=vc;
 
-    if(draws) {
+    //if(draws) 
+    {
       //for(size_t i=0;i<p;i++) varcount[i]=0;
       //tmaxd=0; tmind=0; tavgd=0.0;
       psbm.getstats(&varcount[0],&tavgd,&tmaxd,&tmind);

@@ -20,11 +20,13 @@
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
 nft = function(
-               x, times, delta=rep(1, n), xp=matrix(nrow=0, ncol=0),
+               x.train, times, delta=rep(1, n),
+               x.test=matrix(nrow=0, ncol=0),
                dist='weibull', ##type='interval',
                K=100, events=NULL, ##take.logs=1,
                nskip=1000, ndpost=2000, 
-               ntree=c(200, 40), numcut=100, 
+               ntree=c(50, 10), ##ntree=c(200, 40),
+               numcut=100, 
                power=c(2, 2), base=c(0.95, 0.95),
                impute.bin=NULL, impute.prob=NULL,
                ##impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
@@ -39,16 +41,19 @@ nft = function(
                k0.draw=1, b0.draw=1,
                alphao=5, sigquanto=0.95, #error variance prior
                overalllambda=NA, overallnu=10,
-               chv = cor(x, method="spearman"),
+               chv = cor(x.train, method="spearman"),
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
                printevery=100, xicuts=NULL,
                nadapt=1000, adaptevery=100, summarystats=TRUE,
-               draws=1L, drawMuTau=1L, transposed=FALSE,
+               ##draws=1L,
+               drawMuTau=1L, transposed=FALSE,
                n=length(times)
                )
 {
+    x = x.train
+    xp = x.test
     if(!transposed) {
         impute=CDimpute(x.train=cbind(x),
                         x.test=cbind(xp),
@@ -94,25 +99,25 @@ nft = function(
 
     nuo = alphao*2
 
-    if(draws) {
+    ##if(draws) {
         betao=alphao
-    } else {
-        if(p > n) {
-            ## we use stepwise selection to reduce p<n
-            step=srstepwise(t(x)[delta<2, ], times[delta<2], delta[delta<2], dist=dist)
-            if(length(step)==0) lm2 = lm1
-            else lm2 = survreg(Surv(time=times[delta<2], event=delta[delta<2])~
-                                   I(t(x)[delta<2, step]), dist=dist)
-        }
-        else lm2 = survreg(Surv(time=times, event=delta)~.,
-                           data=subset(df, delta<2), dist=dist)
+    ## } else {
+    ##     if(p > n) {
+    ##         ## we use stepwise selection to reduce p<n
+    ##         step=srstepwise(t(x)[delta<2, ], times[delta<2], delta[delta<2], dist=dist)
+    ##         if(length(step)==0) lm2 = lm1
+    ##         else lm2 = survreg(Surv(time=times[delta<2], event=delta[delta<2])~
+    ##                                I(t(x)[delta<2, step]), dist=dist)
+    ##     }
+    ##     else lm2 = survreg(Surv(time=times, event=delta)~.,
+    ##                        data=subset(df, delta<2), dist=dist)
 
-        ##sigquanto=.95
-        sigesto = lm2$scale
-        qchio = qchisq(1-sigquanto, nuo)
-        lambdao = (sigesto^2)*qchio/nuo
-        betao = nuo*lambdao/2
-    }
+    ##     ##sigquanto=.95
+    ##     sigesto = lm2$scale
+    ##     qchio = qchisq(1-sigquanto, nuo)
+    ##     lambdao = (sigesto^2)*qchio/nuo
+    ##     betao = nuo*lambdao/2
+    ## }
 
     fmu=coef(lm1)[1]
     attr(fmu, 'names')=NULL
@@ -141,12 +146,12 @@ nft = function(
         tau = sigmaf/sqrt(ntree[1])
     }
 
-    LIO.a=1/lm1$scale
-    LIO.b=exp(coef(lm1)[1])
-    LIO.Q2=log(qweibull(0.5, LIO.a, LIO.b))
-    LIO.Q95=log(qweibull(0.95, LIO.a, LIO.b))
-    LIO.scale=0.5*(LIO.Q95-LIO.Q2)
-    LIO.tau=1/(LIO.scale^2)
+    ## LIO.a=1/lm1$scale
+    ## LIO.b=exp(coef(lm1)[1])
+    ## LIO.Q2=log(qweibull(0.5, LIO.a, LIO.b))
+    ## LIO.Q95=log(qweibull(0.95, LIO.a, LIO.b))
+    ## LIO.scale=0.5*(LIO.Q95-LIO.Q2)
+    ## LIO.tau=1/(LIO.scale^2)
     C=as.integer(C-1) ## C/C++ indexing
     states=as.integer(states)
     if(drawMuTau==2) {
@@ -156,19 +161,18 @@ nft = function(
         phi=matrix(c(0, 1), nrow=n, ncol=2, byrow=TRUE)
         hyper=list(alpha=alpha, alpha.draw=alpha.draw)
     } else {
-        if(draws) ##standardized
             prior=list(m=as.integer(neal.m), constrain=as.integer(constrain),
                        m0=0, k0.a=1.5, k0.b=7.5,
                        ## BEWARE: not the same a0 as above
                        a0=3, b0.a=2, b0.b=1,
                        ##a0=1.5, b0.a=0.5, b0.b=1,
                        alpha.a=alpha.a, alpha.b=alpha.b)
-        else ##unstandardized
-            prior=list(m=as.integer(neal.m), constrain=as.integer(constrain),
-                       ##m0=LIO.Q2/LIO.scale,
-                       m0=0, k0.a=1.5, k0.b=7.5*LIO.tau,
-                       a0=2, b0.a=0.5, b0.b=LIO.tau,
-                       alpha.a=alpha.a, alpha.b=alpha.b)
+        ## else ##unstandardized
+        ##     prior=list(m=as.integer(neal.m), constrain=as.integer(constrain),
+        ##                ##m0=LIO.Q2/LIO.scale,
+        ##                m0=0, k0.a=1.5, k0.b=7.5*LIO.tau,
+        ##                a0=2, b0.a=0.5, b0.b=LIO.tau,
+        ##                alpha.a=alpha.a, alpha.b=alpha.b)
         phi=matrix(c(0, prior$b0.b), nrow=n, ncol=2, byrow=TRUE)
         ##phi=matrix(c(LIO.Q2/LIO.scale, LIO.tau), nrow=n, ncol=2, byrow=TRUE)
         hyper=list(alpha=alpha, alpha.draw=alpha.draw,
@@ -229,10 +233,10 @@ nft = function(
               y,
               as.integer(delta),
               xp,
-              c(ntree[1], ntree[2]^draws),
+              c(ntree[1], ntree[2]),
               nd,
               burn,
-              nadapt*draws,
+              nadapt,
               adaptevery,
               tau,
               overalllambda,
@@ -253,7 +257,7 @@ nft = function(
               alphao, betao,
               ##mstart, sstart,
               hyper, C, states, phi, prior,
-              draws,
+              ##draws,
               drawMuTau,
               impute.bin,
               impute.prob,
@@ -267,8 +271,10 @@ nft = function(
     res$K=K
 
 if(K>0) {
-    if(take.logs) res$times=exp(events)
-    else res$times=events
+    if(take.logs) res$events=exp(events)
+    else res$events=events
+    ## if(take.logs) res$times=exp(events)
+    ## else res$times=events
     res$take.logs=take.logs
 }
     
@@ -276,33 +282,6 @@ if(K>0) {
         if(burn>0) res$dpn.=res$dpn[-(1:burn)]
         else res$dpn.=res$dpn
     }
-    ## moving into C++ for speed-up
-    ## if(drawMuTau) {
-    ##     if(burn>0) dpn=res$dpn[-(1:burn)]
-    ##     else dpn=res$dpn
-    ##     L=max(dpn)
-    ##     res$dpmu.=matrix(0, nrow=nd, ncol=L)
-    ##     res$dpsd.=matrix(0, nrow=nd, ncol=L)
-    ##     res$dpwt.=matrix(0, nrow=nd, ncol=L)
-
-    ##     for(i in 1:nd) {
-    ##         for(j in 1:dpn[i]) {
-    ##             h=which(res$dpC[i, ]==j)
-    ##             res$dpwt.[i, j]=length(h)
-    ##             res$dpmu.[i, j]=res$dpmu[i, h[1]]
-    ##             res$dpsd.[i, j]=res$dpsd[i, h[1]]
-    ##         }
-    ##     }
-
-    ##     ## 1/4 faster alternative: not fast enough to be worth debugging
-    ##     ## for(j in 1:L) {
-    ##     ##     res$dpwt.[ , j]=apply(res$dpC==j, 1, sum)
-    ##     ##     ## this is not right: need a clause about pos/neg
-    ##     ##     ## res$dpmu.[ , j]=apply((res$dpC==j)*res$dpmu, 1, min)+
-    ##     ##     ##                 apply((res$dpC==j)*res$dpmu, 1, max)
-    ##     ##     res$dpsd.[ , j]=apply((res$dpC==j)*res$dpsd, 1, max)
-    ##     ## }
-    ## }
 
     ##if(take.logs) res$z.train=exp(res$z.train)
     res$f.train=res$f.train+fmu
@@ -311,69 +290,36 @@ if(K>0) {
     res$z.train.mean=apply(res$z.train, 2, mean)
     res$e.train.mean=res$z.train.mean-res$f.train.mean
     res$MSE=mean(res$e.train.mean^2)
-    if(draws) {
+    ##if(draws) {
         res$s.train.mean=apply(res$s.train, 2, mean)
         res$ssd=sqrt(mean(res$s.train.mean^2))
-    }
-    else if(drawMuTau==0) {
-        if(burn>0) sigma=res$sigma[-(1:burn)]
-        else sigma=res$sigma
-    }
+    ## }
+    ## else if(drawMuTau==0) {
+    ##     if(burn>0) sigma=res$sigma[-(1:burn)]
+    ##     else sigma=res$sigma
+    ## }
 
     if(np>0) {
         res$f.test=res$f.test+fmu
-        res$f.test.mask=is.finite(apply(abs(res$f.test), 1, max))
-        if(draws) {
+        ##res$f.test.mask=is.finite(apply(abs(res$f.test), 1, max))
             res$s.test.mean=apply(res$s.test, 2, mean)
-            res$s.test.mask=is.finite(apply(res$s.test, 1, max))
-            res$f.test.mask=(res$f.test.mask&res$s.test.mask)
-            res$s.test.mean =apply(res$s.test[res$f.test.mask, ], 2, mean)
-        } 
-        res$f.test.mean =apply(res$f.test[res$f.test.mask, ], 2, mean)
+            ##res$s.test.mask=is.finite(apply(res$s.test, 1, max))
+            ##res$f.test.mask=(res$f.test.mask&res$s.test.mask)
+            res$s.test.mean =apply(res$s.test, 2, mean)
+            ##res$s.test.mean =apply(res$s.test[res$f.test.mask, ], 2, mean)
+        res$f.test.mean =apply(res$f.test, 2, mean)
+        ##res$f.test.mean =apply(res$f.test[res$f.test.mask, ], 2, mean)
 
-        ## due to code duplication defer to predict
-        ## if(K>0) {
-        ##     res$surv.test=matrix(0, nrow=nd, ncol=np*K)
-        ##     res$pdf.test=matrix(0, nrow=nd, ncol=np*K)
-        ##     for(i in 1:np)
-        ##         for(j in 1:K) {
-        ##             h=(i-1)*K+j
-        ##             if(drawMuTau) {
-        ##                 for(l in 1:L) {
-        ##                     if(draws) {
-        ##                         mu.=res$dpmu.[ , l]*res$s.test[ , i]+
-        ##                             res$f.test[ , i]
-        ##                         sd.=res$dpsd.[ , l]*res$s.test[ , i]
-        ##                     } else {
-        ##                         mu.=res$dpmu.[ , l]+res$f.test[ , i]
-        ##                         sd.=res$dpsd.[ , l]
-        ##                     }
-        ##                     res$surv.test[ , h]=res$surv.test[ , h]+
-        ##                         pnorm(events[j], mu., sd., lower.tail=FALSE)*
-        ##                         res$dpwt.[ , l]/n
-        ##                     res$pdf.test[ , h]=res$pdf.test[ , h]+
-        ##                         dnorm(events[j], mu., sd.)*res$dpwt.[ , l]/n
-        ##                 }
-        ##             }
-        ##             else {
-        ##                 mu.=res$f.test[ , i]
-        ##                 if(draws) sd.=res$s.test[ , i]
-        ##                 else sd.=sigma
-        ##                 res$surv.test[ , h]=pnorm(events[j], mu., sd.,
-        ##                                           lower.tail=FALSE)
-        ##                 res$pdf.test[ , h]=dnorm(events[j], mu., sd.)
-        ##             }
-        ##         }
-        ##     res$surv.test.mean=apply(res$surv.test, 2, mean)
-        ##     res$pdf.test.mean=apply(res$pdf.test, 2, mean)
-        ## }
         res$x.test=t(xp)
     }
 
+    res$times=times
+    res$delta=delta
     res$x.train=t(x)
     res$ntree=ntree[1]
-    if(draws) res$ntree[2]=ntree[2]
-    else res$scale = lm2$scale
+    res$ntree[2]=ntree[2]
+    ## if(draws) res$ntree[2]=ntree[2]
+    ## else res$scale = lm2$scale
     res$ndpost=nd
     res$xicuts=xicuts
     res$fmu = fmu
@@ -383,12 +329,10 @@ if(K>0) {
         res$f.varcount[2:ndpost, ]=res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ]
         res$f.varcount.mean=apply(res$f.varcount, 2, mean)
         res$f.varprob=res$f.varcount.mean/sum(res$f.varcount.mean)
-        if(draws) {
             dimnames(res$s.varcount)[[2]]=names(xicuts)
             res$s.varcount[2:ndpost, ]=res$s.varcount[2:ndpost, ]-res$s.varcount[1:(ndpost-1), ]
             res$s.varcount.mean=apply(res$s.varcount, 2, mean)
             res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
-        }
     }
     
     if(drawMuTau>0) {
@@ -403,19 +347,21 @@ if(K>0) {
     }
     attr(res, 'class') <- 'nft'
 
-    if(draws) {
-        if(length(soffset)==0) {
-            res$pred=predict(res, res$x.train, tc=tc,
-                             XPtr=FALSE, soffset=0, draws=TRUE)
-            ## res$soffset=(res$pred$s.test.mean/res$s.train.mean)^2
-            ## res$soffset=0.5*log(mean(res$soffset[is.finite(res$soffset)]))
-            res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
-                                mean(res$s.train.mean^2)) ## for stability
-            if(!is.finite(res$soffset)) res$soffset=NA
-        } else res$soffset=soffset
-    }
+    mu. = res$dpmu*res$s.train+res$f.train
+    sd. = res$dpsd*res$s.train
+    res$cpo = 1/apply(1/dnorm(res$z.train, mu., sd.), 2, mean)
+    res$lpml = sum(log(res$cpo))
+
+    if(length(soffset)==0) {
+        res$pred=predict(res, res$x.train, tc=tc,
+                         XPtr=FALSE, soffset=0) ##(, draws=TRUE)
+        ## res$soffset=(res$pred$s.test.mean/res$s.train.mean)^2
+        ## res$soffset=0.5*log(mean(res$soffset[is.finite(res$soffset)]))
+        res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
+                            mean(res$s.train.mean^2)) ## for stability
+        if(!is.finite(res$soffset)) res$soffset=NA
+    } else res$soffset=soffset
     
-    res$draws=draws
     res$drawMuTau=drawMuTau
     
     res$elapsed <- (proc.time()-ptm)['elapsed']

@@ -7,12 +7,7 @@ B=8
 
 ## load survival package for the advanced lung cancer example
 data(lung)
-
 N=length(lung$status)
-
-## if physician's KPS unavailable, then use the patient's
-h=which(is.na(lung$ph.karno))
-lung$ph.karno[h]=lung$pat.karno[h]
 
 ##lung$status: 1=censored, 2=dead
 ##delta: 0=censored, 1=dead
@@ -45,21 +40,20 @@ if(file.exists(file.)) {
 
 x.test = rbind(x.train, x.train)
 x.test[ , 1]=rep(1:2, each=N)
-events=seq(5, 150, 5)
-K=length(events)
-
-pred = predict(post, x.test, K=K, events=events,
+K=150
+events=seq(0, 150, length.out=K+1)
+pred = predict(post, x.test, K=K, events=events[-1],
                XPtr=XPtr, tc=B, FPD=TRUE)
 
-plot(c(0, events), c(1, pred$surv.fpd.mean[1:K]), type='l', col=4,
+plot(events, c(1, pred$surv.fpd.mean[1:K]), type='l', col=4,
      ylim=0:1, 
-     xlab=expression(italic(t)),
+     xlab=expression(italic(t)), sub='weeks',
      ylab=expression(italic(S)(italic(t), italic(x))))
-lines(c(0, events), c(1, pred$surv.fpd.upper[1:K]), lty=2, lwd=2, col=4)
-lines(c(0, events), c(1, pred$surv.fpd.lower[1:K]), lty=2, lwd=2, col=4)
-lines(c(0, events), c(1, pred$surv.fpd.mean[K+1:K]), lwd=2, col=2)
-lines(c(0, events), c(1, pred$surv.fpd.upper[K+1:K]), lty=2, lwd=2, col=2)
-lines(c(0, events), c(1, pred$surv.fpd.lower[K+1:K]), lty=2, lwd=2, col=2)
+lines(events, c(1, pred$surv.fpd.upper[1:K]), lty=2, lwd=2, col=4)
+lines(events, c(1, pred$surv.fpd.lower[1:K]), lty=2, lwd=2, col=4)
+lines(events, c(1, pred$surv.fpd.mean[K+1:K]), lwd=2, col=2)
+lines(events, c(1, pred$surv.fpd.upper[K+1:K]), lty=2, lwd=2, col=2)
+lines(events, c(1, pred$surv.fpd.lower[K+1:K]), lty=2, lwd=2, col=2)
 legend('topright', c('Adv. lung cancer\nmortality example',
                      'M', 'F'), lwd=2, col=c(0, 4, 2), lty=1)
 ##dev.copy2pdf(file='lung.pdf')
