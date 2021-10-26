@@ -7,6 +7,7 @@ B=8
 
 ## load survival package for the advanced lung cancer example
 data(lung)
+str(lung)
 N=length(lung$status)
 
 ##lung$status: 1=censored, 2=dead
@@ -19,13 +20,9 @@ times=lung$time
 times=times/7  ## weeks
 summary(times)
 
-## matrix of observed covariates
-x.train=cbind(lung$sex, lung$age, lung$ph.karno)
+## matrix of covariates
+x.train=cbind(lung[ , -(1:3)])
 ## lung$sex:        Male=1 Female=2
-## lung$age:        Age in years
-## lung$ph.karno:   Karnofsky performance score (dead=0:normal=100:by=10)
-##                  rated by physician
-dimnames(x.train)[[2]]=c('M(1):F(2)', 'age(39:82)', 'ph.karno(50:100:10)')
 
 file.='lung.rds'
 if(file.exists(file.)) {
@@ -39,7 +36,7 @@ if(file.exists(file.)) {
 }
 
 x.test = rbind(x.train, x.train)
-x.test[ , 1]=rep(1:2, each=N)
+x.test[ , 2]=rep(1:2, each=N)
 K=150
 events=seq(0, 150, length.out=K+1)
 pred = predict(post, x.test, K=K, events=events[-1],
