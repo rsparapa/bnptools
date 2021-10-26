@@ -19,36 +19,44 @@
 ## Author contact information
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
-nft = function(
+nft = function(## data
                x.train, times, delta=rep(1, n),
                x.test=matrix(nrow=0, ncol=0),
-               dist='weibull', ##type='interval',
-               K=100, events=NULL, ##take.logs=1,
+               tc=1, ##OpenMP thread count
+               ##MCMC
                nskip=1000, ndpost=2000, 
-               ntree=c(50, 10), ##ntree=c(200, 40),
-               numcut=100, 
-               power=c(2, 2), base=c(0.95, 0.95),
-               impute.bin=NULL, impute.prob=NULL,
-               ##impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
-               soffset=NULL,
-               tc=1,
-               sigmav=rep(1, n), k=5, sigmaf=NA,
-               states=c(n, rep(0, n-1)), C=rep(1, n),
-               alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
-               neal.m=1, constrain=1, a0=3, b0=2,
-               ##m0=0, k0=0, k0.a=1.5, k0.b=7.5,
-               ##a0=1.5, b0=0, b0.a=0.5, b0.b=1,
-               k0.draw=1, b0.draw=1,
-               alphao=5, sigquanto=0.95, #error variance prior
-               overalllambda=NA, overallnu=10,
+               nadapt=1000, adaptevery=100, summarystats=TRUE,
                chv = cor(x.train, method="spearman"),
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
+               ## BART and HBART
+               ntree=c(50, 10), numcut=100, 
+               power=c(2, 2), base=c(0.95, 0.95),
+               ## f function
+               k=5, sigmaf=NA,
+               dist='weibull', ##type='interval',
+               ## s function
+               sigmav=rep(1, n), soffset=NULL,
+               overalllambda=NA, overallnu=10,
+               ## survival analysis 
+               K=100, events=NULL, ##take.logs=1,
+               ## impute Xs
+               impute.bin=NULL, impute.prob=NULL,
+               ##impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
+               ## DPM LIO
+               drawMuTau=1L, 
+               states=c(n, rep(0, n-1)), C=rep(1, n),
+               alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
+               neal.m=2, constrain=1, a0=3, b0=2,
+               ##m0=0, k0=0, k0.a=1.5, k0.b=7.5,
+               ##a0=1.5, b0=0, b0.a=0.5, b0.b=1,
+               k0.draw=1, b0.draw=1,
+               ##alphao=5, sigquanto=0.95, #error variance prior
+               ## misc
                printevery=100, xicuts=NULL,
-               nadapt=1000, adaptevery=100, summarystats=TRUE,
                ##draws=1L,
-               drawMuTau=1L, transposed=FALSE,
+               transposed=FALSE,
                n=length(times)
                )
 {
@@ -97,10 +105,10 @@ nft = function(
     lm1 = survreg(Surv(time=times, event=delta)~1,
                   data=subset(df, delta<2), dist=dist)
 
-    nuo = alphao*2
+    ##nuo = alphao*2
 
     ##if(draws) {
-        betao=alphao
+        ##betao=alphao
     ## } else {
     ##     if(p > n) {
     ##         ## we use stepwise selection to reduce p<n
@@ -154,13 +162,14 @@ nft = function(
     ## LIO.tau=1/(LIO.scale^2)
     C=as.integer(C-1) ## C/C++ indexing
     states=as.integer(states)
-    if(drawMuTau==2) {
-        prior=list(m=as.integer(neal.m), constrain=as.integer(constrain),
-                   a0=a0, b0=b0,
-                   alpha.a=alpha.a, alpha.b=alpha.b)
-        phi=matrix(c(0, 1), nrow=n, ncol=2, byrow=TRUE)
-        hyper=list(alpha=alpha, alpha.draw=alpha.draw)
-    } else {
+    ## if(drawMuTau==2) {
+    ##     prior=list(m=as.integer(neal.m), constrain=as.integer(constrain),
+    ##                a0=a0, b0=b0,
+    ##                alpha.a=alpha.a, alpha.b=alpha.b)
+    ##     phi=matrix(c(0, 1), nrow=n, ncol=2, byrow=TRUE)
+    ##     hyper=list(alpha=alpha, alpha.draw=alpha.draw)
+    ## } else 
+    if(drawMuTau==1) {
             prior=list(m=as.integer(neal.m), constrain=as.integer(constrain),
                        m0=0, k0.a=1.5, k0.b=7.5,
                        ## BEWARE: not the same a0 as above
@@ -254,7 +263,7 @@ nft = function(
               printevery,
               xicuts,
               summarystats,
-              alphao, betao,
+              ##alphao, betao,
               ##mstart, sstart,
               hyper, C, states, phi, prior,
               ##draws,
@@ -336,8 +345,8 @@ if(K>0) {
     }
     
     if(drawMuTau>0) {
-        res$alphao = alphao
-        res$betao = betao
+        ##res$alphao = alphao
+        ##res$betao = betao
         res$prior = prior
         res$hyper = hyper
         ##res$sstart = sstart

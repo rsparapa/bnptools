@@ -10,7 +10,7 @@
 /* .Call calls */
 extern SEXP cpsambrt_predict(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cprnft(SEXP, SEXP, SEXP);
-extern SEXP cnft(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP cnft(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 //extern SEXP cpsambrt(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 //extern SEXP cpsambrt_vartivity(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 //extern SEXP cpsambrt_save(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -25,7 +25,7 @@ extern SEXP cnft(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEX
 static const R_CallMethodDef CallEntries[] = {
     {"cpsambrt_predict", (DL_FUNC) &cpsambrt_predict,  7},
     {"cprnft",           (DL_FUNC) &cprnft,            3},
-    {"cnft",             (DL_FUNC) &cnft,             35},
+    {"cnft",             (DL_FUNC) &cnft,             33},
 //    {"cpsambrt",         (DL_FUNC) &cpsambrt,         32},
 //   {"cpsambrt_vartivity",(DL_FUNC) &cpsambrt_vartivity,6},
 //    {"cpsambrt_save",    (DL_FUNC) &cpsambrt_save,     7},

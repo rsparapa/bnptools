@@ -79,8 +79,8 @@ RcppExport SEXP cnft(
 		     SEXP _iprintevery,    //how often you print progress
 		     SEXP _ixicuts,        //variable cutpoints for each predictor
 		     SEXP _isummarystats,  //boolean, do you want summary stats
-		     SEXP _ialphao, 
-		     SEXP _ibetao,
+//		     SEXP _ialphao, 
+//		     SEXP _ibetao,
 		     //  SEXP _mstart, //  SEXP _sstart,
 		     SEXP _hyper, 
 		     SEXP _C,
@@ -155,7 +155,6 @@ RcppExport SEXP cnft(
   Rcpp::IntegerVector im(_im);
   size_t m = im[0], mh = im[1];
 
-
   //mu prior (tau, ambrt) and sigma prior (lambda,nu, psbrt)
   double tau = Rcpp::as<double>(_itau);
   double overalllambda = Rcpp::as<double>(_ioveralllambda);
@@ -176,13 +175,13 @@ RcppExport SEXP cnft(
     strees << nd << " " << mh << " " << p << endl;
   */
 
-  int //draws = Rcpp::as<int>(_idraws), 
-    drawMuTau = Rcpp::as<int>(_idrawMuTau), 
-    drawsd=0; //(1-draws)*(1-drawMuTau);
+  int drawMuTau = Rcpp::as<int>(_idrawMuTau);
+    //draws = Rcpp::as<int>(_idraws), 
+    //drawsd=0; //(1-draws)*(1-drawMuTau);
 
   Rcpp::NumericMatrix mdraws(nd, n), //sdraws(nd, pow(n, draws)),
     sdraws(nd, n), mpred(nd, np), spred(nd, np), zdraws(nd, n);
-  Rcpp::NumericVector sddraws((nd+burn)*drawsd);
+  //Rcpp::NumericVector sddraws((nd+burn)*drawsd);
 
   // for varcounts
   Rcpp::IntegerMatrix fvc(nd, p), svc(nd, p);
@@ -233,10 +232,10 @@ RcppExport SEXP cnft(
   //summary statistics yes/no
   bool summarystats = Rcpp::as<bool>(_isummarystats);
 
-  //error variance prior--------
-  double alphao = Rcpp::as<double>(_ialphao);
+  //error variance prior
+/*double alphao = Rcpp::as<double>(_ialphao);
   double betao = Rcpp::as<double>(_ibetao);
-  double lambdao=betao/alphao, nuo=2.*alphao;
+  double lambdao=betao/alphao, nuo=2.*alphao;*/
 
   // DPM LIO
   Rcpp::IntegerVector C(_C), states(_states);
@@ -309,7 +308,7 @@ RcppExport SEXP cnft(
   Rprintf("variance trees prob of a change var move : %lf\n",probchvh);
   Rprintf("mean trees min num obs in bottom node: %ld\n",minnumbot);
   Rprintf("variance trees min num obs in bottom node: %ld\n",minnumboth);
-  Rprintf("sigma prior : alphao=%lf, betao=%lf\n", alphao, betao);
+//  Rprintf("sigma prior : alphao=%lf, betao=%lf\n", alphao, betao);
   //Rprintf("base prior : muo=%lf, ko=%lf, alphao=%lf, betao=%lf\n",
   // muo, ko, alphao, betao);
   //Rprintf("init values : mu=%lf, tau=%lf, sd=%lf, alpha=%lf\n",
