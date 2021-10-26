@@ -1,32 +1,78 @@
 \name{nft}
 \alias{nft}
-%\docType{package}
-\title{Fitting NFT BART models.}
+\title{Fit NFT BART models.}
 \description{
-  The function \code{nft()} is the main function for fitting Bayesian Regression Tree models, including single-tree models, Bayesian Additive Regression Tree (BART) models and Heteroscedastic BART models. 
+  The function \code{nft()} is the main function for fitting
+  NFT BART (Nonparametric Failure Time Bayesian Regression Tree) models. 
 }
 \usage{
-nft(x.train, y.train, x.test=matrix(0.0,0,0), ntree=200, ntreeh=40, ndpost=1000, 
-     nskip=100, k=2, power=2.0, base=.95, tc=1, sigmav=rep(1,length(y.train)), 
-     fmean=mean(y.train), overallsd = sd(y.train), overallnu=10, 
-     chv = cor(x.train,method="spearman"), pbd=.7, pb=.5, stepwpert=.1, probchv=.1,
-     minnumbot=5, printevery=100, numcut=100, xicuts=NULL, nadapt=1000, adaptevery=100,
-     summarystats=FALSE)
+nft(
+    x.train, times, delta=rep(1, n),
+    x.test=matrix(nrow=0, ncol=0),
+    dist='weibull', 
+    K=100, events=NULL, 
+    nskip=1000, ndpost=2000, 
+    ntree=c(50, 10), 
+    numcut=100, 
+    power=c(2, 2), base=c(0.95, 0.95),
+    impute.bin=NULL, impute.prob=NULL,
+    soffset=NULL,
+    tc=1,
+    sigmav=rep(1, n), k=5, sigmaf=NA,
+    states=c(n, rep(0, n-1)), C=rep(1, n),
+    alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
+    neal.m=1, constrain=1, a0=3, b0=2,
+    k0.draw=1, b0.draw=1,
+    alphao=5, sigquanto=0.95, 
+    overalllambda=NA, overallnu=10,
+    chv = cor(x.train, method="spearman"),
+    pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
+    stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
+    minnumbot=c(5, 5),
+    printevery=100, xicuts=NULL,
+    nadapt=1000, adaptevery=100, summarystats=TRUE,
+    drawMuTau=1L, transposed=FALSE,
+    n=length(times)
+)
+
 }
 \arguments{
   \item{x.train}{nxp matrix of predictor variables for the training data.}
-  \item{y.train}{nx1 vector of the observed response for the training data.}
-  \item{x.test}{mxp matrix of predictor variables for the test set. Deprecated.}
-  \item{ntree}{Number of trees used for the mean model.}
-  \item{ntreeh}{Number of trees used for the variance model.}
-  \item{ndpost}{Number of iterations to run the MCMC algorithm after burn-in.}
+  \item{times}{nx1 vector of the failure times for the training data.}
+  \item{delta}{nx1 vector of the type indicator for the training data:
+  0, for right-censoring; 1, for an event; and, 2, for left-censoring.}
+\item{x.test}{mxp matrix of predictor variables for the test set.}
+\item{dist}{Distribution to be passed to AFT model to calculate intercept.}
+\item{K}{Number of grid points for which to estimate survival probability.}
+\item{events}{Grid points for which to estimate survival probability.}
   \item{nskip}{Number of MCMC iterations treated as burn-in and discarded.}
-  \item{k}{Prior hyperparameter for the mean model.}
+  \item{ndpost}{Number of iterations to run the MCMC algorithm after burn-in.}
+  \item{ntree}{Vector of length two for the number of trees used for the mean
+    model and the number of trees used for the variance model.}
+  \item{numcut}{Number of cutpoints to use for each predictor variable.}
   \item{power}{Power parameter in the tree depth penalizing prior.}
   \item{base}{Base parameter in the tree depth penalizing prior.}
+  \item{impute.bin}{}
+  \item{impute.prob}{}
+  \item{soffset}{}
   \item{tc}{Number of OpenMP threads to use.}
   \item{sigmav}{Initialization of square-root of variance parameter.}
-  \item{fmean}{Overall mean of the data for pre-centering the data before running the model.}
+  \item{k}{Prior hyperparameter for the mean model.}
+  \item{sigmaf}{}
+  \item{states}{Initial DPM summary counts for occupied atoms (R/1 index).}
+  \item{C}{Inital DPM atom assignment of each subject (R/1 index).}
+  \item{alpha}{Initial value of DPM concentration parameter.}
+  \item{alpha.a}{Gamma prior parameter setting for DPM concentration parameter
+    (where E[alpha]=alpha.a/alpha.b).}
+  \item{alpha.b}{Gamma prior parameter setting for DPM concentration parameter
+    (where E[alpha]=alpha.a/alpha.b).}
+  \item{alpha.draw}{Whether to draw alpha or it is fixed at the initial value.}
+  \item{neal.m}{The number of additional atoms for Neal 2000 DPM algorithm 8.}
+  \item{constrain}{Whether to perform constained DPM or unconstrained.}
+  \item{a0}{In the DPM LIO prior hierarchy: tau~Gamma(a0, b0).}
+  \item{b0}{In the DPM LIO prior hierarchy: tau~Gamma(a0, b0).}
+  \item{k0.draw}{Whether to draw k0 or it is fixed at the initial value in the DPM LIO prior hierarchy: k0~Gamma(1.5, 7.5).}
+  \item{b0.draw}{Whether to draw b0 or it is fixed at the initial value in the DPM LIO prior hierarchy: b0~Gamma(2, 1).}
   \item{overallsd}{A rudimentary estimate of the process standard deviation. Used in calibrating the variance prior.}
   \item{overallnu}{Shape parameter for the variance prior.}
   \item{chv}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
@@ -36,7 +82,6 @@ nft(x.train, y.train, x.test=matrix(0.0,0,0), ntree=200, ntreeh=40, ndpost=1000,
   \item{probchv}{Probability of performing a change-of-variable proposal.  Otherwise, only do a perturb proposal}.
   \item{minnumbot}{Minimum number of observations required in bottom (terminal) nodes.}
   \item{printevery}{Outputs MCMC algorithm status every printevery iterations.}
-  \item{numcut}{Number of cutpoints to use for each predictor variable.}
   \item{xicuts}{More detailed construction of cutpoints can be specified using makecuts() and passed as an argument here.}
   \item{nadapt}{Number of MCMC iterations allowed for adaptive MCMC. These are also discarded.}
   \item{adaptevery}{Adapt MCMC proposal distributions every adaptevery iterations until the algorithm has run for nadapt iterations.}
