@@ -33,9 +33,11 @@ for(j in 1:2) {
 
 print(post[[1]]$lpml-post[[2]]$lpml)
 
+M=2000
 r=list(0, 0)
 for(j in 1:2) {
-    for(i in 1:M) r[[j]][i]=cor(post[[j]]$z.train[i, ], y[[j]])
+    z=log(y[[j]])
+    for(i in 1:M) r[[j]][i]=cor(post[[j]]$z.train[i, ], z)
 }
 summary(r[[1]]^2)
 summary(r[[2]]^2)
