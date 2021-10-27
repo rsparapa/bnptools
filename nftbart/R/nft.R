@@ -20,8 +20,10 @@
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
 nft = function(## data
-               x.train, times, delta=rep(1, n),
+               x.train, times, delta=NULL, 
                x.test=matrix(nrow=0, ncol=0),
+               impute.bin=NULL, impute.prob=NULL,
+               ## multi-threading
                tc=1, ##OpenMP thread count
                ##MCMC
                nskip=1000, ndpost=2000, 
@@ -30,46 +32,46 @@ nft = function(## data
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
-               ## BART and HBART
-               ntree=c(50, 10), numcut=100, 
+               ## BART and HBART prior parameters
+               ntree=c(50, 10), numcut=100, xicuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
                k=5, sigmaf=NA,
                dist='weibull', ##type='interval',
                ## s function
-               sigmav=rep(1, n), soffset=NULL,
+               sigmav=rep(1, n), ##soffset=NULL,
                overalllambda=NA, overallnu=10,
                ## survival analysis 
                K=100, events=NULL, ##take.logs=1,
-               ## impute Xs
-               impute.bin=NULL, impute.prob=NULL,
                ##impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
                ## DPM LIO
                drawMuTau=1L, 
-               states=c(n, rep(0, n-1)), C=rep(1, n),
+               ##states=c(n, rep(0, n-1)), C=rep(1, n),
                alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
-               neal.m=2, constrain=1, a0=3, b0=2,
+               neal.m=2, constrain=1, ##a0=3, b0=2,
                ##m0=0, k0=0, k0.a=1.5, k0.b=7.5,
                ##a0=1.5, b0=0, b0.a=0.5, b0.b=1,
                k0.draw=1, b0.draw=1,
                ##alphao=5, sigquanto=0.95, #error variance prior
                ## misc
-               printevery=100, xicuts=NULL,
+               printevery=100
                ##draws=1L,
-               transposed=FALSE,
-               n=length(times)
+               ##transposed=FALSE,
+               ##n=length(times)
                )
 {
+    n=length(times)
+    if(length(delta)==0) delta=rep(1, n)
     x = x.train
     xp = x.test
-    if(!transposed) {
+    ##if(!transposed) {
         impute=CDimpute(x.train=cbind(x),
                         x.test=cbind(xp),
                         impute.bin=impute.bin)
         x=t(impute$x.train)
         xp=t(impute$x.test)
         transposed=TRUE
-    }
+    ##}
 
     take.logs = (dist!='extreme')
     if(length(events)==0 && K>0) {
@@ -160,8 +162,6 @@ nft = function(## data
     ## LIO.Q95=log(qweibull(0.95, LIO.a, LIO.b))
     ## LIO.scale=0.5*(LIO.Q95-LIO.Q2)
     ## LIO.tau=1/(LIO.scale^2)
-    C=as.integer(C-1) ## C/C++ indexing
-    states=as.integer(states)
     ## if(drawMuTau==2) {
     ##     prior=list(m=as.integer(neal.m), constrain=as.integer(constrain),
     ##                a0=a0, b0=b0,
@@ -170,9 +170,11 @@ nft = function(## data
     ##     hyper=list(alpha=alpha, alpha.draw=alpha.draw)
     ## } else 
     if(drawMuTau==1) {
+        C=rep(1, n)
+        C=as.integer(C-1) ## C/C++ indexing
+        states=as.integer(c(n, rep(0, n-1)))
             prior=list(m=as.integer(neal.m), constrain=as.integer(constrain),
                        m0=0, k0.a=1.5, k0.b=7.5,
-                       ## BEWARE: not the same a0 as above
                        a0=3, b0.a=2, b0.b=1,
                        ##a0=1.5, b0.a=0.5, b0.b=1,
                        alpha.a=alpha.a, alpha.b=alpha.b)
@@ -361,15 +363,15 @@ if(K>0) {
     res$cpo = 1/apply(1/dnorm(res$z.train, mu., sd.), 2, mean)
     res$lpml = sum(log(res$cpo))
 
-    if(length(soffset)==0) {
+    ##if(length(soffset)==0) {
         res$pred=predict(res, res$x.train, tc=tc,
                          XPtr=FALSE, soffset=0) ##(, draws=TRUE)
         ## res$soffset=(res$pred$s.test.mean/res$s.train.mean)^2
         ## res$soffset=0.5*log(mean(res$soffset[is.finite(res$soffset)]))
         res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
                             mean(res$s.train.mean^2)) ## for stability
-        if(!is.finite(res$soffset)) res$soffset=NA
-    } else res$soffset=soffset
+        ##if(!is.finite(res$soffset)) res$soffset=NA
+    ##} else res$soffset=soffset
     
     res$drawMuTau=drawMuTau
     

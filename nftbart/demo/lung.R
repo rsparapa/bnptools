@@ -37,7 +37,7 @@ if(file.exists(file.)) {
 
 x.test = rbind(x.train, x.train)
 x.test[ , 2]=rep(1:2, each=N)
-K=150
+K=75 ##150
 events=seq(0, 150, length.out=K+1)
 pred = predict(post, x.test, K=K, events=events[-1],
                XPtr=XPtr, tc=B, FPD=TRUE)
