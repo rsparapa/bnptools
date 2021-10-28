@@ -32,6 +32,7 @@ for(j in 1:2) {
 }
 
 print(post[[1]]$lpml-post[[2]]$lpml)
+print(post[[1]]$LPML-post[[2]]$LPML)
 
 M=2000
 r=list(0, 0)

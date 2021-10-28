@@ -360,8 +360,15 @@ if(K>0) {
 
     mu. = res$dpmu*res$s.train+res$f.train
     sd. = res$dpsd*res$s.train
-    res$cpo = 1/apply(1/dnorm(res$z.train, mu., sd.), 2, mean)
-    res$lpml = sum(log(res$cpo))
+    cpo = 1/apply(1/dnorm(res$z.train, mu., sd.), 2, mean)
+    res$lpml = sum(log(cpo))
+    
+    z=matrix(log(times), nrow=ndpost, ncol=n, byrow=TRUE)
+    delta=matrix(delta, nrow=ndpost, ncol=n, byrow=TRUE)
+    cpo=(delta==2)*pnorm(z, mu., sd.)+(delta==0)*pnorm(z, mu., sd., FALSE)+
+        (delta==1)*dnorm(z, mu., sd.)
+    cpo = 1/apply(1/cpo, 2, mean)
+    res$LPML = sum(log(cpo))
 
     ##if(length(soffset)==0) {
         res$pred=predict(res, res$x.train, tc=tc,
