@@ -32,6 +32,7 @@
 class rn
 {
 public:
+   virtual int bin(int n, double p) = 0;
    virtual double beta(double a, double b) = 0;
    virtual double chi_square(double _df) = 0;
    virtual double chi_square() = 0; //chi-square
@@ -62,6 +63,7 @@ public:
    virtual double chi_square() {return R::rchisq((double)df);}
    virtual double exp() {return exp_rand();}
    virtual void set_df(int df) {this->df=df;}
+   virtual int bin(int n, double p) {return R::rbinom(n, p);}
    virtual double beta(double a, double b) {return R::rbeta(a, b);} 
 
    virtual double log_gamma(double shape) {
