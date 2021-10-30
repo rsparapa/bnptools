@@ -4,7 +4,7 @@ Title: Nonparametric Failure Time: Heteroskedastic Bayesian Additive Regression 
 Version: 1.0
 Date: 2021-10-22
 Authors@R: c(person('Rodney', 'Sparapani', 
-	   role=c('aut', 'cre'), email='robert.e.mcculloch@gmail.com'),
+	   role=c('aut', 'cre'), email='rsparapa@mcw.edu'),
 	   person('Robert', 'McCulloch', role='aut'),
   	   person('Matthew', 'Pratola', role='aut'), 
 	   person('Hugh', 'Chipman', role='aut'))
@@ -12,9 +12,10 @@ Author: Rodney Sparapani [aut, cre],
   Robert McCulloch [aut],
   Matthew Pratola [aut],
   Hugh Chipman [aut]
+Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
 Description: A model of the form Y = f(x) + s(x) E is fit where functions f and s are modeled with ensembles of trees and E is a nonparametric error distribution. 
 License: GPL (>= 2)
-Depends: R (>= 3.6), survival, nnet, MASS
+Depends: R (>= 3.6), survival, nnet
 Imports: Rcpp
 Suggests: knitr, rmarkdown
 LinkingTo: Rcpp

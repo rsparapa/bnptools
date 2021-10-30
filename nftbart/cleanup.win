@@ -2,7 +2,7 @@
 
 rm -f config.* src/Makevars 
 
-for i in  demo/*.pdf demo/*.Rout demo/*.rds demo/core.*
+for i in src/*.o src/*.so demo/*.pdf demo/*.Rout demo/*.rds demo/core.*
 do
     if [ -e $i ]
        then rm -rf $i

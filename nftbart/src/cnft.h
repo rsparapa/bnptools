@@ -78,7 +78,7 @@ RcppExport SEXP cnft(
 		     SEXP _iminnumbot,	//minimum number of observations in a bottom node, mean and var
 		     SEXP _iprintevery,    //how often you print progress
 		     SEXP _ixicuts,        //variable cutpoints for each predictor
-		     SEXP _isummarystats,  //boolean, do you want summary stats
+		     //SEXP _isummarystats,  //boolean, do you want summary stats
 //		     SEXP _ialphao, 
 //		     SEXP _ibetao,
 		     //  SEXP _mstart, //  SEXP _sstart,
@@ -230,7 +230,7 @@ RcppExport SEXP cnft(
   if(probchvh<0) doperth=false;
 
   //summary statistics yes/no
-  bool summarystats = Rcpp::as<bool>(_isummarystats);
+  bool summarystats = true; //Rcpp::as<bool>(_isummarystats);
 
   //error variance prior
 /*double alphao = Rcpp::as<double>(_ialphao);
@@ -505,7 +505,8 @@ RcppExport SEXP cnft(
       if(burning && (h % printevery)==0) COUT << "draw burn " << h << endl;
       else if(keeping) {
 	if ((j % printevery)==0) COUT << "draw keep " << j << endl;
-	if(summarystats && j==0) {
+	//if(summarystats && j==0) {
+	if(j==0) {
 	  ambm.setstats(true);
 	  psbm.setstats(true);
 	}

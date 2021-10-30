@@ -27,7 +27,7 @@ nft = function(## data
                tc=1, ##OpenMP thread count
                ##MCMC
                nskip=1000, ndpost=2000, 
-               nadapt=1000, adaptevery=100, summarystats=TRUE,
+               nadapt=1000, adaptevery=100, 
                chv = cor(x.train, method="spearman"),
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
@@ -37,31 +37,26 @@ nft = function(## data
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
                k=5, sigmaf=NA,
-               dist='weibull', ##type='interval',
+               dist='weibull', 
                ## s function
-               sigmav=rep(1, n), ##soffset=NULL,
-               overalllambda=NA, overallnu=10,
+               sigmav=NULL, overalllambda=NA, overallnu=10,
                ## survival analysis 
-               K=100, events=NULL, ##take.logs=1,
+               K=100, events=NULL, 
                ##impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
                ## DPM LIO
                drawMuTau=1L, 
-               ##states=c(n, rep(0, n-1)), C=rep(1, n),
                alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
-               neal.m=2, constrain=1, ##a0=3, b0=2,
+               neal.m=2, constrain=1, 
                ##m0=0, k0=0, k0.a=1.5, k0.b=7.5,
                ##a0=1.5, b0=0, b0.a=0.5, b0.b=1,
                k0.draw=1, b0.draw=1,
-               ##alphao=5, sigquanto=0.95, #error variance prior
                ## misc
                printevery=100
-               ##draws=1L,
-               ##transposed=FALSE,
-               ##n=length(times)
                )
 {
     n=length(times)
     if(length(delta)==0) delta=rep(1, n)
+    if(length(sigmav)==0) sigmav=rep(1, n)
     x = x.train
     xp = x.test
     ##if(!transposed) {
@@ -264,7 +259,7 @@ nft = function(## data
               minnumbot,
               printevery,
               xicuts,
-              summarystats,
+              ##summarystats,
               ##alphao, betao,
               ##mstart, sstart,
               hyper, C, states, phi, prior,
@@ -335,6 +330,7 @@ if(K>0) {
     res$xicuts=xicuts
     res$fmu = fmu
 
+    summarystats=TRUE
     if(summarystats) {
         dimnames(res$f.varcount)[[2]]=names(xicuts)
         res$f.varcount[2:ndpost, ]=res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ]

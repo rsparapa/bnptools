@@ -5,7 +5,6 @@ B=8
 ##B=getOption('mc.cores', 1)
 ##figures = getOption('figures', default='NONE')
 
-## load survival package for the advanced lung cancer example
 data(lung)
 str(lung)
 N=length(lung$status)

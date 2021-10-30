@@ -8,9 +8,9 @@ export(CDimpute)
 ##export(rbart_Rexport, rbart_Rimport, rbart_save, rbart_vartivity)
 importFrom(Rcpp, evalCpp)
 importFrom("graphics", "abline", "boxplot", "lines", "par", "plot", "points")
-importFrom("stats", "cor", "qqplot", "quantile", "rnorm", "runif", "sd")
-importFrom(stats, ar, lm, predict, pnorm, qnorm, qchisq, plogis, qlogis,
-           residuals, coef, vcov)
+importFrom("stats", "cor", "qqplot", "quantile", "rnorm", "runif", "sd",
+           ar, dnorm, lm, predict, pnorm, qnorm, qchisq, plogis, qlogis,
+           residuals, coef, var, vcov)
 ## export(amode, bartModelMatrix, DPMLIOdensity, DPMLIOmutau, getaprior,
 ##        mc.nft, nft, normwrapper, rtnorm, srstepwise, xicuts)
 export(bartModelMatrix, srstepwise, xicuts)
