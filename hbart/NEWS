@@ -13,5 +13,5 @@ Changes and New Features in 1.3 (2021-09-10):
 	* varcount now returned per MCMC iteration
 	with varcount.mean for their mean
 
-Changes and New Features in 1.4 (2021-20-23):
-	* adding nonparametric failure time (NFT)
+Changes and New Features in 1.4 (2021-10-30):
+	* fixing Makevars.win 
