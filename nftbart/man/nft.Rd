@@ -2,8 +2,9 @@
 \alias{nft}
 \title{Fit NFT BART models.}
 \description{
-  The function \code{nft()} is the main function for fitting
-  NFT BART (Nonparametric Failure Time Bayesian Regression Tree) models. 
+  The \code{nft()} function is for fitting
+  NFT BART (Nonparametric Failure Time
+  Bayesian Additive Regression Tree) models. 
 }
 \usage{
 nft(
@@ -82,26 +83,28 @@ nft(
   \item{b0.draw}{Whether to fix b0 or draw it from the DPM LIO prior hierarchy: b0~Gamma(2, 1).}
   \item{printevery}{Outputs MCMC algorithm status every printevery iterations.}
 }
+
 \details{
-  \code{nft()} is the main model fitting function for continuous response data.  The most general form of the model allowed is
-  \eqn{Y({\bf x})=f({\bf x})+s({\bf x})Z}{Y(x)=f(x)+s(x)Z}
-  where \eqn{Z} is \eqn{N(0,1)} and 
-  \eqn{f({\bf x})=\sum_{j=1}^m g({\bf x};T_j,M_j)}{f(x)=sum g(x;T_j,M_j)} and
-  \eqn{s({\bf x})=\prod_{j=1}^{m^\prime} h({\bf x};T^\prime_j,M^\prime_j)}{s(x)=prod g(x;T'_j,M'_j)},
-  where the \eqn{g(\cdot;T_j,M_j)}{g(.;T_j,M_j)} represent additive tree components used for modeling the mean and
-  \eqn{h(\cdot;T^\prime_j,M^\prime_j)}{h(.;T'_j,M'_j)} represent multiplicative tree components used for modeling the variance.
+  \code{nft()} is the function to fit time-to-event data.  The most general form of the model allowed is
+  \eqn{Y({\bf x})=f({\bf x})+s({\bf x})Z}{Y(x)=f(x)+s(x)E}
+  where \eqn{E} follows a nonparametric error distribution
+  by default.
+  %% \eqn{f({\bf x})=\sum_{j=1}^m g({\bf x};T_j,M_j)}{f(x)=sum g(x;T_j,M_j)} and
+  %% \eqn{s({\bf x})=\prod_{j=1}^{m^\prime} h({\bf x};T^\prime_j,M^\prime_j)}{s(x)=prod g(x;T'_j,M'_j)},
+  %% where the \eqn{g(\cdot;T_j,M_j)}{g(.;T_j,M_j)} represent additive tree components used for modeling the mean and
+  %% \eqn{h(\cdot;T^\prime_j,M^\prime_j)}{h(.;T'_j,M'_j)} represent multiplicative tree components used for modeling the variance.
 
-  The most common models to fit are a homoscedastic single-tree model, a homoscedastic BART model and a heteroscedastic BART model.
+  %% The most common models to fit are a homoscedastic single-tree model, a homoscedastic BART model and a heteroscedastic BART model.
 
-  For a BART model, set \code{pbd=c(0.7,0.0)} and \code{ntreeh=1}.  This forces a scalar (homoscedastic) variance term.
+  %% For a BART model, set \code{pbd=c(0.7,0.0)} and \code{ntreeh=1}.  This forces a scalar (homoscedastic) variance term.
 
-  For a single-tree model, set \code{pbd=(0.7,0.0)}, \code{ntreeh=1} and \code{ntree=1}. This forces the mean component to be modeled using only one tree.
+  %% For a single-tree model, set \code{pbd=(0.7,0.0)}, \code{ntreeh=1} and \code{ntree=1}. This forces the mean component to be modeled using only one tree.
 
-  The heteroscedastic BART model is the default.
+  %% The heteroscedastic BART model is the default.
 
 }
 \value{
-  \item{res}{Fitted model object of S3 class \code{nft} that is essentially a list.}
+  \item{res}{Model fit object of S3 class \code{nft} that is essentially a list.}
 }
 
 \author{
