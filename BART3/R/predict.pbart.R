@@ -42,7 +42,7 @@ predict.pbart <- function(object, newdata, mc.cores=1,
     if(length(object$binaryOffset)==0) object$binaryOffset=object$offset
 
     ## HD imputation 
-    check = HDimpute(newdata)
+    check = CDimpute(newdata)
 
     if(sum(check$miss.train)==0) mult.impute=1
 
