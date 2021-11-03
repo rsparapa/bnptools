@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012-2021 Matthew T. Pratola, Robert E. McCulloch,
- *                         Hugh A. Chipman and Rodney A. Sparapani
+ *                         and Hugh A. Chipman
  *  
  * This file is part of nftbart.
  * mbrt.h
@@ -22,7 +22,6 @@
  * Matthew T. Pratola: mpratola@gmail.com
  * Robert E. McCulloch: robert.e.mculloch@gmail.com
  * Hugh A. Chipman: hughchipman@gmail.com
- * Rodney A. Sparapani: rsparapa@mcw.edu
  *
  */
 

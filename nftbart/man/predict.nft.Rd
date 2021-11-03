@@ -1,12 +1,12 @@
-\name{predict.nftbart}
-\alias{predict.nftbart}
+\name{predict.nft}
+\alias{predict.nft}
 %\docType{package}
-\title{Drawing Posterior Predictive Realizations for nftbart models.}
+\title{Drawing Posterior Predictive Realizations for NFT BART models.}
 \description{
-  The function \code{predict.nftbart()} is the main function for drawing posterior predictive realizations at new inputs using a fitted model stored in a \code{nftbart} object returned from \code{nftbart()}.
+  The function \code{predict.nft()} is the main function for drawing posterior predictive realizations at new inputs using a fitted model stored in a \code{nft} object returned from \code{nft()}.
 }
 \usage{
-\method{predict}{nftbart}(
+\method{predict}{nft}(
 object,
 x.test=object$x.train,
 tc=1,
@@ -15,18 +15,18 @@ q.lower=0.025,
 q.upper=0.975,...)
 }
 \arguments{
-  \item{object}{Object of type \code{nftbart} from a previous call to \code{nftbart()}}
+  \item{object}{Object of type \code{nft} from a previous call to \code{nft()}}
   \item{x.test}{New input settings in the form of an \code{npred x p} matrix at which to construct predictions.  Defaults to the training inputs.}
   \item{tc}{Number of OpenMP threads to use for parallel computing.}
-  \item{fmean}{Mean-centering vector for the training data.  Defaults to the value used by \code{nftbart()} when fitting the model.  Usually should be left to the default.}
+  \item{fmean}{Mean-centering vector for the training data.  Defaults to the value used by \code{nft()} when fitting the model.  Usually should be left to the default.}
   \item{q.lower}{Lower quantile to return.}
   \item{q.upper}{Upper quantile to return.}
    \item{...}{not used.}
 }
 \details{
-  \code{predict.nftbart()} is the main function for calculating posterior predictions and uncertainties once a model has been fit by \code{nftbart()}.  
+  \code{predict.nft()} is the main function for calculating posterior predictions and uncertainties once a model has been fit by \code{nft()}.  
 
-  Returns an object of type \code{nftbart} with the following entries.
+  Returns an object of type \code{nft} with the following entries.
 }
 \value{
   \item{mdraws}{Posterior realizations of the mean function, \eqn{f({\bf x})}{f(x)} stored in an \code{ndpost x npred} matrix.}

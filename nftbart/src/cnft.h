@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Matthew T. Pratola, Robert E. McCulloch,
- *                         Hugh A. Chipman and Rodney A. Sparapani
+ * Copyright (C) 2012-2021 Rodney A. Sparapani
  *  
  * This file is part of nftbart.
  * cnft.h
@@ -19,9 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Author contact information
- * Matthew T. Pratola: mpratola@gmail.com
- * Robert E. McCulloch: robert.e.mculloch@gmail.com
- * Hugh A. Chipman: hughchipman@gmail.com
  * Rodney A. Sparapani: rsparapa@mcw.edu
  *
  */

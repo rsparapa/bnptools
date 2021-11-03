@@ -3,12 +3,12 @@
 \alias{CDimpute}
 \description{This function imputes missing data.}
 \usage{
-CDimpute(x.train, x.test=matrix(0, 0, 0), impute.mult=NULL)
+CDimpute(x.train, x.test=matrix(0, 0, 0), impute.bin=NULL)
 }
 \arguments{
   \item{x.train}{The training matrix.}
   \item{x.test}{The testing matrix, if given.}
-  \item{impute.mult}{An index of the columns to avoid
+  \item{impute.bin}{An index of the columns to avoid
     imputing which will be handled by BART internally.}
 }
 \details{We call this method cold-decking in analogy to hot-decking.
@@ -26,7 +26,7 @@ CDimpute(x.train, x.test=matrix(0, 0, 0), impute.mult=NULL)
   \item{x.test}{The imputed testing matrix.}
   \item{miss.train}{A summary of the missing variables for training.}
   \item{miss.test}{A summary of the missing variables for testing.}
-  \item{impute.flag}{Whether \code{impute.mult} columns were, or were
+  \item{impute.flag}{Whether \code{impute.bin} columns were, or were
     not, imputed.}
   \item{same}{Whether \code{x.train} and \code{x.test} are identical.}
 }

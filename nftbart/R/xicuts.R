@@ -1,7 +1,7 @@
 ## Copyright (C) 2021 Rodney A. Sparapani
 
 ## This file is part of nftbart.
-## nft.R
+## xicuts.R
 
 ## nftbart is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,7 +19,8 @@
 ## Author contact information
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
-xicuts = function(x, transposed=FALSE, numcut=100) {
+xicuts = function(x.train, transposed=FALSE, numcut=100) {
+    x = x.train
     numcut.=0
     grid=list()
     if(transposed) {
