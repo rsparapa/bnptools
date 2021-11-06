@@ -356,6 +356,18 @@ if(K>0) {
         dpwt. = matrix(0, nrow=ndpost, ncol=H)
         for(h in 1:H) dpwt.[ , h]=apply(res$dpC==h, 1, sum)
         res$dpwt.=dpwt./n
+
+        if(H<n) { ## it has to be, but just in case 
+            res$dpmu.=res$dpmu.[ , -((H+1):n)]
+            res$dpsd.=res$dpsd.[ , -((H+1):n)]
+            for(i in 1:ndpost) {
+                h=res$dpn.[i]
+                if(h<H) for(j in (h+1):H) {
+                            res$dpmu.[i, j]=0
+                            res$dpsd.[i, j]=1
+                        }
+            }
+        }
         
     }
     attr(res, 'class') <- 'nft'
