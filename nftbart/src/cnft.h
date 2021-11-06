@@ -258,7 +258,7 @@ RcppExport SEXP cnft(
   Rcpp::IntegerMatrix dpC(ndMT, nMT);
   Rcpp::NumericMatrix dpMU(ndMT, nMT);
   Rcpp::NumericMatrix dpSD(ndMT, nMT);
-  Rcpp::NumericMatrix dpWT(ndMT, nMT);
+  //Rcpp::NumericMatrix dpWT(ndMT, nMT);
 
   //--------------------------------------------------
   //print args
@@ -800,8 +800,8 @@ RcppExport SEXP cnft(
 	  dsig(j, k) = svec[k];
 	  dpMU(j, k)=phi(k, 0);
 	  dpSD(j, k)=pow(phi(k, 1), -0.5);
-	  dpWT(j, C[k])=dpWT(j, C[k])+wt;
 	  dpC(j, k) = C[k]+1;
+	  //dpWT(j, C[k])=dpWT(j, C[k])+wt;
 	}
       }
 
@@ -908,7 +908,7 @@ RcppExport SEXP cnft(
     ret["dpC"]=dpC;
     ret["dpmu."]=dpMU;
     ret["dpsd."]=dpSD;
-    ret["dpwt."]=dpWT;
+    //ret["dpwt."]=dpWT;
   }
 
   if(np) {

@@ -351,9 +351,15 @@ if(K>0) {
         res$C = as.integer(C+1)
         res$states = states
         res$phi = phi
+
+        H=max(res$dpn.)
+        dpwt. = matrix(0, nrow=ndpost, ncol=H)
+        for(h in 1:H) dpwt.[ , h]=apply(res$dpC==h, 1, sum)
+        res$dpwt.=dpwt./n
+        
     }
     attr(res, 'class') <- 'nft'
-
+    
     mu. = res$dpmu*res$s.train+res$f.train
     sd. = res$dpsd*res$s.train
     cpo = 1/apply(1/dnorm(res$z.train, mu., sd.), 2, mean)
