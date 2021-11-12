@@ -7,62 +7,99 @@
 }
 \usage{
 \method{predict}{nft}(
-object,
-x.test=object$x.train,
-tc=1,
-fmean=mean(object$y.train),
-q.lower=0.025,
-q.upper=0.975,...)
+            ## data
+            object,
+            x.test=object$x.train,
+            ## multi-threading
+            tc=1, ##OpenMP thread count
+            ## current process fit vs. previous process fit
+            XPtr=TRUE,
+            ## predictions
+            K=0,
+            events=object$events,
+            FPD=FALSE,
+            probs=c(0.025, 0.975),
+            take.logs=TRUE,
+            na.rm=FALSE,
+            ## default settings for NFT:BART/HBART/DPM
+            fmu=object$fmu,
+            soffset=object$soffset,
+            drawMuTau=object$drawMuTau,
+            ## etc.
+            ...)
 }
 \arguments{
-  \item{object}{Object of type \code{nft} from a previous call to \code{nft()}}
-  \item{x.test}{New input settings in the form of an \code{npred x p} matrix at which to construct predictions.  Defaults to the training inputs.}
+  \item{object}{Object of type \code{nft} from a previous call to \code{nft()}.}
+  \item{x.test}{New input settings in the form of a matrix at which to construct predictions.  Defaults to the training inputs.}
   \item{tc}{Number of OpenMP threads to use for parallel computing.}
-  \item{fmean}{Mean-centering vector for the training data.  Defaults to the value used by \code{nft()} when fitting the model.  Usually should be left to the default.}
-  \item{q.lower}{Lower quantile to return.}
-  \item{q.upper}{Upper quantile to return.}
-   \item{...}{not used.}
+  \item{XPtr}{If \code{object} was created during the currently running
+    R process, then (via an Rcpp \code{XPtr}) the BART/HBART tree
+    ensemble objects can be accessed in RAM; otherwise, those objects
+    will need to be loaded from their string encodings.}
+  \item{K}{The length of the grid of time-points to be used
+    for survival predictions.  Set to zero to avoid these calculations
+    which can be time-consuming for large data sets.}
+  \item{events}{You can specify the grid of time-points; otherwise,
+    they are derived from quantiles of the augmented event times.}
+  \item{FPD}{Whether to yield the usual predictions or marginal predictions
+    calculated by the partial dependence function.}
+  \item{probs}{A vector of length two containing the
+    lower and upper quantiles to be calculated for the predictions.}
+  \item{take.logs}{Whether or not to take logarithms.}
+  \item{na.rm}{Whether \code{NA} values should be removed from the
+    summaries.}
+  \item{fmu}{BART centering parameter for the test data.  Defaults to the value used by \code{nft()} when training the model.}
+  \item{soffset}{HBART centering parameter for the test data.  Defaults to the value used by \code{nft()} when training the model.}
+   \item{drawMuTau}{Whether to use NFT BART with, or without, DPM.}
+   \item{...}{The et cetera objects passed to the \code{predict} method.
+     Currently, it has no functionality.}
 }
 \details{
   \code{predict.nft()} is the main function for calculating posterior predictions and uncertainties once a model has been fit by \code{nft()}.  
 
-  Returns an object of type \code{nft} with the following entries.
+  Returns a list with the following entries.
 }
 \value{
-  \item{mdraws}{Posterior realizations of the mean function, \eqn{f({\bf x})}{f(x)} stored in an \code{ndpost x npred} matrix.}
-  \item{mmean}{Posterior predictive mean of \eqn{f({\bf x})}{f(x)}.}
-  \item{smean}{Posterior predictive mean of the standard deviation, \eqn{s({\bf x})}{s(x)}.}
-  \item{msd}{Posterior standard deviation of the mean, \eqn{f({\bf x})}{f(x)}.}
-  \item{ssd}{Posterior standard deviation of the standard devation, \eqn{s({\bf x})}{s(x)}.}
-  \item{m.5}{Posterior median of the mean function realizations, \eqn{f({\bf x})}{f(x)}.}
-  \item{m.lower}{Posterior \code{q.lower} quantile of the mean function realizations.}
-  \item{m.upper}{Posterior \code{q.upper} quantile of the mean function realizations.}
-  \item{s.5}{Posterior median of the standard deviation function realizations, \eqn{s({\bf x})}{s(x)}.}
-  \item{s.lower}{Posterior \code{q.lower} quantile of the standard deviation function realizations.}
-  \item{s.upper}{Posterior \code{q.upper} quantile of the standard deviation function realizations.}
-  \item{q.lower}{Lower quantile used in constructing the above.}
-  \item{q.upper}{Upper quantile used in constructing the above.}
+  \item{f.test}{Posterior realizations of the mean function stored in a
+    matrix. Omitted if partial dependence functions are performed since
+  these will typically be large.}
+  \item{s.test}{Posterior realizations of the SD function stored in a matrix. Omitted if partial dependence functions are performed since
+  these will typically be large.}
+  \item{f.test.mean}{Posterior predictive mean of mean function.}
+  \item{f.test.lower}{Posterior predictive lower quantile of mean function.}
+  \item{f.test.upper}{Posterior predictive upper quantile of mean function.}
+  \item{s.test.mean}{Posterior predictive mean of SD function.}
+  \item{s.test.lower}{Posterior predictive lower quantile of SD function.}
+  \item{s.test.upper}{Posterior predictive upper quantile of SD
+    function.}
+  \item{surv.fpd}{Survival function posterior draws on a grid of
+    time-points by the partial dependence function when requested.}
+  \item{surv.fpd.mean}{Survival function estimates on a grid of
+    time-points by the partial dependence function when requested.}
+  \item{surv.fpd.lower}{Survival function lower quantiles on a grid of
+    time-points by the partial dependence function when requested.}
+  \item{surv.fpd.upper}{Survival function upper quantiles on a grid of
+    time-points by the partial dependence function when requested.}
 }
-\references{
-  Chipman, Hugh A., George, Edward I., and McCulloch, Robert E. (1998)
-  Bayesian CART model search. 
-  \emph{Journal of the American Statistical Association}, \bold{93}, 935--948.
+%% \references{
+%%   Chipman, Hugh A., George, Edward I., and McCulloch, Robert E. (1998)
+%%   Bayesian CART model search. 
+%%   \emph{Journal of the American Statistical Association}, \bold{93}, 935--948.
 
-  Chipman, Hugh A., George, Edward I., and McCulloch, Robert E. (2010)
-  BART: Bayesian additive regression trees. 
-  \emph{The Annals of Applied Statistics}, \bold{4}, 266--298.
+%%   Chipman, Hugh A., George, Edward I., and McCulloch, Robert E. (2010)
+%%   BART: Bayesian additive regression trees. 
+%%   \emph{The Annals of Applied Statistics}, \bold{4}, 266--298.
 
-  Pratola, Matthew T. (2016)
-  Efficient Metropolis Hastings proposal mechanisms for Bayesian regression tree models.
-  \emph{Bayesian analysis}, \bold{11}, 885--911.
+%%   Pratola, Matthew T. (2016)
+%%   Efficient Metropolis Hastings proposal mechanisms for Bayesian regression tree models.
+%%   \emph{Bayesian analysis}, \bold{11}, 885--911.
  
-  Pratola, Matthew T., Chipman, Hugh A., George, Edward I. and McCulloch, Robert E. (2017)
-  Heteroscedastic BART Using Multiplicative Regression Trees.
-  \emph{arXiv preprint}, \bold{arXiv:1709.07542}, 1--20.
-}
+%%   Pratola, Matthew T., Chipman, Hugh A., George, Edward I. and McCulloch, Robert E. (2017)
+%%   Heteroscedastic BART Using Multiplicative Regression Trees.
+%%   \emph{arXiv preprint}, \bold{arXiv:1709.07542}, 1--20.
+%% }
 \author{
-Matthew T. Pratola <mpratola@stat.osu.edu> [aut, cre, cph], Robert E. McCulloch <robert.e.mcculloch@gmail.com> [aut, cre, cph], Hugh Chipman <hugh.chipman@gmail.com> [aut, cph]
-Maintainer: Matthew T. Pratola <mpratola@stat.osu.edu>, Robert E. McCulloch <robert.e.mcculloch@gmail.com>
+Rodney Sparapani: \email{rsparapa@mcw.edu}
 }
 \seealso{
 \code{\link{nft}}

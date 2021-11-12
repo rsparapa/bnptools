@@ -6,12 +6,12 @@ Date: 2021-11-03
 Authors@R: c(person('Rodney', 'Sparapani', 
 	   role=c('aut', 'cre'), email='rsparapa@mcw.edu'),
 	   person('Robert', 'McCulloch', role='aut'),
-  	   person('Matthew', 'Pratola', role='aut'), 
-	   person('Hugh', 'Chipman', role='aut'))
+  	   person('Matthew', 'Pratola', role='ctb'), 
+	   person('Hugh', 'Chipman', role='ctb'))
 Author: Rodney Sparapani [aut, cre],
   Robert McCulloch [aut],
-  Matthew Pratola [aut],
-  Hugh Chipman [aut]
+  Matthew Pratola [ctb],
+  Hugh Chipman [ctb]
 Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
 Description: Fit a model of the form Y = f(x) + s(x) E where functions f and s are BART and HBART functions respectively while E is a nonparametric error distribution due to DPM LIO. 
 License: GPL (>= 2)
