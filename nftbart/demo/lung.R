@@ -50,8 +50,8 @@ lines(events, c(1, pred$surv.fpd.lower[1:K]), lty=2, lwd=2, col=4)
 lines(events, c(1, pred$surv.fpd.mean[K+1:K]), lwd=2, col=2)
 lines(events, c(1, pred$surv.fpd.upper[K+1:K]), lty=2, lwd=2, col=2)
 lines(events, c(1, pred$surv.fpd.lower[K+1:K]), lty=2, lwd=2, col=2)
-legend('topright', c('Adv. lung cancer\nmortality example',
-                     'M', 'F'), lwd=2, col=c(0, 4, 2), lty=1)
+legend('topright', c('Mortality',
+                     'Males', 'Females'), lwd=2, col=c(0, 4, 2), lty=1)
 ##dev.copy2pdf(file='lung.pdf')
 
 
