@@ -3,11 +3,12 @@
 \alias{cancer}
 \alias{lung}
 \title{NCCTG Lung Cancer Data}
-\description{
-  Survival in patients with advanced lung cancer from the North
-  Central Cancer Treatment Group.  Performance
-  scores rate how well the patient can perform usual daily activities.
-}
+
+\description{ Survival for 228 patients with advanced lung cancer was
+  recorded up to a median of roughly one year by the North Central Cancer
+  Treatment Group.  Performance scores rate how well the patient can
+  perform usual daily activities.  }
+
 %\usage{
 %lung
 %cancer
