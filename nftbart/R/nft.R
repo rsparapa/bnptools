@@ -330,7 +330,7 @@ if(K>0) {
     res$xicuts=xicuts
     res$fmu = fmu
 
-    summarystats=TRUE
+    summarystats=(nd>=2)
     if(summarystats) {
         dimnames(res$f.varcount)[[2]]=names(xicuts)
         res$f.varcount[2:ndpost, ]=res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ]

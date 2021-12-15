@@ -114,7 +114,6 @@ Rodney Sparapani: \email{rsparapa@mcw.edu}
 \code{\link{predict.nft}}
 }
 \examples{
-\dontrun{
 
 B=getOption('mc.cores', 1)
 
@@ -136,6 +135,11 @@ summary(times)
 x.train=cbind(lung[ , -(1:3)])
 ## lung$sex:        Male=1 Female=2
 
+## token run just to test installation
+post=nft(x.train, times, delta, tc=B, K=0,
+         nskip=0, ndpost=1, nadapt=1, adaptevery=1)
+
+\dontrun{
 file.='lung.rds'
 if(file.exists(file.)) {
     post=readRDS(file.)
