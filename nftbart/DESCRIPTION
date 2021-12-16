@@ -2,7 +2,7 @@ Package: nftbart
 Type: Package
 Title: Nonparametric Failure Time: Heteroskedastic Bayesian Additive Regression Trees and Low Information Omnibus Dirichlet Process Mixtures
 Version: 1.0
-Date: 2021-11-03
+Date: 2021-12-16
 Authors@R: c(person('Rodney', 'Sparapani', 
 	   role=c('aut', 'cre'), email='rsparapa@mcw.edu'),
 	   person('Robert', 'McCulloch', role='aut'),
@@ -13,7 +13,7 @@ Author: Rodney Sparapani [aut, cre],
   Matthew Pratola [ctb],
   Hugh Chipman [ctb]
 Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
-Description: Fit a model of the form Y = f(x) + s(x) E where functions f and s are BART and HBART functions respectively while E is a nonparametric error distribution due to DPM LIO. 
+Description: Fit a model of the form Y = f(x) + s(x) E where functions f and s are BART and HBART functions, respectively, while E is a nonparametric error distribution due to DPM LIO <https://www.mcw.edu/-/media/MCW/Departments/Biostatistics/tr72.pdf?la=en>.
 License: GPL (>= 2)
 Depends: R (>= 3.6), survival, nnet
 Imports: Rcpp

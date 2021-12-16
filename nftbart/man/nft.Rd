@@ -106,7 +106,17 @@ nft(
 \value{
   \item{res}{Model fit object of S3 class \code{nft} that is essentially a list.}
 }
-
+\references{
+  Sparapani R., Logan B., Laud P. (2021)
+  Nonparametric Failure Time: Time-to-event Machine Learning with Heteroskedastic Bayesian Additive Regression Trees and Low Information Omnibus Dirichlet Process Mixtures
+  \emph{MCW Biostatistics Technical Report 72}
+  \url{https://www.mcw.edu/-/media/MCW/Departments/Biostatistics/tr72.pdf?la=en}.
+%% Sparapani R., Rein L., Tarima S., Jackson T., Meurer J. (2017)
+%% Nonparametric recurrent events analysis with BART
+%% and an application to the hospital admissions of patients with diabetes.
+%% \emph{MCW Biostatistics Technical Report 64}
+%% \url{http://www.mcw.edu/FileLibrary/Groups/Biostatistics/TechReports/TechReports5175/tr064.pdf}.
+}
 \author{
 Rodney Sparapani: \email{rsparapa@mcw.edu}
 }
