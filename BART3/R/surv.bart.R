@@ -66,9 +66,9 @@ surv.bart <- function(
     if(impute==1)
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
 
-    hotd = HDimpute(x.train, x.test, impute.mult)
-    x.train = hotd$x.train
-    x.test = hotd$x.test
+    cold = CDimpute(x.train, x.test, impute.mult)
+    x.train = cold$x.train
+    x.test = cold$x.test
 
     if(length(y.train)==0) {
         pre <- surv.pre.bart(times, delta, x.train, x.test, K=K,

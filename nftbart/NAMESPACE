@@ -1,0 +1,11 @@
+useDynLib(nftbart, .registration=TRUE)
+S3method(predict, nft)
+export(nft)
+export(CDimpute)
+importFrom(Rcpp, evalCpp)
+##importFrom("graphics", "abline", "boxplot", "lines", "par", "plot", "points")
+importFrom("stats", coef, cor, dnorm, pnorm, predict,
+           quantile, residuals, sd, var)
+export(bartModelMatrix, xicuts)
+importFrom(nnet, class.ind)
+importFrom(survival, survfit, Surv, survreg)

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+rm -f config.log config.status src/Makevars 
+
+for i in *~ src/*.o src/*.so src/symbols.rds \
+	    demo/*.pdf demo/.Rhistory demo/*.Rout demo/*.rds demo/core.*
+do
+    if [ -e $i ]
+       then rm -rf $i
+    fi
+done

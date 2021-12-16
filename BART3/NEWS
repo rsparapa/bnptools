@@ -5,6 +5,9 @@ Changes and New Features in 4.3 (2021-06-09):
 	* Removing randomForest package as a Depends in DESCRIPTION
 	but the code remains: you just need to add it to DESCRIPTION
 	and uncomment it in NAMESPACE to get that functionality
+	
+	* Renaming HDimpute function to CDimpute to better
+	reflect its flavor of cold-decking vs. hot-decking
 
 Changes and New Features in 4.2 (2020-12-22):
 	* Synchronizing docs with BART package:

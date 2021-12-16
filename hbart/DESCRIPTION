@@ -1,20 +1,21 @@
 Package: hbart
 Type: Package
 Title: Heteroscedastic Bayesian Additive Regression Trees
-Version: 1.3
-Date: 2021-09-10
+Version: 1.4
+Date: 2021-10-30
 Authors@R: c(person('Robert', 'McCulloch', role=c('aut','cre','cph'),email='robert.e.mcculloch@gmail.com'),
   person('Matthew', 'Pratola', role=c('aut','cph')), person('Hugh','Chipman',role=c('aut','cph')))
-Description: The model Y = f(x) + s(x) Z is fit where functions f and s are ensembles of trees and Z is standard normal. This model is described in 'Heteroscedastic BART Via Multiplicative Regression Trees' (Pratola, Chipman, George, and McCulloch 2020) <doi:10.1080/10618600.2019.1677243>. The predictor vector x may be high dimensional. A Markov Chain Monte Carlo (MCMC) algorithm provides Bayesian posterior uncertainty for both f and s. Efficient MCMC is based on recent innovations in proposal mechanisms for Bayesian regression tree models (Pratola 2015) <doi:10.1214/16-BA999>. This is a C++ header-only implementation that mimics the rbart package on CRAN.
+Description: The model Y = f(x) + s(x) Z is fit where functions f and s are ensembles of trees and Z is standard normal. This model is described in 'Heteroscedastic BART Via Multiplicative Regression Trees' (Pratola, Chipman, George, and McCulloch 2020) <doi:10.1080/10618600.2019.1677243>. The predictor vector x may be high dimensional. A Markov Chain Monte Carlo (MCMC) algorithm provides Bayesian posterior uncertainty for both f and s. Efficient MCMC is based on recent innovations in proposal mechanisms for Bayesian regression tree models (Pratola 2015) <doi:10.1214/16-BA999>. This is a C++ header-only implementation.
 License: GPL (>= 2)
-Depends: R (>= 3.5)
+Depends: R (>= 3.6), MASS, nnet, survival
 Imports: Rcpp (>= 0.12.3)
-Suggests: knitr, rmarkdown, MASS, nnet
+Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 NeedsCompilation: yes
 Author: Robert McCulloch [aut, cre, cph],
   Matthew Pratola [aut, cph],
-  Hugh Chipman [aut, cph]
+  Hugh Chipman [aut, cph],
+  Rodney Sparapani [aut, cph]
 Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
 Packaged: 

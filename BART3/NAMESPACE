@@ -32,7 +32,7 @@ export(HDFPD) ## new S3 method: hot deck Friedman's partial dependence function
 export(SHAP)  ## new S3 method: SHAP additive explanation function
 export(SHAP2) ## new S3 method: SHAP for two-way interactions
 export(HDSHAP)## new S3 method: hot deck SHAP additive explanation function
-export(HDimpute)
+export(CDimpute)
 importFrom(Rcpp, evalCpp)
 importFrom(nlme, lme)
 importFrom(nnet, class.ind)
