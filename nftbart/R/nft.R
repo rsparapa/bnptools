@@ -374,8 +374,8 @@ if(K>0) {
     
     mu. = res$dpmu*res$s.train+res$f.train
     sd. = res$dpsd*res$s.train
-    cpo = 1/apply(1/dnorm(res$z.train, mu., sd.), 2, mean)
-    res$lpml = sum(log(cpo))
+    ## cpo = 1/apply(1/dnorm(res$z.train, mu., sd.), 2, mean)
+    ## res$lpml = sum(log(cpo))
     
     z=matrix(log(times), nrow=ndpost, ncol=n, byrow=TRUE)
     delta=matrix(delta, nrow=ndpost, ncol=n, byrow=TRUE)
