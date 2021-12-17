@@ -28,12 +28,10 @@ bartModelMatrix(X, numcut=0L, usequants=FALSE, type=7, rm.const=FALSE,
   \item{rm.vars}{ The variables that you want removed. }
 }
 
-\description{ If \code{numcut==0} (the default), then a matrix of the
-  covariates is returned; otherwise, a list is returned with the
-  following values. }
-
 \value{
-
+If \code{numcut==0} (the default), then a matrix of the
+  covariates is returned; otherwise, a list is returned with the
+  following values. 
   \item{X}{A matrix of the covariates with \code{n} rows and \code{p}
   columns.}
 
@@ -70,7 +68,7 @@ df <- data.frame(a=factor(a), x=x)
 
 (b <- bartModelMatrix(df, numcut=9, usequants=TRUE))
 
-\donttest{
+\dontrun{
     ## this is an error
     f <- bartModelMatrix(as.character(a))
 }
