@@ -19,9 +19,9 @@ hotdeckdraw(x.train, y.train, x.test=matrix(0, 0, 0), impute.mult=NULL)
   neighbors since it is assumed that the values are likely similar.
   In our case, we measure nearness via the outcome \code{y.train}.
   However, this can only be done for training since testing may,
-  or may, not be available at the time of fitting.  If the training and testing
+  or may not, be available at the time of fitting.  If the training and testing
   matrices are the same, then they receive hot-deck imputation;
-  otherwise, cold-decking.
+  otherwise testing uses cold-decking.
 }
 \value{
   \item{x.train}{The imputed training matrix.}
