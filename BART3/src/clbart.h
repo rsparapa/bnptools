@@ -114,7 +114,8 @@ RcppExport SEXP clbart(
      for(size_t i=0;i<p;i++) {
        _xi[i].resize(numcut[i]);
        //Rcpp::IntegerVector cutpts(Xinfo[i]);
-       for(size_t j=0;j<numcut[i];j++) _xi[i][j]=Xinfo(i, j);
+       for(int j=0;j<numcut[i];j++) _xi[i][j]=Xinfo(i, j);
+       //for(size_t j=0;j<numcut[i];j++) _xi[i][j]=Xinfo(i, j);
      }
      bm.setxinfo(_xi);
    }
