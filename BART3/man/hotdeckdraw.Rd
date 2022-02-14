@@ -3,7 +3,11 @@
 \alias{hotdeckdraw}
 \description{This function imputes missing data with hot-decking.}
 \usage{
-hotdeckdraw(x.train, y.train, x.test=matrix(0, 0, 0), impute.mult=NULL)
+hotdeckdraw(x.train,
+            y.train,
+            x.test=matrix(0, 0, 0),
+            impute.mult=NULL,
+            seed=NULL)
 }
 \arguments{
   \item{x.train}{The training matrix.}
@@ -11,6 +15,7 @@ hotdeckdraw(x.train, y.train, x.test=matrix(0, 0, 0), impute.mult=NULL)
   \item{x.test}{The testing matrix, if given.}
   \item{impute.mult}{An index of the columns to avoid
     imputing which will be handled by BART internally.}
+  \item{seed}{Optional seed.}
 }
 \details{
   Hot-decking was a method commonly employed with US Census data
