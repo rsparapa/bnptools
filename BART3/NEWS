@@ -1,4 +1,13 @@
 
+Changes and New Features in 4.4 (2022-02-15):
+	* Makevars now defaults to Windows which is unable to
+	generate it from Makevars.win whereas MacOS/Linux 
+	have no problem creating it from Makevars.in correctly
+
+	* cleaing up some warnings
+
+	* removing experimental work: hbart, zbart
+
 Changes and New Features in 4.3 (2021-06-09):
 	* Experimental: grouped categorical variables for DART
 
