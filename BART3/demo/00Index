@@ -25,7 +25,8 @@ geweke.recur.bart	   Geweke diagnostics for recurrent events with BART
 geweke.rs.pbart    Geweke diagnostics for binary outcomes with BART and random sampling
 geweke.surv.bart   Geweke diagnostics for survival analysis with BART
 geweke.lung.surv.bart   Geweke diagnostics for advanced lung cancer survival analysis with BART
-height1			Growth chart example for marginal effects
+height1			Growth chart example for variable selection
+height2			Growth chart example for marginal effects
 imputation         Imputing a categorical covariate variable with BART
 imputation.probit         Imputing a categorical covariate variable with proboit BART
 inform.null.gbart  Specifying an informative null hypothesis prior with BART

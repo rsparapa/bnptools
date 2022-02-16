@@ -1,4 +1,4 @@
-
+## variable selection example
 options(mc.cores=8)
 library(BART3)
 
@@ -31,70 +31,22 @@ plot(fit2$yhat.train.mean, bmx$BMXHT, asp=1,
      ylab='Observed Height (cm)')
 abline(b=1, a=0, col=8)
 
-plot(bmx$RIDAGEEX, fit2$yhat.train.mean,
-     pch='.', col=col.[bmx$RIAGENDR],
-     ylab='Predicted Height (cm)',
-     xlab='Age (yr)')
-
 (N=length(bmx$BMXHT))
-K=24
-(age=seq(2, 8, length.out=K+1)[1:K])
 
-x.test = x.train
-for(k in 2:K) x.test=rbind(x.test, x.train)
-x.test$RIDAGEEX=rep(age, each=N)
-str(x.test)
+## create knockoffs of weight
+set.seed(20)
+K=100
+rho=0.85
+Z=as.data.frame(matrix(0, nrow=N, ncol=K))
+(mu.=mean(bmx$BMXWT))
+(sd.=sd(bmx$BMXWT))
+for(k in 1:K) Z[ , k]=rnorm(N, rho*(bmx$BMXWT-mu.), sqrt(1-(rho^2))*sd.)
+print(cor(bmx$BMXWT, bmx$BMXHT))
+print(cor(bmx$BMXWT, Z[ , 1:3]))
+print(cor(bmx$BMXHT, Z[ , 1:3]))
 
-pred2 = predict(fit2, x.test)
-
-marg2 = 0
-marg2.025 =0
-marg2.975 =0
-for(k in 1:K) {
-    marg2[k] = mean(apply(pred2[ , (k-1)*N+1:N], 1, mean))
-    marg2.025[k] = quantile(apply(pred2[ , (k-1)*N+1:N], 1, mean), probs=0.025)
-    marg2.975[k] = quantile(apply(pred2[ , (k-1)*N+1:N], 1, mean), probs=0.975)
-}
-
-lines(age, marg2, lwd=2)
-lines(age, marg2.025, lty=2)
-lines(age, marg2.975, lty=2)
-
-x.train.=bmx[ , 3:4]
-print(cor(bmx$BMXWT, x.train.[ , 2])^2)
-fit0 = mc.gbart(x.train., bmx$BMXWT, seed=20)
-print(cor(bmx$BMXWT, fit0$yhat.train.mean)^2)
-
-x.test. = x.train.
-for(k in 2:K) x.test.=rbind(x.test., x.train.)
-x.test.$RIDAGEEX=rep(age, each=N)
-x.test.=rbind(x.test., x.test.)
-x.test.$RIAGENDR=rep(1:2, each=N*K)
-str(x.test.)
-
-pred0 = predict(fit0, x.test.)
-
-marg0 = 0
-for(k in 1:(2*K)) marg0[k] = mean(apply(pred0[ , (k-1)*N+1:N], 1, mean))
-
-x.test0 = x.train
-for(k in 2:K) x.test0 = rbind(x.test0, x.train)
-x.test0$RIDAGEEX=rep(age, each=N)
-x.test1=x.test0
-x.test1$RIAGENDR=1
-x.test1$BMXWT=rep(marg0[1:K], each=N)
-x.test2=x.test0
-x.test2$RIAGENDR=2
-x.test2$BMXWT=rep(marg0[K+1:K], each=N)
-x.test0=rbind(x.test1, x.test2)
-str(x.test0)
-
-pred2. = predict(fit2, x.test0)
-
-marg2. = 0
-for(k in 1:(2*K)) marg2.[k] = mean(apply(pred2.[ , (k-1)*N+1:N], 1, mean))
-lines(age, marg2.[1:K], lwd=2, col=4)
-lines(age, marg2.[K+1:K], lwd=2, col=2)
-
-
-                     
+fit3 = mc.gbart(cbind(x.train, Z), bmx$BMXHT, seed=22, sparse=TRUE)
+(P=length(fit3$varprob.mean))
+print(sort(fit3$varprob.mean[fit3$varprob.mean>(2/P)], TRUE))
+print(cor(bmx$BMXHT, fit3$yhat.train.mean)^2)
+    
