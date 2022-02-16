@@ -28,6 +28,7 @@ predict.wbart <- function(object,
                           trees=NULL,
                           ...)
 {
+    if(class(newdata) == "data.frame") newdata=bartModelMatrix(newdata)
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
 
     if(length(object$treedraws)==0) object$treedraws=list()
