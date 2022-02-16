@@ -20,7 +20,8 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-\method{predict}{wbart}(object, newdata, mc.cores=1,
+\method{predict}{wbart}(object, newdata,
+    mc.cores=getOption('mc.cores', 1L),
     openmp=(mc.cores.openmp()>0),
     mult.impute=4, seed=99, ...)
 }

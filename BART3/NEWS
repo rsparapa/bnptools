@@ -4,6 +4,8 @@ Changes and New Features in 4.4 (2022-02-15):
 	generate it from Makevars.win whereas MacOS/Linux 
 	have no problem creating it from Makevars.in correctly
 
+	* default mc.cores to the value provided by options()
+
 	* cleaing up some warnings
 
 	* removing experimental work: hbart, zbart

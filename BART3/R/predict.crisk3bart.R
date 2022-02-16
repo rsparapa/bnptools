@@ -19,7 +19,8 @@
 
 predict.crisk3bart <- function(object, newdata,
                                newdata2=newdata, newdata3=newdata,
-                               mc.cores=1, openmp=(mc.cores.openmp()>0),
+                               mc.cores=getOption('mc.cores', 1L),
+                               openmp=(mc.cores.openmp()>0),
                                mult.impute=4, seed=99, ...) {
 
     p <- length(object$treedraws$cutpoints)

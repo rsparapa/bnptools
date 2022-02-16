@@ -19,7 +19,7 @@
 
 predict.wbart <- function(object,
                           newdata,
-                          mc.cores=1L,
+                          mc.cores=getOption('mc.cores', 1L),
                           openmp=(mc.cores.openmp()>0),
                           mult.impute=4L,
                           seed=99L,

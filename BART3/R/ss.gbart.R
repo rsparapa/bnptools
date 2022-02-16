@@ -163,7 +163,7 @@ ss.gbart <- function(
             post[[i]] = mc.gbart(x.train=X.train, y.train=Y.train,
                                  x.test=X.test,
                                  type=type, ntype=ntype,
-                                 treeinit=treeinit, trees=trees,
+                                 ##treeinit=treeinit, trees=trees,
                                  sparse=sparse, theta=theta, omega=omega,
                                  a=a, b=b, augment=augment, rho=rho,
                                  varprob=varprob,

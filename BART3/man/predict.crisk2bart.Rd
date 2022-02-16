@@ -17,7 +17,9 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-\method{predict}{crisk2bart}(object, newdata, newdata2, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
+\method{predict}{crisk2bart}(object, newdata, newdata2,
+   mc.cores=getOption('mc.cores', 1L),
+   openmp=(mc.cores.openmp()>0), ...)
 }
 \arguments{
    \item{object}{

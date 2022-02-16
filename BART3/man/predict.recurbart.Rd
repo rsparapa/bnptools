@@ -17,7 +17,9 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-\method{predict}{recurbart}(object, newdata, mc.cores=1, openmp=(mc.cores.openmp()>0), ...)
+\method{predict}{recurbart}(object, newdata,
+    mc.cores=getOption('mc.cores', 1L),
+    openmp=(mc.cores.openmp()>0), ...)
 }
 \arguments{
    \item{object}{

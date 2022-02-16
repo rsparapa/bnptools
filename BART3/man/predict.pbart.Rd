@@ -17,7 +17,8 @@ so that it contributes a
 small amount to the overall fit.
 }
 \usage{
-\method{predict}{pbart}(object, newdata, mc.cores=1,
+\method{predict}{pbart}(object, newdata,
+    mc.cores=getOption('mc.cores', 1L),
     openmp=(mc.cores.openmp()>0),
     mult.impute=4L, seed=99L,
     probs=c(0.025, 0.975), ...)
