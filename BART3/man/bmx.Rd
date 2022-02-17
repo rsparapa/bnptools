@@ -3,10 +3,10 @@
 \docType{data}
 \title{NHANES 1999-2000 Body Measures and Demographics}
 
-\description{
-  This data set was created from the National Health and Nutrition Examination Survey (NHANES)
-  1999-2000 Body Measures Exam and Demographics.
-}
+\description{ This data set was created from the National Health and
+  Nutrition Examination Survey (NHANES) 1999-2000 Body Measures Exam and
+  Demographics. To create growth charts, this data is restricted to
+  children aged 2 to 17. }
 
 \usage{
 data(bmx)

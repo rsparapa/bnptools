@@ -5,7 +5,7 @@ library(BART3)
 data(bmx)
 bmx$RIDRETH2=factor(bmx$RIDRETH2)
 str(bmx)
-
+##summary(bmx$RIDAGEEX)
 x.train=bmx[ , -(1:2)]
 print(cor(bmx$BMXHT, x.train[ , c(2, 4)])^2)
 
@@ -33,12 +33,12 @@ abline(b=1, a=0, col=8)
 
 plot(bmx$RIDAGEEX, fit2$yhat.train.mean,
      pch='.', col=col.[bmx$RIAGENDR],
-     ylab='Predicted Height (cm)',
+     ylab='Height (cm)',
      xlab='Age (yr)')
 
 (N=length(bmx$BMXHT))
-K=24
-(age=seq(2, 8, length.out=K+1)[1:K])
+K=64
+(age=seq(2, 18, length.out=K+1)[1:K])
 
 x.test = x.train
 for(k in 2:K) x.test=rbind(x.test, x.train)
@@ -95,6 +95,6 @@ marg2. = 0
 for(k in 1:(2*K)) marg2.[k] = mean(apply(pred2.[ , (k-1)*N+1:N], 1, mean))
 lines(age, marg2.[1:K], lwd=2, col=4)
 lines(age, marg2.[K+1:K], lwd=2, col=2)
-
+dev.copy2pdf(file='bart-growth.pdf')
 
                      

@@ -36,7 +36,8 @@ abline(b=1, a=0, col=8)
 ## create knockoffs of weight
 set.seed(20)
 K=100
-rho=0.85
+rho=0.5
+##rho=0.85
 Z=as.data.frame(matrix(0, nrow=N, ncol=K))
 (mu.=mean(bmx$BMXWT))
 (sd.=sd(bmx$BMXWT))
