@@ -6,12 +6,13 @@
   The function \code{hbart()} is the main function for fitting Bayesian Regression Tree models, including single-tree models, Bayesian Additive Regression Tree (BART) models and Heteroscedastic BART models.  \code{hbart()} maintains some degree of backwards compatibility with \code{BayesTree::bart()}, while offering many new options.
 }
 \usage{
-hbart(x.train, y.train, x.test=matrix(0.0,0,0), ntree=200, ntreeh=40, ndpost=1000, 
-     nskip=100, k=2, power=2.0, base=.95, tc=1, sigmav=rep(1,length(y.train)), 
-     fmean=mean(y.train), overallsd = sd(y.train), overallnu=10, 
-     chv = cor(x.train,method="spearman"), pbd=.7, pb=.5, stepwpert=.1, probchv=.1,
-     minnumbot=5, printevery=100, numcut=100, xicuts=NULL, nadapt=1000, adaptevery=100,
-     summarystats=FALSE)
+hbart(x.train, y.train, x.test=matrix(0.0,0,0), ntree=200, ntreeh=40,
+      ndpost=1000, nskip=100, k=2, power=2.0, base=.95,
+      tc=getOption('mc.cores', 1L), sigmav=rep(1,length(y.train)), 
+      fmean=mean(y.train), overallsd = sd(y.train), overallnu=10, 
+      chv = cor(x.train,method="spearman"), pbd=.7, pb=.5, stepwpert=.1,
+      probchv=.1, minnumbot=5, printevery=100, numcut=100, xicuts=NULL,
+      nadapt=1000, adaptevery=100, summarystats=FALSE)
 }
 \arguments{
   \item{x.train}{nxp matrix of predictor variables for the training data.}

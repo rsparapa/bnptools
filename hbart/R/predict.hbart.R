@@ -1,7 +1,7 @@
 predict.hbart = function(
                          object,
                          x.test=object$x.train,
-                         tc=1,
+                         tc=getOption('mc.cores', 1L),
                          fmean=mean(object$y.train),
                          probs=c(0.025, 0.975),
                          XPtr=TRUE,
