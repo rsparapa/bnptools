@@ -8,18 +8,19 @@ str(bmx)
 x.train=bmx[ , -(1:2)]
 print(cor(bmx$BMXHT, x.train[ , c(2, 4)])^2)
 
-set.seed(21)
-X.train=hbartModelMatrix(x.train)
-fit2 = hbart(X.train, bmx$BMXHT)
+file.='fit2-growth.rds'
+if(file.exists(file.)) {
+    XPtr=FALSE
+    fit2=readRDS(file.)
+} else {
+    XPtr=TRUE
+    set.seed(21)
+    X.train=hbartModelMatrix(x.train)
+    fit2 = hbart(X.train, bmx$BMXHT)
+    saveRDS(fit2, file.)
+}
 print(sort(fit2$mu.varprob, TRUE))
 print(cor(bmx$BMXHT, fit2$pred$f.train.mean)^2)
-
-col.=c(4, 2) ## males=blue, females=red
-## plot(fit2$pred$f.train.mean, bmx$BMXHT, asp=1,
-##      pch='.', col=col.[bmx$RIAGENDR],
-##      xlab='Predicted Height (cm)',
-##      ylab='Observed Height (cm)')
-## abline(b=1, a=0, col=8)
 
 (N=length(bmx$BMXHT))
 K=64
@@ -27,9 +28,18 @@ K=64
 
 x.train.=bmx[ , 3:4]
 print(cor(bmx$BMXWT, x.train.[ , 2])^2)
-set.seed(20)
-X.train. = hbartModelMatrix(x.train.)
-fit0 = hbart(X.train., bmx$BMXWT)
+
+file.='fit0-growth.rds'
+if(file.exists(file.)) {
+    XPtr=FALSE
+    fit0=readRDS(file.)
+} else {
+    XPtr=TRUE
+    set.seed(20)
+    X.train. = hbartModelMatrix(x.train.)
+    fit0 = hbart(X.train., bmx$BMXWT)
+    saveRDS(fit0, file.)
+}
 print(cor(bmx$BMXWT, fit0$pred$f.train.mean)^2)
 
 x.test. = x.train.
@@ -39,8 +49,14 @@ x.test.=rbind(x.test., x.test.)
 x.test.$RIAGENDR=rep(1:2, each=N*K)
 str(x.test.)
 
-X.test. = hbartModelMatrix(x.test.)
-pred0 = predict(fit0, X.test.)
+file.='pred0-growth.rds'
+if(file.exists(file.)) {
+    pred0=readRDS(file.)
+} else {
+    X.test. = hbartModelMatrix(x.test.)
+    pred0 = predict(fit0, X.test., XPtr=XPtr)
+    saveRDS(pred0, file.)
+}
 
 pred0.= pred0$f.test
 (M = nrow(pred0.))
@@ -68,49 +84,141 @@ x.test2$BMXWT=rep(marg0[K+1:K], each=N)
 x.test0=rbind(x.test1, x.test2)
 str(x.test0)
 
-X.test0 =hbartModelMatrix(x.test0)
-pred2 = predict(fit2, X.test0)
-pred2.= pred2$f.test
-marg2. = 0
-marg2.025 = 0
-marg2.975 = 0
-for(k in 1:(2*K)) {
-    fpd = apply(pred2.[ , (k-1)*N+1:N], 1, mean)
-    marg2.[k] = mean(fpd)
-    marg2.025[k] = quantile(fpd, probs=0.025)
-    marg2.975[k] = quantile(fpd, probs=0.975)
+file.='pred2-growth.rds'
+if(file.exists(file.)) {
+    pred2=readRDS(file.)
+} else {
+    X.test0 =hbartModelMatrix(x.test0)
+    pred2 = predict(fit2, X.test0, XPtr=XPtr)
+    saveRDS(pred2, file.)
 }
 
-pdf('nosort-growth.pdf')
-plot(bmx$RIDAGEEX, bmx$BMXHT,
-     pch='.', col=col.[bmx$RIAGENDR],
+pred2.= pred2$f.test
+prsd2.= pred2$s.test
+marg2. = 0
+marg2.025 = 0
+marg2.10 = 0
+marg2.25 = 0
+marg2.75 = 0
+marg2.90 = 0
+marg2.975 = 0
+for(k in 1:(2*K)) {
+    marg2.[k] = mean(apply(pred2.[ , (k-1)*N+1:N], 1, mean))
+    fpd = mean(apply(prsd2.[ , (k-1)*N+1:N], 1, mean))
+    marg2.025[k] = marg2.[k]+qnorm(0.025)*fpd
+    marg2.10[k] = marg2.[k]+qnorm(0.10)*fpd
+    marg2.25[k] = marg2.[k]+qnorm(0.25)*fpd
+    marg2.75[k] = marg2.[k]+qnorm(0.75)*fpd
+    marg2.90[k] = marg2.[k]+qnorm(0.90)*fpd
+    marg2.975[k] = marg2.[k]+qnorm(0.975)*fpd
+}
+
+col.=c(4, 2) ## males=blue, females=red
+
+M = (bmx$RIAGENDR==1)
+F = (bmx$RIAGENDR==2)
+
+##pdf('M-growth.pdf')
+plot(bmx$RIDAGEEX[M], bmx$BMXHT[M],
+     pch='.', col=col.[bmx$RIAGENDR[M]],
      ylab='Height (cm)',
      xlab='Age (yr)')
 lines(age, marg2.[1:K], lwd=2, col=4)
 lines(age, marg2.025[1:K], lty=2, col=4)
+lines(age, marg2.10[1:K], lty=2, col=4)
+lines(age, marg2.25[1:K], lty=2, col=4)
+lines(age, marg2.75[1:K], lty=2, col=4)
+lines(age, marg2.90[1:K], lty=2, col=4)
 lines(age, marg2.975[1:K], lty=2, col=4)
-lines(age, marg2.[K+1:K], lwd=2, col=2)
-lines(age, marg2.025[K+1:K], lty=2, col=2)
-lines(age, marg2.975[K+1:K], lty=2, col=2)
-dev.off()
-##dev.copy2pdf(file='nosort-growth.pdf')
+text(18, marg2.025[K], '2.5')
+text(18, marg2.10[K], '10')
+text(18, marg2.25[K], '25')
+text(18, marg2.[K], '50')
+text(18, marg2.75[K], '75')
+text(18, marg2.90[K], '90')
+text(18, marg2.975[K], '97.5')
+##dev.off()
 
-marg2.=c(sort(marg2.[1:K]), sort(marg2.[K+1:K]))
-marg2.025=c(sort(marg2.025[1:K]), sort(marg2.025[K+1:K]))
-marg2.975=c(sort(marg2.975[1:K]), sort(marg2.975[K+1:K]))
-
-pdf('sort-growth.pdf')
-plot(bmx$RIDAGEEX, bmx$BMXHT,
-     pch='.', col=col.[bmx$RIAGENDR],
+##pdf('F-growth.pdf')
+plot(bmx$RIDAGEEX[F], bmx$BMXHT[F],
+     pch='.', col=col.[bmx$RIAGENDR[F]],
      ylab='Height (cm)',
      xlab='Age (yr)')
-lines(age, marg2.[1:K], lwd=2, col=4)
-lines(age, marg2.025[1:K], lty=2, col=4)
-lines(age, marg2.975[1:K], lty=2, col=4)
 lines(age, marg2.[K+1:K], lwd=2, col=2)
 lines(age, marg2.025[K+1:K], lty=2, col=2)
+lines(age, marg2.10[K+1:K], lty=2, col=2)
+lines(age, marg2.25[K+1:K], lty=2, col=2)
+lines(age, marg2.75[K+1:K], lty=2, col=2)
+lines(age, marg2.90[K+1:K], lty=2, col=2)
 lines(age, marg2.975[K+1:K], lty=2, col=2)
-dev.off()
-##dev.copy2pdf(file='sort-growth.pdf')
+text(18, marg2.025[2*K], '2.5')
+text(18, marg2.10[2*K], '10')
+text(18, marg2.25[2*K], '25')
+text(18, marg2.[2*K], '50')
+text(18, marg2.75[2*K], '75')
+text(18, marg2.90[2*K], '90')
+text(18, marg2.975[2*K], '97.5')
+##dev.off()
 
-                     
+## CDC = read.csv('height.csv')                     
+## str(CDC)
+## CDC$age=CDC$month/12
+## M.=(CDC$sex_c==2 & CDC$age<18)
+## F.=(CDC$sex_c==1 & CDC$age<18)
+
+## pdf('M-CDC.pdf')
+## plot(bmx$RIDAGEEX[M], bmx$BMXHT[M], type='n',
+##      pch='.', col=col.[bmx$RIAGENDR[M]],
+##      ylab='Height (cm)',
+##      xlab='Age (yr)')
+## lines(age, marg2.[1:K], lwd=2, col=4)
+## lines(age, marg2.025[1:K], lty=2, col=4)
+## lines(age, marg2.10[1:K], lty=2, col=4)
+## lines(age, marg2.25[1:K], lty=2, col=4)
+## lines(age, marg2.75[1:K], lty=2, col=4)
+## lines(age, marg2.90[1:K], lty=2, col=4)
+## lines(age, marg2.975[1:K], lty=2, col=4)
+## lines(CDC$age[M.], CDC$height_50[M.], lwd=2)
+## lines(CDC$age[M.], CDC$height_025[M.], lty=2)
+## lines(CDC$age[M.], CDC$height_10[M.], lty=2)
+## lines(CDC$age[M.], CDC$height_25[M.], lty=2)
+## lines(CDC$age[M.], CDC$height_75[M.], lty=2)
+## lines(CDC$age[M.], CDC$height_90[M.], lty=2)
+## lines(CDC$age[M.], CDC$height_975[M.], lty=2)
+## text(18, marg2.025[K], '2.5')
+## text(18, marg2.10[K], '10')
+## text(18, marg2.25[K], '25')
+## text(18, marg2.[K], '50')
+## text(18, marg2.75[K], '75')
+## text(18, marg2.90[K], '90')
+## text(18, marg2.975[K], '97.5')
+## dev.off()
+
+## pdf('F-CDC.pdf')
+## plot(bmx$RIDAGEEX, bmx$BMXHT, type='n',
+##      pch='.', col=col.[bmx$RIAGENDR],
+##      ylab='Height (cm)',
+##      xlab='Age (yr)')
+## lines(age, marg2.[K+1:K], lwd=2, col=2)
+## lines(age, marg2.025[K+1:K], lty=2, col=2)
+## lines(age, marg2.10[K+1:K], lty=2, col=2)
+## lines(age, marg2.25[K+1:K], lty=2, col=2)
+## lines(age, marg2.75[K+1:K], lty=2, col=2)
+## lines(age, marg2.90[K+1:K], lty=2, col=2)
+## lines(age, marg2.975[K+1:K], lty=2, col=2)
+## lines(CDC$age[F.], CDC$height_50[F.], lwd=2)
+## lines(CDC$age[F.], CDC$height_025[F.], lty=2)
+## lines(CDC$age[F.], CDC$height_10[F.], lty=2)
+## lines(CDC$age[F.], CDC$height_25[F.], lty=2)
+## lines(CDC$age[F.], CDC$height_75[F.], lty=2)
+## lines(CDC$age[F.], CDC$height_90[F.], lty=2)
+## lines(CDC$age[F.], CDC$height_975[F.], lty=2)
+## text(18, marg2.025[2*K], '2.5')
+## text(18, marg2.10[2*K], '10')
+## text(18, marg2.25[2*K], '25')
+## text(18, marg2.[2*K], '50')
+## text(18, marg2.75[2*K], '75')
+## text(18, marg2.90[2*K], '90')
+## text(18, marg2.975[2*K], '97.5')
+## dev.off()
+
