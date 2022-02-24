@@ -35,7 +35,7 @@ CDimpute=function(x.train,
 
     impute.flag=(check>1)
 
-    ## hot deck missing imputation
+    ## cold deck missing imputation
     ## ignore columns for multinomial imputation in training
 
     same = FALSE
@@ -83,7 +83,7 @@ CDimpute=function(x.train,
 
         if(same && !impute.flag) x.test=x.train
         else if(Q>0) {
-            if(same) x.test=x.train ## to hot-deck impute.mult columns only
+            if(same) x.test=x.train ## to cold-deck impute.mult columns only
             for(i in 1:Q)
                 for(j in 1:P) {
                     k = is.na(x.test[i, ])

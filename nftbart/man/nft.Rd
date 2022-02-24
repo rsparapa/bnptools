@@ -54,7 +54,7 @@ nft(
   \item{pbd}{Probability of performing a birth/death proposal, otherwise perform a rotate proposal.}
   \item{pb}{Probability of performing a birth proposal given that we choose to perform a birth/death proposal.}
   \item{stepwpert}{Initial width of proposal distribution for peturbing cut-points.}
-  \item{probchv}{Probability of performing a change-of-variable proposal.  Otherwise, only do a perturb proposal}.
+  \item{probchv}{Probability of performing a change-of-variable proposal.  Otherwise, only do a perturb proposal.}
   \item{minnumbot}{Minimum number of observations required in leaf (terminal) nodes.}
   \item{ntree}{Vector of length two for the number of trees used for the mean
     model and the number of trees used for the variance model.}
@@ -86,26 +86,101 @@ nft(
 
 \details{
   \code{nft()} is the function to fit time-to-event data.  The most general form of the model allowed is
-  \eqn{Y({\bf x})=f({\bf x})+s({\bf x})Z}{Y(x)=f(x)+s(x)E}
+  \eqn{Y({\bf x})=mu+f({\bf x})+s({\bf x})Z}{Y(x)=mu+f(x)+s(x)E}
   where \eqn{E} follows a nonparametric error distribution
   by default.
   %% \eqn{f({\bf x})=\sum_{j=1}^m g({\bf x};T_j,M_j)}{f(x)=sum g(x;T_j,M_j)} and
   %% \eqn{s({\bf x})=\prod_{j=1}^{m^\prime} h({\bf x};T^\prime_j,M^\prime_j)}{s(x)=prod g(x;T'_j,M'_j)},
   %% where the \eqn{g(\cdot;T_j,M_j)}{g(.;T_j,M_j)} represent additive tree components used for modeling the mean and
   %% \eqn{h(\cdot;T^\prime_j,M^\prime_j)}{h(.;T'_j,M'_j)} represent multiplicative tree components used for modeling the variance.
-
   %% The most common models to fit are a homoscedastic single-tree model, a homoscedastic BART model and a heteroscedastic BART model.
-
   %% For a BART model, set \code{pbd=c(0.7,0.0)} and \code{ntreeh=1}.  This forces a scalar (homoscedastic) variance term.
-
   %% For a single-tree model, set \code{pbd=(0.7,0.0)}, \code{ntreeh=1} and \code{ntree=1}. This forces the mean component to be modeled using only one tree.
-
   %% The heteroscedastic BART model is the default.
-
+The \code{nft()} function returns a fit object of S3 class type
+  \code{nft} that is essentially a list containing the following items.
 }
 \value{
-  \item{res}{Model fit object of S3 class \code{nft} that is essentially a list.}
+  %%\item{res}{Model fit object of S3 class \code{nft} that is
+  %%essentially a list.}
+  
+  \item{ots,oid,ovar,oc,otheta}{These are \code{XPtr}s to the BART
+    \eqn{f(x)} objects in RAM that are only available for fits generated
+    in the current R session. }
+
+  \item{sts,sid,svar,sc,stheta}{Similarly, these are \code{XPtr}s to the
+    HBART \eqn{s(x)} objects.}
+
+  \item{fmu}{The constant \eqn{mu}.}
+  
+  \item{f.train,s.train}{The trained \eqn{f(x)} and \eqn{s(x)}
+  respectively: matrices with \code{ndpost} rows and \eqn{n} columns.}
+
+  \item{f.train.mean,s.train.mean}{The posterior mean of the trained
+  \eqn{f(x)} and \eqn{s(x)} respectively: vectors of length \eqn{n}.}
+
+\item{f.trees,s.trees}{Character strings representing the trained fits
+  of \eqn{f(x)} and \eqn{s(x)} respectively to facilitate usage of the
+  \code{predict} function when \code{XPtr}s are unavailable.}
+  
+\item{dpalpha}{The draws of the DPM concentration parameter
+  \eqn{alpha}.}
+
+\item{dpn,dpn.}{The number of atom clusters per DPM, \eqn{J}, for all
+  draws including burn-in and excluding burn-in respectively.}
+
+\item{dpmu}{The draws of the DPM parameter \eqn{mu[i]} where
+  \eqn{i=1,...,n} indexes subjects: a matrix with \code{ndpost} rows and
+  \eqn{n} columns.}
+
+\item{dpmu.}{The draws of the DPM parameter \eqn{mu[j]} where
+  \eqn{j=1,...,J} indexes atom clusters: a matrix with \code{ndpost}
+  rows and \eqn{J} columns.}
+
+\item{dpwt.}{The weights for efficient DPM calculations by atom clusters
+  (as opposed to subjects) for use with \eqn{dpmu.} (and \eqn{dpsd.};
+  see below): a matrix with \code{ndpost} rows and \eqn{J} columns.}
+  
+\item{dpsd,dpsd.}{Similarly, the draws of the DPM parameter \eqn{tau[i]}
+  transformed into the standard deviation \eqn{sigma[i]} for
+  convenience.}
+
+\item{dpC}{The indices \eqn{j} for each subject \eqn{i} corresponding to
+  their shared atom cluster.}
+
+\item{z.train}{The data values/augmentation draws of \eqn{log t}.}
+
+\item{f.tmind/f.tavgd/f.tmaxd}{The min/average/max tier degree of trees in the \eqn{f} ensemble.}
+
+\item{s.tmind/s.tavgd/s.tmaxd}{The min/average/max tier degree of trees in the \eqn{s} ensemble.}
+
+\item{f.varcount,s.varcount}{Variable importance counts of branch
+decision rules for each \eqn{x} of \eqn{f} and \eqn{s} respectively:
+matrices with \code{ndpost} rows and \eqn{p} columns.}
+
+  \item{f.varcount.mean,s.varcount.mean}{Similarly, the posterior mean
+  of the variable importance counts for each \eqn{x} of \eqn{f} and
+  \eqn{s} respectively: vectors of length \eqn{p}.}
+
+  \item{f.varprob,s.varprob}{Similarly, re-weighting the posterior mean
+  of the variable importance counts as sum-to-one probabilities for each
+  \eqn{x} of \eqn{f} and \eqn{s} respectively: vectors of length
+  \eqn{p}.}
+
+\item{LPML}{The log Pseudo-Marginal Likelihood as typically
+  calculated for right-/left-censoring.}
+
+\item{pred}{The object returned from the \code{predict} function where
+  \code{x.test=x.train} in order to calculate the \code{soffset}
+  item that is needed to use \code{predict} when \code{XPtr}s are not
+  available. }
+
+\item{soffset}{See \code{pred} above.}
+
+\item{elapsed}{The elapsed time of the run in seconds.}
+
 }
+
 \references{
   Sparapani R., Logan B., Laud P. (2021)
   Nonparametric Failure Time: Time-to-event Machine Learning with Heteroskedastic Bayesian Additive Regression Trees and Low Information Omnibus Dirichlet Process Mixtures
@@ -149,7 +224,7 @@ x.train=cbind(lung[ , -(1:3)])
 post=nft(x.train, times, delta, tc=B, K=0,
          nskip=0, ndpost=1, nadapt=1, adaptevery=1)
 
-\dontrun{
+\donttest{
 file.='lung.rds'
 if(file.exists(file.)) {
     post=readRDS(file.)
@@ -158,7 +233,7 @@ if(file.exists(file.)) {
     set.seed(99)
     post=nft(x.train, times, delta, tc=B, K=0)
     XPtr=TRUE
-    saveRDS(post, file.)
+    ##saveRDS(post, file.)
 }
 
 x.test = rbind(x.train, x.train)

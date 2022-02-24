@@ -1,4 +1,15 @@
 
+Changes and New Features in 4.4 (2022-02-15):
+	* Makevars now defaults to Windows which is unable to
+	generate it from Makevars.win whereas MacOS/Linux 
+	have no problem creating it from Makevars.in correctly
+
+	* default mc.cores to the value provided by options()
+
+	* cleaing up some warnings
+
+	* removing experimental work: hbart, zbart
+
 Changes and New Features in 4.3 (2021-06-09):
 	* Experimental: grouped categorical variables for DART
 
@@ -8,6 +19,8 @@ Changes and New Features in 4.3 (2021-06-09):
 	
 	* Renaming HDimpute function to CDimpute to better
 	reflect its flavor of cold-decking vs. hot-decking
+
+	* Adding hot-decking implementation: hotdeckdraw
 
 Changes and New Features in 4.2 (2020-12-22):
 	* Synchronizing docs with BART package:

@@ -31,7 +31,7 @@ if(file.exists(file.)) {
     set.seed(99)
     post=nft(x.train, times, delta, tc=B, K=0)
     XPtr=TRUE
-    saveRDS(post, file.)
+    ##saveRDS(post, file.)
 }
 
 x.test = rbind(x.train, x.train)

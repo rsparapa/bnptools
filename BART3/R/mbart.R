@@ -70,14 +70,14 @@ mbart <- function(
         rm(temp)
     }
 
-    if(length(grp)==0) grp=rep(1, p)
-    if(rho==0) rho=sum(1/grp)
     
     post <- list()
     post$K <- K
     post$cats <- cats
     N <- length(y.train)
     P <- nrow(x.train) ## transposed
+    if(length(grp)==0) grp=rep(1, P)
+    if(rho==0) rho=sum(1/grp)
     ## post$yhat.train <- matrix(nrow=ndpost, ncol=N*K)
     ## post$prob.train <- matrix(nrow=ndpost, ncol=N*K)
     ## post$comp.train <- matrix(nrow=ndpost, ncol=N*K)

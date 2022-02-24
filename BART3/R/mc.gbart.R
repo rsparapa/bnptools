@@ -26,7 +26,7 @@ mc.gbart <- function(
                      ntype=as.integer(
                          factor(type,
                                 levels=c('wbart', 'pbart', 'lbart'))),
-                     treeinit=FALSE, trees=NULL,
+                     ##treeinit=FALSE, trees=NULL,
                      sparse=FALSE, theta=0, omega=1,
                      a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
                      varprob=NULL,
@@ -43,7 +43,8 @@ mc.gbart <- function(
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
                      probs=c(0.025, 0.975),
-                     mc.cores = 2L, nice = 19L, seed = 99L,
+                     mc.cores = getOption('mc.cores', 2L),
+                     nice = 19L, seed = 99L,
                      shards = 1L, weight=rep(NA, shards),
                      meta = FALSE
                      )
@@ -111,7 +112,8 @@ mc.gbart <- function(
         parallel::mcparallel({psnice(value=nice);
             gbart(x.train=x.train, y.train=y.train, ##z.train=z.train,
                   x.test=x.test,
-                  type=type, ntype=ntype, treeinit=treeinit, trees=trees,
+                  type=type, ntype=ntype,
+                  ##treeinit=treeinit, trees=trees,
                   sparse=sparse, theta=theta, omega=omega,
                   a=a, b=b, augment=augment, rho=rho, grp=grp,
                   varprob=varprob,

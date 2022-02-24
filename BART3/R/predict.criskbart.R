@@ -16,7 +16,8 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-predict.criskbart <- function(object, newdata, newdata2, mc.cores=1,
+predict.criskbart <- function(object, newdata, newdata2,
+                              mc.cores=getOption('mc.cores', 1L),
                               openmp=(mc.cores.openmp()>0), ...) {
 
     ## if(class(newdata) != "matrix") stop("newdata must be a matrix")

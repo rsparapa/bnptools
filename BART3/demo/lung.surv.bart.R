@@ -1,11 +1,11 @@
 
 library(BART3)
 
-B <- 8
-##B <- getOption('mc.cores', 1)
+## options(mc.cores=8)
+B <- getOption('mc.cores', 1)
 figures = getOption('figures', default='NONE')
 
-## load survival package for the advanced lung cancer example
+## load the advanced lung cancer example
 data(lung)
 
 N <- length(lung$status)

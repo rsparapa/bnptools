@@ -23,7 +23,7 @@ gbart=function(
                type='wbart',
                ntype=as.integer(
                    factor(type, levels=c('wbart', 'pbart', 'lbart'))),
-               treeinit=FALSE, trees=NULL,
+               ##treeinit=FALSE, trees=NULL,
                sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
                varprob=NULL,
@@ -140,6 +140,7 @@ gbart=function(
 
     ##if(length(z.train)==0) z.train=y.train
     ## trees=''
+    treeinit = FALSE
     treeinit = (treeinit && length(trees)>0)
     if(treeinit) {
        if(trees=="") stop('Tree string is empty')

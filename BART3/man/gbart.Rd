@@ -22,7 +22,6 @@ gbart(
       x.test=matrix(0,0,0), type='wbart',
       ntype=as.integer(
           factor(type, levels=c('wbart', 'pbart', 'lbart'))),
-      rfinit=FALSE,
       sparse=FALSE, theta=0, omega=1,
       a=0.5, b=1, augment=FALSE, rho=0, grp=NULL, varprob=NULL,
       xinfo=matrix(0,0,0), usequants=FALSE,
@@ -51,7 +50,6 @@ mc.gbart(
          x.test=matrix(0,0,0), type='wbart',
          ntype=as.integer(
              factor(type, levels=c('wbart', 'pbart', 'lbart'))),
-         rfinit=FALSE,
          sparse=FALSE, theta=0, omega=1,
          a=0.5, b=1, augment=FALSE, rho=0, grp=NULL, varprob=NULL,
          xinfo=matrix(0,0,0), usequants=FALSE,
@@ -69,9 +67,9 @@ mc.gbart(
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
          probs=c(0.025, 0.975),
-         mc.cores = 2L, nice = 19L, seed = 99L,
-         shards = 1L, weight=rep(NA, shards),
-         meta = FALSE
+         mc.cores = getOption('mc.cores', 2L),
+         nice = 19L, seed = 99L, shards = 1L,
+         weight=rep(NA, shards), meta = FALSE
 )
 
 }
@@ -107,8 +105,8 @@ argument \code{type} to specify a logit BART model.
  \item{ntype}{ The integer equivalent of \code{type} where
   \code{'wbart'} is 1, \code{'pbart'} is 2 and
   \code{'lbart'} is 3.}
- \item{rfinit}{ Whether to initialize BART with a greedy RandomForest
-   fit: the default is \code{FALSE}.}   
+ %\item{rfinit}{ Whether to initialize BART with a greedy RandomForest
+ %  fit: the default is \code{FALSE}.}   
    \item{sparse}{Whether to perform variable selection based on a
      sparse Dirichlet prior rather than simply uniform; see Linero 2016.}
    \item{theta}{Set \eqn{theta} parameter; zero means random.}

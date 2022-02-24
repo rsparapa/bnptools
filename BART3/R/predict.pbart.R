@@ -17,7 +17,8 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-predict.pbart <- function(object, newdata, mc.cores=1,
+predict.pbart <- function(object, newdata,
+                          mc.cores=getOption('mc.cores', 1L),
                           openmp=(mc.cores.openmp()>0),
                           mult.impute=4L, seed=99L, 
                           probs=c(0.025, 0.975), ...) {

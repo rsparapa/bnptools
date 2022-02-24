@@ -9,7 +9,7 @@
 \method{predict}{hbart}(
 object,
 x.test=object$x.train,
-tc=1,
+tc=getOption('mc.cores', 1L),
 fmean=mean(object$y.train),
 q.lower=0.025,
 q.upper=0.975,...)

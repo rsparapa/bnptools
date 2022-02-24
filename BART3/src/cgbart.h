@@ -117,7 +117,7 @@ RcppExport SEXP cgbart(
    Rcpp::IntegerVector _nc(_inc);
    int *numcut = &_nc[0];
    size_t nd = Rcpp::as<int>(_ind);
-   size_t burn = Rcpp::as<int>(_iburn);
+   int burn = Rcpp::as<int>(_iburn);
    size_t thin = Rcpp::as<int>(_ithin);
    double mybeta = Rcpp::as<double>(_ipower);
    double alpha = Rcpp::as<double>(_ibase);
@@ -173,7 +173,8 @@ RcppExport SEXP cgbart(
      _xi.resize(p);
      for(size_t i=0;i<p;i++) {
        _xi[i].resize(numcut[i]);
-       for(size_t j=0;j<numcut[i];j++) _xi[i][j]=Xinfo(i, j);
+       for(int j=0;j<numcut[i];j++) _xi[i][j]=Xinfo(i, j);
+       //for(size_t j=0;j<numcut[i];j++) _xi[i][j]=Xinfo(i, j);
      }
      bm.setxinfo(_xi);
    }
@@ -193,7 +194,7 @@ void cgbart(
    size_t m,		//number of trees
    int *numcut,		//number of cut points
    size_t nd,		//number of kept draws (except for thinnning ..)
-   size_t burn,		//number of burn-in draws skipped
+   int burn,		//number of burn-in draws skipped
    size_t thin,		//thinning
    double mybeta,
    double alpha,
@@ -303,7 +304,7 @@ void cgbart(
    if(np) printf("xp1,xp[np*p]: %lf, %lf\n",ixp[0],ixp[np*p-1]);
    printf("*****Number of Trees: %zu\n",m);
    printf("*****Number of Cut Points: %d ... %d\n", numcut[0], numcut[p-1]);
-   printf("*****burn,nd,thin: %zu,%zu,%zu\n",burn,nd,thin);
+   printf("*****burn,nd,thin: %d,%zu,%zu\n",burn,nd,thin);
    printf("*****Value of treeinit: %zu\n", treeinit);
 // printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
 //                    mybeta,alpha,tau,nu,lambda,Offset);
@@ -406,9 +407,10 @@ cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n"
    int time1 = time(&tp), total=nd+burn;
    xinfo& xi = bm.getxinfo();
 
-   for(size_t i=0;i<total;i++) {
-      if(i%printevery==0) printf("done %zu (out of %lu)\n",i,nd+burn);
-      //if(i%printevery==0) printf("%22zu/%zu\r",i,total);
+   for(int i=0;i<total;i++) {
+   //for(size_t i=0;i<total;i++) {
+      if(i%printevery==0) printf("done %d (out of %lu)\n",i,nd+burn);
+      //if(i%printevery==0) printf("done %zu (out of %lu)\n",i,nd+burn);
       if(i==(burn/2)&&dart) bm.startdart();
       //draw bart
       bm.draw(svec,gen,shards);
