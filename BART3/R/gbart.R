@@ -362,6 +362,7 @@ gbart=function(
     res$trees = trees
     res$grp = grp
     res$rho = rho
+    res$chains = mc.cores
     ##if(treeinit) res$trees = trees
     attr(res, 'class') <- type
     return(res)
