@@ -140,16 +140,16 @@ gbart=function(
 
     ##if(length(z.train)==0) z.train=y.train
     ## trees=''
-    treeinit = FALSE
-    treeinit = (treeinit && length(trees)>0)
-    if(treeinit) {
-       if(trees=="") stop('Tree string is empty')
-       ## more likely a previous BART fit than a Random Forest
-       ## rf=randomForest(t(x.train), y.train, ntree=ntree,
-       ##                 maxnodes=4, forest=TRUE)
-       ## sigest=sd(rf$predicted-y.train)
-       ## trees=read.forest(rf, xinfo=xinfo)
-    }
+    ## treeinit = FALSE
+    ## treeinit = (treeinit && length(trees)>0)
+    ## if(treeinit) {
+    ##    if(trees=="") stop('Tree string is empty')
+    ##    ## more likely a previous BART fit than a Random Forest
+    ##    ## rf=randomForest(t(x.train), y.train, ntree=ntree,
+    ##    ##                 maxnodes=4, forest=TRUE)
+    ##    ## sigest=sd(rf$predicted-y.train)
+    ##    ## trees=read.forest(rf, xinfo=xinfo)
+    ## }
 
     if(type=='wbart') {
         y.train = y.train-offset
@@ -264,7 +264,7 @@ gbart=function(
                 lambda,
                 sigest,
                 w,
-                as.integer(treeinit),
+                ##as.integer(treeinit),
                 trees,
                 sparse,
                 theta,
