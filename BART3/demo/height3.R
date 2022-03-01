@@ -8,9 +8,9 @@ str(bmx)
 x.train=bmx[ , -(1:2)]
 print(cor(bmx$BMXHT, x.train[ , c(2, 4)])^2)
 
-L=1000 ## 4000 burn-in discard
+L=1000 ## burn-in discard
 T=10   ## thin 
-M=1000 ## 2000 keep
+M=1000 ## keep
 
 file.='height3-fit2.rds'
 if(file.exists(file.)) { fit2=readRDS(file.)
@@ -25,7 +25,9 @@ print(sort(fit2$varprob.mean, TRUE))
 ## check=maxRhat(c(fit2$sigma), fit2$chains)
 ## print(check$maxRhat)
 ## plot(check$rho[1:50], type='h', ylim=c(-1, 1))
-## plot(acf(c(fit2$sigma)), ylim=c(-1, 1))
+## plot(acf(c(fit2$sigma)), type='h', ylim=c(-1, 1), main='')
+## abline(h=0)
+## dev.copy2pdf(file='height3-acf.pdf')
 
 pdf('height3-zep.pdf')
 col.=c(4, 2) ## males=blue, females=red
@@ -41,8 +43,8 @@ abline(b=1, a=0, col=8)
 dev.off()
 
 pdf('height3-sigma.pdf')
-plot(fit2$sigma[ , 1], type='l', ##log='y',
-     ylim=c(0, 10),
+plot(fit2$sigma[ , 1], type='l', log='y',
+     ylim=c(4, 10),
      ylab=expression(italic(sigma)),
      xlab=paste0('MCMC sequence: ', fit2$chains, ' chain(s)'))
 for(i in 2:8) lines(fit2$sigma[ , i], col=i)
