@@ -8,17 +8,24 @@ str(bmx)
 x.train=bmx[ , -(1:2)]
 print(cor(bmx$BMXHT, x.train[ , c(2, 4)])^2)
 
-M=8000
-L=4000
+L=1000 ## 4000 burn-in discard
+T=10   ## thin 
+M=1000 ## 2000 keep
 
 file.='height3-fit2.rds'
 if(file.exists(file.)) { fit2=readRDS(file.)
 } else {
     fit2 = mc.gbart(x.train, bmx$BMXHT, seed=21, sparse=TRUE,
-                    ndpost=M, nskip=L)
+                    ndpost=M, nskip=L, keepevery=T)
     saveRDS(fit2, file.)
 }
 print(sort(fit2$varprob.mean, TRUE))
+
+##source('Rhat.R')
+## check=maxRhat(c(fit2$sigma), fit2$chains)
+## print(check$maxRhat)
+## plot(check$rho[1:50], type='h', ylim=c(-1, 1))
+## plot(acf(c(fit2$sigma)), ylim=c(-1, 1))
 
 pdf('height3-zep.pdf')
 col.=c(4, 2) ## males=blue, females=red
@@ -52,8 +59,8 @@ print(cor(bmx$BMXWT, x.train.[ , 2])^2)
 file.='height3-fit0.rds'
 if(file.exists(file.)) { fit0=readRDS(file.)
 } else {
-    fit0 = mc.gbart(x.train., bmx$BMXWT, seed=20,
-                    ndpost=M, nskip=L)
+    fit0 = mc.gbart(x.train., bmx$BMXWT, seed=20, sparse=TRUE,
+                    ndpost=M, nskip=L, keepevery=T)
     saveRDS(fit0, file.)
 }
 print(cor(bmx$BMXWT, fit0$yhat.train.mean)^2)
