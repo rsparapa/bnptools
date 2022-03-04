@@ -42,7 +42,7 @@ mc.recur.bart <- function(
     ##treesaslists=FALSE,
     keeptrainfits=TRUE,
     seed = 99L,    ## only used by mc.recur.bart
-    mc.cores = 2L, ## ditto
+    mc.cores = getOption('mc.cores', 2L), ## ditto
     nice=19L       ## ditto
     )
 {

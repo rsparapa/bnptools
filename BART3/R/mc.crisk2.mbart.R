@@ -40,7 +40,7 @@ mc.crisk2.mbart <- function(
     id = NULL,
     seed=99,    ## mc.crisk2.mbart only
     seed2=9,    ## mc.crisk2.mbart only
-    mc.cores=2, ## mc.crisk2.mbart only
+    mc.cores=getOption('mc.cores', 2L), ## mc.crisk2.mbart only
     nice=19L    ## mc.crisk2.mbart only
 )
 {

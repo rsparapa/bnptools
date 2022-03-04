@@ -29,7 +29,7 @@ mc.hotdeck = function(
                    alpha=0.05,        ## hot-deck symmetric credible interval
                    probs=c(0.025, 0.975),
                                       ## equal-tail asymmetric credible interval
-                   mc.cores=2L,       ## mc.hotdeck only
+                   mc.cores=getOption('mc.cores', 2L), ## mc.hotdeck only
                    nice=19L)          ## mc.hotdeck only
 {
     ## if(.Platform$OS.type!='unix')

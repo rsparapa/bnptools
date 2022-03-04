@@ -20,7 +20,7 @@ mc.recur.pwbart <- function(
    x.test,		#x matrix to predict at with time points expanded
    treedraws,		#$treedraws for from recur.bart/mc.recur.bart
    binaryOffset=0,	#mean to add on
-   mc.cores=2L,
+   mc.cores=getOption('mc.cores', 2L),
    type='pbart',
    transposed=FALSE,
    nice=19L

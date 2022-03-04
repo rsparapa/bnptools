@@ -23,6 +23,7 @@ predict.pbart <- function(object, newdata,
                           mult.impute=4L, seed=99L, 
                           probs=c(0.025, 0.975), ...) {
 
+    if(class(newdata)[1] == "data.frame") newdata=bartModelMatrix(newdata)
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
 
     p <- length(object$treedraws$cutpoints)

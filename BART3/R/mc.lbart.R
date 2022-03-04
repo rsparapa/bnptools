@@ -30,7 +30,7 @@ mc.lbart <- function(
     keepevery=1L, printevery=100L,
     keeptrainfits=TRUE, transposed=FALSE,
     ##treesaslists=FALSE,
-    mc.cores = 2L, nice = 19L,
+    mc.cores = getOption('mc.cores', 2L), nice = 19L,
     seed = 99L
 )
 {
