@@ -156,6 +156,11 @@ RcppExport SEXP cnft(
   double overalllambda = Rcpp::as<double>(_ioveralllambda);
   double overallnu = Rcpp::as<double>(_ioverallnu);
 
+  double opm=1.0/((double)mh);
+  //double nu=2.0*pow(overallnu,opm)/(pow(overallnu,opm)-pow(overallnu-2.0,opm));
+double nu=2./(1.-pow(1.-2/overallnu, opm));
+  double lambda=pow(overalllambda,opm);
+
   //nd and burn
   size_t nd = Rcpp::as<int>(_ind);
   size_t burn = Rcpp::as<int>(_iburn);
@@ -280,8 +285,8 @@ RcppExport SEXP cnft(
   Rprintf("number of trees mean: %ld\n",m);
   Rprintf("number of trees stan dev: %ld\n",mh);
   Rprintf("tau: %lf\n",tau);
-  Rprintf("overalllambda: %lf\n",overalllambda);
-  Rprintf("overallnu: %lf\n",overallnu);
+  Rprintf("total.lambda, lambda: %lf, %lf\n",overalllambda, lambda);
+  Rprintf("total.nu, nu: %lf, %lf\n",overallnu, nu);
   Rprintf("burn (nskip): %ld\n",burn);
   Rprintf("nd (ndpost): %ld\n",nd);
   Rprintf("nadapt: %ld\n",nadapt);
@@ -415,9 +420,6 @@ RcppExport SEXP cnft(
   for(size_t i=0;i<n;i++) r[i]=sigmav[i];
   dips.x = x; dips.y=r; dips.p=p; dips.n=n; dips.tc=tc;
 
-  double opm=1.0/((double)mh);
-  double nu=2.0*pow(overallnu,opm)/(pow(overallnu,opm)-pow(overallnu-2.0,opm));
-  double lambda=pow(overalllambda,opm);
 
   //cutpoints
   psbm.setxi(&xi);    //set the cutpoints for this model object

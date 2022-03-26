@@ -25,13 +25,15 @@ nft(
     ## f function
     k=5, sigmaf=NA, dist='weibull', 
     ## s function
-    sigmav=NULL, overalllambda=NA, overallnu=10,
+    sigmav=NULL, total.lambda=NA, total.nu=10,
     ## survival analysis 
     K=100, events=NULL, 
     ## DPM LIO
-    drawMuTau=1L, 
+    drawDPM=1L, 
     alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
-    neal.m=2, constrain=1, k0.draw=1, b0.draw=1,
+    neal.m=2, constrain=1, 
+    m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
+    a0=1.5, b0.a=0.5, b0.b=1, b0=1, b0.draw=1,
     ## misc
     printevery=100
 )
@@ -67,11 +69,11 @@ nft(
   \item{sigmaf}{SD of \code{y.train} desired for f function leaf prior.}
 \item{dist}{Distribution to be passed to intercept-only AFT model to center \code{y.train}.}
   \item{sigmav}{Initialization of square-root of variance parameter.}
-  \item{overalllambda}{A rudimentary estimate of the process standard deviation. Used in calibrating the variance prior.}
-  \item{overallnu}{Shape parameter for the variance prior.}
+  \item{total.lambda}{A rudimentary estimate of the process standard deviation. Used in calibrating the variance prior.}
+  \item{total.nu}{Shape parameter for the variance prior.}
 \item{K}{Number of grid points for which to estimate survival probability.}
 \item{events}{Grid points for which to estimate survival probability.}
-\item{drawMuTau}{Whether to utilize DPM or not.}
+\item{drawDPM}{Whether to utilize DPM or not.}
   \item{alpha}{Initial value of DPM concentration parameter.}
   \item{alpha.a}{Gamma prior parameter setting for DPM concentration parameter
     where E[\code{alpha}]=\code{alpha.a}/\code{alpha.b}.}
@@ -79,8 +81,18 @@ nft(
   \item{alpha.draw}{Whether to draw \code{alpha} or it is fixed at the initial value.}
   \item{neal.m}{The number of additional atoms for Neal 2000 DPM algorithm 8.}
   \item{constrain}{Whether to perform constained DPM or unconstrained.}
-  \item{k0.draw}{Whether to fix k0 or draw it if from the DPM LIO prior hierarchy: k0~Gamma(1.5, 7.5).}
-  \item{b0.draw}{Whether to fix b0 or draw it from the DPM LIO prior hierarchy: b0~Gamma(2, 1).}
+  \item{m0}{Center of the error distribution: defaults to zero.}
+  \item{k0.a}{First Gamma prior argument for \code{k0}.}
+  \item{k0.b}{Second Gamma prior argument for \code{k0}.}
+  \item{k0}{Initial value of \code{k0}.}
+  \item{k0.draw}{Whether to fix k0 or draw it if from the DPM LIO prior
+    hierarchy: \code{k0~Gamma(k0.a, k0.b)}, i.e., \code{E[k0]=k0.a/k0.b}.}
+  \item{a0}{First Gamma prior argument for \eqn{tau}.}
+  \item{b0.a}{First Gamma prior argument for \code{b0}.}
+  \item{b0.b}{Second Gamma prior argument for \code{b0}.}
+  \item{b0}{Initial value of \code{b0}.}
+  \item{b0.draw}{Whether to fix b0 or draw it from the DPM LIO prior 
+    hierarchy: \code{b0~Gamma(b0.a, b0.b)}, i.e., \code{E[b0]=b0.a/b0.b}.}
   \item{printevery}{Outputs MCMC algorithm status every printevery iterations.}
 }
 
@@ -176,7 +188,7 @@ matrices with \code{ndpost} rows and \eqn{p} columns.}
   available. }
 
 \item{soffset}{See \code{pred} above.}
-
+\item{aft}{The AFT model fit used to initialize NFT BART.}
 \item{elapsed}{The elapsed time of the run in seconds.}
 
 }
@@ -186,12 +198,8 @@ matrices with \code{ndpost} rows and \eqn{p} columns.}
   Nonparametric Failure Time: Time-to-event Machine Learning with Heteroskedastic Bayesian Additive Regression Trees and Low Information Omnibus Dirichlet Process Mixtures
   \emph{MCW Biostatistics Technical Report 72}
   \url{https://www.mcw.edu/-/media/MCW/Departments/Biostatistics/tr72.pdf?la=en}.
-%% Sparapani R., Rein L., Tarima S., Jackson T., Meurer J. (2017)
-%% Nonparametric recurrent events analysis with BART
-%% and an application to the hospital admissions of patients with diabetes.
-%% \emph{MCW Biostatistics Technical Report 64}
-%% \url{http://www.mcw.edu/FileLibrary/Groups/Biostatistics/TechReports/TechReports5175/tr064.pdf}.
 }
+
 \author{
 Rodney Sparapani: \email{rsparapa@mcw.edu}
 }
