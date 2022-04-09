@@ -10,5 +10,9 @@ Changes and New Features in 1.2 (2022-02-01):
 	debugging/sensitivity analysis 
 	* Return inital AFT fit
 
-Changes and New Features in 1.3 (2022-03-26):
+Changes and New Features in 1.3 (2022-04-09):
 	* Trap error code returned from rcat
+
+	* New option: mask unstable s estimates to calculate soffset
+
+	* Use hardened DPM LIO variance prior setting

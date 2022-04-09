@@ -2,7 +2,7 @@ Package: nftbart
 Type: Package
 Title: Nonparametric Failure Time Bayesian Additive Regression Trees
 Version: 1.3
-Date: 2022-03-26
+Date: 2022-04-09
 Authors@R: c(person('Rodney', 'Sparapani', 
 	   role=c('aut', 'cre'), email='rsparapa@mcw.edu'),
 	   person('Robert', 'McCulloch', role='aut'),

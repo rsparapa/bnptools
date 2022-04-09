@@ -39,7 +39,7 @@ nft = function(## data
                k=5, sigmaf=NA,
                dist='weibull', 
                ## s function
-               sigmav=NULL, total.lambda=NA, total.nu=10, ##total.q=0.75,
+               sigmav=NULL, total.lambda=NA, total.nu=10, mask=NULL,
                ## survival analysis 
                K=100, events=NULL, 
                ##impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
@@ -48,9 +48,10 @@ nft = function(## data
                alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
                neal.m=2, constrain=1, 
                m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
-               a0=1.5, b0.a=0.5, b0.b=1, b0=1, b0.draw=1,
+               ##a0=1.5, b0.a=0.5,
+               a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
                ## misc
-               printevery=100
+               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
                )
 {
     n=length(times)
@@ -225,7 +226,27 @@ if(K>0) {
     res$take.logs=take.logs
 }
     
+    s.train.max.=NULL
+    mask.=length(mask)
+    if(mask.==0) s.train.mask=1:nd
+    else if(mask.==1) {
+        s.train.max =apply(res$s.train, 1, quantile, probs=1)
+        s.train.max.=quantile(s.train.max, probs=mask)
+        s.train.mask=(s.train.max<=s.train.max.)
+        nd=sum(s.train.mask)
+        s.train.mask=which(s.train.mask)
+        res$f.train=res$f.train[s.train.mask, ]
+        res$s.train=res$s.train[s.train.mask, ]
+        res$z.train=res$z.train[s.train.mask, ]
+    } else stop('mask should be of length 0 or 1')
+    s.train.burn=c(1:burn, s.train.mask)
+   
     if(drawDPM>0) {
+        res$dpalpha=res$dpalpha[s.train.mask]
+        res$dpn=res$dpn[s.train.burn]
+        res$dpmu=res$dpmu[s.train.mask, ]
+        res$dpsd=res$dpsd[s.train.mask, ]
+        res$dpC=res$dpC[s.train.mask, ]
         if(burn>0) res$dpn.=res$dpn[-(1:burn)]
         else res$dpn.=res$dpn
     }
@@ -239,13 +260,13 @@ if(K>0) {
     res$MSE=mean(res$e.train.mean^2)
         res$s.train.mean=apply(res$s.train, 2, mean)
         res$ssd=sqrt(mean(res$s.train.mean^2))
-
+    res$s.train.mask=s.train.mask
+    res$s.train.max=s.train.max.
+        
     if(np>0) {
         res$f.test=res$f.test+fmu
-            res$s.test.mean=apply(res$s.test, 2, mean)
-            res$s.test.mean =apply(res$s.test, 2, mean)
-        res$f.test.mean =apply(res$f.test, 2, mean)
-
+        res$f.test.mean=apply(res$f.test, 2, mean)
+        res$s.test.mean=apply(res$s.test, 2, mean)
         res$x.test=t(xp)
     }
 
@@ -254,7 +275,7 @@ if(K>0) {
     res$x.train=t(x)
     res$ntree=ntree[1]
     res$ntree[2]=ntree[2]
-    res$ndpost=nd
+    res$ndpost=ndpost
     res$xicuts=xicuts
     res$fmu = fmu
 
@@ -262,10 +283,12 @@ if(K>0) {
     if(summarystats) {
         dimnames(res$f.varcount)[[2]]=names(xicuts)
         res$f.varcount[2:ndpost, ]=res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ]
+        res$f.varcount=res$f.varcount[s.train.mask, ]
         res$f.varcount.mean=apply(res$f.varcount, 2, mean)
         res$f.varprob=res$f.varcount.mean/sum(res$f.varcount.mean)
             dimnames(res$s.varcount)[[2]]=names(xicuts)
             res$s.varcount[2:ndpost, ]=res$s.varcount[2:ndpost, ]-res$s.varcount[1:(ndpost-1), ]
+        res$s.varcount=res$s.varcount[s.train.mask, ]
             res$s.varcount.mean=apply(res$s.varcount, 2, mean)
             res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
     }
@@ -278,14 +301,14 @@ if(K>0) {
         res$phi = phi
 
         H=max(res$dpn.)
-        dpwt. = matrix(0, nrow=ndpost, ncol=H)
+        dpwt. = matrix(0, nrow=nd, ncol=H)
         for(h in 1:H) dpwt.[ , h]=apply(res$dpC==h, 1, sum)
         res$dpwt.=dpwt./n
 
         if(H<n) { ## it has to be, but just in case 
             res$dpmu.=res$dpmu.[ , -((H+1):n)]
             res$dpsd.=res$dpsd.[ , -((H+1):n)]
-            for(i in 1:ndpost) {
+            for(i in 1:nd) {
                 h=res$dpn.[i]
                 if(h<H) for(j in (h+1):H) {
                             res$dpmu.[i, j]=0
@@ -302,17 +325,34 @@ if(K>0) {
     ## cpo = 1/apply(1/dnorm(res$z.train, mu., sd.), 2, mean)
     ## res$lpml = sum(log(cpo))
     
-    z=matrix(log(times), nrow=ndpost, ncol=n, byrow=TRUE)
-    delta=matrix(delta, nrow=ndpost, ncol=n, byrow=TRUE)
+    z=matrix(log(times), nrow=nd, ncol=n, byrow=TRUE)
+    delta=matrix(delta, nrow=nd, ncol=n, byrow=TRUE)
     cpo=(delta==2)*pnorm(z, mu., sd.)+(delta==0)*pnorm(z, mu., sd., FALSE)+
         (delta==1)*dnorm(z, mu., sd.)
     cpo = 1/apply(1/cpo, 2, mean)
     res$LPML = sum(log(cpo))
 
-        res$pred=predict(res, res$x.train, tc=tc,
-                         XPtr=FALSE, soffset=0) 
-        res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
-                            mean(res$s.train.mean^2)) ## for stability
+    res$pred=predict(res, res$x.train, tc=tc, XPtr=FALSE,
+                     soffset=0, probs=probs, na.rm=na.rm,
+                     mask=(length(s.train.mask)<ndpost)) 
+    ## if(length(s.train.mask)<ndpost) {
+    ##     q.lower=min(probs)
+    ##     q.upper=max(probs)
+    ##     res$pred$f.test=res$pred$f.test[s.train.mask, ]
+    ##     res$pred$s.test=res$pred$s.test[s.train.mask, ]
+    ##     res$pred$f.test.mean=apply(res$pred$f.test,2,mean)
+    ##     res$pred$f.test.lower=
+    ##         apply(res$pred$f.test,2,quantile,probs=q.lower,na.rm=na.rm)
+    ##     res$pred$f.test.upper=
+    ##         apply(res$pred$f.test,2,quantile,probs=q.upper,na.rm=na.rm)
+    ##     res$pred$s.test.mean=apply(res$pred$s.test,2,mean)
+    ##     res$pred$s.test.lower=
+    ##         apply(res$pred$s.test,2,quantile,probs=q.lower,na.rm=na.rm)
+    ##     res$pred$s.test.upper=
+    ##         apply(res$pred$s.test,2,quantile,probs=q.upper,na.rm=na.rm)
+    ## }
+    res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
+                        mean(res$s.train.mean^2)) ## for stability
     
     res$drawDPM=drawDPM
     res$aft=aft

@@ -38,11 +38,12 @@ predict.nft = function(
                        fmu=object$fmu,
                        soffset=object$soffset,
                        drawMuTau=object$drawMuTau,
+                       mask=FALSE,
                        ## etc.
                        ...)
 {
     ptm <- proc.time()
-    nd=object$ndpost
+    ndpost=object$ndpost
     m=object$ntree[1]
     if(length(object$ntree)==2) mh=object$ntree[2]
     else mh=object$ntreeh
@@ -57,6 +58,10 @@ predict.nft = function(
         take.logs=FALSE
     }
     if(length(drawMuTau)==0) drawMuTau=0
+    if(length(object$s.train.mask)==0) mask=FALSE
+    
+    if(mask) nd=length(object$s.train.mask)
+    else nd=ndpost
     
     q.lower=min(probs)
     q.upper=max(probs)
@@ -66,12 +71,16 @@ predict.nft = function(
                   xp,
                   m,
                   mh,
-                  nd,
+                  ndpost,
                   xi,
                   tc,
                   object,
                   PACKAGE="nftbart"
                   )
+        if(mask) {
+            res$f.test.=res$f.test.[object$s.train.mask, ]
+            res$s.test.=res$s.test.[object$s.train.mask, ]
+        }
         res$f.test.=res$f.test.+fmu
         res$f.test.mean.=apply(res$f.test.,2,mean)
         res$f.test.lower.=
@@ -94,6 +103,10 @@ predict.nft = function(
                    tc,
                    PACKAGE="nftbart"
                    )
+        if(mask) {
+            res.$f.test=res.$f.test[object$s.train.mask, ]
+            res.$s.test=res.$s.test[object$s.train.mask, ]
+        }
         res$f.test=res.$f.test+fmu
         res$fmu=fmu
         
