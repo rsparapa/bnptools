@@ -260,6 +260,7 @@ if(K>0) {
     res$MSE=mean(res$e.train.mean^2)
         res$s.train.mean=apply(res$s.train, 2, mean)
         res$ssd=sqrt(mean(res$s.train.mean^2))
+    res$mask=mask
     res$s.train.mask=s.train.mask
     res$s.train.max=s.train.max.
         
@@ -333,24 +334,7 @@ if(K>0) {
     res$LPML = sum(log(cpo))
 
     res$pred=predict(res, res$x.train, tc=tc, XPtr=FALSE,
-                     soffset=0, probs=probs, na.rm=na.rm,
-                     mask=(length(s.train.mask)<ndpost)) 
-    ## if(length(s.train.mask)<ndpost) {
-    ##     q.lower=min(probs)
-    ##     q.upper=max(probs)
-    ##     res$pred$f.test=res$pred$f.test[s.train.mask, ]
-    ##     res$pred$s.test=res$pred$s.test[s.train.mask, ]
-    ##     res$pred$f.test.mean=apply(res$pred$f.test,2,mean)
-    ##     res$pred$f.test.lower=
-    ##         apply(res$pred$f.test,2,quantile,probs=q.lower,na.rm=na.rm)
-    ##     res$pred$f.test.upper=
-    ##         apply(res$pred$f.test,2,quantile,probs=q.upper,na.rm=na.rm)
-    ##     res$pred$s.test.mean=apply(res$pred$s.test,2,mean)
-    ##     res$pred$s.test.lower=
-    ##         apply(res$pred$s.test,2,quantile,probs=q.lower,na.rm=na.rm)
-    ##     res$pred$s.test.upper=
-    ##         apply(res$pred$s.test,2,quantile,probs=q.upper,na.rm=na.rm)
-    ## }
+                     soffset=0, probs=probs, na.rm=na.rm) 
     res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
                         mean(res$s.train.mean^2)) ## for stability
     

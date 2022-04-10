@@ -131,10 +131,10 @@ class rrn: public rn
     virtual int rcat(Rcpp::NumericVector _p) {
       double c=Rcpp::sum(_p), d=Rcpp::min(_p);
       if(c==0. || d<0.) {
-#ifdef DEBUG
+//#ifdef DEBUG
 	cout << "rcat returning -1\n";
 	cout << _p << '\n';
-#endif
+//#endif
 	return -1;
       }
       int K=_p.size();
@@ -142,10 +142,10 @@ class rrn: public rn
       Rcpp::IntegerVector x(K);
       R::rmultinom(1, &p[0], K, &x[0]);
       for(int j=0; j<K; ++j) if(x[j]==1) return j;
-#ifdef DEBUG
+//#ifdef DEBUG
 	cout << "rcat returning -2\n";
 	cout << x << '\n';
-#endif
+//#endif
       return -2;
     }
 

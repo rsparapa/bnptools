@@ -38,7 +38,7 @@ predict.nft = function(
                        fmu=object$fmu,
                        soffset=object$soffset,
                        drawMuTau=object$drawMuTau,
-                       mask=FALSE,
+                       ##mask=FALSE,
                        ## etc.
                        ...)
 {
@@ -58,10 +58,10 @@ predict.nft = function(
         take.logs=FALSE
     }
     if(length(drawMuTau)==0) drawMuTau=0
-    if(length(object$s.train.mask)==0) mask=FALSE
-    
-    if(mask) nd=length(object$s.train.mask)
-    else nd=ndpost
+
+    nd=length(object$s.train.mask)
+    mask=(nd>0)
+    if(!mask) nd=ndpost
     
     q.lower=min(probs)
     q.upper=max(probs)
