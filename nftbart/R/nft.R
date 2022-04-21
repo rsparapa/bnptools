@@ -227,18 +227,18 @@ if(K>0) {
 }
     
     s.train.max.=NULL
-    mask.=length(mask)
-    if(mask.==0) s.train.mask=1:nd
-    else if(mask.==1) {
+    if(length(mask)==1 && 0<mask && mask<1) {
+        res$s.train[is.na(res$s.train)] = 0
+        s.train.min =apply(res$s.train, 1, quantile, probs=0)
         s.train.max =apply(res$s.train, 1, quantile, probs=1)
         s.train.max.=quantile(s.train.max, probs=mask)
-        s.train.mask=(s.train.max<=s.train.max.)
+        s.train.mask=(0<s.train.min & s.train.max<=s.train.max.)
         nd=sum(s.train.mask)
         s.train.mask=which(s.train.mask)
         res$f.train=res$f.train[s.train.mask, ]
         res$s.train=res$s.train[s.train.mask, ]
         res$z.train=res$z.train[s.train.mask, ]
-    } else stop('mask should be of length 0 or 1')
+    } else s.train.mask=1:nd 
     s.train.burn=c(1:burn, s.train.mask)
    
     if(drawDPM>0) {
