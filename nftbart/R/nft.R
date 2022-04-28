@@ -265,8 +265,9 @@ if(K>0) {
     res$s.train.max=s.train.max.
         
     if(np>0) {
-        res$f.test=res$f.test+fmu
+        res$f.test=res$f.test[s.train.mask, ]+fmu
         res$f.test.mean=apply(res$f.test, 2, mean)
+        res$s.test=res$s.test[s.train.mask, ]
         res$s.test.mean=apply(res$s.test, 2, mean)
         res$x.test=t(xp)
     }
@@ -280,7 +281,7 @@ if(K>0) {
     res$xicuts=xicuts
     res$fmu = fmu
 
-    summarystats=(nd>=2)
+    summarystats=(ndpost>=2)
     if(summarystats) {
         dimnames(res$f.varcount)[[2]]=names(xicuts)
         res$f.varcount[2:ndpost, ]=res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ]
