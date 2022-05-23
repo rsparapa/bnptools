@@ -246,6 +246,8 @@ if(K>0) {
         res$dpn=res$dpn[s.train.burn]
         res$dpmu=res$dpmu[s.train.mask, ]
         res$dpsd=res$dpsd[s.train.mask, ]
+        res$dpmu.=res$dpmu.[s.train.mask, ]
+        res$dpsd.=res$dpsd.[s.train.mask, ]
         res$dpC=res$dpC[s.train.mask, ]
         if(burn>0) res$dpn.=res$dpn[-(1:burn)]
         else res$dpn.=res$dpn
@@ -329,10 +331,10 @@ if(K>0) {
     
     z=matrix(log(times), nrow=nd, ncol=n, byrow=TRUE)
     delta=matrix(delta, nrow=nd, ncol=n, byrow=TRUE)
-    cpo=(delta==2)*pnorm(z, mu., sd.)+(delta==0)*pnorm(z, mu., sd., FALSE)+
+    tmp=(delta==2)*pnorm(z, mu., sd.)+(delta==0)*pnorm(z, mu., sd., FALSE)+
         (delta==1)*dnorm(z, mu., sd.)
-    cpo = 1/apply(1/cpo, 2, mean)
-    res$LPML = sum(log(cpo))
+    res$CPO = 1/apply(1/tmp, 2, mean)
+    res$LPML = sum(log(res$CPO))
 
     res$pred=predict(res, res$x.train, tc=tc, XPtr=FALSE,
                      soffset=0, probs=probs, na.rm=na.rm) 

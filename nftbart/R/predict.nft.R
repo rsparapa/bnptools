@@ -34,10 +34,11 @@ predict.nft = function(
                        probs=c(0.025, 0.975),
                        take.logs=TRUE,
                        na.rm=FALSE,
+                       seed=NULL,
                        ## default settings for NFT:BART/HBART/DPM
                        fmu=object$fmu,
                        soffset=object$soffset,
-                       drawMuTau=object$drawMuTau,
+                       drawDPM=object$drawDPM,
                        ##mask=FALSE,
                        ## etc.
                        ...)
@@ -57,7 +58,7 @@ predict.nft = function(
         K=0
         take.logs=FALSE
     }
-    if(length(drawMuTau)==0) drawMuTau=0
+    if(length(drawDPM)==0) drawDPM=0
 
     nd=length(object$s.train.mask)
     mask=(nd>0)
@@ -141,7 +142,7 @@ predict.nft = function(
 
             if(FPD) {
                 H=np/n
-                if(drawMuTau>0) {
+                if(drawDPM>0) {
                     for(h in 1:H) {
                         if(h==1) {
                             mu. = object$dpmu
@@ -213,32 +214,39 @@ predict.nft = function(
                     }
                 }
                 
-                ##mask=res$f.test.mask
                 res$surv.fpd.mean=apply(cbind(res$surv.fpd), 2, mean)
-                ##res$surv.fpd.mean=apply(cbind(res$surv.fpd[mask, ]), 2, mean)
                 res$surv.fpd.lower=
                     apply(cbind(res$surv.fpd), 2, quantile, probs=q.lower)
-                ##apply(cbind(res$surv.fpd[mask, ]), 2, quantile, probs=q.lower)
                 res$surv.fpd.upper=
                     apply(cbind(res$surv.fpd), 2, quantile, probs=q.upper)
-                ##apply(cbind(res$surv.fpd[mask, ]), 2, quantile, probs=q.upper)
                 res$pdf.fpd.mean =apply(cbind(res$pdf.fpd), 2, mean)
-                ##res$pdf.fpd.mean =apply(cbind(res$pdf.fpd[mask, ]), 2, mean)
                 if(K==1) {
                     res$surv.test.mean=apply(res$surv.test, 2, mean)
-                    ##res$surv.test.mean=apply(res$surv.test[mask, ], 2, mean)
                     res$pdf.test.mean =apply(res$pdf.test,  2, mean)
-                    ##res$pdf.test.mean =apply(res$pdf.test[mask, ],  2, mean)
                 }
-            } else if(drawMuTau>0) {
+            } else if(drawDPM>0) {
                 res$surv.test=matrix(0, nrow=nd, ncol=np*K)
-                ##H=ncol(object$dpmu.)
-                H=max(c(object$dpn.))
+                H=ncol(object$dpwt.)
+                ##H=max(c(object$dpn.))
                 events.=events
+                draw.time=(length(seed)>0)
+                if(draw.time) {
+                    set.seed(seed)
+                    res$time.test=matrix(0, nrow=nd, ncol=np)
+                }
+                    
                 for(i in 1:np) {
                     if(events.matrix) events.=events[i, ]
                     mu.=res$f.test[ , i]
                     sd.=res$s.test[ , i]
+                    if(draw.time)
+                        for(h in 1:H) {
+                            res$time.test[ , i]=res$time.test[ , i]+
+                                object$dpwt.[ , h]*
+                                rnorm(nd, 
+                                      mu.+sd.*object$dpmu.[ , h],
+                                      sd.*object$dpsd.[ , h])
+                        }
                     for(j in 1:K) {
                         k=(i-1)*K+j
                         for(h in 1:H) {
@@ -258,6 +266,8 @@ predict.nft = function(
                     }
                 }
                 res$surv.test.mean=apply(res$surv.test, 2, mean)
+                if(draw.time)
+                    res$time.test.mean=apply(res$time.test, 2, mean)
             }
 
             if(take.logs) res$events=exp(events)
