@@ -21,10 +21,11 @@
             probs=c(0.025, 0.975),
             take.logs=TRUE,
             na.rm=FALSE,
+            seed=NULL,
             ## default settings for NFT:BART/HBART/DPM
             fmu=object$fmu,
             soffset=object$soffset,
-            drawMuTau=object$drawMuTau,
+            drawDPM=object$drawDPM,
             ## etc.
             ...)
 }
@@ -48,9 +49,11 @@
   \item{take.logs}{Whether or not to take logarithms.}
   \item{na.rm}{Whether \code{NA} values should be removed from the
     summaries.}
+  \item{seed}{If provided, then this value is used to generate random
+    event times from the predictive distribution}.
   \item{fmu}{BART centering parameter for the test data.  Defaults to the value used by \code{nft()} when training the model.}
   \item{soffset}{HBART centering parameter for the test data.  Defaults to the value used by \code{nft()} when training the model.}
-   \item{drawMuTau}{Whether to use NFT BART with, or without, DPM.}
+   \item{drawDPM}{Whether NFT BART was fit with, or without, DPM.}
    \item{...}{The et cetera objects passed to the \code{predict} method.
      Currently, it has no functionality.}
 }

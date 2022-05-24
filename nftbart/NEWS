@@ -7,12 +7,19 @@ Changes and New Features in 1.1 (2021-12-17):
 
 Changes and New Features in 1.2 (2022-02-01):
 	* Allow DPM LIO parameters to be altered for
-	debugging/sensitivity analysis 
+	  debugging/sensitivity analysis 
+
 	* Return inital AFT fit
 
-Changes and New Features in 1.3 (2022-04-09):
+Changes and New Features in 1.3 (2022-03-26):
 	* Trap error code returned from rcat
 
+Changes and New Features in 1.4 (2022-05-24):
 	* New option: mask unstable s estimates to calculate soffset
 
 	* Use hardened DPM LIO variance prior setting
+
+	* Return both the LPML and the CPO
+
+	* FIXME bartModelMatrix: more flexible removal of variables
+          you can now remove: constants, by name/index or both

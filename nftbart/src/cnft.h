@@ -328,7 +328,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   Rprintf("alpha draw: alpha_a=%lf, alpha_b=%lf\n", 
 	  Rcpp::as<double>(prior["alpha.a"]),
 	  Rcpp::as<double>(prior["alpha.b"]));
-  Rprintf("draw: MuTau=%ld\n", drawMuTau);
+  Rprintf("draw: DPM=%ld\n", drawMuTau);
   //Rprintf("draw: s=%ld, MuTau=%ld\n", draws, drawMuTau);
   if(impute_flag) {
     cout << "Missing imputation column index:\n" << impute_bin << endl;

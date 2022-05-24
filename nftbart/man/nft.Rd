@@ -25,7 +25,7 @@ nft(
     ## f function
     k=5, sigmaf=NA, dist='weibull', 
     ## s function
-    sigmav=NULL, total.lambda=NA, total.nu=10,
+    sigmav=NULL, total.lambda=NA, total.nu=10, mask=NULL,
     ## survival analysis 
     K=100, events=NULL, 
     ## DPM LIO
@@ -33,9 +33,9 @@ nft(
     alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
     neal.m=2, constrain=1, 
     m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
-    a0=1.5, b0.a=0.5, b0.b=1, b0=1, b0.draw=1,
+    a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
     ## misc
-    printevery=100
+    na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
 )
 
 }
@@ -71,6 +71,9 @@ nft(
   \item{sigmav}{Initialization of square-root of variance parameter.}
   \item{total.lambda}{A rudimentary estimate of the process standard deviation. Used in calibrating the variance prior.}
   \item{total.nu}{Shape parameter for the variance prior.}
+  \item{mask}{If a proportion is provided, then this quantile of
+    Friedman's partial dependence function is used to mask non-stationary
+  departures of convergence above this threshold.}
 \item{K}{Number of grid points for which to estimate survival probability.}
 \item{events}{Grid points for which to estimate survival probability.}
 \item{drawDPM}{Whether to utilize DPM or not.}
@@ -92,7 +95,10 @@ nft(
   \item{b0.b}{Second Gamma prior argument for \code{b0}.}
   \item{b0}{Initial value of \code{b0}.}
   \item{b0.draw}{Whether to fix b0 or draw it from the DPM LIO prior 
-    hierarchy: \code{b0~Gamma(b0.a, b0.b)}, i.e., \code{E[b0]=b0.a/b0.b}.}
+    hierarchy: \code{b0~Gamma(b0.a, b0.b)}, i.e.,
+    \code{E[b0]=b0.a/b0.b}.}
+  \item{na.rm}{Value to be passed to the \code{predict} function.}
+  \item{probs}{Value to be passed to the \code{predict} function.}
   \item{printevery}{Outputs MCMC algorithm status every printevery iterations.}
 }
 
@@ -230,7 +236,7 @@ x.train=cbind(lung[ , -(1:3)])
 
 ## token run just to test installation
 post=nft(x.train, times, delta, tc=B, K=0,
-         nskip=0, ndpost=1, nadapt=1, adaptevery=1)
+         nskip=0, ndpost=10, nadapt=4, adaptevery=1)
 
 \donttest{
 file.='lung.rds'
