@@ -23,7 +23,7 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
                          rm.const=FALSE, cont=FALSE, xicuts=NULL,
                          rm.vars=NULL) {
     if(length(rm.vars)>0) {
-        rm.const=TRUE
+        ##rm.const=TRUE
         rm.vars[rm.vars>0]=-rm.vars[rm.vars>0]
     } else rm.vars=0
 
@@ -93,7 +93,7 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
                          seq(xs[1], xs[k], length.out=numcut+2)[-c(1, numcut+2)]
                 }
                 else if(k==1) {
-                    rm.vars <- c(rm.vars, -j)
+                    if(rm.const) rm.vars <- c(rm.vars, -j)
                     nc[j] <- 1
                 }
                 else if(k<numcut) {
@@ -131,7 +131,7 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
 
     ##xinfo <- xinfo.
 
-    if(rm.const & length(rm.vars)>0) {
+    if(rm.const || (length(rm.vars)>0 && rm.vars!=0)) {
         X <- X[ , rm.vars]
         nc <- nc[rm.vars]
         ##xinfo <- xinfo[rm.vars, ]

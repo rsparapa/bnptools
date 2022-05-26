@@ -71,9 +71,9 @@ nft(
   \item{sigmav}{Initialization of square-root of variance parameter.}
   \item{total.lambda}{A rudimentary estimate of the process standard deviation. Used in calibrating the variance prior.}
   \item{total.nu}{Shape parameter for the variance prior.}
-  \item{mask}{If a proportion is provided, then this quantile of
-    Friedman's partial dependence function is used to mask non-stationary
-  departures of convergence above this threshold.}
+  \item{mask}{If a proportion is provided, then said quantile
+    of \code{max.i s(x.i)} is used to mask non-stationary
+  departures (with respect to convergence) above this threshold.}
 \item{K}{Number of grid points for which to estimate survival probability.}
 \item{events}{Grid points for which to estimate survival probability.}
 \item{drawDPM}{Whether to utilize DPM or not.}

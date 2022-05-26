@@ -15,11 +15,13 @@ Changes and New Features in 1.3 (2022-03-26):
 	* Trap error code returned from rcat
 
 Changes and New Features in 1.4 (2022-05-24):
-	* New option: mask unstable s estimates to calculate soffset
+	* New option: mask unstable s(.) estimates to calculate soffset
 
 	* Use hardened DPM LIO variance prior setting
 
 	* Return both the LPML and the CPO
 
-	* FIXME bartModelMatrix: more flexible removal of variables
-          you can now remove: constants, by name/index or both
+	* bartModelMatrix: more consistent behavior for removal of variables
+          you can now remove: by name/index, constant vectors or both
+
+        * predict now produces draws from the predictive distribution for log t

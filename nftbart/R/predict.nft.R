@@ -60,6 +60,7 @@ predict.nft = function(
     }
     if(length(drawDPM)==0) drawDPM=0
 
+    draw.logt=(length(seed)>0)
     nd=length(object$s.train.mask)
     mask=(nd>0)
     if(!mask) nd=ndpost
@@ -229,24 +230,24 @@ predict.nft = function(
                 H=ncol(object$dpwt.)
                 ##H=max(c(object$dpn.))
                 events.=events
-                draw.time=(length(seed)>0)
-                if(draw.time) {
-                    set.seed(seed)
-                    res$time.test=matrix(0, nrow=nd, ncol=np)
-                }
+                ## draw.time=(length(seed)>0)
+                ## if(draw.time) {
+                ##     set.seed(seed)
+                ##     res$time.test=matrix(0, nrow=nd, ncol=np)
+                ## }
                     
                 for(i in 1:np) {
                     if(events.matrix) events.=events[i, ]
                     mu.=res$f.test[ , i]
                     sd.=res$s.test[ , i]
-                    if(draw.time)
-                        for(h in 1:H) {
-                            res$time.test[ , i]=res$time.test[ , i]+
-                                object$dpwt.[ , h]*
-                                rnorm(nd, 
-                                      mu.+sd.*object$dpmu.[ , h],
-                                      sd.*object$dpsd.[ , h])
-                        }
+                    ## if(draw.time)
+                    ##     for(h in 1:H) {
+                    ##         res$time.test[ , i]=res$time.test[ , i]+
+                    ##             object$dpwt.[ , h]*
+                    ##             rnorm(nd, 
+                    ##                   mu.+sd.*object$dpmu.[ , h],
+                    ##                   sd.*object$dpsd.[ , h])
+                    ##     }
                     for(j in 1:K) {
                         k=(i-1)*K+j
                         for(h in 1:H) {
@@ -266,14 +267,42 @@ predict.nft = function(
                     }
                 }
                 res$surv.test.mean=apply(res$surv.test, 2, mean)
-                if(draw.time)
-                    res$time.test.mean=apply(res$time.test, 2, mean)
+                ## if(draw.time)
+                ##     res$time.test.mean=apply(res$time.test, 2, mean)
             }
 
             if(take.logs) res$events=exp(events)
             else res$events=events
         }
         res$K=K
+        
+        if(draw.logt) {
+            set.seed(seed)
+            res$logt.test=matrix(0, nrow=nd, ncol=np)
+
+            if(drawDPM>0) {
+                res$logt.test=matrix(0, nrow=nd, ncol=np)
+                H=ncol(object$dpwt.)
+                for(i in 1:np) {
+                    mu. = res$f.test[ , i]
+                    sd. = res$s.test[ , i]
+                    for(h in 1:H) {
+                        res$logt.test[ , i]=res$logt.test[ , i]+
+                            object$dpwt.[ , h]*
+                            rnorm(nd, mu.+sd.*object$dpmu.[ , h],
+                                  sd.*object$dpsd.[ , h])
+                    }
+                }
+            } else {
+                res$logt.test=matrix(nrow=nd, ncol=np)
+                for(i in 1:np) {
+                    mu. = res$f.test[ , i]
+                    sd. = res$s.test[ , i]
+                    res$logt.test[ , i]=rnorm(nd, mu., sd.)
+                }
+            }
+            res$logt.test.mean=apply(res$logt.test, 2, mean)
+        }
     } else {
         res$f.test=res$f.test.
         res$s.test=res$s.test.
