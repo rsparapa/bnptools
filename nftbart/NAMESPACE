@@ -1,5 +1,6 @@
 useDynLib(nftbart, .registration=TRUE)
 S3method(predict, nft)
+S3method(predict, aftree)
 export(nft)
 export(CDimpute)
 importFrom(Rcpp, evalCpp)

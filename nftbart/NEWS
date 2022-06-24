@@ -25,3 +25,7 @@ Changes and New Features in 1.4 (2022-05-24):
           you can now remove: by name/index, constant vectors or both
 
         * predict now produces draws from the predictive distribution for log t
+
+	* predict.aftree now provided for producing survival and hazard
+	  function estimates (or their Friedman's partial dependence estimates
+	  if requested) for AFT BART like predict.nft does for NFT BART
