@@ -45,7 +45,7 @@ mc.surv.bart <- function(
                          ##keeptrainfits=TRUE,
                          id = NULL,     ## only used by surv.bart
                          seed = 99L,    ## only used by mc.surv.bart
-                         mc.cores = 2L, ## ditto
+                         mc.cores = getOption('mc.cores', 2L), ## ditto
                          nice=19L       ## ditto
                          )
 {

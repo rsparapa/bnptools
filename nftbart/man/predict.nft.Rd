@@ -18,13 +18,16 @@
             K=0,
             events=object$events,
             FPD=FALSE,
+            hazard=FALSE,
+            density=FALSE,
             probs=c(0.025, 0.975),
             take.logs=TRUE,
             na.rm=FALSE,
+            seed=NULL,
             ## default settings for NFT:BART/HBART/DPM
             fmu=object$fmu,
             soffset=object$soffset,
-            drawMuTau=object$drawMuTau,
+            drawDPM=object$drawDPM,
             ## etc.
             ...)
 }
@@ -43,14 +46,20 @@
     they are derived from quantiles of the augmented event times.}
   \item{FPD}{Whether to yield the usual predictions or marginal predictions
     calculated by the partial dependence function.}
+  \item{hazard}{By default, only the survival function is estimated;
+    however, with \code{TRUE}, you can request the hazard as well.}
+  \item{density}{By default, only the survival function is estimated;
+    however, with \code{TRUE}, you can request the density as well.}
   \item{probs}{A vector of length two containing the
     lower and upper quantiles to be calculated for the predictions.}
   \item{take.logs}{Whether or not to take logarithms.}
   \item{na.rm}{Whether \code{NA} values should be removed from the
     summaries.}
+  \item{seed}{If provided, then this value is used to generate random
+    natural logarithms of event times from the predictive distribution}.
   \item{fmu}{BART centering parameter for the test data.  Defaults to the value used by \code{nft()} when training the model.}
   \item{soffset}{HBART centering parameter for the test data.  Defaults to the value used by \code{nft()} when training the model.}
-   \item{drawMuTau}{Whether to use NFT BART with, or without, DPM.}
+   \item{drawDPM}{Whether NFT BART was fit with, or without, DPM.}
    \item{...}{The et cetera objects passed to the \code{predict} method.
      Currently, it has no functionality.}
 }

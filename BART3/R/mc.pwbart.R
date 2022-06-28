@@ -21,7 +21,7 @@ mc.pwbart = function(
    x.test,		#x matrix to predict at
    treedraws,		#$treedraws from wbart
    mu=0,		#mean to add on
-   mc.cores=2L,
+   mc.cores=getOption('mc.cores', 2L),
    transposed=FALSE,
    dodraws=TRUE,
    nice=19L

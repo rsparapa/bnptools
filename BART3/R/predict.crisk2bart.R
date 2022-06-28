@@ -19,7 +19,8 @@
 predict.crisk2bart <- function(object, newdata, newdata2,
                                mc.cores=getOption('mc.cores', 1L),
                                openmp=(mc.cores.openmp()>0), ...) {
-
+    ## if(class(newdata) == "data.frame") newdata=bartModelMatrix(newdata)
+    ## if(class(newdata2) == "data.frame") newdata2=bartModelMatrix(newdata2)
     ## if(class(newdata) != "matrix") stop("newdata must be a matrix")
     ## if(class(newdata2) != "matrix") stop("newdata2 must be a matrix")
 

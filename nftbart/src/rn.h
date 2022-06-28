@@ -129,20 +129,33 @@ class rrn: public rn
   double get_alpha() {return alpha;}
 
     virtual int rcat(Rcpp::NumericVector _p) {
+      int K=_p.size();
+      Rcpp::NumericVector p(K); // = _p/c;
       double c=Rcpp::sum(_p), d=Rcpp::min(_p);
+      if(c==0. || d<0.) for(int j=0; j<K; ++j) p[j]=1./K;
+      else p = _p/c;
+/*
       if(c==0. || d<0.) {
 //#ifdef DEBUG
 	cout << "rcat returning -1\n";
 	cout << _p << '\n';
 //#endif
 	return -1;
-      }
-      int K=_p.size();
-      Rcpp::NumericVector p = _p/c;
+	}
+*/
       Rcpp::IntegerVector x(K);
       R::rmultinom(1, &p[0], K, &x[0]);
+      if(Rcpp::sum(x)!=1) {
+	for(int j=0; j<K; ++j) p[j]=1./K;
+	R::rmultinom(1, &p[0], K, &x[0]);
+      }
       for(int j=0; j<K; ++j) if(x[j]==1) return j;
-      return -2;
+//#ifdef DEBUG
+	cout << "rcat returning -1\n";
+	cout << "p: " << _p << '\n';
+	cout << "x: " << x << '\n';
+//#endif
+      return -1;
     }
 
 /*

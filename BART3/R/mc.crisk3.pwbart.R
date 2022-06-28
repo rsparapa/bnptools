@@ -26,7 +26,7 @@ mc.crisk3.pwbart <- function(
    binaryOffset=0,	#mean to add on for cause 1
    binaryOffset2=0,	#mean to add on for cause 2
    binaryOffset3=0,	#mean to add on for cause 3
-   mc.cores=2L,
+   mc.cores=getOption('mc.cores', 2L),
    type='pbart',
    transposed=FALSE,
    nice=19L

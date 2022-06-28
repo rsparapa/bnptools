@@ -16,9 +16,10 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-predict.mbart <- function(object, newdata, mc.cores=1,
+predict.mbart <- function(object, newdata, mc.cores=getOption('mc.cores', 1L),
                           openmp=(mc.cores.openmp()>0), ...) {
 
+    if(class(newdata)[1] == "data.frame") newdata=bartModelMatrix(newdata)
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
 
     p <- length(object$treedraws$cutpoints)

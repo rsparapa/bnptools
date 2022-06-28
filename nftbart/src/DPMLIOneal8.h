@@ -135,7 +135,9 @@ void DPMLIOneal8(SEXP _Y, SEXP _phi, SEXP _C, SEXP _S,
     int j;
     j=eng.rcat(prob);
 
-    if(j==-1) j=c; // otherwise C/S will be out of synch, but this is bad
+    if(j<0) j=c; // otherwise C/S will be out of synch
+    //if(j<0 || j>2147483647) j=c; 
+    //if(j==-1) j=c;
     else if(singleton) {
 #ifdef DEBUG
       if(j==c) {

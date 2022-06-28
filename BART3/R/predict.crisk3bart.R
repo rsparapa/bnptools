@@ -22,6 +22,9 @@ predict.crisk3bart <- function(object, newdata,
                                mc.cores=getOption('mc.cores', 1L),
                                openmp=(mc.cores.openmp()>0),
                                mult.impute=4, seed=99, ...) {
+    ## if(class(newdata) == "data.frame") newdata=bartModelMatrix(newdata)
+    ## if(class(newdata2) == "data.frame") newdata2=bartModelMatrix(newdata2)
+    ## if(class(newdata3) == "data.frame") newdata3=bartModelMatrix(newdata3)
 
     p <- length(object$treedraws$cutpoints)
     if(p!=ncol(newdata))

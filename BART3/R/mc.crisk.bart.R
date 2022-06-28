@@ -44,7 +44,7 @@ mc.crisk.bart <- function(
     ##treesaslists=FALSE,
     ##keeptrainfits=TRUE,
     id=NULL,    ## crisk.bart only
-    seed = 99L, mc.cores = 2L, nice=19L
+    seed = 99L, mc.cores = getOption('mc.cores', 2L), nice=19L
 )
 {
     if(.Platform$OS.type!='unix')

@@ -23,6 +23,7 @@ summary(times)
 x.train=cbind(lung[ , -(1:3)])
 ## lung$sex:        Male=1 Female=2
 
+a=proc.time()
 file.='lung.rds'
 if(file.exists(file.)) {
     post=readRDS(file.)
@@ -33,13 +34,17 @@ if(file.exists(file.)) {
     XPtr=TRUE
     ##saveRDS(post, file.)
 }
+print((proc.time()-a)/60)
 
 x.test = rbind(x.train, x.train)
 x.test[ , 2]=rep(1:2, each=N)
-K=75 ##150
-events=seq(0, 150, length.out=K+1)
+K=100
+events=c(0, quantile(times[delta==1], (0:(K-1))/(K-1)))
+a=proc.time()
 pred = predict(post, x.test, K=K, events=events[-1],
                XPtr=XPtr, tc=B, FPD=TRUE)
+##               XPtr=XPtr, tc=B, FPD=TRUE, hazard=TRUE)
+print((proc.time()-a)/60)
 
 plot(events, c(1, pred$surv.fpd.mean[1:K]), type='l', col=4,
      ylim=0:1, 
@@ -50,8 +55,27 @@ lines(events, c(1, pred$surv.fpd.lower[1:K]), lty=2, lwd=2, col=4)
 lines(events, c(1, pred$surv.fpd.mean[K+1:K]), lwd=2, col=2)
 lines(events, c(1, pred$surv.fpd.upper[K+1:K]), lty=2, lwd=2, col=2)
 lines(events, c(1, pred$surv.fpd.lower[K+1:K]), lty=2, lwd=2, col=2)
-legend('topright', c('Mortality',
-                     'Males', 'Females'), lwd=2, col=c(0, 4, 2), lty=1)
+legend('topright', c('NFT BART', 'Mortality',
+                     'Males', 'Females'), lwd=2, col=c(0, 0, 4, 2), lty=1)
+abline(h=0:1, v=0)
 ##dev.copy2pdf(file='lung.pdf')
 
+## plot(events, c(0, pred$haz.fpd.mean[1:K]), type='l', col=4,
+##      ylim=c(0, 1.1*max(c(pred$haz.fpd.upper))),
+##      xlab=expression(italic(t)), sub='weeks',
+##      ylab=expression(italic(h)(italic(t), italic(x))))
+## lines(events, c(0, pred$haz.fpd.upper[1:K]), lty=2, lwd=2, col=4)
+## lines(events, c(0, pred$haz.fpd.lower[1:K]), lty=2, lwd=2, col=4)
+## lines(events, c(0, pred$haz.fpd.mean[K+1:K]), lwd=2, col=2)
+## lines(events, c(0, pred$haz.fpd.upper[K+1:K]), lty=2, lwd=2, col=2)
+## lines(events, c(0, pred$haz.fpd.lower[K+1:K]), lty=2, lwd=2, col=2)
+## legend('topright', c('NFT BART', 'Mortality',
+##                      'Males', 'Females'), lwd=2, col=c(0, 0, 4, 2), lty=1)
+## abline(h=0, v=0)
+##dev.copy2pdf(file='lung.haz.pdf')
 
+## plot(apply(post$f.train, 1, max), type='l', ylab='max(f(x))',
+##      ylim=c(0, max(post$f.train)))
+
+## plot(apply(post$s.train, 1, max), type='l', ylab='max(s(x))',
+##      ylim=c(0, max(post$s.train)))

@@ -20,6 +20,7 @@ predict.recurbart <- function(object, newdata,
                               mc.cores=getOption('mc.cores', 1L),
                               openmp=(mc.cores.openmp()>0), ...) {
 
+    ##if(class(newdata) == "data.frame") newdata=bartModelMatrix(newdata)
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
 
     p <- length(object$treedraws$cutpoints)

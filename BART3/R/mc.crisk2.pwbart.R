@@ -23,7 +23,7 @@ mc.crisk2.pwbart <- function(
    treedraws2,	        #$treedraws for to discriminate
    binaryOffset=0,	#mean offset to add for an event
    binaryOffset2=0,	#mean offset to add to discriminate
-   mc.cores=2L,
+   mc.cores=getOption('mc.cores', 2L),
    type='pbart',
    transposed=FALSE,
    nice=19L

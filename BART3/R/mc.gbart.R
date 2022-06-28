@@ -266,6 +266,7 @@ mc.gbart <- function(
 
         post$varcount.mean <- apply(post$varcount, 2, mean)
         post$varprob.mean <- apply(post$varprob, 2, mean)
+        post$chains = mc.cores
 ##        if(treeinit) post$trees = trees
         attr(post, 'class') <- type
 

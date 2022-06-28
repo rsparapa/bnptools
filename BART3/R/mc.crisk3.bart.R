@@ -39,7 +39,7 @@ mc.crisk3.bart <- function(
                ## keeptestfits = NULL,
                id = NULL,
                seed=99,    ## mc.crisk3.bart only
-               mc.cores=2, ## mc.crisk3.bart only
+               mc.cores=getOption('mc.cores', 2L), ## mc.crisk3.bart only
                nice=19L    ## mc.crisk3.bart only
                )
 {

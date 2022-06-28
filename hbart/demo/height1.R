@@ -8,6 +8,10 @@ str(bmx)
 x.train=bmx[ , -(1:2)]
 print(cor(bmx$BMXHT, x.train[ , c(2, 4)])^2)
 
+ntree=300
+ntreeh=60
+numcut=200
+
 file.='fit2-growth.rds'
 if(file.exists(file.)) {
     XPtr=FALSE
@@ -16,7 +20,7 @@ if(file.exists(file.)) {
     XPtr=TRUE
     set.seed(21)
     X.train=hbartModelMatrix(x.train)
-    fit2 = hbart(X.train, bmx$BMXHT)
+    fit2 = hbart(X.train, bmx$BMXHT, ntree=ntree, ntreeh=ntreeh, numcut=numcut)
     saveRDS(fit2, file.)
 }
 print(sort(fit2$mu.varprob, TRUE))
@@ -37,7 +41,7 @@ if(file.exists(file.)) {
     XPtr=TRUE
     set.seed(20)
     X.train. = hbartModelMatrix(x.train.)
-    fit0 = hbart(X.train., bmx$BMXWT)
+    fit0 = hbart(X.train., bmx$BMXWT, ntree=ntree, ntreeh=ntreeh, numcut=numcut)
     saveRDS(fit0, file.)
 }
 print(cor(bmx$BMXWT, fit0$pred$f.train.mean)^2)

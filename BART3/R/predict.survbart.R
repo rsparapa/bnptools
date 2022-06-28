@@ -22,6 +22,7 @@ predict.survbart <- function(object, newdata,
                              mult.impute=4,
                              seed=99, ...) {
 
+    ##if(class(newdata) == "data.frame") newdata=bartModelMatrix(newdata)
     ##if(class(newdata) != "matrix") stop("newdata must be a matrix")
 
     p <- length(object$treedraws$cutpoints)

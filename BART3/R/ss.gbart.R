@@ -123,8 +123,8 @@ ss.gbart <- function(
             w.train = rep(1, n)
             ##X.train = x.train[ , strata.h ]
             ##X.test = X.train
-            treeinit=FALSE
-            trees=NULL
+            ##treeinit=FALSE
+            ##trees=NULL
         } else {
             Y.train = c(y.train[ strata.h ], post[[i]]$yhat.test.mean)
             if(type=='wbart') {

@@ -23,7 +23,7 @@ mc.crisk.pwbart <- function(
    treedraws2,	        #$treedraws for cause 2
    binaryOffset=0,	#mean to add on for cause 1
    binaryOffset2=0,	#mean to add on for cause 2
-   mc.cores=2L,
+   mc.cores=getOption('mc.cores', 2L),
    type='pbart',
    transposed=FALSE,
    nice=19L

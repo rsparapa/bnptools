@@ -125,13 +125,15 @@ bartModelMatrix=function(X, numcut=0L, usequants=FALSE, type=7,
 
     xinfo <- xinfo.
 
-    if(rm.const && length(rm.vars)>0 && !all((1:p)==(-rm.vars))) {
+    ##if(rm.const && length(rm.vars)>0 && !all((1:p)==(-rm.vars))) {
+    if(rm.const && length(rm.vars)>0 &&
+       !(length(rm.vars)==p && all((1:p)==(-rm.vars)))) {
         X <- X[ , rm.vars]
         nc <- nc[rm.vars]
         xinfo <- xinfo[rm.vars, ]
         grp <- grp[rm.vars]
     }
-    else if(length(rm.vars)==0 || all((1:p)==(-rm.vars)))
+    else if(length(rm.vars)==0 || (length(rm.vars)==p && all((1:p)==(-rm.vars))))
         rm.vars <- 1:p
 
     ## if(p==1 && rm.vars==1)

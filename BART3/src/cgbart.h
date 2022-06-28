@@ -47,7 +47,7 @@ RcppExport SEXP cgbart(
    SEXP _ilambda,
    SEXP _isigest,
    SEXP _iw,
-   SEXP _treeinit,
+//   SEXP _treeinit,
    SEXP _itrees,
    SEXP _idart,         //dart prior: true(1)=yes, false(0)=no
    SEXP _itheta,
@@ -128,7 +128,7 @@ RcppExport SEXP cgbart(
    double sigma=Rcpp::as<double>(_isigest);
    Rcpp::NumericVector  wv(_iw); 
    double *iw = &wv[0];
-   int treeinit=Rcpp::as<int>(_treeinit); 
+//   int treeinit=Rcpp::as<int>(_treeinit); 
    //Rcpp::CharacterVector itrees(_itrees); 
    //std::string itv(itrees[0]);
    bool dart;
@@ -155,7 +155,8 @@ RcppExport SEXP cgbart(
    Rcpp::NumericMatrix varprb(nkeeptreedraws,p);
    Rcpp::IntegerMatrix varcnt(nkeeptreedraws,p);
    Rcpp::NumericMatrix Xinfo(_Xinfo);
-   Rcpp::NumericVector sdraw(nd+burn);
+   Rcpp::NumericVector sdraw(burn+nkeeptrain);
+   //Rcpp::NumericVector sdraw(nd+burn);
    Rcpp::NumericVector accept(nd+burn);
    Rcpp::NumericMatrix trdraw(nkeeptrain,n);
    Rcpp::NumericMatrix tedraw(nkeeptest,np);
@@ -305,7 +306,7 @@ void cgbart(
    printf("*****Number of Trees: %zu\n",m);
    printf("*****Number of Cut Points: %d ... %d\n", numcut[0], numcut[p-1]);
    printf("*****burn,nd,thin: %d,%zu,%zu\n",burn,nd,thin);
-   printf("*****Value of treeinit: %zu\n", treeinit);
+//   printf("*****Value of treeinit: %zu\n", treeinit);
 // printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
 //                    mybeta,alpha,tau,nu,lambda,Offset);
    cout << "*****Prior:beta,alpha,tau,nu,lambda,offset,shards:\n" 
@@ -372,11 +373,13 @@ cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n"
    //set up BART model
    bm.setprior(alpha,mybeta,tau);
    bm.setdata(p,n,ix,z,numcut);
+/*
    if(treeinit==1) {
      Rcpp::CharacterVector itrees(_itrees); 
      std::string itv(itrees[0]);
      bm.settree(itv);
    }
+*/
    bm.setdart(a,b,grp,aug,dart,rho);
    //bm.setdart(a,b,rho,aug,dart);
    bm.setpv(&varprob[0]);
@@ -421,7 +424,7 @@ cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n"
 	double rss=0.;
 	for(size_t k=0;k<n;k++) rss += pow((iy[k]-bm.f(k))/(iw[k]), 2.); 
 	sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
-	sdraw[i]=sigma;
+	if(i<burn) sdraw[i]=sigma;
       }
 
       for(size_t k=0; k<n; k++) {
@@ -478,6 +481,7 @@ cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n"
       if(i>=burn) {
 	//size_t idcnt=0;
          if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {
+	   if(type1sigest) sdraw[trcnt+burn]=sigma;
             for(size_t k=0;k<n;k++) {
 	      TRDRAW(trcnt,k)=Offset+bm.f(k);
 	      if(K>0) {

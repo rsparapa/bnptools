@@ -1,14 +1,21 @@
 
 Changes and New Features in 4.4 (2022-02-15):
 	* Makevars now defaults to Windows which is unable to
-	generate it from Makevars.win whereas MacOS/Linux 
-	have no problem creating it from Makevars.in correctly
+	generate it from Makevars.win whereas Linux/macOS 
+	have no problem creating it from Makevars.in 
 
 	* default mc.cores to the value provided by options()
 
-	* cleaing up some warnings
+	* predict() now converts data.frames to matrix as necessary
+
+	* cleaning up some warnings
 
 	* removing experimental work: hbart, zbart
+
+	* removing trees/treeinit: you can't avoid the burn-in
+	penalty by hot-wiring BART with a previous fit
+
+	* sigma is now thinned, when specified, in gbart/mc.gbart
 
 Changes and New Features in 4.3 (2021-06-09):
 	* Experimental: grouped categorical variables for DART
