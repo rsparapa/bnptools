@@ -154,6 +154,10 @@ abart=function(
                 )
 
     res$proc.time <- proc.time()-ptm
+    if(nskip>0) nskip.=1:nskip
+    else nskip. = 0
+    if(keepevery>1) res$sigma = c(res$sigma[nskip.],
+                  res$sigma[nskip+seq(1, ndpost*keepevery, keepevery)])
 
     K <- min(n, K)
     events=unique(sort(times))
@@ -172,7 +176,7 @@ abart=function(
                 res$surv.train[ , h] <-
                     pnorm(log(events[j]),
                           mean=res$yhat.train[ , i],
-                          sd=res$sigma[-(1:nskip)],
+                          sd=res$sigma[-(nskip.)],
                           lower.tail=FALSE)
             }
 
@@ -196,7 +200,7 @@ abart=function(
                     res$surv.test[ , h] <-
                         pnorm(log(events[j]),
                               mean=res$yhat.test[ , i],
-                              sd=res$sigma[-(1:nskip)],
+                              sd=res$sigma[-(nskip.)],
                               lower.tail=FALSE)
                 }
 
