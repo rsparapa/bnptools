@@ -23,7 +23,7 @@ predict.aftree = function(
                        ## data
                        object,
                        ## predictions
-                       events,
+                       events=NULL,
                        FPD=FALSE,
                        hazard=FALSE,
                        probs=c(0.025, 0.975),
@@ -39,18 +39,25 @@ predict.aftree = function(
         stop('x.test has to be provided to AFTrees()')
 
     L=ncol(object$m.test)
-    events.matrix=(class(events)[1]=='matrix')
 
-    if(events.matrix) {
-        if(L!=nrow(events))
-            stop(paste('the events matrix must have', L, 'rows'))
-        K=ncol(events)
-    } else { K=length(events) }
+    if(length(events)>0) {
+        events.matrix=(class(events)[1]=='matrix')
 
-    if(any(is.na(c(events))) || K<=0)
-        stop('events must be a vector, or matrix, of non-missing times')
+        if(events.matrix) {
+            if(L!=nrow(events))
+                stop(paste('the events matrix must have', L, 'rows'))
+            K=ncol(events)
+        } else { K=length(events) }
 
-    if(take.logs) events=log(events)
+        if(any(is.na(c(events))) || K<=0)
+            stop('events must be a vector, or matrix, of non-missing times')
+
+        if(take.logs) events=log(events)
+    } else {
+        K=0
+        FPD=FALSE
+    }
+    
     draw.logt=(length(seed)>0)
     
     N=ncol(object$m.train)
@@ -80,7 +87,8 @@ predict.aftree = function(
         }
         res$logt.test.mean=apply(res$logt.test, 2, mean)
     }
-    
+
+if(K>0) {
     res$surv.test=matrix(0, nrow=ndpost, ncol=K*L)
     if(hazard)
         res$haz.test =matrix(0, nrow=ndpost, ncol=K*L)
@@ -150,6 +158,7 @@ predict.aftree = function(
             res$haz.test.upper=apply(res$haz.test, 2, quantile, probs=max(probs))
         }
     }
+}
     
     return(res)
 }
