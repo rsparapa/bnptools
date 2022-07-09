@@ -28,6 +28,7 @@ predict.aftree = function(
                        hazard=FALSE,
                        probs=c(0.025, 0.975),
                        take.logs=TRUE,
+                       seed=NULL,
                        ## default settings
                        ndpost=nrow(object$mix.prop),
                        nclust=ncol(object$mix.prop),
@@ -50,7 +51,8 @@ predict.aftree = function(
         stop('events must be a vector, or matrix, of non-missing times')
 
     if(take.logs) events=log(events)
-
+    draw.logt=(length(seed)>0)
+    
     N=ncol(object$m.train)
     H=L %/% N
 
@@ -63,6 +65,21 @@ predict.aftree = function(
     }
             
     res=list()
+
+    if(draw.logt) {
+        set.seed(seed)
+        res$logt.test=matrix(0, nrow=ndpost, ncol=L)
+        for(i in 1:L) {
+            for(k in 1:nclust) {
+                res$logt.test[ , i]=res$logt.test[ , i]+
+                    object$mix.prop[ , k]*
+                    rnorm(ndpost, object$locations[ , k]+
+                             object$m.test[ , i],
+                          object$sigma)
+            }
+        }
+        res$logt.test.mean=apply(res$logt.test, 2, mean)
+    }
     
     res$surv.test=matrix(0, nrow=ndpost, ncol=K*L)
     if(hazard)

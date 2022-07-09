@@ -362,7 +362,7 @@ predict.nft = function(
         
         if(draw.logt) {
             set.seed(seed)
-            res$logt.test=matrix(0, nrow=nd, ncol=np)
+            ##res$logt.test=matrix(0, nrow=nd, ncol=np)
 
             if(drawDPM>0) {
                 res$logt.test=matrix(0, nrow=nd, ncol=np)
