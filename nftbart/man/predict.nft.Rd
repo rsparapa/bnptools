@@ -56,7 +56,7 @@
   \item{na.rm}{Whether \code{NA} values should be removed from the
     summaries.}
   \item{seed}{If provided, then this value is used to generate random
-    natural logarithms of event times from the predictive distribution}.
+    natural logarithms of event times from the predictive distribution.}
   \item{fmu}{BART centering parameter for the test data.  Defaults to the value used by \code{nft()} when training the model.}
   \item{soffset}{HBART centering parameter for the test data.  Defaults to the value used by \code{nft()} when training the model.}
    \item{drawDPM}{Whether NFT BART was fit with, or without, DPM.}

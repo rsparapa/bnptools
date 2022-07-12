@@ -1,20 +1,5 @@
 
-Changes and New Features in 1.0 (2021-12-16):
-	* First release after almost 3 years of testing
-
-Changes and New Features in 1.1 (2021-12-17):
-	* Fix documentation bug 
-
-Changes and New Features in 1.2 (2022-02-01):
-	* Allow DPM LIO parameters to be altered for
-	  debugging/sensitivity analysis 
-
-	* Return inital AFT fit
-
-Changes and New Features in 1.3 (2022-03-26):
-	* Trap error code returned from rcat
-
-Changes and New Features in 1.4 (2022-05-24):
+Changes and New Features in 1.4 (2022-07-12):
 	* New option: mask unstable s(.) estimates to calculate soffset
 
 	* Use hardened DPM LIO variance prior setting
@@ -24,8 +9,26 @@ Changes and New Features in 1.4 (2022-05-24):
 	* bartModelMatrix: more consistent behavior for removal of variables
           you can now remove: by name/index, constant vectors or both
 
-        * predict now produces draws from the predictive distribution for log t
+        * predict produces draws from the predictive distribution of log t
+	  to facilitate C index calculations
 
-	* predict.aftree now provided for producing survival and hazard
+	* predict.aftree now provided for producing survival/hazard
 	  function estimates (or their Friedman's partial dependence estimates
 	  if requested) for AFT BART like predict.nft does for NFT BART
+          also draws from the predictive distribution of log t (as above)
+
+Changes and New Features in 1.3 (2022-03-26):
+	* Trap error code returned from rcat
+
+Changes and New Features in 1.2 (2022-02-01):
+	* Allow DPM LIO parameters to be altered for
+	  debugging/sensitivity analysis 
+
+	* Return inital AFT fit
+
+Changes and New Features in 1.1 (2021-12-17):
+	* Fix documentation bug 
+
+Changes and New Features in 1.0 (2021-12-16):
+	* First release after almost 3 years of testing
+
