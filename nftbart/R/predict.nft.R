@@ -56,6 +56,7 @@ predict.nft = function(
     np = nrow(x.test)
     xp = t(x.test)
     if(is.null(object)) stop("No fitted model specified!\n")
+    events.matrix=FALSE
     
     if(length(K)==0) {
         K=0
@@ -124,6 +125,7 @@ predict.nft = function(
         res.=.Call("cprnft",
                    object,
                    xp,
+                   xi,
                    tc,
                    PACKAGE="nftbart"
                    )
@@ -327,12 +329,12 @@ predict.nft = function(
                                       sd.*object$dpsd.[ , h], FALSE)
                             if(hazard)
                                 res$haz.test[ , k]=res$haz.test[ , k]+
-                                object$dpwt.[ , h]*(
+                                object$dpwt.[ , h]*
                                     dnorm(z, mu.+sd.*object$dpmu.[ , h],
                                       sd.*object$dpsd.[ , h])/
-                                    (t*sd.*object$dpsd.[ , h]))/
+                                    (t*sd.*object$dpsd.[ , h]*
                                 pnorm(z, mu.+sd.*object$dpmu.[ , h],
-                                      sd.*object$dpsd.[ , h], FALSE)
+                                      sd.*object$dpsd.[ , h], FALSE))
                             ## res$aft.test[ , k]=res$aft.test[ , k]+
                             ##     object$dpwt.[ , h]*(
                             ##         dnorm(events.[j], mu.+sd0*object$dpmu.[ , h], sd0)/
@@ -345,6 +347,12 @@ predict.nft = function(
                             ##               mu.+object$dpmu.[ , h],
                             ##               object$sigma, FALSE)
                         }
+                        ## if(hazard)
+                        ##     for(h in 1:H)
+                        ##         res$haz.test[ , k]=res$haz.test[ , k]+
+                        ##         (object$dpwt.[ , h]*dnorm(z, mu.+sd.*object$dpmu.[ , h],
+                        ##                                   sd.*object$dpsd.[ , h])/
+                        ##             (t*sd.*object$dpsd.[ , h]*res$surv.test[ , k]))
                     }
                 }
                 res$surv.test.mean=apply(res$surv.test, 2, mean)

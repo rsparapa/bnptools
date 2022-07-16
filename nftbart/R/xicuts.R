@@ -51,7 +51,7 @@ xicuts = function(x.train, transposed=FALSE, numcut=100) {
         }
     }
     names(xicuts.)=names.
-    class(xicuts.)="BARTcutinfo"
+    ##class(xicuts.)="BARTcutinfo"
     return(xicuts.)
 }
 

@@ -13,9 +13,13 @@ Changes and New Features in 1.4 (2022-07-12):
 	  to facilitate C index calculations
 
 	* predict.aftree now provided for producing survival/hazard
-	  function estimates (or their Friedman's partial dependence estimates
-	  if requested) for AFT BART like predict.nft does for NFT BART
+	  function estimates (or their Friedman's partial dependence 
+          estimates if requested) for AFT BART like predict.nft does 
+	  for NFT BART
           also draws from the predictive distribution of log t (as above)
+	
+	* experimental support for differing X matrices for f and s
+	  see nft2 function
 
 Changes and New Features in 1.3 (2022-03-26):
 	* Trap error code returned from rcat

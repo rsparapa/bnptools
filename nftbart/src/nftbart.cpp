@@ -40,3 +40,6 @@ using std::endl;
 #include "cnft.h"
 #include "cprnft.h"
 #include "cpsambrt_predict.h"
+#include "cnft2.h"
+#include "cprnft2.h"
+#include "cpsambrt_predict2.h"

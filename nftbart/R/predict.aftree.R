@@ -109,13 +109,20 @@ if(K>0) {
                 if(hazard)
                     res$haz.test[ , l]=res$haz.test[ , l]+
                     object$mix.prop[ , k]*
-                    (dnorm(z, object$locations[ , k]+
+                    dnorm(z, object$locations[ , k]+
                              object$m.test[ , i],
-                          object$sigma)/(t*object$sigma))/
+                          object$sigma)/(t*object$sigma*
                     pnorm(z, object$locations[ , k]+
                              object$m.test[ , i],
-                          object$sigma, FALSE)
+                          object$sigma, FALSE))
             }
+            ## if(hazard) for(k in 1:nclust)
+            ##         res$haz.test[ , l]=res$haz.test[ , l]+
+            ##         (object$mix.prop[ , k]*
+            ##         dnorm(z, object$locations[ , k]+
+            ##                  object$m.test[ , i],
+            ##               object$sigma)/
+            ##         (t*object$sigma*res$surv.test[ , l]))
         }
     }
 

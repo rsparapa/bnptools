@@ -61,6 +61,7 @@ void getpred(int beg, int end, size_t p, size_t m, size_t np, xinfo& xi,
 RcppExport SEXP cprnft(
    SEXP _itrees,		//treedraws list from fbart
    SEXP _ix,			//x matrix to predict at
+   SEXP _ixi,
    SEXP _itc			//thread count
    //SEXP _idraws
 )
@@ -85,7 +86,8 @@ RcppExport SEXP cprnft(
    COUT << "number of x columns: " << p << endl;
    //--------------------------------------------------
    //process cutpoints (from trees)
-   Rcpp::List  ixi(Rcpp::wrap(trees["xicuts"]));
+   Rcpp::List  ixi(_ixi);
+   //Rcpp::List  ixi(Rcpp::wrap(trees["xicuts"]));
    size_t pp = ixi.size();
    if(p!=pp) COUT << "WARNING: p from trees and p from x don't agree\n";
    xinfo xi;
