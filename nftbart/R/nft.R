@@ -41,7 +41,7 @@ nft = function(## data
                ## s function
                sigmav=NULL, total.lambda=NA, total.nu=10, mask=NULL,
                ## survival analysis 
-               K=100, events=NULL, 
+               K=100, events=NULL, TSVS=FALSE,
                ##impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
                ## DPM LIO
                drawDPM=1L, 
@@ -240,7 +240,23 @@ if(K>0) {
         res$z.train=res$z.train[s.train.mask, ]
     } else s.train.mask=1:nd 
     s.train.burn=c(1:burn, s.train.mask)
-   
+
+    summarystats=(ndpost>=2)
+    if(summarystats) {
+        res$f.varcount[2:ndpost, ]=cbind(res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ])
+        res$f.varcount=cbind(res$f.varcount[s.train.mask, ])
+        dimnames(res$f.varcount)[[2]]=names(xifcuts)
+        res$f.varcount.mean=apply(res$f.varcount, 2, mean)
+        res$f.varprob=res$f.varcount.mean/sum(res$f.varcount.mean)
+        res$s.varcount[2:ndpost, ]=cbind(res$s.varcount[2:ndpost, ]-res$s.varcount[1:(ndpost-1), ])
+        res$s.varcount=cbind(res$s.varcount[s.train.mask, ])
+        dimnames(res$s.varcount)[[2]]=names(xiscuts)
+        res$s.varcount.mean=apply(res$s.varcount, 2, mean)
+        res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
+    }
+
+    if(TSVS) return(res)
+    
     if(drawDPM>0) {
         res$dpalpha=res$dpalpha[s.train.mask]
         res$dpn=res$dpn[s.train.burn]
@@ -283,20 +299,6 @@ if(K>0) {
     res$xicuts=xicuts
     res$fmu = fmu
 
-    summarystats=(ndpost>=2)
-    if(summarystats) {
-        dimnames(res$f.varcount)[[2]]=names(xicuts)
-        res$f.varcount[2:ndpost, ]=res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ]
-        res$f.varcount=res$f.varcount[s.train.mask, ]
-        res$f.varcount.mean=apply(res$f.varcount, 2, mean)
-        res$f.varprob=res$f.varcount.mean/sum(res$f.varcount.mean)
-            dimnames(res$s.varcount)[[2]]=names(xicuts)
-            res$s.varcount[2:ndpost, ]=res$s.varcount[2:ndpost, ]-res$s.varcount[1:(ndpost-1), ]
-        res$s.varcount=res$s.varcount[s.train.mask, ]
-            res$s.varcount.mean=apply(res$s.varcount, 2, mean)
-            res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
-    }
-    
     if(drawDPM>0) {
         res$prior = prior
         res$hyper = hyper

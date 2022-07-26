@@ -4,6 +4,7 @@ S3method(predict, nft2)
 S3method(predict, aftree)
 export(nft, nft2)
 export(CDimpute)
+export(tsvs, tsvs2)
 importFrom(Rcpp, evalCpp)
 ##importFrom("graphics", "abline", "boxplot", "lines", "par", "plot", "points")
 importFrom("stats", coef, cor, dnorm, pnorm, predict,

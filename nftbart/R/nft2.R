@@ -36,16 +36,14 @@ nft2 = function(## data
                minnumbot=c(5, 5),
                ## BART and HBART prior parameters
                ntree=c(50, 10), numcut=100,
-               xifcuts=NULL,
-               xiscuts=NULL,
+               xifcuts=NULL, xiscuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
-               k=5, sigmaf=NA,
-               dist='weibull', 
+               k=5, sigmaf=NA, dist='weibull', 
                ## s function
                sigmav=NULL, total.lambda=NA, total.nu=10, mask=NULL,
                ## survival analysis 
-               K=100, events=NULL, 
+               K=100, events=NULL, TSVS=FALSE,
                ## DPM LIO
                drawDPM=1L, 
                alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
@@ -220,6 +218,22 @@ if(K>0) {
         res$z.train=res$z.train[s.train.mask, ]
     } else s.train.mask=1:nd 
     s.train.burn=c(1:burn, s.train.mask)
+
+        summarystats=(ndpost>=2)
+    if(summarystats) {
+        res$f.varcount[2:ndpost, ]=cbind(res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ])
+        res$f.varcount=cbind(res$f.varcount[s.train.mask, ])
+        dimnames(res$f.varcount)[[2]]=names(xifcuts)
+        res$f.varcount.mean=apply(res$f.varcount, 2, mean)
+        res$f.varprob=res$f.varcount.mean/sum(res$f.varcount.mean)
+        res$s.varcount[2:ndpost, ]=cbind(res$s.varcount[2:ndpost, ]-res$s.varcount[1:(ndpost-1), ])
+        res$s.varcount=cbind(res$s.varcount[s.train.mask, ])
+        dimnames(res$s.varcount)[[2]]=names(xiscuts)
+        res$s.varcount.mean=apply(res$s.varcount, 2, mean)
+        res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
+    }
+
+    if(TSVS) return(res)
    
     if(drawDPM>0) {
         res$dpalpha=res$dpalpha[s.train.mask]
@@ -265,20 +279,6 @@ if(K>0) {
     res$xiscuts=xiscuts
     res$fmu = fmu
 
-    summarystats=(ndpost>=2)
-    if(summarystats) {
-        dimnames(res$f.varcount)[[2]]=names(xifcuts)
-        res$f.varcount[2:ndpost, ]=res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ]
-        res$f.varcount=res$f.varcount[s.train.mask, ]
-        res$f.varcount.mean=apply(res$f.varcount, 2, mean)
-        res$f.varprob=res$f.varcount.mean/sum(res$f.varcount.mean)
-            dimnames(res$s.varcount)[[2]]=names(xiscuts)
-            res$s.varcount[2:ndpost, ]=res$s.varcount[2:ndpost, ]-res$s.varcount[1:(ndpost-1), ]
-        res$s.varcount=res$s.varcount[s.train.mask, ]
-            res$s.varcount.mean=apply(res$s.varcount, 2, mean)
-            res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
-    }
-    
     if(drawDPM>0) {
         res$prior = prior
         res$hyper = hyper
