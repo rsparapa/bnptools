@@ -54,6 +54,7 @@ tsvs = function(
                na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
                )
 {
+    if(K==0) return(K)
     namesX=dimnames(x.train)[[2]] 
     P=ncol(x.train)
     a=matrix(0, nrow=K, ncol=P)

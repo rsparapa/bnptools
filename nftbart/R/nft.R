@@ -245,12 +245,12 @@ if(K>0) {
     if(summarystats) {
         res$f.varcount[2:ndpost, ]=cbind(res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ])
         res$f.varcount=cbind(res$f.varcount[s.train.mask, ])
-        dimnames(res$f.varcount)[[2]]=names(xifcuts)
+        dimnames(res$f.varcount)[[2]]=names(xicuts)
         res$f.varcount.mean=apply(res$f.varcount, 2, mean)
         res$f.varprob=res$f.varcount.mean/sum(res$f.varcount.mean)
         res$s.varcount[2:ndpost, ]=cbind(res$s.varcount[2:ndpost, ]-res$s.varcount[1:(ndpost-1), ])
         res$s.varcount=cbind(res$s.varcount[s.train.mask, ])
-        dimnames(res$s.varcount)[[2]]=names(xiscuts)
+        dimnames(res$s.varcount)[[2]]=names(xicuts)
         res$s.varcount.mean=apply(res$s.varcount, 2, mean)
         res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
     }

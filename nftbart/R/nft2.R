@@ -265,7 +265,8 @@ if(K>0) {
         res$f.test.mean=apply(res$f.test, 2, mean)
         res$s.test=res$s.test[s.train.mask, ]
         res$s.test.mean=apply(res$s.test, 2, mean)
-        res$x.test=t(xp)
+        res$xftest=t(xftest)
+        res$xstest=t(xstest)
     }
 
     res$times=times

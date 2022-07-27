@@ -24,7 +24,7 @@ tsvs2 = function(
                xftrain, xstrain, times, delta=NULL, 
                ##tsvs args
                K=20, a.=1, b.=0.5, C=0.5,
-               rds.file='tsvs.rds', pdf.file='tsvs.pdf',
+               rds.file='tsvs2.rds', pdf.file='tsvs2.pdf',
                ## multi-threading
                tc=getOption("mc.cores", 1), ##OpenMP thread count
                ##MCMC
@@ -56,6 +56,7 @@ tsvs2 = function(
                na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
                )
 {
+    if(K==0) return(K)
     Namesf=dimnames(xftrain)[[2]] 
     Pf=ncol(xftrain)
     Af=matrix(0, nrow=K, ncol=Pf)

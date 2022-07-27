@@ -27,7 +27,7 @@ nft(
     ## s function
     sigmav=NULL, total.lambda=NA, total.nu=10, mask=NULL,
     ## survival analysis 
-    K=100, events=NULL, 
+    K=100, events=NULL, TSVS=FALSE,
     ## DPM LIO
     drawDPM=1L, 
     alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
@@ -76,6 +76,9 @@ nft(
   departures (with respect to convergence) above this threshold.}
 \item{K}{Number of grid points for which to estimate survival probability.}
 \item{events}{Grid points for which to estimate survival probability.}
+\item{TSVS}{Setting to \code{TRUE} will avoid unnecessary processing for
+  Thompson sampling variable selection, i.e., all that is needed is
+  the variable counts from the tree branch decision rules.}
 \item{drawDPM}{Whether to utilize DPM or not.}
   \item{alpha}{Initial value of DPM concentration parameter.}
   \item{alpha.a}{Gamma prior parameter setting for DPM concentration parameter
@@ -214,8 +217,7 @@ Rodney Sparapani: \email{rsparapa@mcw.edu}
 }
 \examples{
 
-B=getOption('mc.cores', 1)
-
+##library(nftbart)
 data(lung)
 str(lung)
 N=length(lung$status)
@@ -235,27 +237,20 @@ x.train=cbind(lung[ , -(1:3)])
 ## lung$sex:        Male=1 Female=2
 
 ## token run just to test installation
-post=nft(x.train, times, delta, tc=B, K=0,
+post=nft(x.train, times, delta, K=0,
          nskip=0, ndpost=10, nadapt=4, adaptevery=1)
 
 \donttest{
-file.='lung.rds'
-if(file.exists(file.)) {
-    post=readRDS(file.)
-    XPtr=FALSE
-} else {
-    set.seed(99)
-    post=nft(x.train, times, delta, tc=B, K=0)
-    XPtr=TRUE
-    ##saveRDS(post, file.)
-}
+set.seed(99)
+post=nft(x.train, times, delta, K=0)
+XPtr=TRUE
 
 x.test = rbind(x.train, x.train)
 x.test[ , 2]=rep(1:2, each=N)
 K=75
 events=seq(0, 150, length.out=K+1)
 pred = predict(post, x.test, K=K, events=events[-1],
-               XPtr=XPtr, tc=B, FPD=TRUE)
+               XPtr=XPtr, FPD=TRUE)
 
 plot(events, c(1, pred$surv.fpd.mean[1:K]), type='l', col=4,
      ylim=0:1, 
