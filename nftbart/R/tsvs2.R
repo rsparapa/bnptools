@@ -26,7 +26,7 @@ tsvs2 = function(
                K=20, a.=1, b.=0.5, C=0.5,
                rds.file='tsvs.rds', pdf.file='tsvs.pdf',
                ## multi-threading
-               tc=1, ##OpenMP thread count
+               tc=getOption("mc.cores", 1), ##OpenMP thread count
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100, 

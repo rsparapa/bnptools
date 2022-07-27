@@ -12,7 +12,7 @@ nft(
     x.train, times, delta=NULL, x.test=matrix(nrow=0, ncol=0),
     impute.bin=NULL, impute.prob=NULL,
     ## multi-threading
-    tc=1, 
+    tc=getOption("mc.cores", 1), 
     ##MCMC
     nskip=1000, ndpost=2000, nadapt=1000, adaptevery=100,
     chv = cor(x.train, method="spearman"),

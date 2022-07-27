@@ -24,7 +24,7 @@ predict.nft = function(
                        object,
                        x.test=object$x.train,
                        ## multi-threading
-                       tc=1, ##OpenMP thread count
+                       tc=getOption("mc.cores", 1), ##OpenMP thread count
                        ## current process fit vs. previous process fit
                        XPtr=TRUE,
                        ## predictions

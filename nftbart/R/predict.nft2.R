@@ -25,7 +25,7 @@ predict.nft2 = function(
                        xftest=object$xftrain,
                        xstest=object$xstrain,
                        ## multi-threading
-                       tc=1, ##OpenMP thread count
+                       tc=getOption("mc.cores", 1), ##OpenMP thread count
                        ## current process fit vs. previous process fit
                        XPtr=TRUE,
                        ## predictions

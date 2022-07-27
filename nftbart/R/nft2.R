@@ -25,7 +25,7 @@ nft2 = function(## data
                xstest=matrix(nrow=0, ncol=0),
                ##impute.bin=NULL, impute.prob=NULL,
                ## multi-threading
-               tc=1, ##OpenMP thread count
+               tc=getOption("mc.cores", 1), ##OpenMP thread count
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100, 
