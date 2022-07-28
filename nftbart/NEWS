@@ -6,8 +6,7 @@ Changes and New Features in 1.4 (2022-07-26):
 
 	* Return both the LPML and the CPO
 
-	* bartModelMatrix: more consistent behavior for removal of variables
-          you can now remove: by name/index, constant vectors or both
+	* add bMM (a la bartModelMatrix) to compute dummies/etc.
 
         * predict produces draws from the predictive distribution of log t
 	  to facilitate C index calculations

@@ -29,8 +29,9 @@ nft2 = function(## data
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100, 
-               chvf = cor(xftrain, method="spearman"),
-               chvs = cor(xstrain, method="spearman"),
+               method="spearman",
+               ##chvf = cor(xftrain, method="spearman"),
+               ##chvs = cor(xstrain, method="spearman"),
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
@@ -72,6 +73,24 @@ nft2 = function(## data
     if(np!=nrow(xstest))
         stop('The number of rows in xftest and xstest must be the same')
 
+    if(np>0) {
+        xf.=bMM(rbind(xftrain, xftest), numcut=numcut, xicuts=xifcuts)
+        xftrain=cbind(xf.$X[1:n, ])
+        xftest =cbind(xf.$X[n+(1:np), ])
+        xs.=bMM(rbind(xstrain, xstest), numcut=numcut, xicuts=xiscuts)
+        xstrain=cbind(xs.$X[1:n, ])
+        xstest =cbind(xs.$X[n+(1:np), ])
+    } else {
+        xf.=bMM(xftrain, numcut=numcut, xicuts=xifcuts)
+        xftrain=xf.$X
+        xs.=bMM(xstrain, numcut=numcut, xicuts=xiscuts)
+        xstrain=xs.$X
+    }
+    xifcuts=xf.$xicuts
+    chvf = cor(xftrain, method=method)
+    xiscuts=xs.$xicuts
+    chvs = cor(xstrain, method=method)
+    
         impute=CDimpute(x.train=xftrain, x.test=xftest)
         xftrain=t(impute$x.train)
         xftest=t(impute$x.test)

@@ -27,8 +27,9 @@ nft = function(## data
                tc=getOption("mc.cores", 1), ##OpenMP thread count
                ##MCMC
                nskip=1000, ndpost=2000, 
-               nadapt=1000, adaptevery=100, 
-               chv = cor(x.train, method="spearman"),
+               nadapt=1000, adaptevery=100,
+               method="spearman",
+               ##chv = cor(x.train, method="spearman"),
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
@@ -57,8 +58,20 @@ nft = function(## data
     n=length(times)
     if(length(delta)==0) delta=rep(1, n)
     if(length(sigmav)==0) sigmav=rep(1, n)
-    x = x.train
-    xp = x.test
+    ##x = x.train
+    np=nrow(x.test)
+    if(np>0) {
+        x.=bMM(rbind(x.train, x.test), numcut=numcut, xicuts=xicuts)
+        x=cbind(x.$X[1:n, ])
+        xp=cbind(x.$X[n+(1:np), ])
+    } else {
+        x.=bMM(x.train, numcut=numcut, xicuts=xicuts)
+        x=x.$X
+        xp=x.test
+    }
+    xicuts=x.$xicuts
+    chv = cor(x, method=method)
+    ##xp = x.test
     ##if(!transposed) {
         impute=CDimpute(x.train=cbind(x),
                         x.test=cbind(xp),
@@ -80,12 +93,11 @@ nft = function(## data
     nc=numcut
     
     p=nrow(x)
-    np=ncol(xp)
+    ##np=ncol(xp)
 
-    if(length(xicuts)==0) {
-        xicuts=xicuts(x, transposed=transposed, numcut=numcut)
-        ##return(xicuts)
-    }
+    ## if(length(xicuts)==0) {
+    ##     xicuts=xicuts(x, transposed=transposed, numcut=numcut)
+    ## }
 
     df = data.frame(times, delta, t(x))
     ##type='interval' not supported by survreg

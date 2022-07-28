@@ -1,11 +1,12 @@
 \name{bartModelMatrix}
 \alias{bartModelMatrix}
-\title{Create a matrix out of a vector or data.frame}
+\title{Deprecated: use bMM instead}
 
-\description{ The compiled functions of this package operate on matrices
-  in memory.  Therefore, if the user submits a vector or data.frame,
-  then this function converts it to a matrix.  Also, it determines the
-  number of cutpoints necessary for each column when asked to do so.  }
+\description{Create a matrix out of a vector or \code{data.frame}. The
+  compiled functions of this package operate on matrices in memory.
+  Therefore, if the user submits a vector or data.frame, then this
+  function converts it to a matrix.  Also, it determines the number of
+  cutpoints necessary for each column when asked to do so.  }
 
 \usage{
 bartModelMatrix(X, numcut=0L, usequants=FALSE, type=7, rm.const=FALSE,

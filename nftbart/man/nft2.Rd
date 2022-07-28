@@ -18,8 +18,7 @@ nft2(
     tc=getOption("mc.cores", 1), 
     ##MCMC
     nskip=1000, ndpost=2000, nadapt=1000, adaptevery=100,
-    chvf = cor(xftrain, method="spearman"),
-    chvs = cor(xstrain, method="spearman"),
+    method="spearman",
     pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
     stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
     minnumbot=c(5, 5),
@@ -47,11 +46,11 @@ nft2(
 \arguments{
   \item{xftrain}{n x pf matrix of predictor variables for the training data.}
   \item{xstrain}{n x ps matrix of predictor variables for the training data.}
-  \item{times}{nx1 vector of the observed times for the training data.}
-  \item{delta}{nx1 vector of the time type for the training data:
+  \item{times}{n x 1 vector of the observed times for the training data.}
+  \item{delta}{n x 1 vector of the time type for the training data:
   0, for right-censoring; 1, for an event; and, 2, for left-censoring.}
 \item{xftest}{m x pf matrix of predictor variables for the test set.}
-\item{xstest}{m x pf matrix of predictor variables for the test set.}
+\item{xstest}{m x ps matrix of predictor variables for the test set.}
   %\item{impute.bin}{Indices of the columns of \code{x.train} to be imputed.}
   %\item{impute.prob}{nx1 vector of prior probabilities for imputation.}
   \item{tc}{Number of OpenMP threads to use.}
@@ -59,7 +58,9 @@ nft2(
   \item{ndpost}{Number of MCMC iterations kept after burn-in.}
   \item{nadapt}{Number of MCMC iterations for adaptation prior to burn-in.}
   \item{adaptevery}{Adapt MCMC proposal distributions every \code{adaptevery} iteration.}
-    \item{chvf,chvs}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
+  \item{method}{Correlation method for change-of-variable proposal
+    pre-conditioner.}
+    %\item{chvf,chvs}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
   \item{pbd}{Probability of performing a birth/death proposal, otherwise perform a rotate proposal.}
   \item{pb}{Probability of performing a birth proposal given that we choose to perform a birth/death proposal.}
   \item{stepwpert}{Initial width of proposal distribution for peturbing cut-points.}

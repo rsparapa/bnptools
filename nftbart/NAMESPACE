@@ -10,6 +10,7 @@ importFrom("stats", coef, cor, dnorm, pnorm, predict,
            quantile, rbeta, residuals, rnorm, sd, var)
 importFrom("graphics", abline, lines, par, points, text)
 importFrom("grDevices", dev.off, pdf)
-export(bartModelMatrix, xicuts)
+export(bMM, xicuts)
+export(bartModelMatrix)
 importFrom(nnet, class.ind)
 importFrom(survival, survfit, Surv, survreg)

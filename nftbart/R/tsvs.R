@@ -30,7 +30,8 @@ tsvs = function(
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100, 
-               chv = cor(x.train, method="spearman"),
+               ##chv = cor(x.train, method="spearman"),
+               method="spearman",
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
@@ -55,6 +56,12 @@ tsvs = function(
                )
 {
     if(K==0) return(K)
+
+    x.=bMM(x.train, numcut=numcut, xicuts=xicuts)
+    x.train=x.$X
+    dummy=x.$dummy
+    ##xicuts=x.$xicuts
+
     namesX=dimnames(x.train)[[2]] 
     P=ncol(x.train)
     a=matrix(0, nrow=K, ncol=P)
@@ -85,6 +92,10 @@ tsvs = function(
             theta[i, ]=rbeta(P, a[i, ], b[i, ])
             S[i, which(theta[i, ]>=C)]=1
         }
+        
+        for(j in 1:P)
+            if(S[i, j]==1) S[i, dummy[1, j]:dummy[2, j] ]=1
+        
         set.seed(K+i*K)
         x.train.=cbind(x.train[ , S[i, ]==1])
         dimnames(x.train.)[[2]]=namesX[S[i, ]==1]
@@ -95,12 +106,13 @@ tsvs = function(
                  ##MCMC
                  nskip=nskip, ndpost=ndpost, 
                  nadapt=nadapt, adaptevery=adaptevery, 
-                 chv=chv,
+                 ##chv=chv,
+                 method=method,
                  pbd=pbd, pb=pb,
                  stepwpert=stepwpert, probchv=probchv,
                  minnumbot=minnumbot,
                  ## BART and HBART prior parameters
-                 ntree=ntree, numcut=numcut, xicuts=xicuts,
+                 ntree=ntree, numcut=numcut, ##xicuts=xicuts,
                  power=power, base=base,
                  ## f function
                  k=k, sigmaf=sigmaf,
@@ -140,7 +152,7 @@ tsvs = function(
         }
         if(length(warnings())>0) print(warnings())
         res=list(step=i, prob=prob, S=S, a=a, b=b, gamma=gamma,
-                 theta=theta, varcount=varcount)
+                 theta=theta, varcount=varcount, dummy=dummy)
         saveRDS(res, rds.file)
 
         pdf(file=pdf.file)

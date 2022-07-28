@@ -29,9 +29,10 @@ tsvs2 = function(
                tc=getOption("mc.cores", 1), ##OpenMP thread count
                ##MCMC
                nskip=1000, ndpost=2000, 
-               nadapt=1000, adaptevery=100, 
-               chvf = cor(xftrain, method="spearman"),
-               chvs = cor(xstrain, method="spearman"),
+               nadapt=1000, adaptevery=100,
+               method="spearman",
+               ##chvf = cor(xftrain, method="spearman"),
+               ##chvs = cor(xstrain, method="spearman"),
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
@@ -57,6 +58,15 @@ tsvs2 = function(
                )
 {
     if(K==0) return(K)
+
+    xf.=bMM(xftrain, numcut=numcut, xicuts=xifcuts)
+    xftrain=xf.$X
+    dummyf=xf.$dummy
+
+    xs.=bMM(xstrain, numcut=numcut, xicuts=xiscuts)
+    xstrain=xs.$X
+    dummys=xs.$dummy
+    
     Namesf=dimnames(xftrain)[[2]] 
     Pf=ncol(xftrain)
     Af=matrix(0, nrow=K, ncol=Pf)
@@ -110,10 +120,14 @@ tsvs2 = function(
             thetaf[i, ]=rbeta(Pf, Af[i, ], Bf[i, ])
             Sf[i, which(thetaf[i, ]>=C)]=1
         }
+        for(j in 1:Pf)
+            if(Sf[i, j]==1) Sf[i, dummyf[1, j]:dummyf[2, j] ]=1
         while(sum(Ss[i, ])==0) { 
             thetas[i, ]=rbeta(Ps, As[i, ], Bs[i, ])
             Ss[i, which(thetas[i, ]>=C)]=1
         }
+        for(j in 1:Ps)
+            if(Ss[i, j]==1) Ss[i, dummys[1, j]:dummys[2, j] ]=1
         set.seed(K+i*K)
         xftrain.=cbind(xftrain[ , Sf[i, ]==1])
         dimnames(xftrain.)[[2]]=Namesf[Sf[i, ]==1]
@@ -127,7 +141,8 @@ tsvs2 = function(
                  ##MCMC
                  nskip=nskip, ndpost=ndpost, 
                  nadapt=nadapt, adaptevery=adaptevery, 
-                 chvf=chvf, chvs=chvs,
+                 method=method,
+                 ##chvf=chvf, chvs=chvs,
                  pbd=pbd, pb=pb,
                  stepwpert=stepwpert, probchv=probchv,
                  minnumbot=minnumbot,
