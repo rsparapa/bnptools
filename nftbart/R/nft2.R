@@ -29,9 +29,8 @@ nft2 = function(## data
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100, 
-               method="spearman",
-               ##chvf = cor(xftrain, method="spearman"),
-               ##chvs = cor(xstrain, method="spearman"),
+               chvf = NULL, chvs = NULL,
+               method="spearman", use="pairwise.complete.obs",
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
@@ -87,9 +86,9 @@ nft2 = function(## data
         xstrain=xs.$X
     }
     xifcuts=xf.$xicuts
-    chvf = cor(xftrain, method=method)
+    if(length(chvf)==0) chvf = cor(xftrain, method=method, use=use)
     xiscuts=xs.$xicuts
-    chvs = cor(xstrain, method=method)
+    if(length(chvs)==0) chvs = cor(xstrain, method=method, use=use)
     
         impute=CDimpute(x.train=xftrain, x.test=xftest)
         xftrain=t(impute$x.train)

@@ -28,8 +28,8 @@ nft = function(## data
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100,
-               method="spearman",
-               ##chv = cor(x.train, method="spearman"),
+               chv = NULL,
+               method="spearman", use="pairwise.complete.obs",
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
@@ -70,7 +70,7 @@ nft = function(## data
         xp=x.test
     }
     xicuts=x.$xicuts
-    chv = cor(x, method=method)
+    if(length(chv)==0) chv = cor(x, method=method, use=use)
     ##xp = x.test
     ##if(!transposed) {
         impute=CDimpute(x.train=cbind(x),

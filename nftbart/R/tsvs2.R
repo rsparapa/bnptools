@@ -30,9 +30,8 @@ tsvs2 = function(
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100,
-               method="spearman",
-               ##chvf = cor(xftrain, method="spearman"),
-               ##chvs = cor(xstrain, method="spearman"),
+               chvf = NULL, chvs = NULL,
+               method="spearman", use="pairwise.complete.obs",
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
@@ -62,10 +61,12 @@ tsvs2 = function(
     xf.=bMM(xftrain, numcut=numcut, xicuts=xifcuts)
     xftrain=xf.$X
     dummyf=xf.$dummy
-
+    if(length(chvf)==0) chvf = cor(xftrain, method=method, use=use)
+    
     xs.=bMM(xstrain, numcut=numcut, xicuts=xiscuts)
     xstrain=xs.$X
     dummys=xs.$dummy
+    if(length(chvs)==0) chvf = cor(xftrain, method=method, use=use)
     
     Namesf=dimnames(xftrain)[[2]] 
     Pf=ncol(xftrain)
@@ -141,8 +142,8 @@ tsvs2 = function(
                  ##MCMC
                  nskip=nskip, ndpost=ndpost, 
                  nadapt=nadapt, adaptevery=adaptevery, 
-                 method=method,
-                 ##chvf=chvf, chvs=chvs,
+                 chvf=chvf, chvs=chvs,
+                 ##method=method, use=use,
                  pbd=pbd, pb=pb,
                  stepwpert=stepwpert, probchv=probchv,
                  minnumbot=minnumbot,

@@ -30,8 +30,8 @@ tsvs = function(
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100, 
-               ##chv = cor(x.train, method="spearman"),
-               method="spearman",
+               chv = NULL,
+               method="spearman", use="pairwise.complete.obs",
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
@@ -61,11 +61,11 @@ tsvs = function(
     x.train=x.$X
     dummy=x.$dummy
     ##xicuts=x.$xicuts
-
+    if(length(chv)==0) chv = cor(x.train, method=method, use=use)
     namesX=dimnames(x.train)[[2]] 
     P=ncol(x.train)
-    a=matrix(0, nrow=K, ncol=P)
-    b=matrix(0, nrow=K, ncol=P)
+    a=matrix(a., nrow=K, ncol=P)
+    b=matrix(b., nrow=K, ncol=P)
     S=matrix(0, nrow=K, ncol=P)
     dimnames(S)[[2]]=namesX
     theta=matrix(nrow=K, ncol=P)
@@ -79,7 +79,7 @@ tsvs = function(
     for(i in 1:K) {
         set.seed(i)
         print(paste('Step:', i))
-        for(j in 1:P) {
+        if(i>1) for(j in 1:P) {
             if(i==1) {
                 a[i, j]=a.
                 b[i, j]=b.
@@ -106,8 +106,8 @@ tsvs = function(
                  ##MCMC
                  nskip=nskip, ndpost=ndpost, 
                  nadapt=nadapt, adaptevery=adaptevery, 
-                 ##chv=chv,
-                 method=method,
+                 chv=chv,
+                 ##method=method, use=use,
                  pbd=pbd, pb=pb,
                  stepwpert=stepwpert, probchv=probchv,
                  minnumbot=minnumbot,

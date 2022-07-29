@@ -17,7 +17,8 @@ tsvs(
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100, 
-               method="spearman",
+               chv=NULL,
+               method="spearman", use="pairwise.complete.obs",
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
@@ -65,9 +66,9 @@ tsvs(
   \item{nadapt}{Number of MCMC iterations for adaptation prior to burn-in.}
   \item{adaptevery}{Adapt MCMC proposal distributions every
     \code{adaptevery} iteration.}
-    \item{method}{Correlation method for change-of-variable proposal
+    \item{chv}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
+    \item{method,use}{Correlation options for change-of-variable proposal
     pre-conditioner.}
-    %\item{chv}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
   \item{pbd}{Probability of performing a birth/death proposal, otherwise perform a rotate proposal.}
   \item{pb}{Probability of performing a birth proposal given that we choose to perform a birth/death proposal.}
   \item{stepwpert}{Initial width of proposal distribution for peturbing cut-points.}
