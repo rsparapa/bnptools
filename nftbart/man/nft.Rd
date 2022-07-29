@@ -10,6 +10,7 @@
 nft(
     ## data
     x.train, times, delta=NULL, x.test=matrix(nrow=0, ncol=0),
+    rm.const=TRUE, rm.dupe=TRUE,
     impute.bin=NULL, impute.prob=NULL,
     ## multi-threading
     tc=getOption("mc.cores", 1), 
@@ -36,7 +37,8 @@ nft(
     m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
     a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
     ## misc
-    na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
+    na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
+    transposed=FALSE
 )
 
 }
@@ -48,6 +50,8 @@ nft(
 \item{x.test}{mxp matrix of predictor variables for the test set.}
   \item{impute.bin}{Indices of the columns of \code{x.train} to be imputed.}
   \item{impute.prob}{nx1 vector of prior probabilities for imputation.}
+      \item{rm.const}{To remove constant variables or not.}
+  \item{rm.dupe}{To remove duplicate variables or not.}
   \item{tc}{Number of OpenMP threads to use.}
   \item{nskip}{Number of MCMC iterations to burn-in and discard.}
   \item{ndpost}{Number of MCMC iterations kept after burn-in.}
@@ -106,7 +110,11 @@ nft(
     \code{E[b0]=b0.a/b0.b}.}
   \item{na.rm}{Value to be passed to the \code{predict} function.}
   \item{probs}{Value to be passed to the \code{predict} function.}
-  \item{printevery}{Outputs MCMC algorithm status every printevery iterations.}
+  \item{printevery}{Outputs MCMC algorithm status every printevery
+    iterations.}
+    \item{transposed}{Specify \code{TRUE} if all of the pre-processing for
+    \code{x.train/x.test} has been conducted prior to the call (including
+    tranposing).}
 }
 
 \details{

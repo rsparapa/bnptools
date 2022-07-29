@@ -9,7 +9,8 @@
   cutpoints necessary for each column when asked to do so.  }
 
 \usage{
-bMM(X, numcut=0L, usequants=FALSE, type=7, xicuts=NULL)
+bMM(X, numcut=0L, usequants=FALSE, type=7, xicuts=NULL, rm.const=FALSE,
+    rm.dupe=FALSE, method="spearman", use="pairwise.complete.obs")
 }
 
 \arguments{
@@ -21,11 +22,14 @@ bMM(X, numcut=0L, usequants=FALSE, type=7, xicuts=NULL)
     cutpoints in \code{xinfo} are generated uniformly; otherwise,
     if \code{TRUE}, quantiles are used for the cutpoints. }
   \item{type}{ Determines which quantile algorithm is employed.}
-%  \item{rm.const}{ Whether or not to remove constant variables.}
-%  \item{cont}{ Whether or not to assume all variables are continuous.}
   \item{xicuts}{ To specify your own cut-points, use the \code{xicuts}
     argument.}
-%  \item{rm.vars}{ The variables that you want removed. }
+    \item{rm.const}{To remove constant variables or not.}
+    \item{rm.dupe}{To remove duplicate variables or not.}
+% \item{rm.const}{ Whether or not to remove constant variables.}
+%  \item{cont}{ Whether or not to assume all variables are continuous.}
+  %\item{rm.vars}{ The variables that you want removed. }
+    \item{method,use}{Correlation options.}
 }
 
 \value{

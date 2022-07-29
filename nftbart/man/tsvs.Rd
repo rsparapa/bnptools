@@ -9,6 +9,7 @@
 tsvs(
                ## data
                x.train, times, delta=NULL, 
+               rm.const=TRUE, rm.dupe=TRUE,
                ##tsvs args
                K=20, a.=1, b.=0.5, C=0.5,
                rds.file='tsvs.rds', pdf.file='tsvs.pdf',
@@ -23,7 +24,7 @@ tsvs(
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
                ## BART and HBART prior parameters
-               ntree=c(7, 3), numcut=100, xicuts=NULL,
+               ntree=c(10, 2), numcut=100, xicuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
                k=5, sigmaf=NA,
@@ -39,7 +40,8 @@ tsvs(
                m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
                a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
                ## misc
-               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
+               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
+               transposed=FALSE
 )
 
 }
@@ -47,7 +49,10 @@ tsvs(
   \item{x.train}{nxp matrix of predictor variables for the training data.}
   \item{times}{nx1 vector of the observed times for the training data.}
   \item{delta}{nx1 vector of the time type for the training data:
-    0, for right-censoring; 1, for an event; and, 2, for left-censoring.}
+    0, for right-censoring; 1, for an event; and, 2, for
+    left-censoring.}
+      \item{rm.const}{To remove constant variables or not.}
+    \item{rm.dupe}{To remove duplicate variables or not.}
   \item{K}{The number of Thompson sampling steps to take.
   Not to be confused with the size of the time grid for survival
   distribution estimation.}
@@ -118,7 +123,11 @@ tsvs(
     \code{E[b0]=b0.a/b0.b}.}
   \item{na.rm}{Value to be passed to the \code{predict} function.}
   \item{probs}{Value to be passed to the \code{predict} function.}
-  \item{printevery}{Outputs MCMC algorithm status every printevery iterations.}
+  \item{printevery}{Outputs MCMC algorithm status every printevery
+    iterations.}
+      \item{transposed}{\code{tsvs} handles all of the pre-processing
+	for \code{x.train/x.test} (including
+    tranposing) computational efficiency.}
 }
 
 \details{
