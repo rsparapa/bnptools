@@ -21,7 +21,8 @@
 
 tsvs = function(
                ## data
-               x.train, times, delta=NULL, 
+               x.train, times, delta=NULL,
+               rm.const=TRUE, rm.dupe=TRUE,
                ##tsvs args
                K=20, a.=1, b.=0.5, C=0.5,
                rds.file='tsvs.rds', pdf.file='tsvs.pdf',
@@ -36,7 +37,7 @@ tsvs = function(
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
                ## BART and HBART prior parameters
-               ntree=c(7, 3), numcut=100, xicuts=NULL,
+               ntree=c(10, 2), numcut=100, xicuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
                k=5, sigmaf=NA,
@@ -52,16 +53,23 @@ tsvs = function(
                m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
                a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
                ## misc
-               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
+               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
+               transposed=FALSE
                )
 {
     if(K==0) return(K)
 
-    x.=bMM(x.train, numcut=numcut, xicuts=xicuts)
-    x.train=x.$X
-    dummy=x.$dummy
-    ##xicuts=x.$xicuts
-    if(length(chv)==0) chv = cor(x.train, method=method, use=use)
+    if(transposed) 
+        stop('tsvs is run with x.train untransposed, i.e., prior to bMM processing')
+
+    x.=bMM(x.train, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+           method=method, use=use)
+    xicuts=x.$xicuts
+    chv   =x.$chv
+    dummy =x.$dummy
+    impute=CDimpute(x.train=x.$X)
+    x.train=impute$x.train
+
     namesX=dimnames(x.train)[[2]] 
     P=ncol(x.train)
     a=matrix(a., nrow=K, ncol=P)
@@ -97,22 +105,25 @@ tsvs = function(
             if(S[i, j]==1) S[i, dummy[1, j]:dummy[2, j] ]=1
         
         set.seed(K+i*K)
-        x.train.=cbind(x.train[ , S[i, ]==1])
-        dimnames(x.train.)[[2]]=namesX[S[i, ]==1]
-
-        post=nft(x.train=x.train., times=times, delta=delta, 
+        pick=(S[i, ]==1)
+        x.train.=cbind(x.train[ , pick])
+        dimnames(x.train.)[[2]]=namesX[pick]
+        chv.=chv[pick, pick]
+        xicuts.=xicuts
+        for(j in P:1) if(!pick[j]) xicuts.[[j]]=NULL
+        post=nft(x.train=t(x.train.), times=times, delta=delta,
+                 ##rm.const=TRUE, rm.dupe=TRUE,
                  ## multi-threading
                  tc=tc, ##OpenMP thread count
                  ##MCMC
                  nskip=nskip, ndpost=ndpost, 
                  nadapt=nadapt, adaptevery=adaptevery, 
-                 chv=chv,
-                 ##method=method, use=use,
+                 chv=chv., ##method=method, use=use,
                  pbd=pbd, pb=pb,
                  stepwpert=stepwpert, probchv=probchv,
                  minnumbot=minnumbot,
                  ## BART and HBART prior parameters
-                 ntree=ntree, numcut=numcut, ##xicuts=xicuts,
+                 ntree=ntree, numcut=numcut, xicuts=xicuts.,
                  power=power, base=base,
                  ## f function
                  k=k, sigmaf=sigmaf,
@@ -130,7 +141,8 @@ tsvs = function(
                  m0=m0, k0.a=k0.a, k0.b=k0.b, k0=k0, k0.draw=k0.draw,
                  a0=a0, b0.a=b0.a, b0.b=b0.b, b0=b0, b0.draw=b0.draw,
                  ## misc
-                 na.rm=na.rm, probs=probs, printevery=printevery
+                 na.rm=na.rm, probs=probs, printevery=printevery,
+                 transposed=TRUE
                  )
 
         namesf=dimnames(post$f.varcount)[[2]]
@@ -152,7 +164,7 @@ tsvs = function(
         }
         if(length(warnings())>0) print(warnings())
         res=list(step=i, prob=prob, S=S, a=a, b=b, gamma=gamma,
-                 theta=theta, varcount=varcount, dummy=dummy)
+                 theta=theta, varcount=varcount, dummy=dummy, impute=impute)
         saveRDS(res, rds.file)
 
         pdf(file=pdf.file)

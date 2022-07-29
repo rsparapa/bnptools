@@ -19,8 +19,9 @@
 ## Author contact information
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
-bMM=function(X, numcut=0L, usequants=FALSE, type=7, xicuts=NULL
-             ##rm.const=FALSE, cont=FALSE, rm.vars=NULL
+bMM=function(X, numcut=0L, usequants=FALSE, type=7, xicuts=NULL, rm.const=FALSE,
+             rm.dupe=FALSE, method="spearman", use="pairwise.complete.obs"
+             ##cont=FALSE, rm.vars=NULL
              ) {
     X.class = class(X)[1]
 
@@ -119,7 +120,54 @@ bMM=function(X, numcut=0L, usequants=FALSE, type=7, xicuts=NULL
             l=h
         }
         dimnames(dummy)[[2]]=dimnames(X)[[2]]
-        return(list(X=X, numcut=as.integer(nc), ##rm.const=rm.vars,
-                    xicuts=xicuts, grp=grp, dummy=dummy))
+
+        chv=NULL
+        rm.vars=c()
+        rm.drop=c()
+        if(rm.const) {
+            for(i in 1:p)
+                if(nc[i]==1 & all(X[ , i]==xicuts[[i]][1])) {
+                    ##warning(paste0('column ', i, ' is constant: removed'))
+                    rm.vars=c(rm.vars, i)
+                }
+        }
+        if(rm.dupe) { 
+            chv=cor(X, method='spearman', use="pairwise.complete.obs")
+            flag=TRUE
+            while(flag) {
+                count=rep(0, p)
+                h=1
+                same=matrix(nrow=0, ncol=2)
+                for(i in 1:(p-1))
+                    for(j in (i+1):p) 
+                        if(!(i %in% rm.drop) && !(j %in% rm.drop) && abs(chv[i, j])==1) {
+                            same=rbind(same, c(i, j))
+                            count[i]=count[i]+1
+                            count[j]=count[j]+1
+                        }
+                flag=(sum(count)>0)
+                if(flag) {
+                    l=which(count==max(count))[1]
+                    rm.drop=c(rm.drop, l)
+                }
+            }
+        }
+
+        drop=unique(sort(c(rm.vars, rm.drop), TRUE))
+        if(length(drop)>0) {
+            X=cbind(X[ , -drop])
+            nc=nc[-drop]
+            chv=chv[-drop, -drop]
+            dummy=dummy[ , -drop]
+            for(i in drop) {
+                xicuts[[i]]=NULL
+                dummy[1, which(dummy[1, ]>i)]=dummy[1, which(dummy[1, ]>i)]-1
+                dummy[2, which(dummy[2, ]>i)]=dummy[2, which(dummy[2, ]>i)]-1
+            }
+        }
+        
+        return(list(X=X, numcut=as.integer(nc), rm.const=sort(rm.vars),
+                    xicuts=xicuts, ##grp=grp,
+                    dummy=dummy, chv=chv, rm.dupe=sort(rm.drop)))
     }
 }

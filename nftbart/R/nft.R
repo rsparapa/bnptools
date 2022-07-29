@@ -22,6 +22,7 @@
 nft = function(## data
                x.train, times, delta=NULL, 
                x.test=matrix(nrow=0, ncol=0),
+               rm.const=TRUE, rm.dupe=TRUE,
                impute.bin=NULL, impute.prob=NULL,
                ## multi-threading
                tc=getOption("mc.cores", 1), ##OpenMP thread count
@@ -52,34 +53,43 @@ nft = function(## data
                ##a0=1.5, b0.a=0.5,
                a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
                ## misc
-               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
+               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
+               transposed=FALSE
                )
 {
     n=length(times)
     if(length(delta)==0) delta=rep(1, n)
     if(length(sigmav)==0) sigmav=rep(1, n)
-    ##x = x.train
-    np=nrow(x.test)
-    if(np>0) {
-        x.=bMM(rbind(x.train, x.test), numcut=numcut, xicuts=xicuts)
-        x=cbind(x.$X[1:n, ])
-        xp=cbind(x.$X[n+(1:np), ])
-    } else {
-        x.=bMM(x.train, numcut=numcut, xicuts=xicuts)
-        x=x.$X
-        xp=x.test
-    }
-    xicuts=x.$xicuts
-    if(length(chv)==0) chv = cor(x, method=method, use=use)
-    ##xp = x.test
-    ##if(!transposed) {
+
+    if(!transposed) {
+        np=nrow(x.test)
+        if(np>0) {
+            x.=bMM(rbind(x.train, x.test), numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+                   method=method, use=use)
+            x =cbind(x.$X[1:n, ])
+            xp=cbind(x.$X[n+(1:np), ])
+        } else {
+            x.=bMM(x.train, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+                   method=method, use=use)
+            x=x.$X
+            xp=x.test
+        }
+        xicuts=x.$xicuts
+        chv = x.$chv
         impute=CDimpute(x.train=cbind(x),
                         x.test=cbind(xp),
                         impute.bin=impute.bin)
         x=t(impute$x.train)
         xp=t(impute$x.test)
         transposed=TRUE
-    ##}
+    } else {
+        x =x.train
+        xp=x.test
+        np=ncol(xp)
+        if(length(chv)==0) chv=cor(t(x), use=use, method=method)
+        if(length(xicuts)==0) 
+            xicuts=xicuts(x, transposed=transposed, numcut=numcut)
+    }
 
     take.logs = (dist!='extreme')
     if(length(events)==0 && K>0) {
@@ -94,10 +104,6 @@ nft = function(## data
     
     p=nrow(x)
     ##np=ncol(xp)
-
-    ## if(length(xicuts)==0) {
-    ##     xicuts=xicuts(x, transposed=transposed, numcut=numcut)
-    ## }
 
     df = data.frame(times, delta, t(x))
     ##type='interval' not supported by survreg

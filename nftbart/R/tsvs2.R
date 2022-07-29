@@ -21,7 +21,8 @@
 
 tsvs2 = function(
                ## data
-               xftrain, xstrain, times, delta=NULL, 
+               xftrain, xstrain, times, delta=NULL,
+               rm.const=TRUE, rm.dupe=TRUE,
                ##tsvs args
                K=20, a.=1, b.=0.5, C=0.5,
                rds.file='tsvs2.rds', pdf.file='tsvs2.pdf',
@@ -36,7 +37,7 @@ tsvs2 = function(
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
                ## BART and HBART prior parameters
-               ntree=c(7, 3), numcut=100,
+               ntree=c(10, 2), numcut=100,
                xifcuts=NULL, xiscuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
@@ -53,21 +54,31 @@ tsvs2 = function(
                m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
                a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
                ## misc
-               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
+               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
+               transposed=FALSE
                )
 {
     if(K==0) return(K)
 
-    xf.=bMM(xftrain, numcut=numcut, xicuts=xifcuts)
-    xftrain=xf.$X
-    dummyf=xf.$dummy
-    if(length(chvf)==0) chvf = cor(xftrain, method=method, use=use)
-    
-    xs.=bMM(xstrain, numcut=numcut, xicuts=xiscuts)
-    xstrain=xs.$X
-    dummys=xs.$dummy
-    if(length(chvs)==0) chvf = cor(xftrain, method=method, use=use)
-    
+    if(transposed) 
+        stop('tsvs2 is run with xftrain/xstrain untransposed, i.e., prior to bMM processing')
+
+    xf.=bMM(xftrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+           method=method, use=use)
+    xifcuts=xf.$xicuts
+    chvf   =xf.$chv
+    dummyf =xf.$dummy
+    imputef=CDimpute(x.train=xf.$X)
+    xftrain=imputef$x.train
+
+    xs.=bMM(xstrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+           method=method, use=use)
+    xiscuts=xs.$xicuts
+    chvs   =xs.$chv
+    dummys =xs.$dummy
+    imputes=CDimpute(x.train=xs.$X)
+    xstrain=imputes$x.train
+        
     Namesf=dimnames(xftrain)[[2]] 
     Pf=ncol(xftrain)
     Af=matrix(0, nrow=K, ncol=Pf)
@@ -130,26 +141,38 @@ tsvs2 = function(
         for(j in 1:Ps)
             if(Ss[i, j]==1) Ss[i, dummys[1, j]:dummys[2, j] ]=1
         set.seed(K+i*K)
-        xftrain.=cbind(xftrain[ , Sf[i, ]==1])
-        dimnames(xftrain.)[[2]]=Namesf[Sf[i, ]==1]
-        xstrain.=cbind(xstrain[ , Ss[i, ]==1])
-        dimnames(xstrain.)[[2]]=Namess[Ss[i, ]==1]
 
-        post=nft2(xftrain=xftrain., xstrain=xstrain.,
+        pickf=(Sf[i, ]==1)
+        chvf.=chvf[pickf, pickf]
+        xifcuts.=xifcuts
+        for(j in Pf:1) if(!pickf[j]) xifcuts.[[j]]=NULL
+        
+        xftrain.=cbind(xftrain[ , pickf])
+        dimnames(xftrain.)[[2]]=Namesf[pickf]
+        
+        picks=(Ss[i, ]==1)
+        chvs.=chvs[picks, picks]
+        xiscuts.=xiscuts
+        for(j in Ps:1) if(!picks[j]) xiscuts.[[j]]=NULL
+        
+        xstrain.=cbind(xstrain[ , picks])
+        dimnames(xstrain.)[[2]]=Namess[picks]
+
+        post=nft2(xftrain=t(xftrain.), xstrain=t(xstrain.),
                   times=times, delta=delta, 
                  ## multi-threading
                  tc=tc, ##OpenMP thread count
                  ##MCMC
                  nskip=nskip, ndpost=ndpost, 
                  nadapt=nadapt, adaptevery=adaptevery, 
-                 chvf=chvf, chvs=chvs,
+                 chvf=chvf., chvs=chvs.,
                  ##method=method, use=use,
                  pbd=pbd, pb=pb,
                  stepwpert=stepwpert, probchv=probchv,
                  minnumbot=minnumbot,
                  ## BART and HBART prior parameters
                  ntree=ntree, numcut=numcut,
-                 xifcuts=xifcuts, xiscuts=xiscuts,
+                 xifcuts=xifcuts., xiscuts=xiscuts.,
                  power=power, base=base,
                  ## f function
                  k=k, sigmaf=sigmaf, dist=dist, 
@@ -166,7 +189,8 @@ tsvs2 = function(
                  m0=m0, k0.a=k0.a, k0.b=k0.b, k0=k0, k0.draw=k0.draw,
                  a0=a0, b0.a=b0.a, b0.b=b0.b, b0=b0, b0.draw=b0.draw,
                  ## misc
-                 na.rm=na.rm, probs=probs, printevery=printevery
+                 na.rm=na.rm, probs=probs, printevery=printevery,
+                 transposed=TRUE
                  )
 
         namesf=dimnames(post$f.varcount)[[2]]

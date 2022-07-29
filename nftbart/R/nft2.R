@@ -23,6 +23,7 @@ nft2 = function(## data
                xftrain, xstrain, times, delta=NULL, 
                xftest=matrix(nrow=0, ncol=0),
                xstest=matrix(nrow=0, ncol=0),
+               rm.const=TRUE, rm.dupe=TRUE,
                ##impute.bin=NULL, impute.prob=NULL,
                ## multi-threading
                tc=getOption("mc.cores", 1), ##OpenMP thread count
@@ -52,44 +53,50 @@ nft2 = function(## data
                ##a0=1.5, b0.a=0.5,
                a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
                ## misc
-               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100
+               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
+               transposed=FALSE
                )
 {
     n=length(times)
     if(length(delta)==0) delta=rep(1, n)
     if(length(sigmav)==0) sigmav=rep(1, n)
-    
-    xftrain=cbind(xftrain)
-    if(n!=nrow(xftrain))
-        stop('The number of times and rows in xftrain must be the same')
-    xstrain=cbind(xstrain)
-    if(n!=nrow(xstrain))
-        stop('The number of times and rows in xstrain must be the same')
 
-    xftest=cbind(xftest)
-    np=nrow(xftest)
-    xstest=cbind(xstest)
-    if(np!=nrow(xstest))
-        stop('The number of rows in xftest and xstest must be the same')
+    if(!transposed) {
+        xftrain=cbind(xftrain)
+        if(n!=nrow(xftrain))
+            stop('The number of times and rows in xftrain must be the same')
+        xstrain=cbind(xstrain)
+        if(n!=nrow(xstrain))
+            stop('The number of times and rows in xstrain must be the same')
 
-    if(np>0) {
-        xf.=bMM(rbind(xftrain, xftest), numcut=numcut, xicuts=xifcuts)
-        xftrain=cbind(xf.$X[1:n, ])
-        xftest =cbind(xf.$X[n+(1:np), ])
-        xs.=bMM(rbind(xstrain, xstest), numcut=numcut, xicuts=xiscuts)
-        xstrain=cbind(xs.$X[1:n, ])
-        xstest =cbind(xs.$X[n+(1:np), ])
-    } else {
-        xf.=bMM(xftrain, numcut=numcut, xicuts=xifcuts)
-        xftrain=xf.$X
-        xs.=bMM(xstrain, numcut=numcut, xicuts=xiscuts)
-        xstrain=xs.$X
-    }
-    xifcuts=xf.$xicuts
-    if(length(chvf)==0) chvf = cor(xftrain, method=method, use=use)
-    xiscuts=xs.$xicuts
-    if(length(chvs)==0) chvs = cor(xstrain, method=method, use=use)
-    
+        xftest=cbind(xftest)
+        np=nrow(xftest)
+        xstest=cbind(xstest)
+        if(np!=nrow(xstest))
+            stop('The number of rows in xftest and xstest must be the same')
+
+        if(np>0) {
+            xf.=bMM(rbind(xftrain, xftest), numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+                   method=method, use=use)
+            xftrain=cbind(xf.$X[1:n, ])
+            xftest =cbind(xf.$X[n+(1:np), ])
+            xs.=bMM(rbind(xstrain, xstest), numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+                   method=method, use=use)
+            xstrain=cbind(xs.$X[1:n, ])
+            xstest =cbind(xs.$X[n+(1:np), ])
+        } else {
+            xf.=bMM(xftrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+                   method=method, use=use)
+            xftrain=xf.$X
+            xs.=bMM(xstrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+                   method=method, use=use)
+            xstrain=xs.$X
+        }
+        xifcuts=xf.$xicuts
+        xiscuts=xs.$xicuts
+        chvf = xf.$chv
+        chvs = xs.$chv
+        
         impute=CDimpute(x.train=xftrain, x.test=xftest)
         xftrain=t(impute$x.train)
         xftest=t(impute$x.test)
@@ -97,6 +104,16 @@ nft2 = function(## data
         xstrain=t(impute$x.train)
         xstest=t(impute$x.test)
         transposed=TRUE
+    } else {
+        np=ncol(xftest)
+        if(length(chvf)==0) chvf = cor(t(xftrain), method=method, use=use)
+        if(length(chvs)==0) chvs = cor(t(xstrain), method=method, use=use)
+
+        if(length(xifcuts)==0) 
+            xifcuts=xicuts(xftrain, transposed=transposed, numcut=numcut)
+        if(length(xiscuts)==0) 
+            xiscuts=xicuts(xstrain, transposed=transposed, numcut=numcut)
+    }
     
     pf=nrow(xftrain)
     ps=nrow(xstrain)
@@ -111,11 +128,6 @@ nft2 = function(## data
     burn=nskip
     nd=ndpost
     nc=numcut
-
-    if(length(xifcuts)==0) 
-        xifcuts=xicuts(xftrain, transposed=transposed, numcut=numcut)
-    if(length(xiscuts)==0) 
-        xiscuts=xicuts(xstrain, transposed=transposed, numcut=numcut)
 
     df = data.frame(times, delta)
     aft = survreg(Surv(time=times, event=delta)~1,
