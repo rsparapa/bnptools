@@ -88,18 +88,14 @@ tsvs = function(
         set.seed(i)
         print(paste('Step:', i))
         if(i>1) for(j in 1:P) {
-            if(i==1) {
-                a[i, j]=a.
-                b[i, j]=b.
-            } else {
                 a[i, j]=a[i-1, j]
                 b[i, j]=b[i-1, j]
-            }
         }
-        while(sum(S[i, ])==0) {
-            theta[i, ]=rbeta(P, a[i, ], b[i, ])
-            S[i, which(theta[i, ]>=C)]=1
-        }
+        theta[i, ]=rbeta(P, a[i, ], b[i, ])
+        S[i, which(theta[i, ]>=C)]=1
+        j=sum(S[i, ])
+        if(j==0) S[i, sample.int(P, 2)]=1
+        else if(j==1) S[i, sample(which(S[i, ]==0), 1)]=1
         
         for(j in 1:P)
             if(S[i, j]==1) S[i, dummy[1, j]:dummy[2, j] ]=1
@@ -108,7 +104,7 @@ tsvs = function(
         pick=(S[i, ]==1)
         x.train.=cbind(x.train[ , pick])
         dimnames(x.train.)[[2]]=namesX[pick]
-        chv.=chv[pick, pick]
+        chv.=cbind(chv[pick, pick])
         xicuts.=xicuts
         for(j in P:1) if(!pick[j]) xicuts.[[j]]=NULL
         post=nft(x.train=t(x.train.), times=times, delta=delta,

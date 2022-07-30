@@ -81,8 +81,8 @@ tsvs2 = function(
         
     Namesf=dimnames(xftrain)[[2]] 
     Pf=ncol(xftrain)
-    Af=matrix(0, nrow=K, ncol=Pf)
-    Bf=matrix(0, nrow=K, ncol=Pf)
+    Af=matrix(a., nrow=K, ncol=Pf)
+    Bf=matrix(b., nrow=K, ncol=Pf)
     Sf=matrix(0, nrow=K, ncol=Pf)
     dimnames(Sf)[[2]]=Namesf
     thetaf=matrix(nrow=K, ncol=Pf)
@@ -95,8 +95,8 @@ tsvs2 = function(
     dimnames(varcountf)[[2]]=Namesf
     Namess=dimnames(xstrain)[[2]] 
     Ps=ncol(xstrain)
-    As=matrix(0, nrow=K, ncol=Ps)
-    Bs=matrix(0, nrow=K, ncol=Ps)
+    As=matrix(a., nrow=K, ncol=Ps)
+    Bs=matrix(b., nrow=K, ncol=Ps)
     Ss=matrix(0, nrow=K, ncol=Ps)
     dimnames(Ss)[[2]]=Namess
     thetas=matrix(nrow=K, ncol=Ps)
@@ -110,40 +110,39 @@ tsvs2 = function(
     for(i in 1:K) {
         set.seed(i)
         print(paste('Step:', i))
-        for(j in 1:Pf) {
-            if(i==1) {
-                Af[i, j]=a.
-                Bf[i, j]=b.
-            } else {
+        if(i>1) {
+            for(j in 1:Pf) {
                 Af[i, j]=Af[i-1, j]
                 Bf[i, j]=Bf[i-1, j]
             }
-        }
-        for(j in 1:Ps) {
-            if(i==1) {
-                As[i, j]=a.
-                Bs[i, j]=b.
-            } else {
+            for(j in 1:Ps) {
                 As[i, j]=As[i-1, j]
                 Bs[i, j]=Bs[i-1, j]
             }
         }
-        while(sum(Sf[i, ])==0) { 
-            thetaf[i, ]=rbeta(Pf, Af[i, ], Bf[i, ])
-            Sf[i, which(thetaf[i, ]>=C)]=1
-        }
+        thetaf[i, ]=rbeta(Pf, Af[i, ], Bf[i, ])
+        Sf[i, which(thetaf[i, ]>=C)]=1
+        
+        j=sum(Sf[i, ])
+        if(j==0) Sf[i, sample.int(Pf, 2)]=1
+        else if(j==1) Sf[i, sample(which(Sf[i, ]==0), 1)]=1
+        
         for(j in 1:Pf)
             if(Sf[i, j]==1) Sf[i, dummyf[1, j]:dummyf[2, j] ]=1
-        while(sum(Ss[i, ])==0) { 
-            thetas[i, ]=rbeta(Ps, As[i, ], Bs[i, ])
-            Ss[i, which(thetas[i, ]>=C)]=1
-        }
+
+        thetas[i, ]=rbeta(Ps, As[i, ], Bs[i, ])
+        Ss[i, which(thetas[i, ]>=C)]=1
+        
+        j=sum(Ss[i, ])
+        if(j==0) Ss[i, sample.int(Ps, 2)]=1
+        else if(j==1) Ss[i, sample(which(Ss[i, ]==0), 1)]=1
+        
         for(j in 1:Ps)
             if(Ss[i, j]==1) Ss[i, dummys[1, j]:dummys[2, j] ]=1
         set.seed(K+i*K)
 
         pickf=(Sf[i, ]==1)
-        chvf.=chvf[pickf, pickf]
+        chvf.=cbind(chvf[pickf, pickf])
         xifcuts.=xifcuts
         for(j in Pf:1) if(!pickf[j]) xifcuts.[[j]]=NULL
         
@@ -151,7 +150,7 @@ tsvs2 = function(
         dimnames(xftrain.)[[2]]=Namesf[pickf]
         
         picks=(Ss[i, ]==1)
-        chvs.=chvs[picks, picks]
+        chvs.=cbind(chvs[picks, picks])
         xiscuts.=xiscuts
         for(j in Ps:1) if(!picks[j]) xiscuts.[[j]]=NULL
         
