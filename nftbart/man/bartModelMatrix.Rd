@@ -48,29 +48,29 @@ If \code{numcut==0} (the default), then a matrix of the
 }
 
 \seealso{
-   \code{\link{xicuts}}
+   \code{\link{bMM}}
  }
 
  \examples{
 
-set.seed(99)
+## set.seed(99)
 
-a <- rbinom(10, 4, 0.4)
+## a <- rbinom(10, 4, 0.4)
 
-table(a)
+## table(a)
 
-x <- runif(10)
+## x <- runif(10)
 
-df <- data.frame(a=factor(a), x=x)
+## df <- data.frame(a=factor(a), x=x)
 
-(b <- bartModelMatrix(df))
+## (b <- bartModelMatrix(df))
 
-(b <- bartModelMatrix(df, numcut=9))
+## (b <- bartModelMatrix(df, numcut=9))
 
-(b <- bartModelMatrix(df, numcut=9, usequants=TRUE))
+## (b <- bartModelMatrix(df, numcut=9, usequants=TRUE))
 
 \dontrun{
     ## this is an error
-    f <- bartModelMatrix(as.character(a))
+    ## f <- bartModelMatrix(as.character(a))
 }
 }

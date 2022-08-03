@@ -1,5 +1,5 @@
 
-Changes and New Features in 1.4 (2022-07-26):
+Changes and New Features in 1.4 (2022-08-03):
 	* New option: mask unstable s(.) estimates to calculate soffset
 
 	* Use hardened DPM LIO variance prior setting
@@ -22,6 +22,8 @@ Changes and New Features in 1.4 (2022-07-26):
 
 	* Thompson Sampling Variable Selection functions
 	  tsvs for the same X matrix and tsvs2 for two different matrices
+
+	* new function bMM() to replace the deprecated bartModelMatrix()
 
 Changes and New Features in 1.3 (2022-03-26):
 	* Trap error code returned from rcat
