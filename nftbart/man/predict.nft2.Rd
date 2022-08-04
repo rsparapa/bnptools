@@ -19,8 +19,6 @@
             K=0,
             events=object$events,
             FPD=FALSE,
-            hazard=FALSE,
-            density=FALSE,
             probs=c(0.025, 0.975),
             take.logs=TRUE,
             na.rm=FALSE,
@@ -47,10 +45,10 @@
     they are derived from quantiles of the augmented event times.}
   \item{FPD}{Whether to yield the usual predictions or marginal predictions
     calculated by the partial dependence function.}
-  \item{hazard}{By default, only the survival function is estimated;
-    however, with \code{TRUE}, you can request the hazard as well.}
-  \item{density}{By default, only the survival function is estimated;
-    however, with \code{TRUE}, you can request the density as well.}
+  %% \item{hazard}{By default, only the survival function is estimated;
+  %%   however, with \code{TRUE}, you can request the hazard as well.}
+  %% \item{density}{By default, only the survival function is estimated;
+  %%   however, with \code{TRUE}, you can request the density as well.}
   \item{probs}{A vector of length two containing the
     lower and upper quantiles to be calculated for the predictions.}
   \item{take.logs}{Whether or not to take logarithms.}

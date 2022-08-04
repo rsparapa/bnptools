@@ -18,7 +18,6 @@
             ## predictions
             events=NULL,
             FPD=FALSE,
-            hazard=FALSE,
             probs=c(0.025, 0.975),
             take.logs=TRUE,
             seed=NULL,
@@ -34,8 +33,8 @@
     can be a matrix with rows for each subject.}
   \item{FPD}{Whether to yield the usual predictions or marginal predictions
     calculated by the partial dependence function.}
-  \item{hazard}{By default, only the survival function is estimated;
-    however, with \code{TRUE}, you can request the hazard as well.}
+  %% \item{hazard}{By default, only the survival function is estimated;
+  %%   however, with \code{TRUE}, you can request the hazard as well.}
   \item{probs}{A vector of length two containing the
     lower and upper quantiles to be calculated for the predictions.}
   \item{take.logs}{Whether or not to take logarithms.}
