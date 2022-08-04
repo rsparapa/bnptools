@@ -11,7 +11,7 @@ Changes and New Features in 1.4 (2022-08-03):
         * predict produces draws from the predictive distribution of log t
 	  to facilitate C index calculations
 
-	* predict.aftree now provided for producing survival/hazard
+	* predict.aftree provided for producing survival/pdf/hazard
 	  function estimates (or their Friedman's partial dependence 
           estimates if requested) for AFT BART like predict.nft does 
 	  for NFT BART
@@ -24,6 +24,8 @@ Changes and New Features in 1.4 (2022-08-03):
 	  tsvs for the same X matrix and tsvs2 for two different matrices
 
 	* new function bMM() to replace the deprecated bartModelMatrix()
+
+	* new function Cindex() to compute Harrell's C-index
 
 Changes and New Features in 1.3 (2022-03-26):
 	* Trap error code returned from rcat
