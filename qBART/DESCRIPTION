@@ -8,3 +8,5 @@ Description: One paragraph description of what the package does as one or more f
 License: GPL (>= 2)
 Imports: Rcpp (>= 1.0.1), BART3, parallel, tools, flexsurvcure
 LinkingTo: Rcpp, BART3
+Depends: 
+    R (>= 2.10)
