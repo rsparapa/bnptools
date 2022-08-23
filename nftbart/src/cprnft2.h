@@ -3,7 +3,7 @@
  *                         Hugh A. Chipman and Rodney A. Sparapani
  *  
  * This file is part of nftbart.
- * cprnft.h
+ * cprnft2.h
  *
  * nftbart is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,20 +48,12 @@
 #include "tree.h"
 */
 
-typedef std::vector<tree> vtree;
-
-#ifdef _OPENMP
-void local_getpred(size_t nd, size_t p, size_t m, size_t np, xinfo& xi, 
-std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat);
-#endif
-
-void getpred(int beg, int end, size_t p, size_t m, size_t np, xinfo& xi, 
-	     std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat);
-
-RcppExport SEXP cprnft(
+RcppExport SEXP cprnft2(
    SEXP _itrees,		//treedraws list from fbart
-   SEXP _ix,			//x matrix to predict at
-   SEXP _ixi,
+   SEXP _ixf,			
+   SEXP _ixs,			
+   SEXP _ixif,			
+   SEXP _ixis,			
    SEXP _itc			//thread count
    //SEXP _idraws
 )
@@ -79,28 +71,28 @@ RcppExport SEXP cprnft(
    std::string ftv(ftrees[0]);
    std::stringstream ftss(ftv);
 
-   size_t nd,m,mh,p;
-   ftss >> nd >> m >> p;
+   size_t nd,m,mh,pf,ps;
+   ftss >> nd >> m >> pf;
    COUT << "number of bart draws: " << nd << endl;
    COUT << "number of trees in f: " << m << endl;
-   COUT << "number of x columns: " << p << endl;
+   COUT << "number of x columns: " << pf << endl;
    //--------------------------------------------------
    //process cutpoints (from trees)
-   Rcpp::List  ixi(_ixi);
    //Rcpp::List  ixi(Rcpp::wrap(trees["xicuts"]));
-   size_t pp = ixi.size();
-   if(p!=pp) COUT << "WARNING: p from trees and p from x don't agree\n";
-   xinfo xi;
-   xi.resize(p);
-   for(size_t i=0;i<p;i++) {
-      Rcpp::NumericVector cutv(ixi[i]);
-      xi[i].resize(cutv.size());
-      std::copy(cutv.begin(),cutv.end(),xi[i].begin());
+   Rcpp::List ixif(_ixif);
+   size_t _pf = ixif.size();
+   if(pf!=_pf) COUT << "WARNING: pf from trees and xi don't agree\n";
+   xinfo xif;
+   xif.resize(pf);
+   for(size_t i=0;i<pf;i++) {
+      Rcpp::NumericVector cutv(ixif[i]);
+      xif[i].resize(cutv.size());
+      std::copy(cutv.begin(),cutv.end(),xif[i].begin());
    }
    //--------------------------------------------------
    //process x
-   Rcpp::NumericMatrix xpred(_ix);
-   size_t np = xpred.ncol();
+   Rcpp::NumericMatrix xfpred(_ixf), xspred(_ixs);
+   size_t np = xfpred.ncol();
    //COUT << "from x,np,p: " << xpred.nrow() << ", " << xpred.ncol() << endl;
    //--------------------------------------------------
    //read in trees
@@ -114,20 +106,20 @@ RcppExport SEXP cprnft(
 
    Rcpp::NumericMatrix fhat(nd,np);
    std::fill(fhat.begin(), fhat.end(), 0.);
-   double *px = &xpred(0,0);
+   double *xfp = &xfpred(0,0);
 
    #ifndef _OPENMP
    tc=1;
    #endif
    if(tc==1) {
      COUT << "***using serial code\n"; 
-     getpred(0, nd-1, p, m,  np,  xi,  fmat, px,  fhat);
+     getpred(0, nd-1, pf, m,  np,  xif,  fmat, xfp,  fhat);
    }
    #ifdef _OPENMP
    else {
       COUT << "***using parallel code\n";
 #pragma omp parallel num_threads(tc)
-      local_getpred(nd,p,m, np,xi,fmat,px,fhat);
+      local_getpred(nd,pf,m, np,xif,fmat,xfp,fhat);
    }
    #endif
 
@@ -140,11 +132,21 @@ RcppExport SEXP cprnft(
    std::string stv(strees[0]);
    std::stringstream stss(stv);
 
-   stss >> nd >> mh >> p;
+   stss >> nd >> mh >> ps;
    COUT << "number of bart draws: " << nd << endl;
    COUT << "number of trees in s: " << mh << endl;
-   COUT << "number of x columns: " << p << endl;
+   COUT << "number of x columns: " << ps << endl;
    //--------------------------------------------------
+   Rcpp::List ixis(_ixis);
+   size_t _ps = ixis.size();
+   if(ps!=_ps) COUT << "WARNING: ps from trees and xi don't agree\n";
+   xinfo xis;
+   xis.resize(ps);
+   for(size_t i=0;i<ps;i++) {
+      Rcpp::NumericVector cutv(ixis[i]);
+      xis[i].resize(cutv.size());
+      std::copy(cutv.begin(),cutv.end(),xis[i].begin());
+   }
    //read in trees
    std::vector<vtree> smat(nd);
    for(size_t i=0;i<nd;i++) {
@@ -156,16 +158,17 @@ RcppExport SEXP cprnft(
 
    Rcpp::NumericMatrix shat(nd,np);
    std::fill(shat.begin(), shat.end(), 0.);
+   double *xsp = &xfpred(0,0);
 
    if(tc==1) {
      COUT << "***using serial code\n"; 
-     getpred(0, nd-1, p, mh, np,  xi,  smat, px,  shat);
+     getpred(0, nd-1, ps, mh, np,  xis,  smat, xsp,  shat);
    }
    #ifdef _OPENMP
    else {
       COUT << "***using parallel code\n";
 #pragma omp parallel num_threads(tc)
-      local_getpred(nd,p,mh,np,xi,smat,px,shat);
+      local_getpred(nd,ps,mh,np,xis,smat,xsp,shat);
    }
    #endif
 
@@ -174,27 +177,3 @@ RcppExport SEXP cprnft(
    return ret;
 }
 
-void getpred(int beg, int end, size_t p, size_t m, size_t np, xinfo& xi, std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat)
-{
-   double *fptemp = new double[np];
-
-   for(int i=beg;i<=end;i++) {
-      for(size_t j=0;j<m;j++) {
-         fit(tmat[i][j],xi,p,np,px,fptemp);
-         for(size_t k=0;k<np;k++) yhat(i,k) += fptemp[k];
-      }
-   }
-
-   delete [] fptemp;
-}
-#ifdef _OPENMP
-void local_getpred(size_t nd, size_t p, size_t m, size_t np, xinfo& xi, 
-std::vector<vtree>& tmat, double *px, Rcpp::NumericMatrix& yhat)
-{
-   int my_rank = omp_get_thread_num();
-   int thread_count = omp_get_num_threads();
-   int h = nd/thread_count; int beg = my_rank*h; int end = beg+h-1;
-   
-   getpred(beg,end,p,m,np,xi,tmat,px,yhat);
-}
-#endif

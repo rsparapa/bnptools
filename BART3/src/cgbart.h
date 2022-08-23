@@ -48,7 +48,7 @@ RcppExport SEXP cgbart(
    SEXP _isigest,
    SEXP _iw,
 //   SEXP _treeinit,
-   SEXP _itrees,
+//   SEXP _itrees,
    SEXP _idart,         //dart prior: true(1)=yes, false(0)=no
    SEXP _itheta,
    SEXP _iomega,

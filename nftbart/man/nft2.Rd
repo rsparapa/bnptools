@@ -1,28 +1,32 @@
-\name{nft}
-\alias{nft}
+\name{nft2}
+\alias{nft2}
 \title{Fit NFT BART models.}
 \description{
-  The \code{nft()} function is for fitting
+  The \code{nft2()} function is for fitting
   NFT BART (Nonparametric Failure Time
-  Bayesian Additive Regression Tree) models. 
+  Bayesian Additive Regression Tree) models
+  with different train/test matrices for
+  \eqn{f} and \eqn{s} functions. 
 }
 \usage{
-nft(
+nft2(
     ## data
-    x.train, times, delta=NULL, x.test=matrix(nrow=0, ncol=0),
+    xftrain, xstrain, times, delta=NULL,
+    xftest=matrix(nrow=0, ncol=0),
+    xstest=matrix(nrow=0, ncol=0),
     rm.const=TRUE, rm.dupe=TRUE,
-    impute.bin=NULL, impute.prob=NULL,
     ## multi-threading
     tc=getOption("mc.cores", 1), 
     ##MCMC
     nskip=1000, ndpost=2000, nadapt=1000, adaptevery=100,
-    chv=NULL,
+    chvf=NULL, chvs=NULL,
     method="spearman", use="pairwise.complete.obs",
     pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
     stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
     minnumbot=c(5, 5),
     ## BART and HBART prior parameters
-    ntree=c(50, 10), numcut=100, xicuts=NULL,
+    ntree=c(50, 10), numcut=100, 
+    xifcuts=NULL, xiscuts=NULL,
     power=c(2, 2), base=c(0.95, 0.95),
     ## f function
     k=5, sigmaf=NA, dist='weibull', 
@@ -43,22 +47,23 @@ nft(
 
 }
 \arguments{
-  \item{x.train}{nxp matrix of predictor variables for the training data.}
-  \item{times}{nx1 vector of the observed times for the training data.}
-  \item{delta}{nx1 vector of the time type for the training data:
+  \item{xftrain}{n x pf matrix of predictor variables for the training data.}
+  \item{xstrain}{n x ps matrix of predictor variables for the training data.}
+  \item{times}{n x 1 vector of the observed times for the training data.}
+  \item{delta}{n x 1 vector of the time type for the training data:
   0, for right-censoring; 1, for an event; and, 2, for left-censoring.}
-\item{x.test}{mxp matrix of predictor variables for the test set.}
-  \item{impute.bin}{Indices of the columns of \code{x.train} to be imputed.}
-  \item{impute.prob}{nx1 vector of prior probabilities for imputation.}
+\item{xftest}{m x pf matrix of predictor variables for the test set.}
+\item{xstest}{m x ps matrix of predictor variables for the test set.}
+  %\item{impute.bin}{Indices of the columns of \code{x.train} to be imputed.}
+  %\item{impute.prob}{nx1 vector of prior probabilities for imputation.}
       \item{rm.const}{To remove constant variables or not.}
-  \item{rm.dupe}{To remove duplicate variables or not.}
+    \item{rm.dupe}{To remove duplicate variables or not.}
   \item{tc}{Number of OpenMP threads to use.}
   \item{nskip}{Number of MCMC iterations to burn-in and discard.}
   \item{ndpost}{Number of MCMC iterations kept after burn-in.}
   \item{nadapt}{Number of MCMC iterations for adaptation prior to burn-in.}
-  \item{adaptevery}{Adapt MCMC proposal distributions every
-    \code{adaptevery} iteration.}
-  \item{chv}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
+  \item{adaptevery}{Adapt MCMC proposal distributions every \code{adaptevery} iteration.}
+    \item{chvf,chvs}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
   \item{method,use}{Correlation options for change-of-variable proposal
     pre-conditioner.}
   \item{pbd}{Probability of performing a birth/death proposal, otherwise perform a rotate proposal.}
@@ -69,7 +74,7 @@ nft(
   \item{ntree}{Vector of length two for the number of trees used for the mean
     model and the number of trees used for the variance model.}
   \item{numcut}{Number of cutpoints to use for each predictor variable.}
-  \item{xicuts}{More detailed construction of cut-points can be specified
+  \item{xifcuts,xiscuts}{More detailed construction of cut-points can be specified
     by the \code{xicuts} function and provided here.}
   \item{power}{Power parameter in the tree depth penalizing prior.}
   \item{base}{Base parameter in the tree depth penalizing prior.}
@@ -112,13 +117,13 @@ nft(
   \item{probs}{Value to be passed to the \code{predict} function.}
   \item{printevery}{Outputs MCMC algorithm status every printevery
     iterations.}
-    \item{transposed}{Specify \code{TRUE} if all of the pre-processing for
-    \code{x.train/x.test} has been conducted prior to the call (including
+  \item{transposed}{Specify \code{TRUE} if all of the pre-processing for
+    \code{xftrain/xstrain/xftest/xstest} has been conducted prior to the call (including
     tranposing).}
 }
 
 \details{
-  \code{nft()} is the function to fit time-to-event data.  The most general form of the model allowed is
+  \code{nft2()} is the function to fit time-to-event data.  The most general form of the model allowed is
   \eqn{Y({\bf x})=mu+f({\bf x})+s({\bf x})Z}{Y(x)=mu+f(x)+s(x)E}
   where \eqn{E} follows a nonparametric error distribution
   by default.
@@ -130,8 +135,8 @@ nft(
   %% For a BART model, set \code{pbd=c(0.7,0.0)} and \code{ntreeh=1}.  This forces a scalar (homoscedastic) variance term.
   %% For a single-tree model, set \code{pbd=(0.7,0.0)}, \code{ntreeh=1} and \code{ntree=1}. This forces the mean component to be modeled using only one tree.
   %% The heteroscedastic BART model is the default.
-The \code{nft()} function returns a fit object of S3 class type
-  \code{nft} that is essentially a list containing the following items.
+The \code{nft2()} function returns a fit object of S3 class type
+  \code{nft2} that is essentially a list containing the following items.
 }
 \value{
   %%\item{res}{Model fit object of S3 class \code{nft} that is
@@ -225,7 +230,7 @@ matrices with \code{ndpost} rows and \eqn{p} columns.}
 Rodney Sparapani: \email{rsparapa@mcw.edu}
 }
 \seealso{
-\code{\link{predict.nft}}
+\code{\link{predict.nft2}}
 }
 \examples{
 
@@ -249,19 +254,19 @@ x.train=cbind(lung[ , -(1:3)])
 ## lung$sex:        Male=1 Female=2
 
 ## token run just to test installation
-post=nft(x.train, times, delta, K=0,
+post=nft2(x.train, x.train, times, delta, K=0,
          nskip=0, ndpost=10, nadapt=4, adaptevery=1)
 
 \donttest{
 set.seed(99)
-post=nft(x.train, times, delta, K=0)
+post=nft2(x.train, x.train, times, delta, K=0)
 XPtr=TRUE
 
 x.test = rbind(x.train, x.train)
 x.test[ , 2]=rep(1:2, each=N)
 K=75
 events=seq(0, 150, length.out=K+1)
-pred = predict(post, x.test, K=K, events=events[-1],
+pred = predict(post, x.test, x.test, K=K, events=events[-1],
                XPtr=XPtr, FPD=TRUE)
 
 plot(events, c(1, pred$surv.fpd.mean[1:K]), type='l', col=4,

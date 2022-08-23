@@ -16,11 +16,11 @@
             ## data
             object,
             ## predictions
-            events,
+            events=NULL,
             FPD=FALSE,
-            hazard=FALSE,
             probs=c(0.025, 0.975),
             take.logs=TRUE,
+            seed=NULL,
             ## default settings
             ndpost=nrow(object$mix.prop),
             nclust=ncol(object$mix.prop),
@@ -33,11 +33,13 @@
     can be a matrix with rows for each subject.}
   \item{FPD}{Whether to yield the usual predictions or marginal predictions
     calculated by the partial dependence function.}
-  \item{hazard}{By default, only the survival function is estimated;
-    however, with \code{TRUE}, you can request the hazard as well.}
+  %% \item{hazard}{By default, only the survival function is estimated;
+  %%   however, with \code{TRUE}, you can request the hazard as well.}
   \item{probs}{A vector of length two containing the
     lower and upper quantiles to be calculated for the predictions.}
   \item{take.logs}{Whether or not to take logarithms.}
+    \item{seed}{If provided, then this value is used to generate random
+    natural logarithms of event times from the predictive distribution.}
   \item{ndpost}{The number of MCMC samples generated.}
   \item{nclust}{The number of DPM clusters generated.}
    \item{...}{The et cetera objects passed to the \code{predict} method.

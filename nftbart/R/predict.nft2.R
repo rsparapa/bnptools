@@ -1,7 +1,7 @@
 ## Copyright (C) 2021-2022 Rodney A. Sparapani
 
 ## This file is part of nftbart.
-## predict.nft.R
+## predict.nft2.R
 
 ## nftbart is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,10 +19,11 @@
 ## Author contact information
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
-predict.nft = function(
+predict.nft2 = function(
                        ## data
                        object,
-                       x.test=object$x.train,
+                       xftest=object$xftrain,
+                       xstest=object$xstrain,
                        ## multi-threading
                        tc=getOption("mc.cores", 1), ##OpenMP thread count
                        ## current process fit vs. previous process fit
@@ -45,17 +46,22 @@ predict.nft = function(
                        ## etc.
                        ...)
 {
+    if(is.null(object)) stop("No fitted model specified!\n")
+    np = nrow(xftest)
+    if(np!=nrow(xstest))
+        stop('The number of rows in xftest and xstest must be the same')
     ptm <- proc.time()
+    xftest = t(xftest)
+    xstest = t(xstest)
     ndpost=object$ndpost
     m=object$ntree[1]
     if(length(object$ntree)==2) mh=object$ntree[2]
     else mh=object$ntreeh
-    xi=object$xicuts
-    n = nrow(object$x.train)
-    p = ncol(object$x.train)
-    np = nrow(x.test)
-    xp = t(x.test)
-    if(is.null(object)) stop("No fitted model specified!\n")
+    xif=object$xifcuts
+    xis=object$xiscuts
+    n = nrow(object$xftrain)
+    pf = ncol(object$xftrain)
+    ps = ncol(object$xstrain)
     events.matrix=FALSE
     
     if(length(K)==0) {
@@ -92,12 +98,12 @@ predict.nft = function(
     q.upper=max(probs)
 
     if(XPtr) {
-        res=.Call("cpsambrt_predict",
-                  xp,
+        res=.Call("cpsambrt_predict2",
+                  xftest, xstest,
                   m,
                   mh,
                   ndpost,
-                  xi,
+                  xif, xis,
                   tc,
                   object,
                   PACKAGE="nftbart"
@@ -122,10 +128,10 @@ predict.nft = function(
     }
 
     if(np>0) {
-        res.=.Call("cprnft",
+        res.=.Call("cprnft2",
                    object,
-                   xp,
-                   xi,
+                   xftest, xstest,
+                   xif, xis,
                    tc,
                    PACKAGE="nftbart"
                    )
@@ -266,10 +272,10 @@ predict.nft = function(
                 res$surv.fpd.upper=
                     apply(cbind(res$surv.fpd), 2, quantile, probs=q.upper)
                 res$haz.fpd=cbind(res$pdf.fpd/res$surv.fpd)
-                res$haz.fpd.mean =apply(cbind(res$haz.fpd), 2, mean)
-                res$haz.fpd.lower=
+                    res$haz.fpd.mean =apply(cbind(res$haz.fpd), 2, mean)
+                    res$haz.fpd.lower=
                         apply(cbind(res$haz.fpd), 2, quantile, probs=q.lower)
-                res$haz.fpd.upper=
+                    res$haz.fpd.upper=
                         apply(cbind(res$haz.fpd), 2, quantile, probs=q.upper)
                 res$pdf.fpd.mean =apply(cbind(res$pdf.fpd), 2, mean)
                 if(K==1) {
@@ -280,7 +286,7 @@ predict.nft = function(
                 }
             } else if(drawDPM>0) {
                 res$surv.test=matrix(0, nrow=nd, ncol=np*K)
-                res$pdf.test=matrix(0, nrow=nd, ncol=np*K)
+                res$pdf.test =matrix(0, nrow=nd, ncol=np*K)
                 ##res$aft.test=matrix(0, nrow=nd, ncol=np*K)
                 H=ncol(object$dpwt.)
                 ##H=max(c(object$dpn.))
@@ -323,20 +329,29 @@ predict.nft = function(
                                     dnorm(z, mu.+sd.*object$dpmu.[ , h],
                                       sd.*object$dpsd.[ , h])/
                                     (t*sd.*object$dpsd.[ , h])
-                            ## if(hazard)
-                            ##     res$haz.test[ , k]=res$haz.test[ , k]+
-                            ##     object$dpwt.[ , h]*
-                            ##         dnorm(z, mu.+sd.*object$dpmu.[ , h],
-                            ##           sd.*object$dpsd.[ , h])/
-                            ##         (t*sd.*object$dpsd.[ , h]*
-                            ##     pnorm(z, mu.+sd.*object$dpmu.[ , h],
-                            ##           sd.*object$dpsd.[ , h], FALSE))
+                            ## res$aft.test[ , k]=res$aft.test[ , k]+
+                            ##     object$dpwt.[ , h]*(
+                            ##         dnorm(events.[j], mu.+sd0*object$dpmu.[ , h], sd0)/
+                            ##         (exp(events.[j])*sd0))/
+                            ##     pnorm(events.[j], mu.+sd0*object$dpmu.[ , h], sd0, FALSE)
+                            ## else
+                            ##     res$surv.test[ , k]=res$surv.test[ , k]+
+                            ##         object$dpwt.[ , h]*
+                            ##         pnorm(events.[j],
+                            ##               mu.+object$dpmu.[ , h],
+                            ##               object$sigma, FALSE)
                         }
+                        ## if(hazard)
+                        ##     for(h in 1:H)
+                        ##         res$haz.test[ , k]=res$haz.test[ , k]+
+                        ##         (object$dpwt.[ , h]*dnorm(z, mu.+sd.*object$dpmu.[ , h],
+                        ##                                   sd.*object$dpsd.[ , h])/
+                        ##             (t*sd.*object$dpsd.[ , h]*res$surv.test[ , k]))
                     }
                 }
                 res$surv.test.mean=apply(res$surv.test, 2, mean)
-                res$pdf.test.mean =apply(res$pdf.test, 2, mean)
-                res$haz.test = res$pdf.test/res$surv.test
+                res$pdf.test.mean=apply(res$pdf.test, 2, mean)
+                res$haz.test=res$pdf.test/res$surv.test
                 res$haz.test.mean =apply(res$haz.test, 2, mean)
                 ## res$aft.test.mean =apply(res$aft.test, 2, mean)
                 ## res$aft.sd = sd0

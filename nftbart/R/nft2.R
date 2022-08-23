@@ -1,7 +1,7 @@
-## Copyright (C) 2021-2022 Rodney A. Sparapani
+## Copyright (C) 2022 Rodney A. Sparapani
 
 ## This file is part of nftbart.
-## nft.R
+## nft2.R
 
 ## nftbart is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,32 +19,32 @@
 ## Author contact information
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
-nft = function(## data
-               x.train, times, delta=NULL, 
-               x.test=matrix(nrow=0, ncol=0),
+nft2 = function(## data
+               xftrain, xstrain, times, delta=NULL, 
+               xftest=matrix(nrow=0, ncol=0),
+               xstest=matrix(nrow=0, ncol=0),
                rm.const=TRUE, rm.dupe=TRUE,
-               impute.bin=NULL, impute.prob=NULL,
+               ##impute.bin=NULL, impute.prob=NULL,
                ## multi-threading
                tc=getOption("mc.cores", 1), ##OpenMP thread count
                ##MCMC
                nskip=1000, ndpost=2000, 
-               nadapt=1000, adaptevery=100,
-               chv = NULL,
+               nadapt=1000, adaptevery=100, 
+               chvf = NULL, chvs = NULL,
                method="spearman", use="pairwise.complete.obs",
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
                minnumbot=c(5, 5),
                ## BART and HBART prior parameters
-               ntree=c(50, 10), numcut=100, xicuts=NULL,
+               ntree=c(50, 10), numcut=100,
+               xifcuts=NULL, xiscuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
-               k=5, sigmaf=NA,
-               dist='weibull', 
+               k=5, sigmaf=NA, dist='weibull', 
                ## s function
                sigmav=NULL, total.lambda=NA, total.nu=10, mask=NULL,
                ## survival analysis 
                K=100, events=NULL, TSVS=FALSE,
-               ##impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
                ## DPM LIO
                drawDPM=1L, 
                alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
@@ -62,34 +62,61 @@ nft = function(## data
     if(length(sigmav)==0) sigmav=rep(1, n)
 
     if(!transposed) {
-        np=nrow(x.test)
+        xftrain=cbind(xftrain)
+        if(n!=nrow(xftrain))
+            stop('The number of times and rows in xftrain must be the same')
+        xstrain=cbind(xstrain)
+        if(n!=nrow(xstrain))
+            stop('The number of times and rows in xstrain must be the same')
+
+        xftest=cbind(xftest)
+        np=nrow(xftest)
+        xstest=cbind(xstest)
+        if(np!=nrow(xstest))
+            stop('The number of rows in xftest and xstest must be the same')
+
         if(np>0) {
-            x.=bMM(rbind(x.train, x.test), numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+            xf.=bMM(rbind(xftrain, xftest), numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
                    method=method, use=use)
-            x =cbind(x.$X[1:n, ])
-            xp=cbind(x.$X[n+(1:np), ])
+            xftrain=cbind(xf.$X[1:n, ])
+            xftest =cbind(xf.$X[n+(1:np), ])
+            xs.=bMM(rbind(xstrain, xstest), numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+                   method=method, use=use)
+            xstrain=cbind(xs.$X[1:n, ])
+            xstest =cbind(xs.$X[n+(1:np), ])
         } else {
-            x.=bMM(x.train, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+            xf.=bMM(xftrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
                    method=method, use=use)
-            x=x.$X
-            xp=x.test
+            xftrain=xf.$X
+            xs.=bMM(xstrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
+                   method=method, use=use)
+            xstrain=xs.$X
         }
-        xicuts=x.$xicuts
-        chv = x.$chv
-        impute=CDimpute(x.train=cbind(x),
-                        x.test=cbind(xp),
-                        impute.bin=impute.bin)
-        x=t(impute$x.train)
-        xp=t(impute$x.test)
+        xifcuts=xf.$xicuts
+        xiscuts=xs.$xicuts
+        chvf = xf.$chv
+        chvs = xs.$chv
+        
+        impute=CDimpute(x.train=xftrain, x.test=xftest)
+        xftrain=t(impute$x.train)
+        xftest=t(impute$x.test)
+        impute=CDimpute(x.train=xstrain, x.test=xstest)
+        xstrain=t(impute$x.train)
+        xstest=t(impute$x.test)
         transposed=TRUE
     } else {
-        x =x.train
-        xp=x.test
-        np=ncol(xp)
-        if(length(chv)==0) chv=cor(t(x), use=use, method=method)
-        if(length(xicuts)==0) 
-            xicuts=xicuts(x, transposed=transposed, numcut=numcut)
+        np=ncol(xftest)
+        if(length(chvf)==0) chvf = cor(t(xftrain), method=method, use=use)
+        if(length(chvs)==0) chvs = cor(t(xstrain), method=method, use=use)
+
+        if(length(xifcuts)==0) 
+            xifcuts=xicuts(xftrain, transposed=transposed, numcut=numcut)
+        if(length(xiscuts)==0) 
+            xiscuts=xicuts(xstrain, transposed=transposed, numcut=numcut)
     }
+    
+    pf=nrow(xftrain)
+    ps=nrow(xstrain)
 
     take.logs = (dist!='extreme')
     if(length(events)==0 && K>0) {
@@ -101,12 +128,8 @@ nft = function(## data
     burn=nskip
     nd=ndpost
     nc=numcut
-    
-    p=nrow(x)
-    ##np=ncol(xp)
 
-    df = data.frame(times, delta, t(x))
-    ##type='interval' not supported by survreg
+    df = data.frame(times, delta)
     aft = survreg(Surv(time=times, event=delta)~1,
                   data=subset(df, delta<2), dist=dist)
 
@@ -121,7 +144,6 @@ nft = function(## data
     }
 
     if(is.na(total.lambda)) total.lambda = (aft$scale^2)
-        ##total.lambda = (aft$scale^2)*qchisq(1-total.q, total.nu)/total.nu
 
     ## tau
     if(is.na(sigmaf)) {
@@ -145,60 +167,30 @@ nft = function(## data
                k0=k0, b0=b0, k0.draw=k0.draw, b0.draw=b0.draw)
     }
 
-    check = length(impute.bin)
-    if(!(check %in% 0:1))
-        stop("The number of imputed binomial columns must be 0 or 1")
-    if(check==1) {
-        impute.flag=TRUE
-        if(length(impute.prob)==0) {
-            impute.prob=x[impute.bin, ] ## transposed
-            impute.prob[is.na(impute.prob)]=
-                mean(x[impute.bin, ]==1, na.rm = TRUE) ## transposed
-        }
-        impute.bin=as.integer(impute.bin-1) ## convert from R index to C/C++
-    } else {
-        impute.flag=FALSE
-        impute.bin=-1
-        impute.prob=0
-    }
-
-    ## check = length(impute.mult)
-    ## if(check==1)
-    ##     stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
-    ## if(check>1) {
+    ## check = length(impute.bin)
+    ## if(!(check %in% 0:1))
+    ##     stop("The number of imputed binomial columns must be 0 or 1")
+    ## if(check==1) {
     ##     impute.flag=TRUE
-    ##     if(length(impute.miss)==0) {
-    ##         impute.miss=integer(n)
-    ##         for(j in 1:check) {
-    ##             i=impute.mult[j]
-    ##             impute.miss = pmax(impute.miss, is.na(x[i, ])) ## transposed
-    ##         }
-    ##     }
     ##     if(length(impute.prob)==0) {
-    ##         impute.prob=double(check)
-    ##         for(j in 1:check) {
-    ##             i=impute.mult[j]
-    ##             impute.prob[j]=sum(x[i, ]==1, na.rm = TRUE) ## transposed
-    ##         }
-    ##         impute.prob=impute.prob/sum(impute.prob)
-    ##         impute.prob=matrix(impute.prob,
-    ##                            nrow=n, ncol=check, byrow=TRUE)
+    ##         impute.prob=x[impute.bin, ] ## transposed
+    ##         impute.prob[is.na(impute.prob)]=
+    ##             mean(x[impute.bin, ]==1, na.rm = TRUE) ## transposed
     ##     }
-    ##     impute.mult=as.integer(impute.mult-1) ## convert from R index to C/C++
+    ##     impute.bin=as.integer(impute.bin-1) ## convert from R index to C/C++
     ## } else {
     ##     impute.flag=FALSE
-    ##     impute.mult=integer(0) ## integer vector of column indicators for missing covariates
-    ##     impute.miss=integer(0) ## integer vector of row indicators for missing values
-    ##     impute.prob=matrix(nrow=0, ncol=0)
+    ##     impute.bin=-1
+    ##     impute.prob=0
     ## }
 
     ptm <- proc.time()
 
-    res=.Call("cnft",
-              x,
+    res=.Call("cnft2",
+              xftrain, xstrain,
               y,
               as.integer(delta),
-              xp,
+              xftest, xstest,
               c(ntree[1], ntree[2]),
               nd,
               burn,
@@ -211,25 +203,23 @@ nft = function(## data
               power,
               tc,
               sigmav,
-              chv,
+              chvf,
+              chvs,
               pbd,
               pb,
               stepwpert,
               probchv,
               minnumbot,
               printevery,
-              xicuts,
+              xifcuts, xiscuts,
               ##summarystats,
               ##alphao, betao,
               ##mstart, sstart,
               hyper, C, states, phi, prior,
               ##draws,
               drawDPM,
-              impute.bin,
-              impute.prob,
-              ## impute.mult,
-              ## impute.miss,
-              ## impute.prob,
+              ##impute.bin,
+              ##impute.prob,
               PACKAGE="nftbart")
 
     ## res$elapsed <- (proc.time()-ptm)['elapsed']
@@ -259,22 +249,22 @@ if(K>0) {
     } else s.train.mask=1:nd 
     s.train.burn=c(1:burn, s.train.mask)
 
-    summarystats=(ndpost>=2)
+        summarystats=(ndpost>=2)
     if(summarystats) {
         res$f.varcount[2:ndpost, ]=cbind(res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ])
         res$f.varcount=cbind(res$f.varcount[s.train.mask, ])
-        dimnames(res$f.varcount)[[2]]=names(xicuts)
+        dimnames(res$f.varcount)[[2]]=names(xifcuts)
         res$f.varcount.mean=apply(res$f.varcount, 2, mean)
         res$f.varprob=res$f.varcount.mean/sum(res$f.varcount.mean)
         res$s.varcount[2:ndpost, ]=cbind(res$s.varcount[2:ndpost, ]-res$s.varcount[1:(ndpost-1), ])
         res$s.varcount=cbind(res$s.varcount[s.train.mask, ])
-        dimnames(res$s.varcount)[[2]]=names(xicuts)
+        dimnames(res$s.varcount)[[2]]=names(xiscuts)
         res$s.varcount.mean=apply(res$s.varcount, 2, mean)
         res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
     }
 
     if(TSVS) return(res)
-    
+   
     if(drawDPM>0) {
         res$dpalpha=res$dpalpha[s.train.mask]
         res$dpn=res$dpn[s.train.burn]
@@ -305,16 +295,19 @@ if(K>0) {
         res$f.test.mean=apply(res$f.test, 2, mean)
         res$s.test=res$s.test[s.train.mask, ]
         res$s.test.mean=apply(res$s.test, 2, mean)
-        res$x.test=t(xp)
+        res$xftest=t(xftest)
+        res$xstest=t(xstest)
     }
 
     res$times=times
     res$delta=delta
-    res$x.train=t(x)
+    res$xftrain=t(xftrain)
+    res$xstrain=t(xstrain)
     res$ntree=ntree[1]
     res$ntree[2]=ntree[2]
     res$ndpost=ndpost
-    res$xicuts=xicuts
+    res$xifcuts=xifcuts
+    res$xiscuts=xiscuts
     res$fmu = fmu
 
     if(drawDPM>0) {
@@ -342,21 +335,22 @@ if(K>0) {
         }
         
     }
-    attr(res, 'class') <- 'nft'
+    attr(res, 'class') <- 'nft2'
     
     mu. = res$dpmu*res$s.train+res$f.train
     sd. = res$dpsd*res$s.train
     ## cpo = 1/apply(1/dnorm(res$z.train, mu., sd.), 2, mean)
     ## res$lpml = sum(log(cpo))
     
-    z=matrix(log(times), nrow=nd, ncol=n, byrow=TRUE)
-    delta=matrix(delta, nrow=nd, ncol=n, byrow=TRUE)
-    tmp=(delta==2)*pnorm(z, mu., sd.)+(delta==0)*pnorm(z, mu., sd., FALSE)+
-        (delta==1)*dnorm(z, mu., sd.)
-    res$CPO = 1/apply(1/tmp, 2, mean)
-    res$LPML = sum(log(res$CPO))
+    ## z=matrix(log(times), nrow=nd, ncol=n, byrow=TRUE)
+    ## delta=matrix(delta, nrow=nd, ncol=n, byrow=TRUE)
+    ## tmp=(delta==2)*pnorm(z, mu., sd.)+(delta==0)*pnorm(z, mu., sd., FALSE)+
+    ##     (delta==1)*dnorm(z, mu., sd.)
+    ## res$CPO = 1/apply(1/tmp, 2, mean)
+    ## res$LPML = sum(log(res$CPO))
 
-    res$pred=predict(res, res$x.train, tc=tc, XPtr=FALSE,
+    ##return(res)
+    res$pred=predict(res, res$xftrain, res$xstrain, tc=tc, XPtr=FALSE,
                      soffset=0, probs=probs, na.rm=na.rm) 
     res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
                         mean(res$s.train.mean^2)) ## for stability

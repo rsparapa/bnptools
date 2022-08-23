@@ -1,16 +1,16 @@
-\name{bartModelMatrix}
-\alias{bartModelMatrix}
-\title{Deprecated: use bMM instead}
+\name{bMM}
+\alias{bMM}
+\title{Create a matrix out of a vector or data.frame}
 
-\description{Create a matrix out of a vector or \code{data.frame}. The
+\description{Adapted from \code{bartModelMatrix()}.  The
   compiled functions of this package operate on matrices in memory.
-  Therefore, if the user submits a vector or data.frame, then this
+  Therefore, if the user submits a vector or \code{data.frame}, then this
   function converts it to a matrix.  Also, it determines the number of
   cutpoints necessary for each column when asked to do so.  }
 
 \usage{
-bartModelMatrix(X, numcut=0L, usequants=FALSE, type=7, rm.const=FALSE,
-                cont=FALSE, xicuts=NULL, rm.vars=NULL)
+bMM(X, numcut=0L, usequants=FALSE, type=7, xicuts=NULL, rm.const=FALSE,
+    rm.dupe=FALSE, method="spearman", use="pairwise.complete.obs")
 }
 
 \arguments{
@@ -22,11 +22,14 @@ bartModelMatrix(X, numcut=0L, usequants=FALSE, type=7, rm.const=FALSE,
     cutpoints in \code{xinfo} are generated uniformly; otherwise,
     if \code{TRUE}, quantiles are used for the cutpoints. }
   \item{type}{ Determines which quantile algorithm is employed.}
-  \item{rm.const}{ Whether or not to remove constant variables.}
-  \item{cont}{ Whether or not to assume all variables are continuous.}
   \item{xicuts}{ To specify your own cut-points, use the \code{xicuts}
     argument.}
-  \item{rm.vars}{ The variables that you want removed. }
+    \item{rm.const}{To remove constant variables or not.}
+    \item{rm.dupe}{To remove duplicate variables or not.}
+% \item{rm.const}{ Whether or not to remove constant variables.}
+%  \item{cont}{ Whether or not to assume all variables are continuous.}
+  %\item{rm.vars}{ The variables that you want removed. }
+    \item{method,use}{Correlation options.}
 }
 
 \value{
@@ -45,32 +48,36 @@ If \code{numcut==0} (the default), then a matrix of the
   number in the vector corresponding to the number of output columns
   created for it. }
 
+\item{dummy}{Corresponds to \code{grp} with a two row matrix
+  including the start column of each dummy group in row 1
+  and the end column in row 2.}
+
 }
 
 \seealso{
-   \code{\link{bMM}}
+   \code{\link{xicuts}}
  }
 
  \examples{
 
-## set.seed(99)
+set.seed(99)
 
-## a <- rbinom(10, 4, 0.4)
+a <- rbinom(10, 4, 0.4)
 
-## table(a)
+table(a)
 
-## x <- runif(10)
+x <- runif(10)
 
-## df <- data.frame(a=factor(a), x=x)
+df <- data.frame(a=factor(a), x=x)
 
-## (b <- bartModelMatrix(df))
+(b <- bMM(df))
 
-## (b <- bartModelMatrix(df, numcut=9))
+(b <- bMM(df, numcut=9))
 
-## (b <- bartModelMatrix(df, numcut=9, usequants=TRUE))
+(b <- bMM(df, numcut=9, usequants=TRUE))
 
 \dontrun{
     ## this is an error
-    ## f <- bartModelMatrix(as.character(a))
+    f <- bMM(as.character(a))
 }
 }

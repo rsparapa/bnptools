@@ -265,7 +265,7 @@ gbart=function(
                 sigest,
                 w,
                 ##as.integer(treeinit),
-                trees,
+                ##trees,
                 sparse,
                 theta,
                 omega,
@@ -359,7 +359,7 @@ gbart=function(
     if(impute.flag) res$impute.miss = impute.miss
     res$rm.const <- rm.const
     res$ndpost = ndpost
-    res$trees = trees
+##    res$trees = trees
     res$grp = grp
     res$rho = rho
     res$chains = mc.cores
