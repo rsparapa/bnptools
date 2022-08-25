@@ -3,21 +3,16 @@ options(mc.cores=8)
 library(nftbart)
 library(lattice)
 
-##figures = getOption('figures', default='NONE')
-
 data(lung)
-str(lung)
 N=length(lung$status)
 
 ##lung$status: 1=censored, 2=dead
 ##delta: 0=censored, 1=dead
 delta=lung$status-1
-table(delta)
 
 ## this study reports time in days rather than weeks or months
 times=lung$time
 times=times/7  ## weeks
-summary(times)
 
 ## matrix of covariates
 x.train=cbind(lung[ , -c(1:3)])
@@ -28,7 +23,6 @@ dual =tsvs2(xftrain=x.train, xstrain=x.train, times=times, delta=delta)
 (names.=dimnames(x.train)[[2]])
 df=data.frame(steps=1:20, TSVS=rep(c('both', 'f', 'sd'), each=20))
 df=cbind(df, rbind(joint$prob, dual$probf, dual$probs))
-##df$TSVS=factor(df$TSVS)
 str(df)
 
 df.=data.frame(steps=df$steps, TSVS=df$TSVS, prob=df$age, x='age')
