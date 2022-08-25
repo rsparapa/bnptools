@@ -1,6 +1,6 @@
 
-Changes and New Features in 1.4 (2022-08-03):
-	* New option: mask unstable s(.) estimates to calculate soffset
+Changes and New Features in 1.4 (2022-09-25):
+	* New option: mask unstable sd(.) estimates to calculate soffset
 
 	* Use hardened DPM LIO variance prior setting
 
@@ -17,7 +17,7 @@ Changes and New Features in 1.4 (2022-08-03):
 	  for NFT BART
           also draws from the predictive distribution of log t (as above)
 	
-	* experimental support for differing X matrices for f and s
+	* experimental support for differing X matrices for f and sd
 	  see nft2 function
 
 	* Thompson Sampling Variable Selection functions
