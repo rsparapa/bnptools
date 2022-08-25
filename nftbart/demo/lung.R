@@ -23,6 +23,10 @@ summary(times)
 x.train=cbind(lung[ , -(1:3)])
 ## lung$sex:        Male=1 Female=2
 
+## x.train=rbind(x.train, x.train)
+## times=c(times, times)
+## delta=c(delta, delta)
+
 a=proc.time()
 file.='lung.rds'
 if(file.exists(file.)) {

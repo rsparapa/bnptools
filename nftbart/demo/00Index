@@ -1,2 +1,4 @@
-lung	   Adv. lung cancer example for survival analysis
+lung	   Adv. lung cancer example with nft()
+lung2	   Adv. lung cancer example with nft2()
+lungCindex	   Adv. lung cancer example with Cindex()
 TSVSlung	   Adv. lung cancer example with TSVS
