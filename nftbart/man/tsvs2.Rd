@@ -94,7 +94,7 @@ tsvs2(
   \item{total.lambda}{A rudimentary estimate of the process standard deviation. Used in calibrating the variance prior.}
   \item{total.nu}{Shape parameter for the variance prior.}
   \item{mask}{If a proportion is provided, then said quantile
-    of \code{max.i s(x.i)} is used to mask non-stationary
+    of \code{max.i sd(x.i)} is used to mask non-stationary
   departures (with respect to convergence) above this threshold.}
 %\item{K}{Number of grid points for which to estimate survival probability.}
 %\item{events}{Grid points for which to estimate survival probability.}
@@ -168,18 +168,15 @@ Rodney Sparapani: \email{rsparapa@mcw.edu}
 
 ##library(nftbart)
 data(lung)
-str(lung)
 N=length(lung$status)
 
 ##lung$status: 1=censored, 2=dead
 ##delta: 0=censored, 1=dead
 delta=lung$status-1
-table(delta)
 
 ## this study reports time in days rather than weeks or months
 times=lung$time
 times=times/7  ## weeks
-summary(times)
 
 ## matrix of covariates
 x.train=cbind(lung[ , -(1:3)])
