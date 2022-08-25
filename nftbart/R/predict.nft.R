@@ -156,15 +156,6 @@ predict.nft = function(
                                quantile,probs=q.upper,na.rm=na.rm)
         
         if(K>0) {
-            ## if(length(events)==0) {
-            ##     events <- unique(quantile(object$z.train.mean,
-            ##                               probs=(1:K)/(K+1)))
-            ##     attr(events, 'names') <- NULL
-            ## } else if(take.logs) events=log(events)
-            ## events.matrix=(class(events)[1]=='matrix')
-            ## if(events.matrix) K=ncol(events)
-            ## else K <- length(events)
-
             if(FPD) {
                 H=np/n
                 if(drawDPM>0) {
@@ -197,10 +188,6 @@ predict.nft = function(
                 
                 surv.fpd=list()
                 surv.test=list()
-                ## if(hazard) {
-                ##     haz.fpd =list()
-                ##     haz.test =list()
-                ## }
                 pdf.fpd =list()
                 pdf.test =list()
                 for(i in 1:H) {
@@ -209,10 +196,6 @@ predict.nft = function(
                         if(j==1) {
                             surv.fpd[[i]]=list()
                             surv.test[[i]]=list()
-                            ## if(hazard) {
-                            ##     haz.fpd[[i]] =list()
-                            ##     haz.test[[i]] =list()
-                            ## }
                             pdf.fpd[[i]] =list()
                             pdf.test[[i]] =list()
                         }
@@ -221,39 +204,26 @@ predict.nft = function(
                         surv.fpd[[i]][[j]]=
                             apply(matrix(pnorm(z, mu.[ , h], sd.[ , h], lower.tail=FALSE),
                                          nrow=nd, ncol=n), 1, mean)
-                        ## if(hazard)
-                        ##     haz.fpd[[i]][[j]]=
-                        ##     apply(matrix((dnorm(z, mu.[ , h], sd.[ , h])/(t*sd.[ , h]))
-                        ##                  /pnorm(z, mu.[ , h], sd.[ , h], lower.tail=FALSE),
-                        ##                  nrow=nd, ncol=n), 1, mean)
                         pdf.fpd[[i]][[j]]=
                             apply(matrix(dnorm(z, mu.[ , h], sd.[ , h])/(t*sd.[ , h]),
                                          nrow=nd, ncol=n), 1, mean)
                         if(i==1 && j==1) {
                             res$surv.fpd=cbind(surv.fpd[[1]][[1]])
-                            ##if(hazard) res$haz.fpd =cbind(haz.fpd[[1]][[1]])
                             res$pdf.fpd =cbind(pdf.fpd[[1]][[1]])
                         } else {
                             res$surv.fpd=cbind(res$surv.fpd, surv.fpd[[i]][[j]])
-                            ##if(hazard) res$haz.fpd =cbind(res$haz.fpd, haz.fpd[[i]][[j]])
                             res$pdf.fpd =cbind(res$pdf.fpd, pdf.fpd[[i]][[j]])
                         }
                         if(K==1) {
                             surv.test[[i]][[j]]=matrix(pnorm(z, mu.[ , h], sd.[ , h], lower.tail=FALSE),
                                                        nrow=nd, ncol=n)
-                            ## if(hazard)
-                            ##     haz.test[[i]][[j]] =matrix((dnorm(z, mu.[ , h], sd.[ , h])/(t*sd.[ , h]))/
-                            ##                               pnorm(z, mu.[ , h], sd.[ , h], lower.tail=FALSE),
-                            ##                            nrow=nd, ncol=n)
                             pdf.test[[i]][[j]] =matrix(dnorm(z, mu.[ , h], sd.[ , h])/(t*sd.[ , h]),
                                                        nrow=nd, ncol=n)
                             if(i==1 && j==1) {
                                 res$surv.test=cbind(surv.test[[1]][[1]])
-                                ##if(hazard) res$haz.test =cbind(haz.test[[1]][[1]])
                                 res$pdf.test =cbind(pdf.test[[1]][[1]])
                             } else {
                                 res$surv.test=cbind(res$surv.test, surv.test[[i]][[j]])
-                                ##if(hazard) res$haz.test =cbind(res$haz.test, haz.test[[i]][[j]])
                                 res$pdf.test =cbind(res$pdf.test, pdf.test[[i]][[j]])
                             }
                         }
@@ -280,40 +250,19 @@ predict.nft = function(
                 }
             } else if(drawDPM>0) {
                 res$surv.test=matrix(0, nrow=nd, ncol=np*K)
-                res$pdf.test=matrix(0, nrow=nd, ncol=np*K)
-                ##res$aft.test=matrix(0, nrow=nd, ncol=np*K)
+                res$pdf.test =matrix(0, nrow=nd, ncol=np*K)
                 H=ncol(object$dpwt.)
-                ##H=max(c(object$dpn.))
                 events.=events
-                ## draw.time=(length(seed)>0)
-                ## if(draw.time) {
-                ##     set.seed(seed)
-                ##     res$time.test=matrix(0, nrow=nd, ncol=np)
-                ## }
-                ## sd0=rep(0, nd)
-                ## sd.=apply(log(res$s.test), 1, mean)
-                ## for(h in 1:H) 
-                ##    sd0=sd0+object$dpwt.[ , h]*sd.*log(object$dpsd.[ , h])
-                ## sd0=exp(sd0)
                 
                 for(i in 1:np) {
                     if(events.matrix) events.=events[i, ]
                     mu.=res$f.test[ , i]
                     sd.=res$s.test[ , i]
-                    ## if(draw.time)
-                    ##     for(h in 1:H) {
-                    ##         res$time.test[ , i]=res$time.test[ , i]+
-                    ##             object$dpwt.[ , h]*
-                    ##             rnorm(nd, 
-                    ##                   mu.+sd.*object$dpmu.[ , h],
-                    ##                   sd.*object$dpsd.[ , h])
-                    ##     }
                     for(j in 1:K) {
                         k=(i-1)*K+j
                         z=events.[j]
                         t=exp(z)
                         for(h in 1:H) {
-                            ##if(draws)
                             res$surv.test[ , k]=res$surv.test[ , k]+
                                 object$dpwt.[ , h]*
                                 pnorm(z, mu.+sd.*object$dpmu.[ , h],
@@ -323,14 +272,6 @@ predict.nft = function(
                                     dnorm(z, mu.+sd.*object$dpmu.[ , h],
                                       sd.*object$dpsd.[ , h])/
                                     (t*sd.*object$dpsd.[ , h])
-                            ## if(hazard)
-                            ##     res$haz.test[ , k]=res$haz.test[ , k]+
-                            ##     object$dpwt.[ , h]*
-                            ##         dnorm(z, mu.+sd.*object$dpmu.[ , h],
-                            ##           sd.*object$dpsd.[ , h])/
-                            ##         (t*sd.*object$dpsd.[ , h]*
-                            ##     pnorm(z, mu.+sd.*object$dpmu.[ , h],
-                            ##           sd.*object$dpsd.[ , h], FALSE))
                         }
                     }
                 }
