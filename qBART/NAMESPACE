@@ -1,5 +1,5 @@
 useDynLib(qBART, .registration=TRUE)
-#exportPattern("^[[:alpha:]]+")
+##exportPattern("^[[:alpha:]]+")
 export(qbart, mc.qbart)
 export(tqbart)
 importFrom(Rcpp, evalCpp)
