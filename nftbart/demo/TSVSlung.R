@@ -40,7 +40,7 @@ xyplot(prob~steps|x, df., groups=TSVS, type='l', as.table=TRUE,
                ltext(19, df.$prob[df.$steps==20 & df.$TSVS=='both' &
                                   df.$x=='age'], 'both', pos=3)
                ltext(19, df.$prob[df.$steps==20 & df.$TSVS=='f' &
-                                  df.$x=='age'], 'f', pos=1)
+                                  df.$x=='age'], 'f')
                ltext(19, df.$prob[df.$steps==20 & df.$TSVS=='sd' &
                                   df.$x=='age'], 'sd', pos=3)
            }
