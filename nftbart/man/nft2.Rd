@@ -6,7 +6,7 @@
   NFT BART (Nonparametric Failure Time
   Bayesian Additive Regression Tree) models
   with different train/test matrices for
-  \eqn{f} and \eqn{s} functions. 
+  \eqn{f} and \eqn{sd} functions. 
 }
 \usage{
 nft2(
@@ -85,7 +85,7 @@ nft2(
   \item{total.lambda}{A rudimentary estimate of the process standard deviation. Used in calibrating the variance prior.}
   \item{total.nu}{Shape parameter for the variance prior.}
   \item{mask}{If a proportion is provided, then said quantile
-    of \code{max.i s(x.i)} is used to mask non-stationary
+    of \code{max.i sd(x.i)} is used to mask non-stationary
   departures (with respect to convergence) above this threshold.}
 \item{K}{Number of grid points for which to estimate survival probability.}
 \item{events}{Grid points for which to estimate survival probability.}
@@ -124,7 +124,7 @@ nft2(
 
 \details{
   \code{nft2()} is the function to fit time-to-event data.  The most general form of the model allowed is
-  \eqn{Y({\bf x})=mu+f({\bf x})+s({\bf x})Z}{Y(x)=mu+f(x)+s(x)E}
+  \eqn{Y({\bf x})=mu+f({\bf x})+sd({\bf x})Z}{Y(x)=mu+f(x)+sd(x)E}
   where \eqn{E} follows a nonparametric error distribution
   by default.
   %% \eqn{f({\bf x})=\sum_{j=1}^m g({\bf x};T_j,M_j)}{f(x)=sum g(x;T_j,M_j)} and
@@ -147,18 +147,18 @@ The \code{nft2()} function returns a fit object of S3 class type
     in the current R session. }
 
   \item{sts,sid,svar,sc,stheta}{Similarly, these are \code{XPtr}s to the
-    HBART \eqn{s(x)} objects.}
+    HBART \eqn{sd(x)} objects.}
 
   \item{fmu}{The constant \eqn{mu}.}
   
-  \item{f.train,s.train}{The trained \eqn{f(x)} and \eqn{s(x)}
+  \item{f.train,s.train}{The trained \eqn{f(x)} and \eqn{sd(x)}
   respectively: matrices with \code{ndpost} rows and \eqn{n} columns.}
 
   \item{f.train.mean,s.train.mean}{The posterior mean of the trained
-  \eqn{f(x)} and \eqn{s(x)} respectively: vectors of length \eqn{n}.}
+  \eqn{f(x)} and \eqn{sd(x)} respectively: vectors of length \eqn{n}.}
 
 \item{f.trees,s.trees}{Character strings representing the trained fits
-  of \eqn{f(x)} and \eqn{s(x)} respectively to facilitate usage of the
+  of \eqn{f(x)} and \eqn{sd(x)} respectively to facilitate usage of the
   \code{predict} function when \code{XPtr}s are unavailable.}
   
 \item{dpalpha}{The draws of the DPM concentration parameter
@@ -236,18 +236,15 @@ Rodney Sparapani: \email{rsparapa@mcw.edu}
 
 ##library(nftbart)
 data(lung)
-str(lung)
 N=length(lung$status)
 
 ##lung$status: 1=censored, 2=dead
 ##delta: 0=censored, 1=dead
 delta=lung$status-1
-table(delta)
 
 ## this study reports time in days rather than weeks or months
 times=lung$time
 times=times/7  ## weeks
-summary(times)
 
 ## matrix of covariates
 x.train=cbind(lung[ , -(1:3)])

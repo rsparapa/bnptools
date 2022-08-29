@@ -2,7 +2,7 @@ Package: nftbart
 Type: Package
 Title: Nonparametric Failure Time Bayesian Additive Regression Trees
 Version: 1.4
-Date: 2022-08-03
+Date: 2022-09-25
 Authors@R: c(person('Rodney', 'Sparapani', 
 	   role=c('aut', 'cre'), email='rsparapa@mcw.edu'),
 	   person('Robert', 'McCulloch', role='aut'),
@@ -13,7 +13,7 @@ Author: Rodney Sparapani [aut, cre],
   Matthew Pratola [ctb],
   Hugh Chipman [ctb]
 Maintainer: Rodney Sparapani <rsparapa@mcw.edu>
-Description: Nonparametric Failure Time (NFT) Bayesian Additive Regression Trees (BART): Time-to-event Machine Learning with Heteroskedastic Bayesian Additive Regression Trees (HBART) and Low Information Omnibus (LIO) Dirichlet Process Mixtures (DPM). An NFT BART model is of the form Y = mu + f(x) + s(x) E where functions f and s have BART and HBART priors, respectively, while E is a nonparametric error distribution due to a DPM LIO prior hierarchy. See the following for a technical description of the model <https://www.mcw.edu/-/media/MCW/Departments/Biostatistics/tr72.pdf?la=en>.
+Description: Nonparametric Failure Time (NFT) Bayesian Additive Regression Trees (BART): Time-to-event Machine Learning with Heteroskedastic Bayesian Additive Regression Trees (HBART) and Low Information Omnibus (LIO) Dirichlet Process Mixtures (DPM). An NFT BART model is of the form Y = mu + f(x) + sd(x) E where functions f and sd have BART and HBART priors, respectively, while E is a nonparametric error distribution due to a DPM LIO prior hierarchy. See the following for a technical description of the model <https://www.mcw.edu/-/media/MCW/Departments/Biostatistics/tr72.pdf?la=en>.
 License: GPL (>= 2)
 Depends: R (>= 3.6), survival, nnet
 Imports: Rcpp
