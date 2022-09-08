@@ -354,7 +354,12 @@ if(K>0) {
                      soffset=0, probs=probs, na.rm=na.rm) 
     res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
                         mean(res$s.train.mean^2)) ## for stability
-    
+    res$pred$soffset=res$soffset
+    res$pred$s.test=res$pred$s.test-res$soffset
+    res$pred$s.test.mean=res$pred$s.test.mean-res$soffset
+    res$pred$s.test.lower=res$pred$s.test.lower-res$soffset
+    res$pred$s.test.upper=res$pred$s.test.upper-res$soffset    
+
     res$drawDPM=drawDPM
     res$aft=aft
     ##res$total.lambda=total.lambda

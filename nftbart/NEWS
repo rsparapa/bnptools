@@ -1,5 +1,12 @@
 
-Changes and New Features in 1.4 (2022-09-25):
+
+Changes and New Features in 1.5 (2022-10-25):
+	* apply soffset to pred$s.test/etc. to avoid confusion
+
+	* for code maintainability, nft is just a wrapper of nft2
+	  (and predict.nft is just a wrapper of predict.nft2)
+
+Changes and New Features in 1.4 (2022-08-25):
 	* New option: mask unstable sd(.) estimates to calculate soffset
 
 	* Use hardened DPM LIO variance prior setting
