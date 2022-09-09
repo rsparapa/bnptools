@@ -35,14 +35,15 @@ df.$x=factor(df.$x)
 str(df.)
 
 xyplot(prob~steps|x, df., groups=TSVS, type='l', as.table=TRUE,
+       col=c(1, 2, 4), lwd=2,
        panel=function(...){
-           if(panel.number()==1) {
+           if(panel.number()==5) {
                ltext(19, df.$prob[df.$steps==20 & df.$TSVS=='both' &
-                                  df.$x=='age'], 'both', pos=3)
+                                  df.$x=='ph.karno'], 'both', pos=1)
                ltext(19, df.$prob[df.$steps==20 & df.$TSVS=='f' &
-                                  df.$x=='age'], 'f')
+                                  df.$x=='ph.karno'], 'f', col=2, pos=3)
                ltext(19, df.$prob[df.$steps==20 & df.$TSVS=='sd' &
-                                  df.$x=='age'], 'sd', pos=3)
+                                  df.$x=='ph.karno'], 'sd', col=4, pos=3)
            }
            panel.xyplot(...)
        })
