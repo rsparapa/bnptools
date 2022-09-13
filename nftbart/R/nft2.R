@@ -54,7 +54,7 @@ nft2 = function(## data
                a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
                ## misc
                na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
-               transposed=FALSE
+               transposed=FALSE, pred=FALSE
                )
 {
     n=length(times)
@@ -354,11 +354,15 @@ if(K>0) {
                      soffset=0, probs=probs, na.rm=na.rm) 
     res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
                         mean(res$s.train.mean^2)) ## for stability
-    res$pred$soffset=res$soffset
-    res$pred$s.test=res$pred$s.test-res$soffset
-    res$pred$s.test.mean=res$pred$s.test.mean-res$soffset
-    res$pred$s.test.lower=res$pred$s.test.lower-res$soffset
-    res$pred$s.test.upper=res$pred$s.test.upper-res$soffset    
+    if(pred) {
+        res$pred$soffset=res$soffset
+        res$pred$s.test=res$pred$s.test-res$soffset
+        res$pred$s.test.mean=res$pred$s.test.mean-res$soffset
+        res$pred$s.test.lower=res$pred$s.test.lower-res$soffset
+        res$pred$s.test.upper=res$pred$s.test.upper-res$soffset    
+    } else {
+        res$pred=NULL
+    }
 
     res$drawDPM=drawDPM
     res$aft=aft

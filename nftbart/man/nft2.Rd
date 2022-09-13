@@ -42,7 +42,7 @@ nft2(
     a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
     ## misc
     na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
-    transposed=FALSE
+    transposed=FALSE, pred=FALSE
 )
 
 }
@@ -120,6 +120,8 @@ nft2(
   \item{transposed}{Specify \code{TRUE} if all of the pre-processing for
     \code{xftrain/xstrain/xftest/xstest} has been conducted prior to the call (including
     tranposing).}
+  \item{pred}{Specify \code{TRUE} if you want to return the \code{pred}
+    item that is used to calculate \code{soffset}.}
 }
 
 \details{

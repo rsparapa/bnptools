@@ -54,7 +54,7 @@ nft = function(## data
                a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
                ## misc
                na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
-               transposed=FALSE ##, type='nft'
+               transposed=FALSE, pred=FALSE
                )
 {
 res=nft2(## data
@@ -92,7 +92,7 @@ res=nft2(## data
                a0=a0, b0.a=b0.a, b0.b=b0.b, b0=b0, b0.draw=b0.draw,
                ## misc
                na.rm=na.rm, probs=probs, printevery=printevery,
-               transposed=transposed
+               transposed=transposed, pred=pred
                )
 attr(res, 'class') <- 'nft'
 res$x.train=res$xftrain
