@@ -60,6 +60,8 @@ predict.nft2 = function(
     xif=object$xifcuts
     xis=object$xiscuts
     n = nrow(object$xftrain)
+    if(FPD && np!=(n*(np%/%n)))
+        stop('the number of FPD blocks must be an integer')
     pf = ncol(object$xftrain)
     ps = ncol(object$xstrain)
     events.matrix=FALSE
@@ -172,7 +174,7 @@ predict.nft2 = function(
             ## else K <- length(events)
 
             if(FPD) {
-                H=np/n
+                H=np%/%n
                 if(drawDPM>0) {
                     for(h in 1:H) {
                         if(h==1) {
