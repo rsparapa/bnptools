@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2020-2022 Robert McCulloch and Rodney Sparapani
 ## CDimpute.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -70,6 +70,16 @@ CDimpute=function(x.train,
                 if(!same) break
             }
 
+        if(!impute.flag) {
+            for(i in 1:N) {
+                k = is.na(x.train[i, ])
+                while(any(k)) {
+                    h=sample.int(N, 1)
+                    x.train[i, which(k)]=x.train[h, which(k)]
+                    k = is.na(x.train[i, ])
+                }
+            }
+        } else {
         for(i in 1:N)
             for(j in 1:P)
                 if(!(j %in% impute.mult)) {
@@ -80,6 +90,7 @@ CDimpute=function(x.train,
                         x.train[i, which(k)]=x.train[h, which(k)]
                     }
                 }
+        }
 
         if(same && !impute.flag) x.test=x.train
         else if(Q>0) {
