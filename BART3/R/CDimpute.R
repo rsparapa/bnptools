@@ -80,31 +80,49 @@ CDimpute=function(x.train,
                 }
             }
         } else {
-        for(i in 1:N)
-            for(j in 1:P)
-                if(!(j %in% impute.mult)) {
+            for(i in 1:N) {
+                k = is.na(x.train[i, ])
+                k[impute.mult]=FALSE
+                while(any(k)) {
+                    h=sample.int(N, 1)
+                    x.train[i, which(k)]=x.train[h, which(k)]
                     k = is.na(x.train[i, ])
-                    if(impute.flag) k[impute.mult]=FALSE
-                    while(is.na(x.train[i, j])) {
-                        h=sample.int(N, 1)
-                        x.train[i, which(k)]=x.train[h, which(k)]
-                    }
+                    k[impute.mult]=FALSE
                 }
+            }
         }
+        ## for(i in 1:N)
+        ##     for(j in 1:P)
+        ##         if(!(j %in% impute.mult)) {
+        ##             k = is.na(x.train[i, ])
+        ##             if(impute.flag) k[impute.mult]=FALSE
+        ##             while(is.na(x.train[i, j])) {
+        ##                 h=sample.int(N, 1)
+        ##                 x.train[i, which(k)]=x.train[h, which(k)]
+        ##             }
+        ##         }
 
         if(same && !impute.flag) x.test=x.train
         else if(Q>0) {
             if(same) x.test=x.train ## to cold-deck impute.mult columns only
-            for(i in 1:Q)
-                for(j in 1:P) {
+            for(i in 1:Q) {
+                k = is.na(x.test[i, ])
+                while(any(k)) {
+                    h=sample.int(Q, 1)
+                    x.test[i, which(k)]=x.test[h, which(k)]
                     k = is.na(x.test[i, ])
-                    while(is.na(x.test[i, j])) {
-                        h=sample.int(Q, 1)
-                        x.test[i, which(k)]=x.test[h, which(k)]
-                    }
                 }
+            }
         }
     }
+            ## for(i in 1:Q)
+            ##     for(j in 1:P) {
+            ##         k = is.na(x.test[i, ])
+            ##         while(is.na(x.test[i, j])) {
+            ##             h=sample.int(Q, 1)
+            ##             x.test[i, which(k)]=x.test[h, which(k)]
+            ##         }
+            ##     }
 
     return(list(x.train=x.train, x.test=x.test,
                 miss.train=miss.train, miss.test=miss.test,
