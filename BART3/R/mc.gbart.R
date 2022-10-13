@@ -44,8 +44,8 @@ mc.gbart <- function(
                      printevery=100L, transposed=FALSE,
                      probs=c(0.025, 0.975),
                      mc.cores = getOption('mc.cores', 2L),
-                     nice = 19L, seed = 99L,
-                     shards = 1L, weight=rep(NA, shards),
+                     nice = 19L, seed = 99L, verbose = 1L,
+                     shards=1L, weight=rep(NA, shards),
                      meta = FALSE
                      )
 {
@@ -129,7 +129,7 @@ mc.gbart <- function(
                   w=w, ntree=ntree, numcut=numcut,
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery, printevery=printevery,
-                  shards=shards, transposed=TRUE)},
+                  verbose=verbose, transposed=TRUE)},
             ##keeptestfits=keeptestfits,
             ##hostname=hostname,
             silent=(i!=1))

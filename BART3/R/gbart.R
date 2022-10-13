@@ -41,7 +41,7 @@ gbart=function(
                printevery=100L, transposed=FALSE,
                probs=c(0.025, 0.975),
                mc.cores = 1L, nice = 19L, seed = 99L,
-               shards = 1L, weight=rep(NA, shards)
+               verbose = 1L, weight=rep(NA, shards)
                )
 {
    if(is.na(ntype))
@@ -277,7 +277,7 @@ gbart=function(
                 varprob,
                 printevery,
                 xinfo,
-                shards,
+                verbose,
                 impute.mult,
                 impute.miss,
                 impute.prob

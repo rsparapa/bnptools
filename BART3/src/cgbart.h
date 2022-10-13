@@ -60,14 +60,15 @@ RcppExport SEXP cgbart(
    SEXP _varprob,
    SEXP _inprintevery,
    SEXP _Xinfo,
-   SEXP _shards,
+   SEXP _verbose,
    SEXP _impute_mult, // integer vector of column indicators for missing covariates
    SEXP _impute_miss, // integer vector of row indicators for missing values
    SEXP _impute_prior // matrix of prior missing imputation probability
 )
 {
    //process args
-   int type = Rcpp::as<int>(_type), shards = Rcpp::as<int>(_shards);
+   int type = Rcpp::as<int>(_type), 
+     verbose = Rcpp::as<int>(_verbose);
    size_t n = Rcpp::as<int>(_in);
    size_t p = Rcpp::as<int>(_ip);
    size_t np = Rcpp::as<int>(_inp);
@@ -237,7 +238,7 @@ void cgbart(
    //random number generation
    arn gen(n1, n2);
    heterbart bm(m);
-   int shards=1;
+   //int shards=1;
 #endif
 
    /* multiple imputation hot deck implementation
@@ -281,8 +282,6 @@ void cgbart(
    treess.precision(10);
    treess << nkeeptreedraws << " " << m << " " << p << endl;
 
-   printf("*****Calling gbart: type=%d\n", type);
-
    size_t skiptr=thin, skipte=thin, skiptreedraws=thin;
 /*
    size_t skiptr,skipte,skipteme,skiptreedraws;
@@ -296,39 +295,45 @@ void cgbart(
 
    //--------------------------------------------------
    //print args
-   printf("*****Data:\n");
-   printf("n,p,np: %zu, %zu, %zu\n",n,p,np);
-   printf("y1,yn: %lf, %lf\n",iy[0],iy[n-1]);
-   printf("x1,x[n*p]: %lf, %lf\n",ix[0],ix[n*p-1]);
-//   if(hotdeck) 
-//printf("warning: missing elements in x multiply imputed with hot decking\n");
-   if(np) printf("xp1,xp[np*p]: %lf, %lf\n",ixp[0],ixp[np*p-1]);
-   printf("*****Number of Trees: %zu\n",m);
-   printf("*****Number of Cut Points: %d ... %d\n", numcut[0], numcut[p-1]);
-   printf("*****burn,nd,thin: %d,%zu,%zu\n",burn,nd,thin);
-//   printf("*****Value of treeinit: %zu\n", treeinit);
-// printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
-//                    mybeta,alpha,tau,nu,lambda,Offset);
-   cout << "*****Prior:beta,alpha,tau,nu,lambda,offset,shards:\n" 
-	<< mybeta << ',' << alpha << ',' << tau << ',' 
-        << nu << ',' << lambda << ',' << Offset << ',' << shards << endl;
-if(type==1) {
-   printf("*****sigma: %lf\n",sigma);
-   printf("*****w (weights): %lf ... %lf\n",iw[0],iw[n-1]);
-}
-   if(K>0) {
-     cout << "*****Missing imputation row indices:\n index 0=" << impute_miss[0] << ','
-	  << "index n-1=" << impute_miss[n-1] << endl;
-     cout << "*****Missing imputation column indices:\n index 0=" << impute_mult[0] << ','
-	  << "index K-1=" << impute_mult[K-1] << endl;
-     // cout << "*****Missing imputation probability: prob[0]=" << impute_prior[0] << ','
-     // 	  << "prob[K-1]=" << impute_prior[K-1] << endl;
+
+   if(verbose==1) {
+     printf("*****Calling gbart: type=%d\n", type);
+     printf("*****Data:\n");
+     printf("n,p,np: %zu, %zu, %zu\n",n,p,np);
+     printf("y1,yn: %lf, %lf\n",iy[0],iy[n-1]);
+     printf("x1,x[n*p]: %lf, %lf\n",ix[0],ix[n*p-1]);
+     //   if(hotdeck) 
+ //printf("warning: missing elements in x multiply imputed with hot decking\n");
+     if(np) printf("xp1,xp[np*p]: %lf, %lf\n",ixp[0],ixp[np*p-1]);
+     printf("*****Number of Trees: %zu\n",m);
+     printf("*****Number of Cut Points: %d ... %d\n", numcut[0], numcut[p-1]);
+     printf("*****burn,nd,thin: %d,%zu,%zu\n",burn,nd,thin);
+     //   printf("*****Value of treeinit: %zu\n", treeinit);
+ // printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
+     //                    mybeta,alpha,tau,nu,lambda,Offset);
+     //cout << "*****Prior:beta,alpha,tau,nu,lambda,offset,shards:\n" 
+     cout << "*****Prior:beta,alpha,tau,nu,lambda,offset:\n" 
+	  << mybeta << ',' << alpha << ',' << tau << ',' 
+	  << nu << ',' << lambda << ',' << Offset << endl;
+     //<< nu << ',' << lambda << ',' << Offset << ',' << shards << endl;
+     if(type==1) {
+       printf("*****sigma: %lf\n",sigma);
+       printf("*****w (weights): %lf ... %lf\n",iw[0],iw[n-1]);
+     }
+     if(K>0) {
+       cout << "*****Missing imputation row indices:\n index 0=" << impute_miss[0] << ','
+	    << "index n-1=" << impute_miss[n-1] << endl;
+       cout << "*****Missing imputation column indices:\n index 0=" << impute_mult[0] << ','
+	    << "index K-1=" << impute_mult[K-1] << endl;
+// cout << "*****Missing imputation probability: prob[0]=" << impute_prior[0] 
+// << ',' << "prob[K-1]=" << impute_prior[K-1] << endl;
+     }
+     //printf("*****nkeeptrain,nkeeptest: %zu, %zu\n",nkeeptrain,nkeeptest);
+     //printf("*****printevery: %zu\n",printevery);
+ cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n" 
+      << dart << ',' << theta << ',' << omega << ',' << rho << ',' << a << ',' 
+      << b << ',' << aug << ',' << grp[0] << ',' << grp[p-1] << endl;
    }
-   //printf("*****nkeeptrain,nkeeptest: %zu, %zu\n",nkeeptrain,nkeeptest);
-   //printf("*****printevery: %zu\n",printevery);
-cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n" 
-     << dart << ',' << theta << ',' << omega << ',' << rho << ',' << a << ',' 
-     << b << ',' << aug << ',' << grp[0] << ',' << grp[p-1] << endl;
    //--------------------------------------------------
    //create temporaries
    double df=n+nu;
@@ -388,8 +393,11 @@ cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n"
    std::vector<double> ivarprb (p,0.);
    std::vector<size_t> ivarcnt (p,0);
    ivarprb=bm.getpv();
-   cout << "*****Variable selection probability pv[0],pv[p-1]:\n"
+      if(verbose==1) {
+	cout << "*****Variable selection probability pv[0],pv[p-1]:\n"
         << ivarprb[0] << ',' << ivarprb[p-1] << endl;
+	printf("\nMCMC\n");
+      }
 
    //--------------------------------------------------
    //temporary storage
@@ -399,7 +407,6 @@ cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n"
 
    //--------------------------------------------------
    //mcmc
-   printf("\nMCMC\n");
    //size_t index;
    size_t trcnt=0; //count kept train draws
    size_t tecnt=0; //count kept test draws
@@ -412,11 +419,13 @@ cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n"
 
    for(int i=0;i<total;i++) {
    //for(size_t i=0;i<total;i++) {
-      if(i%printevery==0) printf("done %d (out of %lu)\n",i,nd+burn);
+      if(verbose==1 && i%printevery==0) 
+	printf("done %d (out of %lu)\n",i,nd+burn);
       //if(i%printevery==0) printf("done %zu (out of %lu)\n",i,nd+burn);
       if(i==(burn/2)&&dart) bm.startdart();
       //draw bart
-      bm.draw(svec,gen,shards);
+      bm.draw(svec,gen);
+      //bm.draw(svec,gen,shards);
       accept[i]=bm.getaccept();
 
       if(type1sigest) {
@@ -537,10 +546,11 @@ cout << "*****Dirichlet:sparse,theta,omega,rho,a,b,augment,grp[0],grp[p-1]:\n"
          }
       }
    }
-   int time2 = time(&tp);
-   printf("time: %ds\n",time2-time1);
-   printf("trcnt,tecnt: %zu,%zu\n",trcnt,tecnt);
-
+   if(verbose==1) {
+     int time2 = time(&tp);
+     printf("time: %ds\n",time2-time1);
+     printf("trcnt,tecnt: %zu,%zu\n",trcnt,tecnt);
+   }
    if(fhattest) delete[] fhattest;
    delete[] z;
    delete[] svec;
