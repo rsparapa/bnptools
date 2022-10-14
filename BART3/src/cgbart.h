@@ -60,6 +60,7 @@ RcppExport SEXP cgbart(
    SEXP _varprob,
    SEXP _inprintevery,
    SEXP _Xinfo,
+   SEXP _shards,
    SEXP _verbose,
    SEXP _impute_mult, // integer vector of column indicators for missing covariates
    SEXP _impute_miss, // integer vector of row indicators for missing values
@@ -68,6 +69,7 @@ RcppExport SEXP cgbart(
 {
    //process args
    int type = Rcpp::as<int>(_type), 
+     shards = Rcpp::as<int>(_shards),
      verbose = Rcpp::as<int>(_verbose);
    size_t n = Rcpp::as<int>(_in);
    size_t p = Rcpp::as<int>(_ip);
@@ -238,7 +240,6 @@ void cgbart(
    //random number generation
    arn gen(n1, n2);
    heterbart bm(m);
-   //int shards=1;
 #endif
 
    /* multiple imputation hot deck implementation
@@ -311,11 +312,9 @@ void cgbart(
      //   printf("*****Value of treeinit: %zu\n", treeinit);
  // printf("Prior:\nbeta,alpha,tau,nu,lambda,offset: %lf,%lf,%lf,%lf,%lf,%lf\n",
      //                    mybeta,alpha,tau,nu,lambda,Offset);
-     //cout << "*****Prior:beta,alpha,tau,nu,lambda,offset,shards:\n" 
-     cout << "*****Prior:beta,alpha,tau,nu,lambda,offset:\n" 
-	  << mybeta << ',' << alpha << ',' << tau << ',' 
-	  << nu << ',' << lambda << ',' << Offset << endl;
-     //<< nu << ',' << lambda << ',' << Offset << ',' << shards << endl;
+     cout << "*****Prior:beta,alpha,tau,nu,lambda,offset,shards:\n" 
+	  << mybeta << ',' << alpha << ',' << tau << ',' << nu << ',' 
+          << lambda << ',' << Offset << ',' << shards << endl;
      if(type==1) {
        printf("*****sigma: %lf\n",sigma);
        printf("*****w (weights): %lf ... %lf\n",iw[0],iw[n-1]);
@@ -424,8 +423,7 @@ void cgbart(
       //if(i%printevery==0) printf("done %zu (out of %lu)\n",i,nd+burn);
       if(i==(burn/2)&&dart) bm.startdart();
       //draw bart
-      bm.draw(svec,gen);
-      //bm.draw(svec,gen,shards);
+      bm.draw(svec,gen,shards);
       accept[i]=bm.getaccept();
 
       if(type1sigest) {

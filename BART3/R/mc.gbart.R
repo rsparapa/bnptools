@@ -129,7 +129,8 @@ mc.gbart <- function(
                   w=w, ntree=ntree, numcut=numcut,
                   ndpost=mc.ndpost, nskip=nskip,
                   keepevery=keepevery, printevery=printevery,
-                  verbose=verbose, transposed=TRUE)},
+                  verbose=verbose, shards=shards,
+                  transposed=TRUE)},
             ##keeptestfits=keeptestfits,
             ##hostname=hostname,
             silent=(i!=1))
