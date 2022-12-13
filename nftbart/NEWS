@@ -1,10 +1,10 @@
 
 
-Changes and New Features in 1.5 (2022-10-25):
-	* apply soffset to pred$s.test/etc. to avoid confusion
-
+Changes and New Features in 1.5 (2022-12-13):
 	* for code maintainability, nft is just a wrapper of nft2
 	  (and predict.nft is just a wrapper of predict.nft2)
+
+	* for non-FPD scenarios, calculate lower/upper just like FPD
 
 Changes and New Features in 1.4 (2022-08-25):
 	* New option: mask unstable sd(.) estimates to calculate soffset

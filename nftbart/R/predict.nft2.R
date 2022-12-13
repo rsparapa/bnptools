@@ -291,9 +291,21 @@ predict.nft2 = function(
                     }
                 }
                 res$surv.test.mean=apply(res$surv.test, 2, mean)
+                res$surv.test.lower=apply(res$surv.test, 2, quantile,
+                                          probs=q.lower)
+                res$surv.test.upper=apply(res$surv.test, 2, quantile,
+                                          probs=q.upper)
                 res$pdf.test.mean=apply(res$pdf.test, 2, mean)
+                res$pdf.test.lower=apply(res$pdf.test, 2, quantile,
+                                          probs=q.lower)
+                res$pdf.test.upper=apply(res$pdf.test, 2, quantile,
+                                          probs=q.upper)
                 res$haz.test=res$pdf.test/res$surv.test
                 res$haz.test.mean =apply(res$haz.test, 2, mean)
+                res$haz.test.lower=apply(res$haz.test, 2, quantile,
+                                          probs=q.lower)
+                res$haz.test.upper=apply(res$haz.test, 2, quantile,
+                                          probs=q.upper)
             }
 
             if(take.logs) res$events=exp(events)

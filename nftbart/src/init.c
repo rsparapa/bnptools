@@ -3,46 +3,25 @@
 #include <stdlib.h> // for NULL
 #include <R_ext/Rdynload.h>
 
-/* FIXME: 
+/* 
    Check these declarations against the C/Fortran source code.
 */
 
 /* .Call calls */
 extern SEXP cpsambrt_predict(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP cprnft(SEXP, SEXP, SEXP, SEXP);
 extern SEXP cpsambrt_predict2(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP cprnft(SEXP, SEXP, SEXP, SEXP);
 extern SEXP cprnft2(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cnft(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cnft2(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-//extern SEXP cpsambrt(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-//extern SEXP cpsambrt(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-//extern SEXP cpsambrt_vartivity(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-//extern SEXP cpsambrt_save(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-//extern SEXP cpsambrt_Rexport(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-//extern SEXP cpsambrt_Rimport(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-//extern SEXP crtnorm(SEXP, SEXP, SEXP, SEXP);
-//extern SEXP chft(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-//extern SEXP CallDPMLIOdensity(SEXP, SEXP, SEXP);
-//extern SEXP CallDPMLIOmutau(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-//extern SEXP CallDPMlambda(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"cpsambrt_predict", (DL_FUNC) &cpsambrt_predict,  7},
-    {"cprnft",           (DL_FUNC) &cprnft,            4},
+//    {"cpsambrt_predict", (DL_FUNC) &cpsambrt_predict,  7},
     {"cpsambrt_predict2",(DL_FUNC) &cpsambrt_predict2, 9},
+//    {"cprnft",           (DL_FUNC) &cprnft,            4},
     {"cprnft2",          (DL_FUNC) &cprnft2,           6},
-    {"cnft",             (DL_FUNC) &cnft,             32},
+//    {"cnft",             (DL_FUNC) &cnft,             32},
     {"cnft2",            (DL_FUNC) &cnft2,            34},
-//    {"cpsambrt",         (DL_FUNC) &cpsambrt,         32},
-//   {"cpsambrt_vartivity",(DL_FUNC) &cpsambrt_vartivity,6},
-//    {"cpsambrt_save",    (DL_FUNC) &cpsambrt_save,     7},
-//    {"cpsambrt_Rexport", (DL_FUNC) &cpsambrt_Rexport,  6},
-//    {"cpsambrt_Rimport", (DL_FUNC) &cpsambrt_Rimport,  6},
-//    {"crtnorm",          (DL_FUNC) &crtnorm,           4},
-//    {"chft",             (DL_FUNC) &chft,             35},
-//  {"CallDPMLIOdensity",(DL_FUNC) &CallDPMLIOdensity, 3},
-//    {"CallDPMLIOmutau",  (DL_FUNC) &CallDPMLIOmutau,   7},
-//    {"CallDPMlambda",    (DL_FUNC) &CallDPMlambda,     7},
     {NULL, NULL, 0}
 };
 
