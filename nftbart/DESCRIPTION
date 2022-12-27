@@ -2,7 +2,7 @@ Package: nftbart
 Type: Package
 Title: Nonparametric Failure Time Bayesian Additive Regression Trees
 Version: 1.5 
-Date: 2022-12-13
+Date: 2022-12-27
 Authors@R: c(person('Rodney', 'Sparapani', 
 	   role=c('aut', 'cre'), email='rsparapa@mcw.edu'),
 	   person('Robert', 'McCulloch', role='aut'),
@@ -17,7 +17,6 @@ Description: Nonparametric Failure Time (NFT) Bayesian Additive Regression Trees
 License: GPL (>= 2)
 Depends: R (>= 3.6), survival, nnet
 Imports: Rcpp
-Suggests: knitr, rmarkdown
 LinkingTo: Rcpp
 NeedsCompilation: yes
 Packaged: 

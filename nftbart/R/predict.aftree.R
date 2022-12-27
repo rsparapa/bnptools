@@ -63,6 +63,9 @@ predict.aftree = function(
     N=ncol(object$m.train)
     H=L %/% N
 
+    q.lower=min(probs)
+    q.upper=max(probs)
+
     if(FPD) {
         if(L!=(N*H))
             stop("Friedman's partial dependence function: rows of x.test must be a multiple of x.train")
@@ -130,24 +133,20 @@ if(K>0) {
         res$pdf.test = NULL
         ##if(hazard) res$haz.test = NULL
         res$surv.fpd.mean =apply(res$surv.fpd, 2, mean)
-        res$surv.fpd.lower=apply(res$surv.fpd, 2, quantile,
-                                 probs=min(probs))
-        res$surv.fpd.upper=apply(res$surv.fpd, 2, quantile,
-                                 probs=max(probs))
+        res$surv.fpd.lower=apply(res$surv.fpd, 2, quantile, probs=q.lower)
+        res$surv.fpd.upper=apply(res$surv.fpd, 2, quantile, probs=q.upper)
         res$haz.fpd=cbind(res$pdf.fpd/res$surv.fpd)
-            res$haz.fpd.mean =apply(res$haz.fpd, 2, mean)
-            res$haz.fpd.lower=apply(res$haz.fpd, 2, quantile,
-                                    probs=min(probs))
-            res$haz.fpd.upper=apply(res$haz.fpd, 2, quantile,
-                                    probs=max(probs))
+        res$haz.fpd.mean =apply(res$haz.fpd, 2, mean)
+        res$haz.fpd.lower=apply(res$haz.fpd, 2, quantile, probs=q.lower)
+        res$haz.fpd.upper=apply(res$haz.fpd, 2, quantile, probs=q.upper)
     } else {
-        res$surv.test.mean=apply(res$surv.test, 2, mean)
-        res$surv.test.lower=apply(res$surv.test, 2, quantile, probs=min(probs))
-        res$surv.test.upper=apply(res$surv.test, 2, quantile, probs=max(probs))
+        res$surv.test.mean =apply(res$surv.test, 2, mean)
+        res$surv.test.lower=apply(res$surv.test, 2, quantile, probs=q.lower)
+        res$surv.test.upper=apply(res$surv.test, 2, quantile, probs=q.upper)
         res$haz.test=res$pdf.test/res$surv.test
-            res$haz.test.mean=apply(res$haz.test, 2, mean)
-            res$haz.test.lower=apply(res$haz.test, 2, quantile, probs=min(probs))
-            res$haz.test.upper=apply(res$haz.test, 2, quantile, probs=max(probs))
+        res$haz.test.mean =apply(res$haz.test, 2, mean)
+        res$haz.test.lower=apply(res$haz.test, 2, quantile, probs=q.lower)
+        res$haz.test.upper=apply(res$haz.test, 2, quantile, probs=q.upper)
     }
 }
     

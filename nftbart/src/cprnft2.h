@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Matthew T. Pratola, Robert E. McCulloch,
+ * Copyright (C) 2012-2023 Matthew T. Pratola, Robert E. McCulloch,
  *                         Hugh A. Chipman and Rodney A. Sparapani
  *  
  * This file is part of nftbart.

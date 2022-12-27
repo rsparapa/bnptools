@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Rodney A. Sparapani
+ * Copyright (C) 2012-2023 Rodney A. Sparapani
  *  
  * This file is part of nftbart.
  * cnft2.h

@@ -1,6 +1,5 @@
 
-
-Changes and New Features in 1.5 (2022-12-13):
+Changes and New Features in 1.5 (2022-12-27):
 	* for code maintainability, nft is just a wrapper of nft2
 	  (and predict.nft is just a wrapper of predict.nft2)
 
