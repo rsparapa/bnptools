@@ -37,7 +37,7 @@ predict.nft2 = function(
                        na.rm=FALSE,
                        seed=NULL,
                        ## default settings for NFT:BART/HBART/DPM
-                       fmu=object$fmu,
+                       fmu=object$NFT$fmu,
                        soffset=object$soffset,
                        drawDPM=object$drawDPM,
                        ## etc.
@@ -51,6 +51,7 @@ predict.nft2 = function(
     xftest = t(xftest)
     xstest = t(xstest)
     ndpost=object$ndpost
+    if(length(fmu)==0 && length(object$fmu)==1) fmu=object$fmu 
     m=object$ntree[1]
     if(length(object$ntree)==2) mh=object$ntree[2]
     else mh=object$ntreeh

@@ -67,7 +67,7 @@ RcppExport SEXP cnft2(
 		     SEXP _ibase,		//tree prior for mean and var
 		     SEXP _ipower,	        //tree prior for mean and var
 		     SEXP _itc,		//thread count
-		     SEXP _isigmav,	//intial values for sigma_i 
+		     //SEXP _isigmav,	//intial values for sigma_i 
 		     SEXP _ichvf,
 		     SEXP _ichvs,
 		     SEXP _ipbd,		//prob of birth/death step, mean and var trees
@@ -88,7 +88,9 @@ RcppExport SEXP cnft2(
 		     SEXP _phi,
 		     SEXP _prior,
 		     //SEXP _idraws,
-		     SEXP _idrawMuTau
+		     SEXP _idrawMuTau,
+		     SEXP _iedraws2,
+		     SEXP _izdraws2
 		     //SEXP _impute_bin, 
 		     //SEXP _impute_prior 
 		     )
@@ -123,7 +125,7 @@ RcppExport SEXP cnft2(
 */
   //y
   Rcpp::NumericVector yv(_iy);
-  double *y = &yv[0], ymax=Rcpp::max(yv);
+  double *y = &yv[0];//, ymax=Rcpp::max(yv);
 
   //delta
   Rcpp::IntegerVector delta(_idelta), censor(n);
@@ -136,8 +138,8 @@ RcppExport SEXP cnft2(
   //  Rcpp::NumericVector events(_ievents);
   //size_t K=events.size();
 
-  //z and w
-  Rcpp::NumericVector zv(n), wv(n);
+  //z and w and e
+  Rcpp::NumericVector zv(n), wv(n), e(n);
   double *z = &zv[0], *w = &wv[0];
 
   //number of trees
@@ -160,6 +162,16 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   size_t nadapt = Rcpp::as<int>(_inadapt);
   size_t adaptevery = Rcpp::as<int>(_iadaptevery);
 
+  size_t R;
+  Rcpp::NumericMatrix edraws2(_iedraws2), zdraws2(_izdraws2);
+  bool drawrho=(edraws2.nrow()>0);
+  if(drawrho) { 
+    //nd=edraws2.nrow()-burn;
+    R=100;
+  } else R=0;
+  Rcpp::NumericVector rhodraws(drawrho ? nd : 0), rhovec(R);
+  double rho=0.;
+
   //tree strings
   /*
     std::stringstream mtrees, strees;  
@@ -174,7 +186,8 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
     //drawsd=0; //(1-draws)*(1-drawMuTau);
 
   Rcpp::NumericMatrix mdraws(nd, n), //sdraws(nd, pow(n, draws)),
-    sdraws(nd, n), mpred(nd, np), spred(nd, np), zdraws(nd, n);
+    sdraws(nd, n), mpred(nd, np), spred(nd, np), 
+    zdraws(nd+burn, n), edraws(nd+burn, n);
   //Rcpp::NumericVector sddraws((nd+burn)*drawsd);
 
   // for varcounts
@@ -193,7 +206,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   int tc = Rcpp::as<int>(_itc);
 
   //sigma vector
-  Rcpp::NumericVector sigmav(_isigmav);
+  Rcpp::NumericVector sigmav(n); //sigmav(_isigmav);
   double *sig = &sigmav[0];
   dinfo disig;
   disig.n=n; disig.p=ps; disig.x = xstrain; disig.y = sig; disig.tc=tc;
@@ -301,7 +314,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   Rprintf("variance tree prior base: %lf\n",salpha);
   Rprintf("variance tree prior power: %lf\n",mybetah);
   Rprintf("thread count: %ld\n",tc);
-  Rprintf("first and last sigmav: %lf, %lf\n",sigmav[0],sigmav[n-1]);
+//Rprintf("first and last sigmav: %lf, %lf\n",sigmav[0],sigmav[n-1]);
   Rprintf("chgvf first row: %lf, %lf\n",chgvf[0][0],chgvf[0][pf-1]);
   Rprintf("chgvf last row: %lf, %lf\n",chgvf[pf-1][0],chgvf[pf-1][pf-1]);
   Rprintf("chgvs first row: %lf, %lf\n",chgvs[0][0],chgvs[0][ps-1]);
@@ -416,7 +429,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   //make di for psbrt object
   dinfo dips;
   double *r = new double[n]; 
-  for(size_t i=0;i<n;i++) r[i]=sigmav[i];
+  for(size_t i=0;i<n;i++) { sigmav[i]=1.; r[i]=sigmav[i]; }
   dips.x = xstrain; dips.y=r; dips.p=ps; dips.n=n; dips.tc=tc;
 
 
@@ -533,21 +546,34 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	  g=gen.rcat(prob);
 	  if(g==-1) g=C[k];
 	  // right and left censoring
-	  z[k]=censor[k]*gen.rtnorm(censor[k]*y[k], 
-				    censor[k]*(phi(g, 0)*sig[k]+ambm.f(k)), 
-			  pow(phi(g, 1), -0.5)*sig[k]);
+	  if(drawrho && !adapting) z[k]=censor[k]*
+	    gen.rtnorm(censor[k]*y[k], 
+		       censor[k]*
+		       (phi(g, 0)*sig[k]+ambm.f(k)+
+			rho*pow(phi(g, 1), -0.5)*sig[k]*edraws2(h, k)), 
+		       pow(1.-pow(rho, 2.), 0.5)*pow(phi(g, 1), -0.5)*sig[k]);
+	  else z[k]=censor[k]*
+	    gen.rtnorm(censor[k]*y[k], 
+		       censor[k]*(phi(g, 0)*sig[k]+ambm.f(k)), 
+		       pow(phi(g, 1), -0.5)*sig[k]);
 	}
-	else z[k]=censor[k]*gen.rtnorm(censor[k]*y[k], 
+	else {
+	  if(drawrho && !adapting)
+	    z[k]=censor[k]*
+	      gen.rtnorm(censor[k]*y[k], 
+			 censor[k]*(ambm.f(k)+rho*sig[k]*edraws2(h, k)), 
+			 pow(1.-pow(rho, 2.), 0.5)*sig[k]);
+	  else
+	    z[k]=censor[k]*gen.rtnorm(censor[k]*y[k], 
 				       censor[k]*ambm.f(k), sig[k]);
-/* right censoring only
-	  z[k]=gen.rtnorm(y[k], phi(g, 0)*sig[k]+ambm.f(k), 
-			  pow(phi(g, 1), -0.5)*sig[k]);
 	}
-	else z[k]=gen.rtnorm(y[k], ambm.f(k), sig[k]);
-*/
-      }
 
-      if(keeping) zdraws(j, k)=z[k];
+	if(drawrho && !adapting) {
+	  if(z[k]>zdraws2(h, k)) z[k]=zdraws2(h, k);
+	}
+      }
+      e[k]=z[k];
+      if(keeping || burning) zdraws(h, k)=z[k];
     }
 
     for(size_t k=0;k<n;k++) {
@@ -641,6 +667,27 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
       dnpart[h]=Rcpp::max(C)+1;
     }
 
+    for(size_t k=0;k<n;k++) {
+      if(drawDP) {
+	e[k]=(e[k]-fun[k]-sig[k]*mvec[k])/(sig[k]*svec[k]);
+      } else e[k]=(e[k]-fun[k])/sig[k];
+    }
+
+    if(drawrho && !adapting) {
+      double reduc;
+      for(int l=0;l<R;l++) {
+	rho=l/R;
+	reduc=1.-pow(rho, 2.);
+	rhovec[l]=0.;
+	for(int k=0;k<n;k++) 
+	  rhovec[l] += 
+	    pow(e[k], 2.)+pow(edraws2(h, k), 2.)-2.*rho*e[k]*edraws2(h, k);
+	rhovec[l] = pow(reduc, -0.5*n)*exp(-0.5*rhovec[l]/reduc);
+      }
+      rho = ((double)gen.rcat(rhovec))/R;
+      if(keeping) rhodraws[j]=rho;
+    }
+    if(keeping || burning) for(size_t k=0;k<n;k++) edraws(h, k)=e[k];
     if(keeping) {
       //save tree to vec format
 
@@ -674,7 +721,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	  dpSD(j, k)=pow(phi(k, 1), -0.5);
 	  dpC(j, k) = C[k]+1;
 	  //dpWT(j, C[k])=dpWT(j, C[k])+wt;
-	}
+	} 
       }
 
       if(np) {
@@ -688,7 +735,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	  spred(j, k) = s.y[k];
 	}
       }
-    }
+    } 
   }
 
 #ifdef PROFILER
@@ -790,6 +837,8 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   }
 
   ret["z.train"]=zdraws;
+  ret["e.train"]=edraws;
+  if(drawrho) ret["rho"]=rhodraws;
 
   // summary statistics
   if(summarystats) {

@@ -26,7 +26,7 @@
             na.rm=FALSE,
             seed=NULL,
             ## default settings for NFT:BART/HBART/DPM
-            fmu=object$fmu,
+            fmu=object$NFT$fmu,
             soffset=object$soffset,
             drawDPM=object$drawDPM,
             ## etc.

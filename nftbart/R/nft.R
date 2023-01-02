@@ -24,8 +24,10 @@
 nft = function(## data
                x.train, times, delta=NULL, 
                x.test=matrix(nrow=0, ncol=0),
-               rm.const=TRUE, rm.dupe=TRUE,
-               impute.bin=NULL, impute.prob=NULL,
+               rm.const=TRUE, rm.dupe=TRUE, 
+               edraws2=matrix(nrow=0, ncol=0),
+               zdraws2=matrix(nrow=0, ncol=0),
+               ##impute.bin=NULL, impute.prob=NULL, 
                ## multi-threading
                tc=getOption("mc.cores", 1), ##OpenMP thread count
                ##MCMC
@@ -40,10 +42,9 @@ nft = function(## data
                ntree=c(50, 10), numcut=100, xicuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
-               k=5, sigmaf=NA,
-               dist='weibull', 
+               fmu=NA, k=5, tau=NA, dist='weibull', 
                ## s function
-               sigmav=NULL, total.lambda=NA, total.nu=10, mask=NULL,
+               total.lambda=NA, total.nu=10, mask=NULL,
                ## survival analysis 
                K=100, events=NULL, TSVS=FALSE,
                ## DPM LIO
@@ -63,6 +64,7 @@ res=nft2(## data
                xftest=x.test,
                xstest=x.test,
                rm.const=rm.const, rm.dupe=rm.dupe,
+               edraws2=edraws2, zdraws2=zdraws2,
                ## multi-threading
                tc=tc, ##OpenMP thread count
                ##MCMC
@@ -78,10 +80,9 @@ res=nft2(## data
                xifcuts=xicuts, xiscuts=xicuts,
                power=power, base=base,
                ## f function
-               k=k, sigmaf=sigmaf, dist=dist,
+               fmu=fmu, k=k, tau=tau, dist=dist,
                ## s function
-               sigmav=sigmav, total.lambda=total.lambda,
-               total.nu=total.nu, mask=mask,
+               total.lambda=total.lambda, total.nu=total.nu, mask=mask,
                ## survival analysis 
                K=K, events=events, TSVS=TSVS,
                ## DPM LIO

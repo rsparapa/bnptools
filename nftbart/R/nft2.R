@@ -24,6 +24,8 @@ nft2 = function(## data
                xftest=matrix(nrow=0, ncol=0),
                xstest=matrix(nrow=0, ncol=0),
                rm.const=TRUE, rm.dupe=TRUE,
+               edraws2=matrix(nrow=0, ncol=0),
+               zdraws2=matrix(nrow=0, ncol=0),
                ##impute.bin=NULL, impute.prob=NULL,
                ## multi-threading
                tc=getOption("mc.cores", 1), ##OpenMP thread count
@@ -40,9 +42,9 @@ nft2 = function(## data
                xifcuts=NULL, xiscuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
-               k=5, sigmaf=NA, dist='weibull', 
+               fmu=NA, k=5, tau=NA, dist='weibull', 
                ## s function
-               sigmav=NULL, total.lambda=NA, total.nu=10, mask=NULL,
+               total.lambda=NA, total.nu=10, mask=NULL,
                ## survival analysis 
                K=100, events=NULL, TSVS=FALSE,
                ## DPM LIO
@@ -59,7 +61,7 @@ nft2 = function(## data
 {
     n=length(times)
     if(length(delta)==0) delta=rep(1, n)
-    if(length(sigmav)==0) sigmav=rep(1, n)
+    ##if(length(sigmav)==0) sigmav=rep(1, n)
 
     if(!transposed) {
         xftrain=cbind(xftrain)
@@ -125,6 +127,24 @@ nft2 = function(## data
     }
     K <- length(events)
 
+    if(length(mask)==1 && 0<mask && mask<1) ndpost=ceiling(ndpost/mask)
+    else mask=NULL
+        
+    if(length(edraws2)>0) {
+        if(class(edraws2)[1]!='matrix')
+            stop('edraws2 must be a matrix')
+        if(class(zdraws2)[1]!='matrix')
+            stop('zdraws2 must be a matrix')
+        ndpost=nrow(edraws2)
+        if(ndpost!=nrow(zdraws2))
+            stop('number of rows in edraws2 and zdraws2 must be equal')
+        if(n!=ncol(edraws2))
+            stop(paste0('number of cols in edraws2 must be ', n))
+        if(n!=ncol(zdraws2))
+            stop(paste0('number of cols in zdraws2 must be ', n))
+        ndpost=ndpost-nskip
+    }
+    
     burn=nskip
     nd=ndpost
     nc=numcut
@@ -133,23 +153,27 @@ nft2 = function(## data
     aft = survreg(Surv(time=times, event=delta)~1,
                   data=subset(df, delta<2), dist=dist)
 
-    fmu=coef(aft)[1]
-    attr(fmu, 'names')=NULL
+    if(is.na(fmu)) {
+        fmu=coef(aft)[1]
+        attr(fmu, 'names')=NULL
+    }
+    
     if(take.logs) {
         y=log(times)-fmu
         if(K>0) events=log(events)
     } else {
-        ##  fmu=mean(times)
         y=times-fmu
     }
 
     if(is.na(total.lambda)) total.lambda = (aft$scale^2)
 
     ## tau
-    if(is.na(sigmaf)) {
-        tau=(max(y)-min(y))/(2*k*sqrt(ntree[1]))
-    } else {
-        tau = sigmaf/sqrt(ntree[1])
+    if(is.na(tau)) {
+        ##if(is.na(sigmaf)) {
+            tau=(max(y)-min(y))/(2*k*sqrt(ntree[1]))
+        ## } else {
+        ##     tau = sigmaf/sqrt(ntree[1])
+        ## }
     }
 
     if(drawDPM==1) {
@@ -202,7 +226,7 @@ nft2 = function(## data
               base,
               power,
               tc,
-              sigmav,
+              ##sigmav, -1
               chvf,
               chvs,
               pbd,
@@ -218,6 +242,8 @@ nft2 = function(## data
               hyper, C, states, phi, prior,
               ##draws,
               drawDPM,
+              edraws2,
+              zdraws2,
               ##impute.bin,
               ##impute.prob,
               PACKAGE="nftbart")
@@ -235,7 +261,7 @@ if(K>0) {
 }
     
     s.train.max.=NULL
-    if(length(mask)==1 && 0<mask && mask<1) {
+    if(length(mask)==1) {
         res$s.train[is.na(res$s.train)] = 0
         s.train.min =apply(res$s.train, 1, quantile, probs=0)
         s.train.max =apply(res$s.train, 1, quantile, probs=1)
@@ -245,11 +271,15 @@ if(K>0) {
         s.train.mask=which(s.train.mask)
         res$f.train=res$f.train[s.train.mask, ]
         res$s.train=res$s.train[s.train.mask, ]
-        res$z.train=res$z.train[s.train.mask, ]
+        ##res$z.train=res$z.train[s.train.mask, ]
+        ##res$e.train=res$e.train[s.train.mask, ]
+        if(length(res$rho)>0) res$rho=res$rho[s.train.mask]
     } else s.train.mask=1:nd 
     s.train.burn=c(1:burn, s.train.mask)
+    res$z.train=res$z.train[s.train.burn, ]
+    res$e.train=res$e.train[s.train.burn, ]
 
-        summarystats=(ndpost>=2)
+    summarystats=(ndpost>=2)
     if(summarystats) {
         res$f.varcount[2:ndpost, ]=cbind(res$f.varcount[2:ndpost, ]-res$f.varcount[1:(ndpost-1), ])
         res$f.varcount=cbind(res$f.varcount[s.train.mask, ])
@@ -282,10 +312,10 @@ if(K>0) {
     res$f.train.mean=apply(res$f.train, 2, mean)
     res$z.train=res$z.train+fmu
     res$z.train.mean=apply(res$z.train, 2, mean)
-    res$e.train.mean=res$z.train.mean-res$f.train.mean
-    res$MSE=mean(res$e.train.mean^2)
-        res$s.train.mean=apply(res$s.train, 2, mean)
-        res$ssd=sqrt(mean(res$s.train.mean^2))
+    ##res$e.train.mean=res$z.train.mean-res$f.train.mean
+    ##res$MSE=mean(res$e.train.mean^2)
+    res$s.train.mean=apply(res$s.train, 2, mean)
+    res$ssd=sqrt(mean(res$s.train.mean^2))
     res$mask=mask
     res$s.train.mask=s.train.mask
     res$s.train.max=s.train.max.
@@ -308,14 +338,18 @@ if(K>0) {
     res$ndpost=ndpost
     res$xifcuts=xifcuts
     res$xiscuts=xiscuts
-    res$fmu = fmu
+    ##res$fmu = fmu
+    res$NFT=list(total.lambda = total.lambda, total.nu = total.nu,
+                 fmu=fmu, tau=tau) ## , sigmaf=sigmaf)
 
     if(drawDPM>0) {
-        res$prior = prior
-        res$hyper = hyper
-        res$C = as.integer(C+1)
-        res$states = states
-        res$phi = phi
+        ## res$prior = prior
+        ## res$hyper = hyper
+        ## res$C = as.integer(C+1)
+        ## res$states = states
+        ## res$phi = phi
+        res$LIO=list(prior=prior, hyper=hyper, C = as.integer(C+1),
+                     states=states, phi=phi)
 
         H=max(res$dpn.)
         dpwt. = matrix(0, nrow=nd, ncol=H)

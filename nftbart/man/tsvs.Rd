@@ -27,10 +27,9 @@ tsvs(
                ntree=c(10, 2), numcut=100, xicuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
-               k=5, sigmaf=NA,
-               dist='weibull', 
+               fmu=NA, k=5, tau=NA, dist='weibull', 
                ## s function
-               sigmav=NULL, total.lambda=NA, total.nu=10, mask=0.95,
+               total.lambda=NA, total.nu=10, mask=0.95,
                ## survival analysis 
                ##K=100, events=NULL, 
                ## DPM LIO
@@ -86,10 +85,10 @@ tsvs(
     by the \code{xicuts} function and provided here.}
   \item{power}{Power parameter in the tree depth penalizing prior.}
   \item{base}{Base parameter in the tree depth penalizing prior.}
-  \item{k}{Prior hyperparameter for the mean model.}
-  \item{sigmaf}{SD of \code{y.train} desired for f function leaf prior.}
+  \item{fmu}{Prior parameter for the center of the mean model.}
+  \item{k}{Prior parameter for the mean model.}
+\item{tau}{Desired \code{SD/ntree} for f function leaf prior if known.}
 \item{dist}{Distribution to be passed to intercept-only AFT model to center \code{y.train}.}
-  \item{sigmav}{Initialization of square-root of variance parameter.}
   \item{total.lambda}{A rudimentary estimate of the process standard deviation. Used in calibrating the variance prior.}
   \item{total.nu}{Shape parameter for the variance prior.}
   \item{mask}{If a proportion is provided, then said quantile

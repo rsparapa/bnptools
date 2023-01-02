@@ -20,7 +20,7 @@ x.train=cbind(lung[ , -(1:3)])
 ## lung$sex:        Male=1 Female=2
 
 set.seed(99)
-post=nft(x.train, times, delta, K=0)
+post=nft(x.train, times, delta, K=0, mask=0.95)
 
 x.test = rbind(x.train, x.train)
 x.test[ , 2]=rep(1:2, each=N)

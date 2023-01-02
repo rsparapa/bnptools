@@ -40,10 +40,9 @@ tsvs = function(
                ntree=c(10, 2), numcut=100, xicuts=NULL,
                power=c(2, 2), base=c(0.95, 0.95),
                ## f function
-               k=5, sigmaf=NA,
-               dist='weibull', 
+               fmu=NA, k=5, tau=NA, dist='weibull', 
                ## s function
-               sigmav=NULL, total.lambda=NA, total.nu=10, mask=0.95,
+               total.lambda=NA, total.nu=10, mask=0.95,
                ## survival analysis 
                ##K=100, events=NULL, 
                ## DPM LIO
@@ -122,11 +121,9 @@ tsvs = function(
                  ntree=ntree, numcut=numcut, xicuts=xicuts.,
                  power=power, base=base,
                  ## f function
-                 k=k, sigmaf=sigmaf,
-                 dist=dist, 
+                 fmu=fmu, k=k, tau=tau, dist=dist, 
                  ## s function
-                 sigmav=sigmav, total.lambda=total.lambda,
-                 total.nu=total.nu, mask=mask,
+                 total.lambda=total.lambda, total.nu=total.nu, mask=mask,
                  ## survival analysis 
                  K=0, events=NULL, TSVS=TRUE, 
                  ## DPM LIO
