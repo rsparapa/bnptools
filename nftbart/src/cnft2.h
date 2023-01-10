@@ -530,21 +530,28 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
       COUT << "adapting  " << i << endl;
     }
 
-    size_t K=Rcpp::max(C)+1;
+    size_t K=Rcpp::max(C)+1, g;
     for(size_t k=0;k<n;k++) {
-      if(delta[k]==1) z[k] = y[k];
-      else {
 	if(drawDP) {
 	  Rcpp::NumericVector prob(K);
-	  for(size_t g=0;g<K;g++) 
-	    prob[g]=states[g]*
-	      R::pnorm(y[k], phi(g, 0)*sig[k]+ambm.f(k), 
-		       pow(phi(g, 1), -0.5)*sig[k], 
+	  for(size_t l=0;l<K;l++) 
+	    prob[l]=states[l]*
+	      R::pnorm(y[k], phi(l, 0)*sig[k]+ambm.f(k), 
+		       pow(phi(l, 1), -0.5)*sig[k], 
 		       (int)(delta[k]==2), 0)/n; // left and right
 		       //pow(phi(g, 1), -0.5)*sig[k], 0, 0)/n; right only
-	  size_t g;
 	  g=gen.rcat(prob);
 	  if(g==-1) g=C[k];
+	}
+      if(delta[k]==1) {
+	z[k] = y[k];
+	if(drawrho && !adapting) {
+	  if(drawDP) z[k] -= rho*pow(phi(g, 1), -0.5)*sig[k]*edraws2(h, k);
+	  else z[k] -= rho*sig[k]*edraws2(h, k);
+	}
+      }
+      else {
+	if(drawDP) {
 	  // right and left censoring
 	  if(drawrho && !adapting) z[k]=censor[k]*
 	    gen.rtnorm(censor[k]*y[k], 

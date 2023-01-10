@@ -1,11 +1,16 @@
 
-Changes and New Features in 1.5 (2022-12-31):
+Changes and New Features in 1.6 (2023-01-10):
+	* conditional sampling for bivariate NFT
+
+Changes and New Features in 1.5 (2023-01-06):
         * streamlining the interface to nft2/nft/tsvs2/tsvs
 
 	* for code maintainability, nft is just a wrapper of nft2
 	  (and predict.nft is just a wrapper of predict.nft2)
 
 	* for non-FPD scenarios, calculate lower/upper just like FPD
+
+	* harden bMM for P=1 
 
 Changes and New Features in 1.4 (2022-08-25):
 	* New option: mask unstable sd(.) estimates to calculate soffset
