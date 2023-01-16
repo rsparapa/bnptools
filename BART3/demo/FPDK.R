@@ -37,7 +37,7 @@ x.test = x.train
 ## x=seq(-3, 3, length.out=H+1)[-(H+1)]
 ## x.test[ , 3]=x
 
-## FPD: no hot-decking
+## FPD: no kernel sampling
 proc.time.=proc.time()
 yhat.test=FPD(post, x.train, x.test, 3, mc.cores=B)
 print(proc.time()-proc.time.)
@@ -45,23 +45,23 @@ yhat.test.mean=apply(yhat.test, 2, mean)
 yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
 yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
 
-## HDFPD: naive hot-decking variance
+## FPDK: naive kernel sampling variance
 proc.time.=proc.time()
-naive=HDFPD(post, x.train, x.test, 3, mult.impute=20, mc.cores=B)
+naive=FPDK(post, x.train, x.test, 3, mult.impute=20, mc.cores=B)
 print(proc.time()-proc.time.)
 
-## HDFPD: adjusted hot-decking variance
+## FPDK: adjusted kernel sampling variance
 proc.time.=proc.time()
-pred20=HDFPD(post, x.train, x.test, 3, mult.impute=20, hotd.var=TRUE,
+pred20=FPDK(post, x.train, x.test, 3, mult.impute=20, kern.var=TRUE,
              mc.cores=B)
 print(proc.time()-proc.time.)
 
 proc.time.=proc.time()
-pred5=HDFPD(post, x.train, x.test, 3, mult.impute=5, hotd.var=TRUE, mc.cores=B)
+pred5=FPDK(post, x.train, x.test, 3, mult.impute=5, kern.var=TRUE, mc.cores=B)
 print(proc.time()-proc.time.)
 
 proc.time.=proc.time()
-pred2=HDFPD(post, x.train, x.test, 3, mult.impute=2, hotd.var=TRUE, mc.cores=B)
+pred2=FPDK(post, x.train, x.test, 3, mult.impute=2, kern.var=TRUE, mc.cores=B)
 print(proc.time()-proc.time.)
 
 par(mfrow=c(2, 1))
@@ -91,7 +91,7 @@ for(i in 1:2) {
     lines(x, pred2$yhat.test.upper., col=6, lty=6, lwd=2)
 }
 par(mfrow=c(1, 1))
-dev.copy2pdf(file='HDFPD-1.pdf')
+dev.copy2pdf(file='FPDK-1.pdf')
 
 par(mfrow=c(2, 1))
 for(i in 1:2) {
@@ -120,4 +120,4 @@ for(i in 1:2) {
     lines(x, pred2$yhat.test.upper, col=6, lty=6, lwd=2)
 }
 par(mfrow=c(1, 1))
-dev.copy2pdf(file='HDFPD-2.pdf')
+dev.copy2pdf(file='FPDK-2.pdf')
