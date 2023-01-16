@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2022 Robert McCulloch and Rodney Sparapani
-## hotdeckdraw.R
+## HDimpute.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-hotdeckdraw=function(x.train, y.train, x.test=matrix(0, 0, 0), 
+HDimpute=function(x.train, y.train, x.test=matrix(0, 0, 0), 
                   impute.mult=NULL, seed=NULL
                   )
 {   ## NOT TRANSPOSED
