@@ -27,11 +27,12 @@ export(srstepwise)
 export(read.trees, write.trees)
 export(read.forest)
 export(EXPVALUE, comb, perm)
-export(FPD)   ## new S3 method: Friedman's partial dependence function
-export(HDFPD) ## new S3 method: hot deck Friedman's partial dependence function
-export(SHAP)  ## new S3 method: SHAP additive explanation function
-export(SHAP2) ## new S3 method: SHAP for two-way interactions
-export(HDSHAP)## new S3 method: hot deck SHAP additive explanation function
+## export(FPD)   ## Friedman's partial dependence function
+## export(HDFPD) ## hot deck Friedman's partial dependence function
+## export(SHAP)  ## SHAP additive explanation function
+## export(SHAP2) ## SHAP for two-way interactions
+## export(HDSHAP)## hot deck SHAP
+additive explanation function
 export(CDimpute, hotdeckdraw)
 importFrom(Rcpp, evalCpp)
 importFrom(nlme, lme)
@@ -46,12 +47,12 @@ importFrom(utils, read.table)
 S3method(FPD, wbart)
 S3method(FPD, pbart)
 S3method(FPD, survbart)
-S3method(HDFPD, wbart)
+S3method(FPDK, wbart)
 S3method(SHAP, wbart)
 S3method(SHAP2, wbart)
 S3method(SHAP, survbart)
 S3method(SHAP, crisk3bart)
-S3method(HDSHAP, wbart)
+S3method(SHAPK, wbart)
 S3method(predict, wbart)
 S3method(predict, pbart)
 S3method(predict, survbart)
