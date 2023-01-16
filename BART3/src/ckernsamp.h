@@ -17,7 +17,7 @@
  *  https://www.R-project.org/Licenses/GPL-2
  */
 
-RcppExport SEXP chotdeck(
+RcppExport SEXP ckernsamp(
 			 SEXP _itrain,
 			 SEXP _itest,
 			 SEXP _imask,
@@ -33,7 +33,7 @@ RcppExport SEXP chotdeck(
   //--------------------------------------------------
   //OpenMP will not work here since we cannot 
   //estimate 1, ..., nd predictions simultaneously
-  //for each sample, we need to hotdeck the values
+  //for each draw, we need to sample values
   //however, we can parallel-ize predictions 1, ..., np
   //but we are not using OpenMP: just multiple threads
   //each given a block of xtest which is even easier
