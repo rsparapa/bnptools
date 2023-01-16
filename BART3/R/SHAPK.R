@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2020-2023 Robert McCulloch and Rodney Sparapani
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Hot deck (HD) SHAP additive explanation
-HDSHAP=function(object,  ## object returned from BART
+## kernel sampling SHAP additive explanation
+SHAPK=function(object,  ## object returned from BART
             x.train, ## x.train to estimate coverage
             x.test,  ## settings of x.test: only x.test[ , S]
                      ## are used but they must all be given
@@ -25,12 +25,12 @@ HDSHAP=function(object,  ## object returned from BART
             seed=99L,
             mult.impute=1L,
             comb.draw=0L,
-            hotd.var=FALSE, ## hot-deck variance adjustment
-            alpha=0.05, ## hot-deck symmetric credible interval
+            kern.var=FALSE, ## kernel sampling variance adjustment
+            alpha=0.05, ## kernel sampling symmetric credible interval
             probs=c(0.025, 0.975),
-                     ## hot-deck asymmetric credible interval
+                     ## kernel sampling asymmetric credible interval
             mc.cores=1L,
             nice=19L)
 {
-    UseMethod('HDSHAP')
+    UseMethod('SHAPK')
 }

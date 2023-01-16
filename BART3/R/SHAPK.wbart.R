@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2020-2023 Robert McCulloch and Rodney Sparapani
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Hot deck (HD) SHAP additive explanation function
-HDSHAP.wbart=function(object,  ## object returned from BART
+## kernel sampling SHAP additive explanation function
+SHAPK.wbart=function(object,  ## object returned from BART
                       x.train, ## x.train to estimate coverage
                       x.test,  ## settings of x.test: only x.test[ , S]
                       ## are used but they must all be given
@@ -25,10 +25,10 @@ HDSHAP.wbart=function(object,  ## object returned from BART
                       seed=99L,
                       mult.impute=1L,
                       comb.draw=0L,
-                      hotd.var=FALSE, ## hot-deck variance adjustment
-                      alpha=0.05, ## hot-deck symmetric credible interval
+                      kern.var=FALSE, ## kernel sampling variance adjustment
+                      alpha=0.05, ## kernel sampling symmetric credible interval
                       probs=c(0.025, 0.975),
-                      ## hot-deck asymmetric credible interval
+                      ## kernel sampling asymmetric credible interval
                       mc.cores=1L,
                       nice=19L)
 {
@@ -66,16 +66,16 @@ HDSHAP.wbart=function(object,  ## object returned from BART
                                ' of x.test are equal with respect to S'))
     M=P-length(S)
 
-    if(mc.cores>1L) call.=mc.hotdeck
-    else call.=hotdeck
+    if(mc.cores>1L) call.=mc.kernsamp
+    else call.=kernsamp
 
     shap=call.(x.train, x.test, S, object$treedraws, mult.impute=mult.impute,
-              hotd.var=hotd.var, alpha=alpha, probs=probs,
+              kern.var=kern.var, alpha=alpha, probs=probs,
               mc.cores=mc.cores, nice=nice)
 
     shap.=list()
 
-    if(hotd.var) {
+    if(kern.var) {
         shap.$yhat.test.=shap$yhat.test.
         shap.$yhat.test.var.=shap$yhat.test.var.
     } else {
@@ -108,13 +108,13 @@ HDSHAP.wbart=function(object,  ## object returned from BART
             for(i in 1:R) {
                 shap.in=call.(x.train, x.test, c(C[i, ], S),
                              object$treedraws, mult.impute=mult.impute,
-                             hotd.var=hotd.var, alpha=alpha, probs=probs,
+                             kern.var=kern.var, alpha=alpha, probs=probs,
                              mc.cores=mc.cores, nice=nice)
                 shap.ex=call.(x.train, x.test, C[i, ],
                              object$treedraws, mult.impute=mult.impute,
-                             hotd.var=hotd.var, alpha=alpha, probs=probs,
+                             kern.var=kern.var, alpha=alpha, probs=probs,
                              mc.cores=mc.cores, nice=nice)
-                if(hotd.var) {
+                if(kern.var) {
                     shap.$yhat.test.=shap.$yhat.test.+
                         (shap.in$yhat.test.-shap.ex$yhat.test.)/R
                         ##(shap.in$yhat.test.-shap.ex$yhat.test.)/choose(M, k)
@@ -136,7 +136,7 @@ HDSHAP.wbart=function(object,  ## object returned from BART
         }
     }
 
-    if(hotd.var) {
+    if(kern.var) {
         shap.$yhat.test.=shap.$yhat.test./P
         shap.$yhat.test.mean =apply(shap.$yhat.test., 2, mean)
         shap.$yhat.test.lower=apply(shap.$yhat.test., 2, quantile,
