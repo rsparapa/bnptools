@@ -30,7 +30,7 @@ export(EXPVALUE, comb, perm)
 ## export(FPD)   ## Friedman's partial dependence function
 ## export(SHAP)  ## SHAP additive explanation function
 ## export(SHAP2) ## SHAP for two-way interactions
-export(CDimpute, hotdeckdraw)
+export(CDimpute, HDimpute)
 importFrom(Rcpp, evalCpp)
 importFrom(nlme, lme)
 importFrom(nnet, class.ind)
