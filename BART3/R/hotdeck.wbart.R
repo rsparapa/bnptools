@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017-2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2023 Robert McCulloch and Rodney Sparapani
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-hotdeck.survbart <- function(object, newdata, mult.impute, seed, ...) {
+hotdeck.wbart <- function(object, newdata, mult.impute, seed, ...) {
 
     p <- length(object$treedraws$cutpoints)
 
