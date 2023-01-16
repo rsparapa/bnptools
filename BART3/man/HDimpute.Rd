@@ -1,13 +1,13 @@
-\name{hotdeckdraw}
+\name{HDimpute}
 \title{Hot-deck missing imputation}
-\alias{hotdeckdraw}
+\alias{HDimpute}
 \description{This function imputes missing data with hot-decking.}
 \usage{
-hotdeckdraw(x.train,
-            y.train,
-            x.test=matrix(0, 0, 0),
-            impute.mult=NULL,
-            seed=NULL)
+HDimpute(x.train,
+         y.train,
+         x.test=matrix(0, 0, 0),
+         impute.mult=NULL,
+         seed=NULL)
 }
 \arguments{
   \item{x.train}{The training matrix.}
