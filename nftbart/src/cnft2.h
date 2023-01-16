@@ -580,7 +580,10 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	}
       }
       e[k]=z[k];
-      if(keeping || burning) zdraws(h, k)=z[k];
+      if(keeping || burning) {
+	zdraws(h, k)=z[k];
+	if(drawrho) sig[k] *= pow(1.-pow(rho, 2.), 0.5);
+      }
     }
 
     for(size_t k=0;k<n;k++) {
