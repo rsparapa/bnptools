@@ -27,9 +27,11 @@ export(srstepwise)
 export(read.trees, write.trees)
 export(read.forest)
 export(EXPVALUE, comb, perm)
-## export(FPD)   ## Friedman's partial dependence function
-## export(SHAP)  ## SHAP additive explanation function
-## export(SHAP2) ## SHAP for two-way interactions
+export(FPD)   ## Friedman's partial dependence function
+export(FPDK)   ## Friedman's partial dependence function
+export(SHAP)  ## SHAP additive explanation function
+export(SHAPK) ## SHAP additive explanation
+export(SHAP2) ## SHAP for two-way interactions
 export(CDimpute, HDimpute)
 importFrom(Rcpp, evalCpp)
 importFrom(nlme, lme)
