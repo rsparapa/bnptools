@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017-2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2023 Robert McCulloch and Rodney Sparapani
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,21 +16,21 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-mc.hotdeck = function(
+mc.kernsamp = function(
                    x.train,           ## matrix for training
                    x.test,	      ## matrix to predict at
                    S,                 ## x.test columns to condition on
-                                      ## others will be hot-decked
+                                      ## others will be kernel samplinged
                    treedraws,	      ## $treedraws
                    mu=0,	      ## mean to add on
                    transposed=FALSE,
                    mult.impute=1L,
-                   hotd.var=FALSE,    ## hot-deck variance adjustment
-                   alpha=0.05,        ## hot-deck symmetric credible interval
+                   kern.var=FALSE,    ## kernel sampling variance adjustment
+                   alpha=0.05,        ## kernel sampling symmetric credible interval
                    probs=c(0.025, 0.975),
                                       ## equal-tail asymmetric credible interval
-                   mc.cores=getOption('mc.cores', 2L), ## mc.hotdeck only
-                   nice=19L)          ## mc.hotdeck only
+                   mc.cores=getOption('mc.cores', 2L), ## mc.kernsamp only
+                   nice=19L)          ## mc.kernsamp only
 {
     ## if(.Platform$OS.type!='unix')
     ##     stop('parallel::mcparallel/mccollect do not exist on windows')
@@ -61,21 +61,21 @@ mc.hotdeck = function(
         else h <- j-k
 
         parallel::mcparallel({psnice(value=nice);
-            hotdeck(x.train=x.train,
+            kernsamp(x.train=x.train,
                     x.test=matrix(x.test[ , h:j], nrow=p, ncol=j-h+1),
                     S=S, treedraws=treedraws, mu=0, transposed=TRUE,
-                    mult.impute=mult.impute, hotd.var=hotd.var)},
+                    mult.impute=mult.impute, kern.var=kern.var)},
             silent=(i!=1))
         j <- h-1
     }
 
     pred.list <- parallel::mccollect()
 
-    if(hotd.var) {
+    if(kern.var) {
         pred = list()
-        pred$yhat.test <- pred.list[[1]]$yhat.test ## hot-deck posterior
+        pred$yhat.test <- pred.list[[1]]$yhat.test ## kernel sampling posterior
         pred$yhat.test. <- pred.list[[1]]$yhat.test. ## adjusted posterior
-        pred$hotd.test.var <- pred.list[[1]]$hotd.test.var
+        pred$kern.test.var <- pred.list[[1]]$kern.test.var
 
         if(mc.cores>1)
             for(i in 2:mc.cores) {
@@ -83,8 +83,8 @@ mc.hotdeck = function(
                                         pred.list[[i]]$yhat.test)
                 pred$yhat.test. <- cbind(pred$yhat.test.,
                                          pred.list[[i]]$yhat.test.)
-                pred$hotd.test.var <- c(pred$hotd.test.var,
-                                         pred.list[[i]]$hotd.test.var)
+                pred$kern.test.var <- c(pred$kern.test.var,
+                                         pred.list[[i]]$kern.test.var)
             }
         pred$yhat.test=pred$yhat.test+mu
         pred$yhat.test.=pred$yhat.test.+mu
@@ -99,7 +99,7 @@ mc.hotdeck = function(
         ##return(pred)
     } else {
         pred = list()
-        pred$yhat.test <- pred.list[[1]]$yhat.test ## hot-deck posterior
+        pred$yhat.test <- pred.list[[1]]$yhat.test ## kernel sampling posterior
 
         if(mc.cores>1)
             for(i in 2:mc.cores) {
