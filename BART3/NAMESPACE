@@ -28,11 +28,8 @@ export(read.trees, write.trees)
 export(read.forest)
 export(EXPVALUE, comb, perm)
 ## export(FPD)   ## Friedman's partial dependence function
-## export(HDFPD) ## hot deck Friedman's partial dependence function
 ## export(SHAP)  ## SHAP additive explanation function
 ## export(SHAP2) ## SHAP for two-way interactions
-## export(HDSHAP)## hot deck SHAP
-additive explanation function
 export(CDimpute, hotdeckdraw)
 importFrom(Rcpp, evalCpp)
 importFrom(nlme, lme)

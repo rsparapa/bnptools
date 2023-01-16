@@ -34,6 +34,6 @@
 #include "clbart.h"
 #include "cpbart.h"
 #include "cpwbart.h"
-#include "chotdeck.h"
+#include "ckernsamp.h"
 #include "cwbart.h"
 #include "mc_cores_openmp.h"
