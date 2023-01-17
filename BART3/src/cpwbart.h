@@ -32,11 +32,11 @@ RcppExport SEXP cpwbart(
    SEXP _itc			//thread count
 )
 {
-   Rprintf("*****In main of C++ for bart prediction\n");
+   //Rprintf("*****In main of C++ for bart prediction\n");
    //--------------------------------------------------
    //get threadcount
    int tc = Rcpp::as<int>(_itc);
-   cout << "tc (threadcount): " << tc << endl;
+   //cout << "tc (threadcount): " << tc << endl;
    //--------------------------------------------------
    //process trees
    Rcpp::List trees(_itrees);
@@ -46,9 +46,11 @@ RcppExport SEXP cpwbart(
 
    size_t nd,m,p;
    ttss >> nd >> m >> p;
+/*
    cout << "number of bart draws: " << nd << endl;
    cout << "number of trees in bart sum: " << m << endl;
    cout << "number of x columns: " << p << endl;
+*/
    //--------------------------------------------------
    //process cutpoints (from trees)
    Rcpp::List  ixi(Rcpp::wrap(trees["cutpoints"]));
@@ -65,7 +67,10 @@ RcppExport SEXP cpwbart(
    //process x
    Rcpp::NumericMatrix xpred(_ix);
    size_t np = xpred.ncol();
-   cout << "from x,np,p: " << xpred.nrow() << ", " << xpred.ncol() << endl;
+   cout << "draws=" << nd << ", trees=" << m << ", columns=" << p
+	<< ", np=" << xpred.nrow() << ", p=" << xpred.ncol()
+	<< ", threadcount tc=" << tc; 
+   //cout << "from x,np,p: " << xpred.nrow() << ", " << xpred.ncol() << endl;
    //--------------------------------------------------
    //read in trees
    std::vector<vtree> tmat(nd);
@@ -81,15 +86,15 @@ RcppExport SEXP cpwbart(
    double *px = &xpred(0,0);
 
    #ifndef _OPENMP
-   cout << "***using serial code\n";
+   cout << ", using serial code\n";
    getpred(0, nd-1, p, m, np,  xi,  tmat, px,  yhat);
    #else
    if(tc==1) {
-     cout << "***using serial code\n"; 
+     cout << ", using serial code\n"; 
      getpred(0, nd-1, p, m, np,  xi,  tmat, px,  yhat);
    }
    else {
-      cout << "***using parallel code\n";
+      cout << ", using parallel code\n";
 #pragma omp parallel num_threads(tc)
       local_getpred(nd,p,m,np,xi,tmat,px,yhat);
    }

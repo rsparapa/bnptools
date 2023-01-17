@@ -32,7 +32,7 @@ post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
 sort(post$varprob.mean*P, TRUE)
 
 ## x.test = x.train
-H=20
+H=50
 x.test=matrix(0, nrow=H, ncol=P)
 x=seq(-3, 3, length.out=H+1)[-(H+1)]
 x.test[ , 3]=x
@@ -42,86 +42,31 @@ proc.time.=proc.time()
 yhat.test=FPD(post, x.train, x.test, 3, mc.cores=B)
 print(proc.time()-proc.time.)
 yhat.test.mean=apply(yhat.test, 2, mean)
-yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
-yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
+yhat.test.lower=apply(yhat.test, 2, quantile, probs=0.025)
+yhat.test.upper=apply(yhat.test, 2, quantile, probs=0.975)
 
 ## FPDK: naive kernel sampling variance
 proc.time.=proc.time()
-naive=FPDK(post, x.train, x.test, 3, mult.impute=20, mc.cores=B)
+naive=FPDK(post, x.train, x.test, 3, mult.impute=50, mc.cores=B)
 print(proc.time()-proc.time.)
 
 ## FPDK: adjusted kernel sampling variance
 proc.time.=proc.time()
-pred20=FPDK(post, x.train, x.test, 3, mult.impute=20, kern.var=TRUE,
+adjust=FPDK(post, x.train, x.test, 3, mult.impute=50, kern.var=TRUE,
              mc.cores=B)
 print(proc.time()-proc.time.)
 
-## proc.time.=proc.time()
-## pred5=FPDK(post, x.train, x.test, 3, mult.impute=5, kern.var=TRUE, mc.cores=B)
-## print(proc.time()-proc.time.)
-
-## proc.time.=proc.time()
-## pred2=FPDK(post, x.train, x.test, 3, mult.impute=2, kern.var=TRUE, mc.cores=B)
-## print(proc.time()-proc.time.)
-
-par(mfrow=c(2, 1))
-for(i in 1:2) {
-    if(i==1) {
-        plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
-             xlim=c(-0.5, 0.5), ylim=c(-15, 15))
-        } else {
-            plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
-                 xlim=c(0.5, 2.5), ylim=c(25, 50))
-        legend('topleft', col=0:4, lty=0:4, lwd=2,
-           legend=c('Method 1', 'True', 'FPD', 'Naive 20'))
-        ## legend('topleft', col=0:6, lty=0:6, lwd=2,
-        ##    legend=c('Method 1', 'True', 'FPD', 'Naive 20', '20', '5', '2'))
-        }
-    lines(x, yhat.test.mean, col=2, lwd=2)
-    lines(x, yhat.test.025, col=2, lty=2, lwd=2)
-    lines(x, yhat.test.975, col=2, lty=2, lwd=2)
-    lines(x, naive$yhat.test.lower, col=3, lty=3, lwd=2)
-    lines(x, naive$yhat.test.upper, col=3, lty=3, lwd=2)
-    lines(x, pred20$yhat.test.mean, col=4, lwd=2)
-    lines(x, pred20$yhat.test.lower., col=4, lty=4, lwd=2)
-    lines(x, pred20$yhat.test.upper., col=4, lty=4, lwd=2)
-    ## lines(x, pred5$yhat.test.mean, col=5, lwd=2)
-    ## lines(x, pred5$yhat.test.lower., col=5, lty=5, lwd=2)
-    ## lines(x, pred5$yhat.test.upper., col=5, lty=5, lwd=2)
-    ## lines(x, pred2$yhat.test.mean, col=6, lwd=2)
-    ## lines(x, pred2$yhat.test.lower., col=6, lty=6, lwd=2)
-    ## lines(x, pred2$yhat.test.upper., col=6, lty=6, lwd=2)
-}
-par(mfrow=c(1, 1))
-dev.copy2pdf(file='FPDK-1.pdf')
-
-par(mfrow=c(2, 1))
-for(i in 1:2) {
-    if(i==1) {
-        plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
-             xlim=c(-0.5, 0.5), ylim=c(-15, 15))
-        } else {
-            plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
-                 xlim=c(0.5, 2.5), ylim=c(25, 50))
-        legend('topleft', col=0:4, lty=0:4, lwd=2,
-           legend=c('Method 2', 'True', 'FPD', 'Naive 20', '20'))
-        ## legend('topleft', col=0:6, lty=0:6, lwd=2,
-        ##    legend=c('Method 2', 'True', 'FPD', 'Naive 20', '20', '5', '2'))
-        }
-    lines(x, yhat.test.mean, col=2, lwd=2)
-    lines(x, yhat.test.025, col=2, lty=2, lwd=2)
-    lines(x, yhat.test.975, col=2, lty=2, lwd=2)
-    lines(x, naive$yhat.test.lower, col=3, lty=3, lwd=2)
-    lines(x, naive$yhat.test.upper, col=3, lty=3, lwd=2)
-    lines(x, pred20$yhat.test.mean, col=4, lwd=2)
-    lines(x, pred20$yhat.test.lower, col=4, lty=4, lwd=2)
-    lines(x, pred20$yhat.test.upper, col=4, lty=4, lwd=2)
-    ## lines(x, pred5$yhat.test.mean, col=5, lwd=2)
-    ## lines(x, pred5$yhat.test.lower, col=5, lty=5, lwd=2)
-    ## lines(x, pred5$yhat.test.upper, col=5, lty=5, lwd=2)
-    ## lines(x, pred2$yhat.test.mean, col=6, lwd=2)
-    ## lines(x, pred2$yhat.test.lower, col=6, lty=6, lwd=2)
-    ## lines(x, pred2$yhat.test.upper, col=6, lty=6, lwd=2)
-}
-par(mfrow=c(1, 1))
-dev.copy2pdf(file='FPDK-2.pdf')
+plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
+     xlim=c(-0.5, 0.5), ylim=c(-15, 15))
+lines(x, yhat.test.lower, col=2, lty=2, lwd=2)
+lines(x, yhat.test.upper, col=2, lty=2, lwd=2)
+lines(x, yhat.test.mean, col=2, lty=2, lwd=2)
+lines(x, naive$yhat.test.lower, col=3, lty=3, lwd=2)
+lines(x, naive$yhat.test.upper, col=3, lty=3, lwd=2)
+lines(x, naive$yhat.test.mean, col=3, lty=3, lwd=2)
+lines(x, adjust$yhat.test.lower, col=4, lty=4, lwd=2)
+lines(x, adjust$yhat.test.upper, col=4, lty=4, lwd=2)
+lines(x, adjust$yhat.test.mean, col=4, lty=4, lwd=2)
+legend('topleft', col=0:4, lty=0:4, lwd=2,
+       legend=c('Marginal Effects', 'True', 'FPD', 'Naive', 'Adjusted'))
+dev.copy2pdf(file='FPDK.pdf')

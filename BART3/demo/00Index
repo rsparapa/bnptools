@@ -33,7 +33,7 @@ imputation.probit         Imputing a categorical covariate variable with proboit
 inform.null.gbart  Specifying an informative null hypothesis prior with BART
 inform.alt.gbart   Specifying an informative alternative hypothesis prior with BART
 dm.recur.bart	   Diabetes and hospital admission example for recurrent events with BART
-HD  		   Hot-decking marginal expectation
+FPDK  		   Marginal expecation comparison of FPD to FPDK
 informative	   Example of sharding with an informative prior
 leuk		   Multi-state model example with leukemia data set
 liver.crisk.bart   Liver transplant example for competing risks with BART

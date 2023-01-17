@@ -87,9 +87,9 @@ kernsamp = function(
         }
         pred$yhat.test=pred$yhat.test+mu
         pred$yhat.test.mean=pred$yhat.test.mean+mu
-        z=qnorm(1-alpha/2)
-        pred$yhat.test.lower.=pred$yhat.test.mean-z*sqrt(pred$yhat.test.var.)
-        pred$yhat.test.upper.=pred$yhat.test.mean+z*sqrt(pred$yhat.test.var.)
+        ## z=qnorm(1-alpha/2)
+        ## pred$yhat.test.lower.=pred$yhat.test.mean-z*sqrt(pred$yhat.test.var.)
+        ## pred$yhat.test.upper.=pred$yhat.test.mean+z*sqrt(pred$yhat.test.var.)
         pred$yhat.test.=Yhat.test.mean+(pred$yhat.test-Yhat.test.mean)*
             sqrt(pred$yhat.test.var./pred$yhat.test.var)
         pred$yhat.test.lower=apply(pred$yhat.test., 2, quantile, probs=probs[1])
