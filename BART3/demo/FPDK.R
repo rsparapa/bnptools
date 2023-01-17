@@ -45,14 +45,14 @@ yhat.test.mean=apply(yhat.test, 2, mean)
 yhat.test.lower=apply(yhat.test, 2, quantile, probs=0.025)
 yhat.test.upper=apply(yhat.test, 2, quantile, probs=0.975)
 
-## FPDK: naive kernel sampling variance
+## SHAPK: naive kernel sampling variance
 proc.time.=proc.time()
-naive=FPDK(post, x.train, x.test, 3, mult.impute=50, mc.cores=B)
+naive=SHAPK(post, x.train, x.test, 3, mult.impute=50, mc.cores=B)
 print(proc.time()-proc.time.)
 
-## FPDK: adjusted kernel sampling variance
+## SHAPK: adjusted kernel sampling variance
 proc.time.=proc.time()
-adjust=FPDK(post, x.train, x.test, 3, mult.impute=50, kern.var=TRUE,
+adjust=SHAPK(post, x.train, x.test, 3, mult.impute=50, kern.var=TRUE,
              mc.cores=B)
 print(proc.time()-proc.time.)
 
@@ -69,4 +69,4 @@ lines(x, adjust$yhat.test.upper, col=4, lty=4, lwd=2)
 lines(x, adjust$yhat.test.mean, col=4, lty=4, lwd=2)
 legend('topleft', col=0:4, lty=0:4, lwd=2,
        legend=c('Marginal Effects', 'True', 'FPD', 'Naive', 'Adjusted'))
-dev.copy2pdf(file='FPDK.pdf')
+dev.copy2pdf(file='SHAPK.pdf')

@@ -1,31 +1,29 @@
 
 library(BART3)
 
-f=function(x)
-    10*(sin(2*pi*x[ , 1]*x[ , 2])+2*x[ , 3]-1)
+f = function(x)
+    10*sin(pi*x[ , 1]*x[ , 2]) +  20*x[ , 3]
+##    10*sin(pi*x[ , 1]*x[ , 2]) + 5*x[ , 3]*x[ , 4]^2 + 20*x[ , 5]
 
 N = 500
-sigma = 1 ##y = f(x) + sigma*z where z~N(0, 1)
-##P = 4   ##number of covariates
-P = 4
-S = 3
-C = 2 ## sample C combinations
+sigma = 1.0 ##y = f(x) + sigma*z where z~N(0, 1)
+P = 4       ##number of covariates
+## P = 10
+
+V = diag(P)
+V[3, 4] = 0.8
+V[4, 3] = 0.8
+## V[5, 6] = 0.8
+## V[6, 5] = 0.8
+L <- chol(V)
 set.seed(12)
-## V = diag(P)
-## V[3, 4] = 0.8
-## V[4, 3] = 0.8
-## ## V[5, 6] = 0.8
-## ## V[6, 5] = 0.8
-## L <- chol(V)
-## x.train=matrix(rnorm(N*P), N, P) %*% L
-## dimnames(x.train)[[2]] <- paste0('x', 1:P)
-## round(cor(x.train), digits=2)
-x.train=matrix(runif(N*P), nrow=N, ncol=P)
-x = x.train[ , S]
+x.train=matrix(rnorm(N*P), N, P) %*% L
+dimnames(x.train)[[2]] <- paste0('x', 1:P)
+round(cor(x.train), digits=2)
+x = x.train[ , 3]
 x.train=x.train[order(x), ]
-x = x.train[ , S]
-## y.train=(f(x.train)+sigma*rnorm(N))
-y.train=f(x.train)
+x = x.train[ , 3]
+y.train=(f(x.train)+sigma*rnorm(N))
 
 B=8
 post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
@@ -33,56 +31,43 @@ post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
 ## post = mc.gbart(x.train, y.train, sparse=TRUE)
 sort(post$varprob.mean*P, TRUE)
 
-x.test = x.train
-## H=20
-## x.test=matrix(0, nrow=H, ncol=P)
-## x=seq(-3, 3, length.out=H+1)[-(H+1)]
-## x.test[ , 3]=x
+## x.test = x.train
+H=50
+x.test=matrix(0, nrow=H, ncol=P)
+x=seq(-3, 3, length.out=H+1)[-(H+1)]
+x.test[ , 3]=x
 
 ## FPD: no kernel sampling
 proc.time.=proc.time()
-yhat.test=FPD(post, x.train, x.test, S, mc.cores=B)-post$offset
+yhat.test=FPD(post, x.train, x.test, 3, mc.cores=B)
 print(proc.time()-proc.time.)
 yhat.test.mean=apply(yhat.test, 2, mean)
-yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
-yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
+yhat.test.lower=apply(yhat.test, 2, quantile, probs=0.025)
+yhat.test.upper=apply(yhat.test, 2, quantile, probs=0.975)
 
 ## SHAPK: naive kernel sampling variance
 proc.time.=proc.time()
-naive=SHAPK(post, x.train, x.test, S, mult.impute=20, mc.cores=B)
+naive=SHAPK(post, x.train, x.test, 3, mult.impute=50, mc.cores=B)
 print(proc.time()-proc.time.)
 
 ## SHAPK: adjusted kernel sampling variance
 proc.time.=proc.time()
-pred20=SHAPK(post, x.train, x.test, S, comb.draw=C, mult.impute=20, kern.var=TRUE, mc.cores=B)
+adjust=SHAPK(post, x.train, x.test, 3, mult.impute=50, kern.var=TRUE,
+             mc.cores=B)
 print(proc.time()-proc.time.)
 
-proc.time.=proc.time()
-pred5=SHAPK(post, x.train, x.test, S, comb.draw=C, mult.impute=5, kern.var=TRUE, mc.cores=B)
-print(proc.time()-proc.time.)
-
-proc.time.=proc.time()
-pred2=SHAPK(post, x.train, x.test, S, comb.draw=C, mult.impute=2, kern.var=TRUE, mc.cores=B)
-print(proc.time()-proc.time.)
-
-        plot(x, f(cbind(0, 0, x)), type='l', xlab='x3', ylab='f(x3)', lwd=2,
-                     ylim=c(-5, 5), xlim=c(0.2, 0.8))
-        legend('topleft', lwd=2,
-               col=1:6, lty=1:6,
-           legend=c('True', 'FPD', 'Naive 20', '20', '5', '2'))
-    lines(x, yhat.test.mean, col=2, lwd=2)
-    lines(x, yhat.test.025, col=2, lty=2, lwd=2)
-    lines(x, yhat.test.975, col=2, lty=2, lwd=2)
-    lines(x, naive$yhat.test.lower, col=3, lty=3, lwd=2)
-    lines(x, naive$yhat.test.upper, col=3, lty=3, lwd=2)
-    lines(x, pred20$yhat.test.mean, col=4, lwd=2)
-    lines(x, pred20$yhat.test.lower, col=4, lty=4, lwd=2)
-    lines(x, pred20$yhat.test.upper, col=4, lty=4, lwd=2)
-    lines(x, pred5$yhat.test.mean, col=5, lwd=2)
-    lines(x, pred5$yhat.test.lower, col=5, lty=5, lwd=2)
-    lines(x, pred5$yhat.test.upper, col=5, lty=5, lwd=2)
-    lines(x, pred2$yhat.test.mean, col=6, lwd=2)
-    lines(x, pred2$yhat.test.lower, col=6, lty=6, lwd=2)
-    lines(x, pred2$yhat.test.upper, col=6, lty=6, lwd=2)
+plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
+     xlim=c(-0.5, 0.5), ylim=c(-15, 15))
+lines(x, yhat.test.lower, col=2, lty=2, lwd=2)
+lines(x, yhat.test.upper, col=2, lty=2, lwd=2)
+lines(x, yhat.test.mean, col=2, lty=2, lwd=2)
+lines(x, naive$yhat.test.lower, col=3, lty=3, lwd=2)
+lines(x, naive$yhat.test.upper, col=3, lty=3, lwd=2)
+lines(x, naive$yhat.test.mean, col=3, lty=3, lwd=2)
+lines(x, adjust$yhat.test.lower, col=4, lty=4, lwd=2)
+lines(x, adjust$yhat.test.upper, col=4, lty=4, lwd=2)
+lines(x, adjust$yhat.test.mean, col=4, lty=4, lwd=2)
+legend('topleft', col=0:4, lty=0:4, lwd=2,
+       legend=c('Marginal Effects', 'True', 'FPD', 'Naive', 'Adjusted'))
 dev.copy2pdf(file='SHAPK.pdf')
 
