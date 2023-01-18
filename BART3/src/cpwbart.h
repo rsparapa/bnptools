@@ -86,15 +86,18 @@ RcppExport SEXP cpwbart(
    double *px = &xpred(0,0);
 
    #ifndef _OPENMP
-   cout << ", using serial code\n";
+   cout << ", serial\n";
+   //cout << ", using serial code\n";
    getpred(0, nd-1, p, m, np,  xi,  tmat, px,  yhat);
    #else
    if(tc==1) {
-     cout << ", using serial code\n"; 
+     cout << ", serial\n";
+     //cout << ", using serial code\n";
      getpred(0, nd-1, p, m, np,  xi,  tmat, px,  yhat);
    }
    else {
-      cout << ", using parallel code\n";
+      cout << ", parallel\n";
+      //cout << ", using parallel code\n";
 #pragma omp parallel num_threads(tc)
       local_getpred(nd,p,m,np,xi,tmat,px,yhat);
    }

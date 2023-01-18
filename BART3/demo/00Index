@@ -29,11 +29,14 @@ height1			Growth chart example for variable selection
 height2			Growth chart example for marginal effects
 height3			Growth chart example for monotonic effects
 imputation         Imputing a categorical covariate variable with BART
-imputation.probit         Imputing a categorical covariate variable with proboit BART
+imputation.probit         Imputing a categorical covariate variable with probit BART
 inform.null.gbart  Specifying an informative null hypothesis prior with BART
 inform.alt.gbart   Specifying an informative alternative hypothesis prior with BART
 dm.recur.bart	   Diabetes and hospital admission example for recurrent events with BART
+FPD  		   Marginal expecation via FPD
 FPDK  		   Marginal expecation comparison of FPD to FPDK
+SHAP  		   Marginal expecation comparison of FPD to SHAP
+SHAPT  		   Marginal expecation comparison of FPD to SHAP call=TRUE
 SHAPK  		   Marginal expecation comparison of FPD to SHAPK
 informative	   Example of sharding with an informative prior
 leuk		   Multi-state model example with leukemia data set

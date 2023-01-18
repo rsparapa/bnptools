@@ -2,7 +2,7 @@
 library(BART3)
 
 f = function(x)
-    10*sin(pi*x[ , 1]*x[ , 2]) +  20*x[ , 3]
+    5+10*sin(pi*x[ , 1]*x[ , 2]) +  20*x[ , 3]
 ##    10*sin(pi*x[ , 1]*x[ , 2]) + 5*x[ , 3]*x[ , 4]^2 + 20*x[ , 5]
 
 N = 500
@@ -40,23 +40,46 @@ x.test[ , 3]=x
 ## FPD: no kernel sampling
 proc.time.=proc.time()
 yhat.test=FPD(post, x.train, x.test, 3, mc.cores=B)
+## centering to compare with SHAP
+yhat.test=yhat.test-post$offset
 print(proc.time()-proc.time.)
 yhat.test.mean=apply(yhat.test, 2, mean)
 yhat.test.lower=apply(yhat.test, 2, quantile, probs=0.025)
 yhat.test.upper=apply(yhat.test, 2, quantile, probs=0.975)
 
-## SHAPK: naive kernel sampling variance
-proc.time.=proc.time()
-naive=SHAPK(post, x.train, x.test, 3, mult.impute=50, mc.cores=B)
-print(proc.time()-proc.time.)
+## SHAP: naive kernel sampling variance
+file.='SHAPT-naive.rds'
+if(file.exists(file.)) { naive=readRDS(file.)
+} else {
+    proc.time.=proc.time()
+    naive=SHAP(post, x.train, x.test, 3, mult.impute=50, mc.cores=B,
+               call=TRUE)
+    print(proc.time()-proc.time.)
+    saveRDS(naive, file.)
+}
 
-## SHAPK: adjusted kernel sampling variance
-proc.time.=proc.time()
-adjust=SHAPK(post, x.train, x.test, 3, mult.impute=50, kern.var=TRUE,
-             mc.cores=B)
-print(proc.time()-proc.time.)
+naive=list(SHAP=naive)
+naive$yhat.test.mean =apply(naive$SHAP, 2, mean)
+naive$yhat.test.lower=apply(naive$SHAP, 2, quantile, probs=0.025)
+naive$yhat.test.upper=apply(naive$SHAP, 2, quantile, probs=0.975)
+                            
+## SHAP: adjusted kernel sampling variance
+file.='SHAPT-adjust.rds'
+if(file.exists(file.)) { adjust=readRDS(file.)
+} else {
+    proc.time.=proc.time()
+    adjust=SHAP(post, x.train, x.test, 3, mult.impute=50, kern.var=TRUE,
+                mc.cores=B, call=TRUE)
+    print(proc.time()-proc.time.)
+    saveRDS(adjust, file.)
+}
 
-pdf(file='SHAPK.pdf')
+adjust=list(SHAP=adjust)
+adjust$yhat.test.mean =apply(adjust$SHAP, 2, mean)
+adjust$yhat.test.lower=apply(adjust$SHAP, 2, quantile, probs=0.025)
+adjust$yhat.test.upper=apply(adjust$SHAP, 2, quantile, probs=0.975)
+
+pdf(file='SHAPT.pdf')
 plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
      xlim=c(-0.5, 0.5), ylim=c(-15, 15))
 lines(x, yhat.test.lower, col=2, lty=2, lwd=2)
