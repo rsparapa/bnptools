@@ -4,6 +4,8 @@ Changes and New Features in 4.5 (2023-01-16):
 	* to avoid further confusion, renaming prefix HD "hot-deck"
 	methods (introduced in v3.9) to suffix K for "kernel" sampling
 
+	* new function mc.tsvs for Thompson Sampling Variable Selection
+
 Changes and New Features in 4.4 (2022-02-15):
 	* Makevars now defaults to Windows which is unable to
 	generate it from Makevars.win whereas Linux/macOS 

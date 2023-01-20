@@ -242,6 +242,48 @@ gbart=function(
 
     ptm <- proc.time()
 
+    ## for debugging
+    ## return(list(ntype=ntype, ##as.integer(factor(type, levels=check))-1,
+    ##             n=n,  #number of observations in training data
+    ##             p=p,  #dimension of x
+    ##             np=np, #number of observations in test data
+    ##             x.train=x.train,   #pxn training data x
+    ##             y.train=y.train,   #nx1 training data y
+    ##             x.test=x.test,    #pxnp test data x
+    ##             ##z.train,
+    ##             ntree=ntree,
+    ##             numcut=numcut,
+    ##             ndpost=ndpost*keepevery,
+    ##             nskip=nskip,
+    ##             keepevery=keepevery,
+    ##             power=power,
+    ##             base=base,
+    ##             offset=offset,
+    ##             tau=tau,
+    ##             sigdf=sigdf,
+    ##             lambda=lambda,
+    ##             sigest=sigest,
+    ##             w=w,
+    ##             ##as.integer(treeinit),
+    ##             ##trees,
+    ##             sparse=sparse,
+    ##             theta=theta,
+    ##             omega=omega,
+    ##             grp=grp,
+    ##             a=a,
+    ##             b=b,
+    ##             rho=rho,
+    ##             augment=augment,
+    ##             varprob=varprob,
+    ##             printevery=printevery,
+    ##             xinfo=xinfo,
+    ##             shards=shards,
+    ##             verbose=verbose,
+    ##             impute.mult=impute.mult,
+    ##             impute.miss=impute.miss,
+    ##             impute.prob=impute.prob
+    ##             ))
+
     res = .Call("cgbart",
                 ntype, ##as.integer(factor(type, levels=check))-1,
                 n,  #number of observations in training data

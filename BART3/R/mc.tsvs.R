@@ -39,7 +39,7 @@ mc.tsvs <- function(
                      lambda=NA, tau.num=c(NA, 3, 6)[ntype],
                      ##tau.interval=0.9973,
                      offset=NULL, w=rep(1, length(y.train)),
-                     ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
+                     ntree=10L, numcut=100L,
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
@@ -81,7 +81,7 @@ mc.tsvs <- function(
 
     if(length(impute.mult)==1)
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
-    
+
         temp = bartModelMatrix(x.train, numcut, usequants=usequants,
                                xinfo=xinfo, rm.const=rm.const)
         x.train = temp$X
@@ -89,14 +89,26 @@ mc.tsvs <- function(
         xinfo = temp$xinfo
         if(length(grp)==0) grp <- temp$grp
         rm(temp)
+  
+    grp.=0
+    h=1
+    j=0
+    for(i in grp) {
+        grp.[h]=i
+        if(i==1 || i!=j) h=h+1
+        j=i
+    }
+    ##return(list(grp=grp, grp.=grp.))
+        
+    P=ncol(x.train)
     
-            dummy=matrix(0, nrow=2, ncol=ncol(x.train))
+            dummy=matrix(0, nrow=2, ncol=P)
             h=1
             l=1
-            for(i in 1:length(grp)) {
-                for(j in 1:grp[i]) {
+            for(i in 1:length(grp.)) {
+                for(j in 1:grp.[i]) {
                     dummy[1, h]=l
-                    dummy[2, h]=l+grp[i]-1
+                    dummy[2, h]=l+grp.[i]-1
                     h=h+1
                 }
                 l=h
@@ -116,15 +128,14 @@ mc.tsvs <- function(
     }
         
     Names=dimnames(x.train)[[2]] 
-    P=ncol(x.train)
     A=matrix(a., nrow=T, ncol=P)
     B=matrix(b., nrow=T, ncol=P)
     S=matrix(0,  nrow=T, ncol=P)
     dimnames(S)[[2]]=Names
-    theta=matrix(nrow=T, ncol=P)
-    dimnames(theta)[[2]]=Names
-    gamma=matrix(0, nrow=T, ncol=P)
-    dimnames(gamma)[[2]]=Names
+    vimp =matrix(nrow=T, ncol=P)
+    dimnames(vimp )[[2]]=Names
+    reward=matrix(0, nrow=T, ncol=P)
+    dimnames(reward)[[2]]=Names
     prob=matrix(nrow=T, ncol=P)
     dimnames(prob)[[2]]=Names
     varcount=matrix(0, nrow=T, ncol=P)
@@ -139,8 +150,8 @@ mc.tsvs <- function(
                 B[i, j]=B[i-1, j]
             }
         }
-        theta[i, ]=rbeta(P, A[i, ], B[i, ])
-        S[i, which(theta[i, ]>=C)]=1
+        vimp [i, ]=rbeta(P, A[i, ], B[i, ])
+        S[i, which(vimp [i, ]>=C)]=1
         
         j=sum(S[i, ])
         if(j==0) S[i, sample.int(P, 2)]=1
@@ -153,11 +164,15 @@ mc.tsvs <- function(
 
         pick=(S[i, ]==1)
         h=0
+        numcut.=0
+        grp.=0
         for(j in 1:P)
             if(pick[j]) {
                 h=h+1
                 if(h==1) xinfo.=rbind(xinfo[j, ])
                 else xinfo.=rbind(xinfo., xinfo[j, ])
+                numcut.[h]=numcut[j]
+                grp.[h]=grp[j]
             }
             ##dimnames(xinfo.)[[2]]=dimnames(xinfo)[[2]]
         
@@ -167,7 +182,7 @@ mc.tsvs <- function(
         post=mc.gbart(x.train=t(x.train.), y.train=y.train,
                      type=type, ntype=ntype,
                      sparse=sparse, theta=theta, omega=omega,
-                     a=a, b=b, augment=augment, rho=rho, grp=grp,
+                     a=a, b=b, augment=augment, rho=rho, grp=grp.,
                      varprob=varprob,
                      xinfo=xinfo., usequants=usequants,
                      rm.const=rm.const,
@@ -177,15 +192,16 @@ mc.tsvs <- function(
                      impute.miss=impute.miss,
                      lambda=lambda, tau.num=tau.num,
                      offset=offset, w=w,
-                     ntree=ntree, numcut=numcut,
+                     ntree=ntree, numcut=numcut.,
                      ndpost=ndpost, nskip=nskip,
                      keepevery=keepevery, printevery=printevery,
                      probs=probs,
                      mc.cores = mc.cores,
                      nice = nice, verbose = verbose,
-                     shards=shards, weight=weight,
-                     meta = meta, transposed=TRUE
+                     shards=shards, weight=weight, meta = meta,
+                   transposed=TRUE
                  )
+        ##return(post)
 
         names.=dimnames(post$varcount)[[2]]
         M=nrow(post$varcount)
@@ -195,32 +211,45 @@ mc.tsvs <- function(
                 l=post$varcount[M, h]
                 if(l>0) {
                     varcount[i, j]=l
-                    gamma[i, j]=1
+                    reward[i, j]=1
                 }
-                A[i, j]=A[i, j]+gamma[i, j]
-                B[i, j]=B[i, j]+1-gamma[i, j]
+                A[i, j]=A[i, j]+reward[i, j]
+                B[i, j]=B[i, j]+1-reward[i, j]
             } else {
                 B[i, j]=B[i, j]+1
             }
             prob[i, j]=A[i, j]/(A[i, j]+B[i, j])
         }
         if(length(warnings())>0) print(warnings())
-        res=list(step=i, prob=prob, S=S, a=A, b=B, gamma=gamma,
-                 theta=theta, varcount=varcount)
+        res=list(step=i, prob=prob, S=S, a=A, b=B, reward=reward,
+                 vimp =vimp , varcount=varcount)
         saveRDS(res, rds.file)
 
         pdf(file=pdf.file)
+        par(mfrow=c(2, 1))
         plot(1:i, prob[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, T),
              xlab='Steps', ylab='Inclusion Probability')
         abline(h=0:1, v=c(0, T))
         abline(h=0.5, col=8, lty=3)
         for(j in 1:P) 
             if(prob[i, j]>0.5) {
-                if(i==1) points(i, theta[i, j], col=j)
-                else lines(1:i, theta[1:i, j], col=j)
+                if(i==1) points(i, vimp [i, j], col=j)
+                else lines(1:i, vimp [1:i, j], col=j)
                 h=sample(1:i, 1)
-                text(h, theta[h, j], Names[j], col=j, pos=1)
+                text(h, vimp [h, j], Names[j], col=j, pos=1)
             }
+        plot(1:i, prob[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, T),
+             xlab='Steps', ylab='Inclusion Probability')
+        abline(h=0:1, v=c(0, T))
+        abline(h=0.5, col=8, lty=3)
+        for(j in 1:P) 
+            if(prob[i, j]>0.5) {
+                if(i==1) points(i, prob [i, j], col=j)
+                else lines(1:i, prob [1:i, j], col=j)
+                h=sample(1:i, 1)
+                text(h, prob [h, j], Names[j], col=j, pos=1)
+            }
+        par(mfrow=c(1, 1))
         dev.off()
     }
 
