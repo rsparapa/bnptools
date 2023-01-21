@@ -95,8 +95,10 @@ mc.tsvs <- function(
     j=0
     for(i in grp) {
         grp.[h]=i
-        if(i==1 || i!=j) h=h+1
-        j=i
+        if(j==0) {
+            h=h+1
+            j=i-1
+        } else { j=j-1 }
     }
     ##return(list(grp=grp, grp.=grp.))
         
@@ -132,12 +134,12 @@ mc.tsvs <- function(
     B=matrix(b., nrow=T, ncol=P)
     S=matrix(0,  nrow=T, ncol=P)
     dimnames(S)[[2]]=Names
-    vimp =matrix(nrow=T, ncol=P)
-    dimnames(vimp )[[2]]=Names
-    reward=matrix(0, nrow=T, ncol=P)
-    dimnames(reward)[[2]]=Names
     prob=matrix(nrow=T, ncol=P)
     dimnames(prob)[[2]]=Names
+    reward=matrix(0, nrow=T, ncol=P)
+    dimnames(reward)[[2]]=Names
+    vimp=matrix(nrow=T, ncol=P)
+    dimnames(vimp)[[2]]=Names
     varcount=matrix(0, nrow=T, ncol=P)
     dimnames(varcount)[[2]]=Names
 
@@ -150,8 +152,8 @@ mc.tsvs <- function(
                 B[i, j]=B[i-1, j]
             }
         }
-        vimp [i, ]=rbeta(P, A[i, ], B[i, ])
-        S[i, which(vimp [i, ]>=C)]=1
+        prob[i, ]=rbeta(P, A[i, ], B[i, ])
+        S[i, which(prob[i, ]>=C)]=1
         
         j=sum(S[i, ])
         if(j==0) S[i, sample.int(P, 2)]=1
@@ -218,36 +220,36 @@ mc.tsvs <- function(
             } else {
                 B[i, j]=B[i, j]+1
             }
-            prob[i, j]=A[i, j]/(A[i, j]+B[i, j])
+            vimp[i, j]=A[i, j]/(A[i, j]+B[i, j])
         }
         if(length(warnings())>0) print(warnings())
-        res=list(step=i, prob=prob, S=S, a=A, b=B, reward=reward,
-                 vimp =vimp , varcount=varcount)
+        res=list(step=i, vimp=vimp, S=S, a=A, b=B, reward=reward,
+                 prob=prob, varcount=varcount)
         saveRDS(res, rds.file)
 
         pdf(file=pdf.file)
         par(mfrow=c(2, 1))
-        plot(1:i, prob[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, T),
+        plot(1:i, vimp[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, T),
              xlab='Steps', ylab='Inclusion Probability')
         abline(h=0:1, v=c(0, T))
         abline(h=0.5, col=8, lty=3)
         for(j in 1:P) 
-            if(prob[i, j]>0.5) {
+            if(vimp[i, j]>0.5) {
+                if(i==1) points(i, prob[i, j], col=j)
+                else lines(1:i, prob[1:i, j], col=j)
+                h=sample(1:i, 1)
+                text(h, prob[h, j], Names[j], col=j, pos=1)
+            }
+        plot(1:i, vimp[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, T),
+             xlab='Steps', ylab='VIMP Probability')
+        abline(h=0:1, v=c(0, T))
+        abline(h=0.5, col=8, lty=3)
+        for(j in 1:P) 
+            if(vimp[i, j]>0.5) {
                 if(i==1) points(i, vimp [i, j], col=j)
                 else lines(1:i, vimp [1:i, j], col=j)
                 h=sample(1:i, 1)
                 text(h, vimp [h, j], Names[j], col=j, pos=1)
-            }
-        plot(1:i, prob[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, T),
-             xlab='Steps', ylab='Inclusion Probability')
-        abline(h=0:1, v=c(0, T))
-        abline(h=0.5, col=8, lty=3)
-        for(j in 1:P) 
-            if(prob[i, j]>0.5) {
-                if(i==1) points(i, prob [i, j], col=j)
-                else lines(1:i, prob [1:i, j], col=j)
-                h=sample(1:i, 1)
-                text(h, prob [h, j], Names[j], col=j, pos=1)
             }
         par(mfrow=c(1, 1))
         dev.off()
