@@ -33,7 +33,7 @@ mc.surv.pwbart(
                 x.test,
                 treedraws,
                 binaryOffset=0,
-                mc.cores=2L,
+                mc.cores=getOption("mc.cores", 2L),
                 type='pbart',
                 transposed=FALSE, nice=19L
               )
@@ -42,7 +42,7 @@ mc.recur.pwbart(
                 x.test,
                 treedraws,
                 binaryOffset=0,
-                mc.cores=2L, 
+                mc.cores=getOption("mc.cores", 2L), 
                 type='pbart',
                 transposed=FALSE, nice=19L
                )

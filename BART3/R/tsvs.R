@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2023 Robert McCulloch and Rodney Sparapani
-## mc.tsvs.R
+## tsvs.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,18 +17,18 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-mc.tsvs <- function(
+tsvs <- function(
                     x.train=matrix(0,0,0), y.train=NULL,
                     ##tsvs args
                     T=20, a.=1, b.=0.5, C=0.5,
-                    rds.file='mc.tsvs.rds',
-                    pdf.file='mc-tsvs.pdf',
+                    rds.file='tsvs.rds',
+                    pdf.file='tsvs.pdf',
                      type='wbart',
                      ntype=as.integer(
                          factor(type,
                                 levels=c('wbart', 'pbart', 'lbart'))),
                      ##treeinit=FALSE, trees=NULL,
-                     sparse=FALSE, theta=0, omega=1,
+                     sparse=TRUE, theta=0, omega=1,
                      a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
                      varprob=NULL,
                      xinfo=matrix(0,0,0), usequants=FALSE,
@@ -37,15 +37,15 @@ mc.tsvs <- function(
                      k=2, power=2, base=0.95,
                      impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
                      lambda=NA, tau.num=c(NA, 3, 6)[ntype],
-                     ##tau.interval=0.9973,
                      offset=NULL, w=rep(1, length(y.train)),
                      ntree=10L, numcut=100L,
                      ndpost=1000L, nskip=100L,
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
                      probs=c(0.025, 0.975),
-                     mc.cores = getOption('mc.cores', 2L),
-                     nice = 19L, verbose = 1L,
+                     ##mc.cores = getOption('mc.cores', 2L),
+                     ##nice = 19L,
+                     verbose = 1L,
                      shards=1L, weight=rep(NA, shards),
                      meta = FALSE
                      )
@@ -54,7 +54,7 @@ mc.tsvs <- function(
     if(T==0) return(T)
 
     if(transposed) 
-        stop('tsvs is run with x.train untransposed')
+        stop('tsvs must be run with x.train untransposed')
 
     if(is.na(ntype))
         stop("type argument must be set to either 'wbart', 'pbart' or 'lbart'")
@@ -73,11 +73,11 @@ mc.tsvs <- function(
             stop("The outcome is binary so set type to 'pbart' or 'lbart'")
     }
 
-    if(.Platform$OS.type!='unix')
-        stop('parallel::mcparallel/mccollect do not exist on windows')
+    ## if(.Platform$OS.type!='unix')
+    ##     stop('parallel::mcparallel/mccollect do not exist on windows')
 
-    RNGkind("L'Ecuyer-CMRG")
-    parallel::mc.reset.stream()
+    ## RNGkind("L'Ecuyer-CMRG")
+    ## parallel::mc.reset.stream()
 
     if(length(impute.mult)==1)
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
@@ -118,11 +118,11 @@ mc.tsvs <- function(
             dimnames(dummy)[[2]]=dimnames(x.train)[[2]]
 ##return(dummy)
     
-    mc.cores.detected <- detectCores()
+    ## mc.cores.detected <- detectCores()
 
-    if(mc.cores>mc.cores.detected) mc.cores <- mc.cores.detected
+    ## if(mc.cores>mc.cores.detected) mc.cores <- mc.cores.detected
 
-    mc.ndpost <- ceiling(ndpost/mc.cores)
+    ## mc.ndpost <- ceiling(ndpost/mc.cores)
 
     if(meta && shards>1) {
         ##weight=rep(1, shards)
@@ -181,7 +181,7 @@ mc.tsvs <- function(
         x.train.=cbind(x.train[ , pick])
         dimnames(x.train.)[[2]]=Names[pick]
         
-        post=mc.gbart(x.train=t(x.train.), y.train=y.train,
+        post=gbart(x.train=t(x.train.), y.train=y.train,
                      type=type, ntype=ntype,
                      sparse=sparse, theta=theta, omega=omega,
                      a=a, b=b, augment=augment, rho=rho, grp=grp.,
@@ -198,9 +198,10 @@ mc.tsvs <- function(
                      ndpost=ndpost, nskip=nskip,
                      keepevery=keepevery, printevery=printevery,
                      probs=probs,
-                     mc.cores = mc.cores,
-                     nice = nice, verbose = verbose,
-                     shards=shards, weight=weight, meta = meta,
+                     ##mc.cores = mc.cores,
+                     ##nice = nice,
+                     TSVS=TRUE, verbose = verbose,
+                     shards=shards, weight=weight, ##meta = meta,
                    transposed=TRUE
                  )
         ##return(post)

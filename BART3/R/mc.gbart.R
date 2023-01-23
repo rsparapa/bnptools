@@ -43,10 +43,12 @@ mc.gbart <- function(
                      keepevery=c(1L, 10L, 10L)[ntype],
                      printevery=100L, transposed=FALSE,
                      probs=c(0.025, 0.975),
-                     mc.cores = getOption('mc.cores', 2L),
-                     nice = 19L, seed = 99L, verbose = 1L,
-                     shards=1L, weight=rep(NA, shards),
-                     meta = FALSE
+                     mc.cores = getOption('mc.cores', 2L), ## mc.gbart only
+                     nice = 19L,  ## mc.gbart only
+                     seed = 99L,  ## mc.gbart only
+                     meta = FALSE,## mc.gbart only
+                     TSVS = FALSE,## gbart only
+                     verbose = 1L, shards=1L, weight=rep(NA, shards)
                      )
 {
     if(is.na(ntype))

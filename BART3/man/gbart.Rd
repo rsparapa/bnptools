@@ -42,11 +42,13 @@ gbart(
       mc.cores = 1L, ## mc.gbart only
       nice = 19L,    ## mc.gbart only
       seed = 99L,    ## mc.gbart only
-      shards = 1L, weight=rep(NA, shards)
+      meta = FALSE,  ## mc.gbart only
+      TSVS = FALSE,  ## gbart only
+      verbose = 1L, shards = 1L, weight=rep(NA, shards)
 )
 
 mc.gbart(
-         x.train, y.train,
+         x.train=matrix(0,0,0), y.train=NULL,
          x.test=matrix(0,0,0), type='wbart',
          ntype=as.integer(
              factor(type, levels=c('wbart', 'pbart', 'lbart'))),
@@ -67,9 +69,12 @@ mc.gbart(
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
          probs=c(0.025, 0.975),
-         mc.cores = getOption('mc.cores', 2L),
-         nice = 19L, seed = 99L, shards = 1L,
-         weight=rep(NA, shards), meta = FALSE
+         mc.cores = getOption('mc.cores', 2L), ## mc.gbart only
+         nice = 19L,  ## mc.gbart only
+         seed = 99L,  ## mc.gbart only
+         meta = FALSE,## mc.gbart only
+         TSVS = FALSE,  ## gbart only
+         verbose = 1L, shards = 1L, weight=rep(NA, shards)
 )
 
 }
@@ -273,6 +278,9 @@ argument \code{type} to specify a logit BART model.
      Set the job niceness.  The default
      niceness is 19: niceness goes from 0 (highest) to 19 (lowest).
    }
+   \item{TSVS}{ If \code{TRUE}, then avoid unnecessary calculations
+     for speed: \code{gbart} only.}
+   \item{verbose}{ If set to \code{0L}, then compute silently.}
    \item{shards}{ For the Modified LISA method, this is the number of
      shards: the default is \code{1L}.}
    \item{weight}{ For the Modified LISA method, this is a vector of

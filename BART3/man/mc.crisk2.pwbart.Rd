@@ -20,7 +20,7 @@ small amount to the overall fit.
 mc.crisk2.pwbart( x.test, x.test2,
                  treedraws, treedraws2,
                  binaryOffset=0, binaryOffset2=0,
-                 mc.cores=2L, type='pbart',
+                 mc.cores=getOption("mc.cores", 2L), type='pbart',
                  transposed=FALSE, nice=19L
                )
 }

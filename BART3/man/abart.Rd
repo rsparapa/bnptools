@@ -58,7 +58,8 @@ mc.abart(
          ndpost=1000L, nskip=100L, %keepevery=1L,
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
-         mc.cores = 2L, nice = 19L, seed = 99L
+         mc.cores = getOption("mc.cores", 2L),
+         nice = 19L, seed = 99L
 )
 
 }

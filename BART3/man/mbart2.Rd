@@ -29,7 +29,7 @@ mbart2(
           factor(type,
                  levels=c('wbart', 'pbart', 'lbart'))),
       sparse=FALSE, theta=0, omega=1,
-      a=0.5, b=1, augment=FALSE, rho=NULL,
+      a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
       xinfo=matrix(0,0,0), usequants=FALSE,
       rm.const=TRUE,
       k=2, power=2, base=0.95,
@@ -51,7 +51,7 @@ mc.mbart2(
              factor(type,
                     levels=c('wbart', 'pbart', 'lbart'))),
          sparse=FALSE, theta=0, omega=1,
-         a=0.5, b=1, augment=FALSE, rho=NULL,
+         a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
          xinfo=matrix(0,0,0), usequants=FALSE,
          rm.const=TRUE,
          k=2, power=2, base=0.95,
@@ -61,7 +61,7 @@ mc.mbart2(
          ndpost=1000L, nskip=100L,
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
-         mc.cores = 2L, ## mc.bart only
+         mc.cores = getOption("mc.cores", 2L), ## mc.bart only
          nice = 19L,    ## mc.bart only
          seed = 99L     ## mc.bart only
         )
@@ -107,8 +107,17 @@ mc.mbart2(
      \eqn{0.5<=a<=1} where lower values inducing more sparsity.}
    \item{b}{Sparse parameter for \eqn{Beta(a, b)} prior; typically,
      \eqn{b=1}.}
-   \item{rho}{Sparse parameter: typically \eqn{rho=p} where \eqn{p} is the
-     number of covariates under consideration.}
+      \item{rho}{A multiplier for the inverse weights of the Dirichlet prior
+     arguments.  For sparsity, \eqn{rho=p} where \eqn{p} is the
+     number of covariates under consideration: the default, \code{rho=0}
+     means \eqn{rho=p} (computed by \code{rho=sum(1/grp)}). For more sparsity,
+     \eqn{rho<p}, set this argument manually.  See also \code{grp}.}
+   \item{grp}{A vector of inverse weights for the Dirichlet prior arguments.
+     If all the variables are continuous, then \code{grp} is a vector of 1s.
+     However, for categorical variables (like factors in a data.frame), the
+   inverse weights are the number of categories.  See \code{bartModelMatrix}
+   for the details of the default automated derivation when \code{grp=NULL}.
+     }   
    \item{augment}{Whether data augmentation is to be performed in sparse
      variable selection.}
    

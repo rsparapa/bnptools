@@ -24,7 +24,7 @@ mbart2 <- function(
                        factor(type,
                               levels=c('wbart', 'pbart', 'lbart'))),
                    sparse=FALSE, theta=0, omega=1,
-                   a=0.5, b=1, augment=FALSE, rho=NULL,
+                   a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
                    xinfo=matrix(0,0,0), usequants=FALSE,
                    rm.const=TRUE,
                    k=2, power=2, base=0.95,
@@ -64,6 +64,7 @@ mbart2 <- function(
             x.test = t(x.test[ , temp$rm.const])
         }
         rm.const <- temp$rm.const
+        if(length(grp)==0) grp <- temp$grp
         rm(temp)
     }
 
@@ -99,7 +100,7 @@ mbart2 <- function(
                   x.test=x.test,
                   type=type, ntype=ntype,
                   sparse=sparse, theta=theta, omega=omega,
-                  a=a, b=b, augment=augment, rho=rho,
+                  a=a, b=b, augment=augment, rho=rho, grp=grp,
                   xinfo=xinfo, usequants=usequants,
                   rm.const=rm.const,
                   k=k, power=power, base=base,

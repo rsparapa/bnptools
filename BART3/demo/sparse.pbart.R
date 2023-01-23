@@ -23,9 +23,10 @@ x.train=matrix(runif(N*P), N, P)
 y.train=(rnorm(N, f(x.train), sigma)>0)*1
 
 file.='sparse-pbart.rds'
-if(file.exists(file.)) {
-    post=readRDS(file.)
-} else {
+## if(file.exists(file.)) {
+##     post=readRDS(file.)
+## } else
+{
     post <- list()
 
     for(i in 1:M) {

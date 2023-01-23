@@ -102,7 +102,7 @@ mc.crisk.bart(x.train=matrix(0,0,0), y.train=NULL,
               %keeptrainfits=TRUE,
               id=NULL,    ## crisk.bart only
               seed=99,    ## mc.crisk.bart only
-              mc.cores=2, ## mc.crisk.bart only
+              mc.cores=getOption("mc.cores", 2L), ## mc.crisk.bart only
               nice=19L    ## mc.crisk.bart only
              )
 }

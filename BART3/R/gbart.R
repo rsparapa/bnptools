@@ -40,8 +40,13 @@ gbart=function(
                keepevery=c(1L, 10L, 10L)[ntype],
                printevery=100L, transposed=FALSE,
                probs=c(0.025, 0.975),
-               mc.cores = 1L, nice = 19L, seed = 99L,
-               verbose = 1L, shards = 1L, weight=rep(NA, shards)
+               mc.cores = 1L, ## mc.gbart only
+               nice = 19L,    ## mc.gbart only
+               seed = 99L,    ## mc.gbart only
+               meta = FALSE,  ## mc.gbart only
+               TSVS=FALSE,    ## gbart only
+               verbose = 1L,
+               shards = 1L, weight=rep(NA, shards)
                )
 {
    if(is.na(ntype))
@@ -327,6 +332,11 @@ gbart=function(
                 )
 
     res$proc.time <- proc.time()-ptm
+    dimnames(res$varcount)[[2]] = as.list(dimnames(x.train)[[1]])
+    res$varcount.mean <- apply(res$varcount, 2, mean)
+    dimnames(res$varprob)[[2]] = as.list(dimnames(x.train)[[1]])
+    res$varprob.mean <- apply(res$varprob, 2, mean)
+if(TSVS) return(res)
 ##    res$hostname <- hostname
 
     type1.sigest=(type=='wbart' && nskip>0)
@@ -395,10 +405,10 @@ gbart=function(
 
     res$offset = offset
     names(res$treedraws$cutpoints) = dimnames(x.train)[[1]]
-    dimnames(res$varcount)[[2]] = as.list(dimnames(x.train)[[1]])
-    dimnames(res$varprob)[[2]] = as.list(dimnames(x.train)[[1]])
-    res$varcount.mean <- apply(res$varcount, 2, mean)
-    res$varprob.mean <- apply(res$varprob, 2, mean)
+    ## dimnames(res$varcount)[[2]] = as.list(dimnames(x.train)[[1]])
+    ## res$varcount.mean <- apply(res$varcount, 2, mean)
+    ## dimnames(res$varprob)[[2]] = as.list(dimnames(x.train)[[1]])
+    ## res$varprob.mean <- apply(res$varprob, 2, mean)
     if(impute.flag) res$impute.miss = impute.miss
     res$rm.const <- rm.const
     res$ndpost = ndpost
