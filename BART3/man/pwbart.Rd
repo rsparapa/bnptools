@@ -23,7 +23,7 @@ pwbart( x.test, treedraws, mu=0, mc.cores=1L, transposed=FALSE,
         nice=19L ## mc.pwbart only
       )
 
-mc.pwbart( x.test, treedraws, mu=0, mc.cores=2L, transposed=FALSE,
+mc.pwbart( x.test, treedraws, mu=0, mc.cores=getOption("mc.cores", 2L), transposed=FALSE,
            dodraws=TRUE,
            nice=19L ## mc.pwbart only
          )

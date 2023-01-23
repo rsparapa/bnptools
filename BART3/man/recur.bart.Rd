@@ -84,7 +84,7 @@ mc.recur.bart(x.train=matrix(0,0,0),
               printevery = 100L, %treesaslists = FALSE, 
               keeptrainfits = TRUE,
               seed=99,    ## mc.recur.bart only
-              mc.cores=2, ## mc.recur.bart only
+              mc.cores=getOption("mc.cores", 2L), ## mc.recur.bart only
               nice=19L    ## mc.recur.bart only
             )
 }

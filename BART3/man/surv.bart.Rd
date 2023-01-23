@@ -92,7 +92,7 @@ mc.surv.bart( x.train=matrix(0,0,0),
               %keeptrainfits=TRUE,
               id=NULL,    ## surv.bart only
               seed=99,    ## mc.surv.bart only
-              mc.cores=2, ## mc.surv.bart only
+              mc.cores=getOption("mc.cores", 2L), ## mc.surv.bart only
               nice=19L    ## mc.surv.bart only
             )
 }

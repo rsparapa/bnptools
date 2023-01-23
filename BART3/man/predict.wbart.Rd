@@ -23,7 +23,8 @@ small amount to the overall fit.
 \method{predict}{wbart}(object, newdata,
     mc.cores=getOption('mc.cores', 1L),
     openmp=(mc.cores.openmp()>0),
-    mult.impute=4, seed=99, ...)
+    mult.impute=4, seed = 99L, mu = NULL,
+    cutpoints = NULL, trees = NULL, ...)
 }
 \arguments{
    \item{object}{
@@ -47,6 +48,9 @@ small amount to the overall fit.
      multiple imputation this many times: default is \code{4}.}
    \item{seed}{ For missing values in \code{newdata}, perform
      multiple imputation with this seed: default is \code{99}.}
+   \item{mu}{You can over-ride the offset by providing it here.}
+   \item{cutpoints}{You can over-ride the cut-points by providing it.}
+   \item{trees}{You can over-ride the trees by providing it.}
    \item{...}{
      Other arguments which will be passed on to \code{pwbart}.
    }
