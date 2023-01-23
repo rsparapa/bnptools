@@ -18,6 +18,11 @@ To avoid duplication, the main references that this package relies upon appear h
   \emph{JSS}, \bold{97}, 1-66.
   <doi:10.18637/jss.v097.i01>.
 
+  Albert J. and Chib S. (1993)
+  Bayesian Analysis of Binary and Polychotomous Response Data.
+  \emph{JASA}, \bold{88}, 669-679.
+  <doi:10.1080/01621459.1993.10476321>.
+  
   Chipman H., George E. and McCulloch R. (1998)
   Bayesian CART Model Search.
   \emph{JASA}, \bold{93}, 935-948.
@@ -27,7 +32,38 @@ To avoid duplication, the main references that this package relies upon appear h
   Bayesian Additive Regression Trees.
   \emph{Annals of Applied Statistics}, \bold{4}, 266-298.
   <doi:10.1214/09-AOAS285>.
+
+  De Waal T., Pannekoek J. and Scholtus S. (2011)
+  Handbook of statistical data editing and imputation.
+  John Wiley & Sons, Hoboken, NJ.
   
+  Friedman J. (1991)
+  Multivariate adaptive regression splines.
+  \emph{Annals of Statistics}, \bold{19}, 1-67.
+  
+  Friedman J. (2001)
+  Greedy Function Approximation: A Gradient Boosting Machine.
+  \emph{Annals of Statistics}, \bold{29}, 1189-1232. 
+
+  Gramacy R. and Polson N. (2012)
+  Simulation-based regularized logistic regression.
+  \emph{Bayesian Analysis}, \bold{7}, 567-590.
+  <doi:10.1214/12-ba719>.
+  
+  Holmes C. and Held L. (2006)
+  Bayesian auxiliary variable models for binary and multinomial regression.
+  \emph{Bayesian Analysis}, \bold{1}, 145-168.
+  <doi:10.1214/06-ba105>.
+
+  Linero A. (2018)
+  Bayesian regression trees for high dimensional prediction and variable selection.
+  \emph{JASA}, \bold{113}, 626-636.
+  <doi:10.1080/01621459.2016.1264957>.
+
+  Liu Y. and Ročková V. (2021)
+  Variable selection via Thompson sampling.
+  \emph{JASA}. \bold{ahead of print}, 1-8.
+    
   Sparapani R., Logan B., McCulloch R. and Laud P. (2016)
   Nonparametric Survival Analysis Using Bayesian Additive Regression Trees (BART).
   \emph{Statistics in Medicine}, \bold{35}, 2741-2753.
@@ -42,38 +78,6 @@ To avoid duplication, the main references that this package relies upon appear h
   Non-Parametric Recurrent Events Analysis with BART and an Application to the Hospital Admissions of Patients with Diabetes.
   \emph{Biostatistics}, \bold{21}, 69-85.
   <doi:10.1093/biostatistics/kxy032>.
-
-  Gramacy R. and Polson N. (2012)
-  Simulation-based regularized logistic regression.
-  \emph{Bayesian Analysis}, \bold{7}, 567-590.
-  <doi:10.1214/12-ba719>.
-  
-  Albert J. and Chib S. (1993)
-  Bayesian Analysis of Binary and Polychotomous Response Data.
-  \emph{JASA}, \bold{88}, 669-679.
-  <doi:10.1080/01621459.1993.10476321>.
-
-  De Waal T., Pannekoek J. and Scholtus S. (2011)
-  Handbook of statistical data editing and imputation.
-  John Wiley & Sons, Hoboken, NJ.
-  
-  Friedman J. (1991)
-  Multivariate adaptive regression splines.
-  \emph{Annals of Statistics}, \bold{19}, 1-67.
-  
-  Friedman J. (2001)
-  Greedy Function Approximation: A Gradient Boosting Machine.
-  \emph{Annals of Statistics}, \bold{29}, 1189-1232. 
-
-  Holmes C. and Held L. (2006)
-  Bayesian auxiliary variable models for binary and multinomial regression.
-  \emph{Bayesian Analysis}, \bold{1}, 145-168.
-  <doi:10.1214/06-ba105>.
-
-  Linero A. (2018)
-  Bayesian regression trees for high dimensional prediction and variable selection.
-  \emph{JASA}, \bold{113}, 626-636.
-  <doi:10.1080/01621459.2016.1264957>.
 }
 
 \keyword{package}
