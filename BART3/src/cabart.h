@@ -232,7 +232,7 @@ if(type==1) {
    double df=n+nu;
    double *z = new double[n]; 
    double *svec = new double[n]; 
-   double *sign;
+   double *sign = NULL;
    if(type!=1) sign = new double[n]; 
 
    for(size_t i=0; i<n; i++) {
