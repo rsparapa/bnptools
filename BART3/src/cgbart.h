@@ -338,7 +338,7 @@ void cgbart(
    double df=n+nu;
    double *z = new double[n]; 
    double *svec = new double[n]; 
-   double *sign;
+   double *sign = NULL;
    if(type!=1) sign = new double[n]; 
    Rcpp::IntegerVector prevXV(p);
 
