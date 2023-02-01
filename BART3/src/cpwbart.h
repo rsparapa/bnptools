@@ -68,7 +68,8 @@ RcppExport SEXP cpwbart(
    Rcpp::NumericMatrix xpred(_ix);
    size_t np = xpred.ncol();
    cout << "draws=" << nd << ", trees=" << m << ", columns=" << p
-	<< ", np=" << xpred.nrow() << ", p=" << xpred.ncol()
+//	<< ", np=" << xpred.nrow() << ", p=" << xpred.ncol()
+	<< ", np=" << xpred.ncol() << ", p=" << xpred.nrow() // transposed
 	<< ", threadcount tc=" << tc; 
    //cout << "from x,np,p: " << xpred.nrow() << ", " << xpred.ncol() << endl;
    //--------------------------------------------------
