@@ -2339,7 +2339,7 @@ else
                            -openmp -mp -omp -qsmp=omp -homp \
 			   -fopenmp=libomp \
                            -Popenmp --openmp \
-			   "-Xclang -fopenmp"; do
+			   "-lomp -Xclang -fopenmp"; do
 	    ac_save_CXXFLAGS=$CXXFLAGS
 	    CXXFLAGS="$CXXFLAGS $ac_option"
 	    cat confdefs.h - <<_ACEOF >conftest.$ac_ext

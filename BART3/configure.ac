@@ -38,7 +38,7 @@ AC_LANG(C++)
                            -openmp -mp -omp -qsmp=omp -homp \
 			   -fopenmp=libomp \
                            -Popenmp --openmp \
-			   "-Xclang -fopenmp"; do
+			   "-lomp -Xclang -fopenmp"; do
 	    ac_save_[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
 	    _AC_LANG_PREFIX[]FLAGS="$[]_AC_LANG_PREFIX[]FLAGS $ac_option"
 	    AC_LINK_IFELSE([_AC_LANG_OPENMP],
