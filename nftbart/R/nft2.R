@@ -340,7 +340,7 @@ if(K>0) {
     res$xiscuts=xiscuts
     ##res$fmu = fmu
     res$NFT=list(total.lambda = total.lambda, total.nu = total.nu,
-                 fmu=fmu, tau=tau) ## , sigmaf=sigmaf)
+                 fmu=fmu, tau=tau, k=k) ## , sigmaf=sigmaf)
 
     if(drawDPM>0) {
         ## res$prior = prior
