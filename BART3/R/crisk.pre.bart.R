@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2023 Robert McCulloch and Rodney Sparapani
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -46,8 +46,15 @@ crisk.pre.bart <- function(
                       x.test2=x.test,
                       ## matrix of covariate regressors for cause 2
 
-                      K=NULL
+                      K=NULL,
                       ## if specified, then use K quantiles for time grid
+                      
+                      rm.const=TRUE,
+                      numcut=100,
+                      grp=NULL, 
+                      xinfo=matrix(0,0,0),
+                      usequants=FALSE
+                      ## parameters for bartModelMatrix
                       ) {
     ## currently does not handle time dependent Xs
     ## can be extended later
@@ -68,7 +75,9 @@ crisk.pre.bart <- function(
         stop('number of rows in x.test and x.test2 must be equal')
 
     pre <- surv.pre.bart(times=times, 1*(delta==1), K=K,
-                         x.train=x.train, x.test=x.test)
+                         x.train=x.train, x.test=x.test,
+                         rm.const=rm.const, numcut=numcut, grp=grp,
+                         xinfo=xinfo, usequants=usequants)
 
     pre$cond <- which(pre$y.train==0)
 
@@ -78,7 +87,11 @@ crisk.pre.bart <- function(
     pre$tx.train2 <- pre2$tx.train
     pre$tx.test2 <- pre2$tx.test
     pre$y.train2 <- pre2$y.train
-    ##pre$binaryOffset2 <- pre2$binaryOffset
+    
+    pre$xinfo2 = pre2$xinfo
+    pre$numcut2 = pre2$numcut
+    pre$grp2 = pre2$grp
+    pre$rm.const2 = pre2$rm.const
 
     return(pre)
 }

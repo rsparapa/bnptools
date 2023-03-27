@@ -1,6 +1,5 @@
 
-
-Changes and New Features in 4.5 (2023-01-16):
+Changes and New Features in 4.5 (2023-03-27):
 	* to avoid further confusion, renaming prefix HD "hot-deck"
 	methods (introduced in v3.9) to suffix K for "kernel" sampling
 	that is a more appropriate name.  "hot-deck" is reserved for
@@ -8,6 +7,18 @@ Changes and New Features in 4.5 (2023-01-16):
         value imputation
 
 	* new function tsvs for Thompson Sampling Variable Selection
+
+	* C++11 is now the CRAN standard
+
+	* Dirichlet sparse prior settings properly handle data.frame factors
+	i.e., grouped variable dummies receive appropriate Dirichlet weights
+	experimental feature for continuous and dichotomous outcomes
+	along with time-to-event and competing risks
+	Chipman H, George E, Hahn R, McCulloch R, Pratola M, Sparapani, R. 
+	"Section 7.1.1: Grouped variables and the DART prior" In
+	"Computational approaches to Bayesian Additive Regression Trees", 
+	Chapter of Computational Statistics in Data Science,
+	Piegorsch W, Levine R, Zhang HH, Lee TCM (eds.) Wiley, 2022.
 
 Changes and New Features in 4.4 (2022-02-15):
 	* Makevars now defaults to Windows which is unable to

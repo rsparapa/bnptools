@@ -1,4 +1,4 @@
-CXX_STD = CXX11
+##CXX_STD = CXX11
 PKG_CXXFLAGS = -fopenmp
 PKG_LIBS = -fopenmp
 PKG_CPPFLAGS = -I../inst/include/

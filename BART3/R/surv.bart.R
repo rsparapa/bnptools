@@ -24,7 +24,7 @@ surv.bart <- function(
     x.test = matrix(0,0,0),
     K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
     sparse=FALSE, theta=0, omega=1,
-    a=0.5, b=1, augment=FALSE, rho=NULL,
+    a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
     xinfo=matrix(0,0,0), usequants=FALSE,
     ## cont=FALSE,
     rm.const=TRUE, type='pbart',
@@ -56,27 +56,42 @@ surv.bart <- function(
     if(is.na(ntype) || ntype==1)
         stop("type argument must be set to either 'pbart' or 'lbart'")
 
+    ## x.train <- bartModelMatrix(x.train)
+    ## x.test <- bartModelMatrix(x.test)
 
-    x.train <- bartModelMatrix(x.train)
-    x.test <- bartModelMatrix(x.test)
-
-    if(length(rho)==0) rho=ncol(x.train)
+    ## if(length(rho)==0) rho=ncol(x.train)
 
     impute = length(impute.mult)
     if(impute==1)
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
 
-    cold = CDimpute(x.train, x.test, impute.mult)
-    x.train = cold$x.train
-    x.test = cold$x.test
+## we can now replace cold-decking with hot-decking
+## stratified by the event indicator
+    ## cold = CDimpute(x.train, x.test, impute.mult)
+    ## x.train = cold$x.train
+    ## x.test = cold$x.test
 
     if(length(y.train)==0) {
+## how do we seed this for a single chain vs. multiple
+        times.=times
+        times.[delta==0]=times.[delta==0]+max(times[delta==1])
+    
+        hot = HDimpute(x.train, times., x.test)
+        x.train = hot$x.train
+        x.test = hot$x.test
+
         pre <- surv.pre.bart(times, delta, x.train, x.test, K=K,
-                             events=events, ztimes=ztimes, zdelta=zdelta)
+                             events=events, ztimes=ztimes, zdelta=zdelta,
+                             rm.const=rm.const, numcut=numcut, grp=grp, 
+                             xinfo=xinfo, usequants=usequants)
 
         y.train <- pre$y.train
-        x.train <- pre$tx.train
-        x.test  <- pre$tx.test
+        x.train <- t(pre$tx.train)
+        x.test  <- t(pre$tx.test)
+        xinfo = pre$xinfo
+        grp = pre$grp
+        rho = sum(1/pre$grp)
+        numcut = pre$numcut
 
         times   <- pre$times
         K       <- pre$K
@@ -119,11 +134,10 @@ surv.bart <- function(
     ##     call <- lbart
     ## }
 
-
     post <- gbart(x.train=x.train, y.train=y.train,
                   x.test=x.test, type=type,
                   sparse=sparse, theta=theta, omega=omega,
-                  a=a, b=b, augment=augment, rho=rho,
+                  a=a, b=b, augment=augment, rho=rho, grp=grp,
                   xinfo=xinfo, usequants=usequants,
                   ##cont=cont,
                   rm.const=rm.const,
@@ -137,7 +151,8 @@ surv.bart <- function(
                   ##nkeeptrain=nkeeptrain, nkeeptest=nkeeptest,
                   ##nkeeptestmean=nkeeptestmean,
                   ##nkeeptreedraws=nkeeptreedraws,
-                  printevery=printevery)
+                  printevery=printevery,
+                  transposed=TRUE)
 
     if(type!=attr(post, 'class')) return(post)
 

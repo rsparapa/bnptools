@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2023 Robert McCulloch and Rodney Sparapani
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ crisk.bart <- function(
     times=NULL, delta=NULL, K=NULL,
     x.test=matrix(0,0,0), x.test2=x.test, cond=NULL,
     sparse=FALSE, theta=0, omega=1,
-    a=0.5, b=1, augment=FALSE, rho=NULL, rho2=NULL,
+    a=0.5, b=1, augment=FALSE, rho=0, grp=NULL, rho2=0, grp2=NULL,
     xinfo=matrix(0,0,0), xinfo2=matrix(0,0,0), usequants=FALSE,
     ##cont=FALSE,
     rm.const=TRUE, type='pbart',
@@ -52,25 +52,52 @@ crisk.bart <- function(
     if(is.na(ntype) || ntype==1)
         stop("type argument must be set to either 'pbart' or 'lbart'")
 
-    x.train2 <- bartModelMatrix(x.train2)
-    x.test2 <- bartModelMatrix(x.test2)
-    x.train <- bartModelMatrix(x.train)
-    x.test <- bartModelMatrix(x.test)
+    ## x.train2 <- bartModelMatrix(x.train2)
+    ## x.test2 <- bartModelMatrix(x.test2)
+    ## x.train <- bartModelMatrix(x.train)
+    ## x.test <- bartModelMatrix(x.test)
 
-    if(length(rho)==0) rho=ncol(x.train)
-    if(length(rho2)==0) rho2=ncol(x.train2)
+    ## if(length(rho)==0) rho=ncol(x.train)
+    ## if(length(rho2)==0) rho2=ncol(x.train2)
 
     if(length(y.train)==0) {
+        times.=times
+        times.[delta==0]=times.[delta==0]+max(times[delta>0])
+    
+        hot = HDimpute(x.train, times., x.test)
+        x.train = hot$x.train
+        x.test = hot$x.test
+        
+        hot = HDimpute(x.train2, times., x.test2)
+        x.train2 = hot$x.train
+        x.test2 = hot$x.test
+        
         pre <- crisk.pre.bart(times, delta, x.train, x.test,
-                              x.train2, x.test2, K=K)
+                              x.train2, x.test2, K=K,
+                             rm.const=rm.const, numcut=numcut, grp=grp, 
+                             xinfo=xinfo, usequants=usequants)
 
+        transposed = TRUE
         y.train <- pre$y.train
-        x.train <- pre$tx.train
-        x.test  <- pre$tx.test
+        x.train <- t(pre$tx.train)
+        x.test  <- t(pre$tx.test)
         y.train2 <- pre$y.train2
-        x.train2 <- pre$tx.train2
-        x.test2  <- pre$tx.test2
-
+        x.train2 <- t(pre$tx.train2)
+        x.test2  <- t(pre$tx.test2)
+        
+        xinfo = pre$xinfo
+        xinfo2 = pre$xinfo2
+        numcut = pre$numcut
+        numcut2 = pre$numcut2
+        xinfo2[1, ] <- xinfo[1, ] ## same time grid
+        numcut2[1] = numcut[1]
+        grp = pre$grp
+        grp2 = pre$grp2
+        rho = sum(1/grp)
+        rho2 = sum(1/grp2)
+        rm.const = pre$rm.const
+        rm.const2 = pre$rm.const2
+        
         times   <- pre$times
         K       <- pre$K
 
@@ -126,7 +153,9 @@ crisk.bart <- function(
         xinfo2[1, ] <- xinfo[1, ] ## same time grid
         transposed <- TRUE
     }
-    else {
+    else if(transposed) {
+        x.train2=as.matrix(x.train2[ , cond])
+    } else {
         x.train2=as.matrix(x.train2[cond, ])
         rm.const <- 1:ncol(x.train)
         rm.const2 <- 1:ncol(x.train2)
@@ -149,7 +178,7 @@ crisk.bart <- function(
     post <- gbart(x.train=x.train, y.train=y.train,
                   x.test=x.test, type=type,
                   sparse=sparse, theta=theta, omega=omega,
-                  a=a, b=b, augment=augment, rho=rho,
+                  a=a, b=b, augment=augment, rho=rho, grp=grp,
                   xinfo=xinfo, usequants=usequants,
                   ##cont=cont,
                   rm.const=rm.const,
@@ -170,7 +199,7 @@ crisk.bart <- function(
     post2 <- gbart(x.train=x.train2, y.train=y.train2[cond],
                    x.test=x.test2, type=type,
                    sparse=sparse, theta=theta, omega=omega,
-                   a=a, b=b, augment=augment, rho=rho2,
+                   a=a, b=b, augment=augment, rho=rho2, grp=grp2,
                    xinfo=xinfo2, usequants=usequants,
                    ##cont=cont,
                    rm.const=rm.const,

@@ -45,11 +45,15 @@ surv.pre.bart <- function(
                       ## if specified, then use events for time grid
 
                       ztimes=NULL,
-                      zdelta=NULL
+                      zdelta=NULL,
                       ## column numbers of (ztimes, zdelta) time-dependent pairs
 
-                      ##u.train=NULL
-                      ## shared cluster identifiers
+                      rm.const=TRUE,
+                      numcut=100,
+                      grp=NULL, 
+                      xinfo=matrix(0,0,0),
+                      usequants=FALSE
+                      ## parameters for bartModelMatrix
                       ) {
     ## currently does not handle time dependent Xs
     ## can be extended later
@@ -109,6 +113,7 @@ surv.pre.bart <- function(
     ##     K=K-1
     ## }
 
+
     y.train <- integer(N) ## y.train is at least N long
 
     k <- 1
@@ -138,20 +143,42 @@ surv.pre.bart <- function(
 
         X.train <- matrix(nrow=m, ncol=1, dimnames=list(NULL, 't'))
     } else {
-        if(class(x.train)[1]=='data.frame') x.train=bartModelMatrix(x.train)
-
+        temp = bartModelMatrix(x.train, numcut=numcut, usequants=usequants,
+                               xinfo=xinfo, rm.const=rm.const)
+        x.train = (temp$X)
+        nc = temp$numcut
+        xinfo = temp$xinfo
         p <- ncol(x.train)
-
+        
         if(length(x.test)>0) {
-            if(class(x.test)[1]=='data.frame') x.test=bartModelMatrix(x.test)
+            x.test = (bartModelMatrix(x.test))
+            if(class(rm.const)[1]=='logical' && rm.const)
+                x.test = cbind(x.test[ , temp$rm.const])
             n <- nrow(x.test)
         }
+        rm.const <- c(1, temp$rm.const+1)
+        if(length(grp)==0) grp <- c(1, temp$grp)
+        rm(temp)
+
+        temp = bartModelMatrix(cbind(times), numcut=numcut, usequants=usequants)
+
+        xinfo = rbind(temp$xinfo, xinfo)
+        numcut = c(temp$numcut, nc)
+        
+        ## if(class(x.train)[1]=='data.frame') x.train=bartModelMatrix(x.train)
+
+        ## p <- ncol(x.train)
+
+        ## if(length(x.test)>0) {
+        ##     if(class(x.test)[1]=='data.frame') x.test=bartModelMatrix(x.test)
+        ##     n <- nrow(x.test)
+        ## }
 
         X.train <- matrix(nrow=m, ncol=p+1)
 
         if(length(dimnames(x.train)[[2]])>0)
-            dimnames(X.train)[[2]] <- c('t', dimnames(x.train)[[2]])
-        else dimnames(X.train)[[2]] <- c('t', paste0('x', 1:p))
+            dimnames(X.train)[[2]] <- c('times', dimnames(x.train)[[2]])
+        else dimnames(X.train)[[2]] <- c('times', paste0('x', 1:p))
     }
 
     k <- 1
@@ -191,6 +218,6 @@ surv.pre.bart <- function(
     }
 
     return(list(y.train=y.train, tx.train=X.train, tx.test=X.test,
-                times=events, K=K))
-    ##, u.train=U.train ##binaryOffset=binaryOffset
+                times=events, K=K,
+                rm.const=rm.const, grp=grp, xinfo=xinfo, numcut=numcut))
 }
