@@ -34,7 +34,7 @@ Cindex=function(risk, times, delta=NULL)
         h=which((times[i]==times & delta[i]>delta) |
                 (times[i]<times & delta[i]>0))
         if(length(h)>0) {
-            l=l+sum(risk[i]<risk[h])
+            l=l+sum(risk[i]>risk[h])
             k=k+length(h)
         }
     }
