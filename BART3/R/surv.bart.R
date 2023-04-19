@@ -160,7 +160,7 @@ surv.bart <- function(
     post$id <- id
     post$times <- times
     post$K <- K
-    post$tx.train <- x.train
+    post$tx.train <- t(x.train)
     post$y.train <- y.train
     post$type <- type
 
@@ -181,8 +181,8 @@ surv.bart <- function(
     ## }
 
     if(length(x.test)>0) {
-        post$tx.test <- x.test
-        H <- nrow(x.test)/K ## the number of different settings
+        post$tx.test <- t(x.test)
+        H <- nrow(post$tx.test)/K ## the number of different settings
 
         post$surv.test <- 1-post$prob.test
         ## if(type=='pbart') post$surv.test <- 1-pnorm(post$yhat.test)
