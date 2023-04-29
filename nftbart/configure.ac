@@ -12,8 +12,8 @@ dnl snippet from 1.24 Using C++11 Code
 dnl https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Using-C_002b_002b11-code
 
 dnl additional changes as needed 
-CXX="`R CMD config CXX`"
-LDFLAGS="`R CMD config LDFLAGS`"
+CXX=`"${R_HOME}/bin/R" CMD config CXX`
+LDFLAGS=`"${R_HOME}/bin/R" CMD config LDFLAGS`
 dnl CPPFLAGS="`R CMD config CPPFLAGS` -D_OPENMP"
 
 dnl the meat of R's m4/openmp.m4
@@ -31,7 +31,7 @@ AC_LANG(C++)
                            -openmp -mp -omp -qsmp=omp -homp \
 			   -fopenmp=libomp \
                            -Popenmp --openmp \
-                           "-lomp -Xclang -fopenmp"; do
+                           "-Xlinker -lomp -Xclang -fopenmp"; do
 	    ac_save_[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
 	    _AC_LANG_PREFIX[]FLAGS="$[]_AC_LANG_PREFIX[]FLAGS $ac_option"
 	    AC_LINK_IFELSE([_AC_LANG_OPENMP],
