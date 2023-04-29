@@ -4,6 +4,8 @@ Changes and New Features in 1.6 (2023-04-29):
 
 	* hard-wiring Windows Makevars for OpenMP
 
+	* auto-detection of OpenMP on macOS and Linux
+
 	* sampling from the posterior predictive for z
 
 	* resolve many C++ compiler warnings
