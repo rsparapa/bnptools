@@ -88,9 +88,9 @@ RcppExport SEXP cnft2(
 		     SEXP _phi,
 		     SEXP _prior,
 		     //SEXP _idraws,
-		     SEXP _idrawMuTau,
-		     SEXP _iedraws2,
-		     SEXP _izdraws2
+		     SEXP _idrawMuTau
+		     //SEXP _iedraws2,
+		     //SEXP _izdraws2
 		     //SEXP _impute_bin, 
 		     //SEXP _impute_prior 
 		     )
@@ -139,7 +139,7 @@ RcppExport SEXP cnft2(
   //size_t K=events.size();
 
   //z and w and e
-  Rcpp::NumericVector zv(n), wv(n), e(n);
+  Rcpp::NumericVector zv(n), wv(n); //e(n);
   double *z = &zv[0], *w = &wv[0];
 
   //number of trees
@@ -162,6 +162,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   size_t nadapt = Rcpp::as<int>(_inadapt);
   size_t adaptevery = Rcpp::as<int>(_iadaptevery);
 
+/*
   size_t R;
   Rcpp::NumericMatrix edraws2(_iedraws2), zdraws2(_izdraws2);
   bool drawrho=(edraws2.nrow()>0);
@@ -171,6 +172,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   } else R=0;
   Rcpp::NumericVector rhodraws(drawrho ? nd : 0), rhovec(R);
   double rho=0.;
+*/
 
   //tree strings
   /*
@@ -186,8 +188,8 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
     //drawsd=0; //(1-draws)*(1-drawMuTau);
 
   Rcpp::NumericMatrix mdraws(nd, n), //sdraws(nd, pow(n, draws)),
-    sdraws(nd, n), mpred(nd, np), spred(nd, np), 
-    zdraws(nd+burn, n), edraws(nd+burn, n);
+    sdraws(nd, n), mpred(nd, np), spred(nd, np), zdraws(nd, n); 
+    //zdraws(nd+burn, n), edraws(nd+burn, n);
   //Rcpp::NumericVector sddraws((nd+burn)*drawsd);
 
   // for varcounts
@@ -254,10 +256,10 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   Rcpp::IntegerVector C(_C), states(_states);
   Rcpp::NumericMatrix phi(_phi);
   Rcpp::List prior(_prior), hyper(_hyper);
-  const int neal_m=Rcpp::as<int>(prior["m"]), 
-    constrain=Rcpp::as<int>(prior["constrain"]);
+  //const int eal_m=Rcpp::as<int>(prior["m"]), 
+  const int constrain=Rcpp::as<int>(prior["constrain"]);
 
-  double alpha=Rcpp::as<double>(hyper["alpha"]); // inital value
+  //double alpha=Rcpp::as<double>(hyper["alpha"]); // inital value
   Rcpp::NumericMatrix Y(n, 1);
 
   // return data structures
@@ -335,14 +337,15 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   //Rprintf("init values : mu=%lf, tau=%lf, sd=%lf, alpha=%lf\n",
   // mstart, tauinit, sstart, alpha);
   COUT << "m:" << Rcpp::as<int>(prior["m"]) << '\n';
-  COUT << "states:\n"; for(size_t u=0; u<R::imin2(5, states.size()); ++u) 
+  COUT << "states:\n"; 
+  for(size_t u=0; u<(size_t)R::imin2(5, states.size()); ++u) 
 			 COUT << states[u] << ' ';
   COUT << '\n';
-  COUT << "C:\n"; for(size_t u=0; u<R::imin2(5, C.size()); ++u) 
+  COUT << "C:\n"; for(size_t u=0; u<(size_t)R::imin2(5, C.size()); ++u) 
 		    COUT << C[u] << ' ';
   COUT << '\n';
-  COUT << "phi:\n"; for(size_t u=0; u<R::imin2(5, phi.rows()); ++u) {
-    for(size_t v=0; v<phi.cols(); ++v)
+  COUT << "phi:\n"; for(size_t u=0; u<(size_t)R::imin2(5, phi.rows()); ++u) {
+    for(size_t v=0; v<(size_t)phi.cols(); ++v)
       COUT << phi(u, v) << ' ';
     COUT << '\n'; }
   Rprintf("alpha draw: alpha_a=%lf, alpha_b=%lf\n", 
@@ -530,7 +533,8 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
       COUT << "adapting  " << i << endl;
     }
 
-    size_t K=Rcpp::max(C)+1, g;
+    size_t K=Rcpp::max(C)+1;
+    int g;
     for(size_t k=0;k<n;k++) {
 	if(drawDP) {
 	  Rcpp::NumericVector prob(K);
@@ -545,44 +549,58 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	}
       if(delta[k]==1) {
 	z[k] = y[k];
+/*
 	if(drawrho && !adapting) {
 	  if(drawDP) z[k] -= rho*pow(phi(g, 1), -0.5)*sig[k]*edraws2(h, k);
 	  else z[k] -= rho*sig[k]*edraws2(h, k);
 	}
+*/
       }
       else {
 	if(drawDP) {
 	  // right and left censoring
+/*
 	  if(drawrho && !adapting) z[k]=censor[k]*
 	    gen.rtnorm(censor[k]*y[k], 
 		       censor[k]*
 		       (phi(g, 0)*sig[k]+ambm.f(k)+
 			rho*pow(phi(g, 1), -0.5)*sig[k]*edraws2(h, k)), 
 		       pow(1.-pow(rho, 2.), 0.5)*pow(phi(g, 1), -0.5)*sig[k]);
-	  else z[k]=censor[k]*
+	  else */
+	  z[k]=censor[k]*
 	    gen.rtnorm(censor[k]*y[k], 
 		       censor[k]*(phi(g, 0)*sig[k]+ambm.f(k)), 
 		       pow(phi(g, 1), -0.5)*sig[k]);
 	}
 	else {
+/*
 	  if(drawrho && !adapting)
 	    z[k]=censor[k]*
 	      gen.rtnorm(censor[k]*y[k], 
 			 censor[k]*(ambm.f(k)+rho*sig[k]*edraws2(h, k)), 
 			 pow(1.-pow(rho, 2.), 0.5)*sig[k]);
-	  else
+	  else */
 	    z[k]=censor[k]*gen.rtnorm(censor[k]*y[k], 
 				       censor[k]*ambm.f(k), sig[k]);
 	}
 
+/*
 	if(drawrho && !adapting) {
 	  if(z[k]>zdraws2(h, k)) z[k]=zdraws2(h, k);
 	}
+*/
       }
+/*
       e[k]=z[k];
       if(keeping || burning) {
 	zdraws(h, k)=z[k];
 	if(drawrho) sig[k] *= pow(1.-pow(rho, 2.), 0.5);
+      }
+*/
+      if(keeping) {
+	if(drawDP) zdraws(j, k)=gen.normal(phi(g, 0)*sig[k]+ambm.f(k), 
+					   pow(phi(g, 1), -0.5)*sig[k]);
+	else zdraws(j, k)=gen.normal(ambm.f(k), sig[k]);
       }
     }
 
@@ -677,6 +695,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
       dnpart[h]=Rcpp::max(C)+1;
     }
 
+/*
     for(size_t k=0;k<n;k++) {
       if(drawDP) {
 	e[k]=(e[k]-fun[k]-sig[k]*mvec[k])/(sig[k]*svec[k]);
@@ -698,6 +717,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
       if(keeping) rhodraws[j]=rho;
     }
     if(keeping || burning) for(size_t k=0;k<n;k++) edraws(h, k)=e[k];
+*/
     if(keeping) {
       //save tree to vec format
 
@@ -716,7 +736,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	for(size_t k=0;k<ps;k++) svc(j, k)=svarcount[k];
       }
 
-      double wt=1./n;
+      //double wt=1./n;
       for(size_t k=0;k<n;k++) {
 	//mdraws(j, k) = ambm.f(k);
 	mdraws(j, k) = fun[k];
@@ -847,8 +867,8 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   }
 
   ret["z.train"]=zdraws;
-  ret["e.train"]=edraws;
-  if(drawrho) ret["rho"]=rhodraws;
+  //ret["e.train"]=edraws;
+  //if(drawrho) ret["rho"]=rhodraws;
 
   // summary statistics
   if(summarystats) {

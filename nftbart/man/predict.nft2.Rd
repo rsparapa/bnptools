@@ -1,9 +1,10 @@
 \name{predict.nft2}
 \alias{predict.nft2}
+\alias{predict.nft}
 %\docType{package}
 \title{Drawing Posterior Predictive Realizations for NFT BART models.}
 \description{
-  The function \code{predict.nft2()} is the main function for drawing posterior predictive realizations at new inputs using a fitted model stored in a \code{nft2} object returned from \code{nft2()}.
+  The function \code{predict.nft2()/predict.nft()} is the main function for drawing posterior predictive realizations at new inputs using a fitted model stored in a \code{nft2/nft} object returned from \code{nft2()/nft()}.
 }
 \usage{
 \method{predict}{nft2}(
@@ -29,10 +30,34 @@
             drawDPM=object$drawDPM,
             ## etc.
             ...)
+
+\method{predict}{nft}(
+            ## data
+            object,
+            x.test=object$x.train,
+            ## multi-threading
+            tc=getOption("mc.cores", 1), ##OpenMP thread count
+            ## current process fit vs. previous process fit
+            XPtr=TRUE,
+            ## predictions
+            K=0,
+            events=object$events,
+            FPD=FALSE,
+            probs=c(0.025, 0.975),
+            take.logs=TRUE,
+            na.rm=FALSE,
+            seed=NULL,
+            ## default settings for NFT:BART/HBART/DPM
+            fmu=object$NFT$fmu,
+            soffset=object$soffset,
+            drawDPM=object$drawDPM,
+            ## etc.
+            ...)
 }
 \arguments{
-  \item{object}{Object of type \code{nft2} from a previous call to \code{nft2()}.}
-  \item{xftest,xstest}{New input settings in the form of a matrix at which to construct predictions.  Defaults to the training inputs.}
+  \item{object}{Object of type \code{nft2/nft} from a previous call to
+    \code{nft2()/nft()}.}
+  \item{xftest,xstest,x.test}{New input settings in the form of a matrix at which to construct predictions.  Defaults to the training inputs.}
   \item{tc}{Number of OpenMP threads to use for parallel computing.}
   \item{XPtr}{If \code{object} was created during the currently running
     R process, then (via an Rcpp \code{XPtr}) the BART/HBART tree
@@ -56,14 +81,17 @@
     summaries.}
   \item{seed}{If provided, then this value is used to generate random
     natural logarithms of event times from the predictive distribution.}
-  \item{fmu}{BART centering parameter for the test data.  Defaults to the value used by \code{nft2()} when training the model.}
-  \item{soffset}{HBART centering parameter for the test data.  Defaults to the value used by \code{nft2()} when training the model.}
+  \item{fmu}{BART centering parameter for the test data.  Defaults to
+    the value used by \code{nft2()/nft()} when training the model.}
+  \item{soffset}{HBART centering parameter for the test data.  Defaults to the value used by \code{nft2()/nft()} when training the model.}
    \item{drawDPM}{Whether NFT BART was fit with, or without, DPM.}
    \item{...}{The et cetera objects passed to the \code{predict} method.
      Currently, it has no functionality.}
 }
 \details{
-  \code{predict.nft2()} is the main function for calculating posterior predictions and uncertainties once a model has been fit by \code{nft2()}.  
+  \code{predict.nft2()/predict.nft()} is the main function for
+  calculating posterior predictions and uncertainties once a model has
+  been fit by \code{nft2()/nft()}.  
 
   Returns a list with the following entries.
 }
@@ -110,6 +138,6 @@
 Rodney Sparapani: \email{rsparapa@mcw.edu}
 }
 \seealso{
-\code{\link{nft2}}
+\code{\link{nft2}}, \code{\link{nft}}
 }
 

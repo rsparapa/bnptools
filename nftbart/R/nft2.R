@@ -24,8 +24,8 @@ nft2 = function(## data
                xftest=matrix(nrow=0, ncol=0),
                xstest=matrix(nrow=0, ncol=0),
                rm.const=TRUE, rm.dupe=TRUE,
-               edraws2=matrix(nrow=0, ncol=0),
-               zdraws2=matrix(nrow=0, ncol=0),
+               ##edraws2=matrix(nrow=0, ncol=0),
+               ##zdraws2=matrix(nrow=0, ncol=0),
                ##impute.bin=NULL, impute.prob=NULL,
                ## multi-threading
                tc=getOption("mc.cores", 1), ##OpenMP thread count
@@ -130,20 +130,20 @@ nft2 = function(## data
     if(length(mask)==1 && 0<mask && mask<1) ndpost=ceiling(ndpost/mask)
     else mask=NULL
         
-    if(length(edraws2)>0) {
-        if(class(edraws2)[1]!='matrix')
-            stop('edraws2 must be a matrix')
-        if(class(zdraws2)[1]!='matrix')
-            stop('zdraws2 must be a matrix')
-        ndpost=nrow(edraws2)
-        if(ndpost!=nrow(zdraws2))
-            stop('number of rows in edraws2 and zdraws2 must be equal')
-        if(n!=ncol(edraws2))
-            stop(paste0('number of cols in edraws2 must be ', n))
-        if(n!=ncol(zdraws2))
-            stop(paste0('number of cols in zdraws2 must be ', n))
-        ndpost=ndpost-nskip
-    }
+    ## if(length(edraws2)>0) {
+    ##     if(class(edraws2)[1]!='matrix')
+    ##         stop('edraws2 must be a matrix')
+    ##     if(class(zdraws2)[1]!='matrix')
+    ##         stop('zdraws2 must be a matrix')
+    ##     ndpost=nrow(edraws2)
+    ##     if(ndpost!=nrow(zdraws2))
+    ##         stop('number of rows in edraws2 and zdraws2 must be equal')
+    ##     if(n!=ncol(edraws2))
+    ##         stop(paste0('number of cols in edraws2 must be ', n))
+    ##     if(n!=ncol(zdraws2))
+    ##         stop(paste0('number of cols in zdraws2 must be ', n))
+    ##     ndpost=ndpost-nskip
+    ## }
     
     burn=nskip
     nd=ndpost
@@ -242,8 +242,8 @@ nft2 = function(## data
               hyper, C, states, phi, prior,
               ##draws,
               drawDPM,
-              edraws2,
-              zdraws2,
+              ##edraws2,
+              ##zdraws2,
               ##impute.bin,
               ##impute.prob,
               PACKAGE="nftbart")
@@ -273,11 +273,12 @@ if(K>0) {
         res$s.train=res$s.train[s.train.mask, ]
         ##res$z.train=res$z.train[s.train.mask, ]
         ##res$e.train=res$e.train[s.train.mask, ]
-        if(length(res$rho)>0) res$rho=res$rho[s.train.mask]
+        ##if(length(res$rho)>0) res$rho=res$rho[s.train.mask]
     } else s.train.mask=1:nd 
+    res$z.train=res$z.train[s.train.mask, ]
     s.train.burn=c(1:burn, s.train.mask)
-    res$z.train=res$z.train[s.train.burn, ]
-    res$e.train=res$e.train[s.train.burn, ]
+    ##res$z.train=res$z.train[s.train.burn, ]
+    ##res$e.train=res$e.train[s.train.burn, ]
 
     summarystats=(ndpost>=2)
     if(summarystats) {
@@ -311,7 +312,14 @@ if(K>0) {
     res$f.train=res$f.train+fmu
     res$f.train.mean=apply(res$f.train, 2, mean)
     res$z.train=res$z.train+fmu
-    res$z.train.mean=apply(res$z.train, 2, mean)
+    if(take.logs) {
+        z.trunc=apply(res$z.train, 2, pmin, max(log(times)))
+        res$z.train.mean=log(apply(exp(z.trunc), 2, mean))
+    } else {
+        z.trunc=apply(res$z.train, 2, pmin, max(times))
+        res$z.train.mean=apply(z.trunc, 2, mean)
+    }
+    ##res$z.train.mean=apply(res$z.train, 2, mean)
     ##res$e.train.mean=res$z.train.mean-res$f.train.mean
     ##res$MSE=mean(res$e.train.mean^2)
     res$s.train.mean=apply(res$s.train, 2, mean)

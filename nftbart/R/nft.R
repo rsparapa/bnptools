@@ -25,8 +25,8 @@ nft = function(## data
                x.train, times, delta=NULL, 
                x.test=matrix(nrow=0, ncol=0),
                rm.const=TRUE, rm.dupe=TRUE, 
-               edraws2=matrix(nrow=0, ncol=0),
-               zdraws2=matrix(nrow=0, ncol=0),
+               ##edraws2=matrix(nrow=0, ncol=0),
+               ##zdraws2=matrix(nrow=0, ncol=0),
                ##impute.bin=NULL, impute.prob=NULL, 
                ## multi-threading
                tc=getOption("mc.cores", 1), ##OpenMP thread count
@@ -64,7 +64,7 @@ res=nft2(## data
                xftest=x.test,
                xstest=x.test,
                rm.const=rm.const, rm.dupe=rm.dupe,
-               edraws2=edraws2, zdraws2=zdraws2,
+               ##edraws2=edraws2, zdraws2=zdraws2,
                ## multi-threading
                tc=tc, ##OpenMP thread count
                ##MCMC

@@ -1,6 +1,12 @@
 
-Changes and New Features in 1.6 (2023-01-10):
-	* conditional sampling for bivariate NFT
+Changes and New Features in 1.6 (2023-04-29):
+        * C++11 is now the CRAN standard
+
+	* hard-wiring Windows Makevars for OpenMP
+
+	* sampling from the posterior predictive for z
+
+	* resolve many C++ compiler warnings
 
 Changes and New Features in 1.5 (2023-01-06):
         * streamlining the interface to nft2/nft/tsvs2/tsvs

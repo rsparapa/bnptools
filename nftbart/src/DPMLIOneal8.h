@@ -41,7 +41,7 @@ void DPMLIOneal8(SEXP _Y, SEXP _phi, SEXP _C, SEXP _S,
   //Eigen::MatrixXd phi=Rcpp::as< Eigen::Map<Eigen::MatrixXd> >(_phi);
   Rcpp::List prior(_prior), hyper(_hyper); 
 
-  const int N=Y.nrow(), M=Y.ncol(), p=phi.ncol(), //p=phi.cols(), 
+  const int N=Y.nrow(), M=Y.ncol(), //p=phi.ncol(), 
     m=Rcpp::as<int>(prior["m"]);  
 
   double 
@@ -65,8 +65,8 @@ void DPMLIOneal8(SEXP _Y, SEXP _phi, SEXP _C, SEXP _S,
   if(M==3) { // right censoring
     Rcpp::NumericVector prob(k);
     //Eigen::VectorXd prob(k);
-    for(size_t i=0; i<N; ++i) if(Y(i, 2)==0.) {
-	for(size_t j=0; j<k; ++j) 
+    for(size_t i=0; i<(size_t)N; ++i) if(Y(i, 2)==0.) {
+	for(size_t j=0; j<(size_t)k; ++j) 
 	  prob[j]=VEC(S, j)*
 	    R::pnorm(Y(i, 1), phi(j, 0), pow(phi(j, 1), -0.5), 0, 0)/N;
 	int h;
@@ -93,7 +93,7 @@ void DPMLIOneal8(SEXP _Y, SEXP _phi, SEXP _C, SEXP _S,
   
   if(k0_draw) {
     double k0_a_post=k0_a+0.5*k, k0_b_post=k0_b;
-    for(size_t i=0; i<k; ++i) 
+    for(size_t i=0; i<(size_t)k; ++i) 
       k0_b_post += 0.5*phi(i, 1)*pow(phi(i, 0)-m0, 2.);
     k0=eng.gamma(k0_a_post, k0_b_post);
     hyper["k0"]=k0;
@@ -101,14 +101,14 @@ void DPMLIOneal8(SEXP _Y, SEXP _phi, SEXP _C, SEXP _S,
 
   if(b0_draw) {
     double b0_b_post=b0_b;
-    for(size_t i=0; i<k; ++i) b0_b_post += phi(i, 1);
+    for(size_t i=0; i<(size_t)k; ++i) b0_b_post += phi(i, 1);
     b0=eng.gamma(b0_a+k*a0, b0_b_post);
     hyper["b0"]=b0;
   }
 
-  bool singleton, flag=true;
+  bool singleton; //, flag=true;
 
-  for(size_t i=0; i<N; ++i) {
+  for(size_t i=0; i<(size_t)N; ++i) {
     int c, h, s;
     h=k+m;
     Rcpp::NumericVector prob(h);
@@ -120,10 +120,10 @@ void DPMLIOneal8(SEXP _Y, SEXP _phi, SEXP _C, SEXP _S,
     double den, tau, y;
     y=Y(i, 0);
     den=N-1.+alpha;
-    for(size_t j=0; j<k; ++j) 
+    for(size_t j=0; j<(size_t)k; ++j) 
       prob[j]=(VEC(S, j)/den)*((*F) (y, phi(j, 0), phi(j, 1)));
-    for(size_t j=k; j<h; ++j) {
-      if(singleton && j==k) phi.row(k)=phi.row(c);
+    for(size_t j=k; j<(size_t)h; ++j) {
+      if(singleton && j==(size_t)k) phi.row(k)=phi.row(c);
       else {
 	tau= (*G0tau) (a0, b0, eng);
 	phi(j, 0)= (*G0mu) (tau, m0, k0, eng);
@@ -155,12 +155,12 @@ void DPMLIOneal8(SEXP _Y, SEXP _phi, SEXP _C, SEXP _S,
 	else { // singleton cluster c replaced by c+1 unless k-1
 	  if(c<(k-1)) {
 	    if(j>c) j--;
-	    for(size_t l=c; l<(k-1); ++l) {
+	    for(size_t l=c; l<(size_t)(k-1); ++l) {
 	      phi.row(l)=phi.row(l+1);
 	      VEC(S, l)=VEC(S, l+1);
 	    }
 	    S[k-1]=0;
-	    for(size_t l=0; l<N; ++l) if(C[l]>c) C[l]=C[l]-1;
+	    for(size_t l=0; l<(size_t)N; ++l) if(C[l]>c) C[l]=C[l]-1;
 	  }
 	  k--;
 	}
@@ -177,6 +177,7 @@ void DPMLIOneal8(SEXP _Y, SEXP _phi, SEXP _C, SEXP _S,
     S[j]=VEC(S, j)+1;
 
 #ifdef DEBUG
+  bool flag=true;
     if(flag && (Rcpp::sum(S)!=N || Rcpp::max(C)!=(k-1))) { 
       flag=false;
       cout << "singleton:" << singleton << ' ' 

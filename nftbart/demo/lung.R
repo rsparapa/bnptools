@@ -31,7 +31,16 @@ pred = predict(post, x.test, K=K, events=events[-1],
                XPtr=TRUE, FPD=TRUE)
 print((proc.time()-a)/60)
 
-plot(events, c(1, pred$surv.fpd.mean[1:K]), type='l', col=4,
+print(Cindex(-post$f.train.mean, times, delta))
+print(concordance(post$z.train, times, delta))
+
+plot(density(exp(post$z.train.mean[lung$sex==1]), from=0, to=max(times)),
+     col=4, lwd=2, main='Restricted Mean Survival Time', sub='t (weeks)')
+lines(density(exp(post$z.train.mean[lung$sex==2]), from=0, to=max(times)),
+      col=2, lwd=2)
+abline(h=0, v=c(0, max(times)))
+
+plot(events, c(1, pred$surv.fpd.mean[1:K]), type='l' , col=4,
      ylim=0:1, 
      xlab=expression(italic(t)), sub='weeks',
      ylab=expression(italic(S)(italic(t), italic(x))))
@@ -64,3 +73,4 @@ abline(h=0:1, v=0)
 
 ## plot(apply(post$s.train, 1, max), type='l', ylab='max(s(x))',
 ##      ylim=c(0, max(post$s.train)))
+

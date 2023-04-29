@@ -264,7 +264,7 @@ std::stringstream brt::gettrees(size_t nd, size_t m, std::vector<int>& nn,
        h=i*m+j;
        //h=i*nd+j;
        trees << nn[h] << std::endl;
-       for(size_t k=0; k<nn[h]; ++k) {
+       for(size_t k=0; k<(size_t)nn[h]; ++k) {
 	 trees << id[h][k] << ' ' << v[h][k] << ' ' << c[h][k] << ' ' 
 	       << (offset+theta[h][k]) << std::endl;
        }
@@ -318,7 +318,7 @@ void brt::adapt()
 {
    //double pert_rate,b_rate,rot_rate,m_rate,chgv_rate;
    double pert_rate,m_rate,chgv_rate;
-
+// compiler warning: m_rate and chgv_rate set but not used
    pert_rate=((double)mi.pertaccept)/((double)mi.pertproposal);
    chgv_rate=((double)mi.chgvaccept)/((double)mi.chgvproposal);
 //   pert_rate=((double)(mi.pertaccept+mi.baccept+mi.daccept+mi.rotaccept))/((double)(mi.pertproposal+mi.dproposal+mi.bproposal+mi.rotproposal));

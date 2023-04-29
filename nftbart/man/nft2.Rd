@@ -1,8 +1,9 @@
 \name{nft2}
 \alias{nft2}
+\alias{nft}
 \title{Fit NFT BART models.}
 \description{
-  The \code{nft2()} function is for fitting
+  The \code{nft2()/nft()} function is for fitting
   NFT BART (Nonparametric Failure Time
   Bayesian Additive Regression Tree) models
   with different train/test matrices for
@@ -15,8 +16,6 @@ nft2(
     xftest=matrix(nrow=0, ncol=0),
     xstest=matrix(nrow=0, ncol=0),
     rm.const=TRUE, rm.dupe=TRUE,
-    edraws2=matrix(nrow=0, ncol=0),
-    zdraws2=matrix(nrow=0, ncol=0),
     ## multi-threading
     tc=getOption("mc.cores", 1), 
     ##MCMC
@@ -47,27 +46,62 @@ nft2(
     transposed=FALSE, pred=FALSE
 )
 
+nft(
+    ## data
+    x.train, times, delta=NULL, x.test=matrix(nrow=0, ncol=0),
+    rm.const=TRUE, rm.dupe=TRUE,
+    ## multi-threading
+    tc=getOption("mc.cores", 1), 
+    ##MCMC
+    nskip=1000, ndpost=2000, nadapt=1000, adaptevery=100,
+    chv=NULL,
+    method="spearman", use="pairwise.complete.obs",
+    pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
+    stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
+    minnumbot=c(5, 5),
+    ## BART and HBART prior parameters
+    ntree=c(50, 10), numcut=100, xicuts=NULL,
+    power=c(2, 2), base=c(0.95, 0.95),
+    ## f function
+    fmu=NA, k=5, tau=NA, dist='weibull', 
+    ## s function
+    total.lambda=NA, total.nu=10, mask=NULL,
+    ## survival analysis 
+    K=100, events=NULL, TSVS=FALSE,
+    ## DPM LIO
+    drawDPM=1L, 
+    alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
+    neal.m=2, constrain=1, 
+    m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
+    a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
+    ## misc
+    na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
+    transposed=FALSE, pred=FALSE
+)
+
 }
 \arguments{
   \item{xftrain}{n x pf matrix of predictor variables for the training data.}
   \item{xstrain}{n x ps matrix of predictor variables for the training data.}
+  \item{x.train}{n x p matrix of predictor variables for the training data.}
   \item{times}{n x 1 vector of the observed times for the training data.}
   \item{delta}{n x 1 vector of the time type for the training data:
   0, for right-censoring; 1, for an event; and, 2, for left-censoring.}
 \item{xftest}{m x pf matrix of predictor variables for the test set.}
 \item{xstest}{m x ps matrix of predictor variables for the test set.}
+\item{x.test}{m x p matrix of predictor variables for the test set.}
   %\item{impute.bin}{Indices of the columns of \code{x.train} to be imputed.}
   %\item{impute.prob}{nx1 vector of prior probabilities for imputation.}
       \item{rm.const}{To remove constant variables or not.}
     \item{rm.dupe}{To remove duplicate variables or not.}
-  \item{edraws2}{Draws of \eqn{e} from a mortality model.}
-  \item{zdraws2}{Draws of \eqn{z} from a mortality model.}
+  %\item{edraws2}{Draws of \eqn{e} from a mortality model.}
+  %\item{zdraws2}{Draws of \eqn{z} from a mortality model.}
   \item{tc}{Number of OpenMP threads to use.}
   \item{nskip}{Number of MCMC iterations to burn-in and discard.}
   \item{ndpost}{Number of MCMC iterations kept after burn-in.}
   \item{nadapt}{Number of MCMC iterations for adaptation prior to burn-in.}
   \item{adaptevery}{Adapt MCMC proposal distributions every \code{adaptevery} iteration.}
-    \item{chvf,chvs}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
+    \item{chvf,chvs,chv}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
   \item{method,use}{Correlation options for change-of-variable proposal
     pre-conditioner.}
   \item{pbd}{Probability of performing a birth/death proposal, otherwise perform a rotate proposal.}
@@ -78,7 +112,7 @@ nft2(
   \item{ntree}{Vector of length two for the number of trees used for the mean
     model and the number of trees used for the variance model.}
   \item{numcut}{Number of cutpoints to use for each predictor variable.}
-  \item{xifcuts,xiscuts}{More detailed construction of cut-points can be specified
+  \item{xifcuts,xiscuts,xicuts}{More detailed construction of cut-points can be specified
     by the \code{xicuts} function and provided here.}
   \item{power}{Power parameter in the tree depth penalizing prior.}
   \item{base}{Base parameter in the tree depth penalizing prior.}
@@ -129,7 +163,7 @@ nft2(
 }
 
 \details{
-  \code{nft2()} is the function to fit time-to-event data.  The most general form of the model allowed is
+  \code{nft2()/nft()} is the function to fit time-to-event data.  The most general form of the model allowed is
   \eqn{Y({\bf x})=mu+f({\bf x})+sd({\bf x})Z}{Y(x)=mu+f(x)+sd(x)E}
   where \eqn{E} follows a nonparametric error distribution
   by default.
@@ -141,8 +175,8 @@ nft2(
   %% For a BART model, set \code{pbd=c(0.7,0.0)} and \code{ntreeh=1}.  This forces a scalar (homoscedastic) variance term.
   %% For a single-tree model, set \code{pbd=(0.7,0.0)}, \code{ntreeh=1} and \code{ntree=1}. This forces the mean component to be modeled using only one tree.
   %% The heteroscedastic BART model is the default.
-The \code{nft2()} function returns a fit object of S3 class type
-  \code{nft2} that is essentially a list containing the following items.
+The \code{nft2()/nft()} function returns a fit object of S3 class type
+  \code{nft2/nft} that is essentially a list containing the following items.
 }
 \value{
   %%\item{res}{Model fit object of S3 class \code{nft} that is
@@ -226,17 +260,18 @@ matrices with \code{ndpost} rows and \eqn{p} columns.}
 }
 
 \references{
-  Sparapani R., Logan B., Laud P. (2021)
-  Nonparametric Failure Time: Time-to-event Machine Learning with Heteroskedastic Bayesian Additive Regression Trees and Low Information Omnibus Dirichlet Process Mixtures
-  \emph{MCW Biostatistics Technical Report 72}
-  \url{https://www.mcw.edu/-/media/MCW/Departments/Biostatistics/tr72.pdf?la=en}.
+  Sparapani R., Logan B., Maiers M., Laud P., McCulloch R. (2023)
+  Nonparametric Failure Time: Time-to-event Machine Learning with
+  Heteroskedastic Bayesian Additive Regression Trees and 
+  Low Information Omnibus Dirichlet Process Mixtures
+  \emph{Biometrics (ahead of print)} <doi:10.1111/biom.13857>.
 }
 
 \author{
 Rodney Sparapani: \email{rsparapa@mcw.edu}
 }
 \seealso{
-\code{\link{predict.nft2}}
+\code{\link{predict.nft2}}, \code{\link{predict.nft}}
 }
 \examples{
 

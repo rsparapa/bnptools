@@ -1,26 +1,34 @@
 \name{Cindex}
 \alias{Cindex}
-\title{Calculate the C-index for survival analysis.}
+\alias{concordance}
+\title{Calculate the C-index/concordance for survival analysis.}
 
 \description{ The C-index for survival analysis is the corollary of the
 c statistic (the area under the Receiver Operating Characteristic curve)
-for binary outcomes. As a probability of concordance, the higher is the
-C-index, the better is the model discrimination vs. lesser probability
-values. }
+for binary outcomes. As a probability, the higher is the C-index, the
+better is the model discrimination vs. lesser probability
+values. Similarly, the concordance is calculated like the C-index from
+z-draws via the posterior predictive distribution restricted to the
+horizon of the data (a la restricted mean survival time).}
 
 \usage{
 Cindex(risk, times, delta=NULL)
+
+concordance(draws, times, delta=NULL)
 }
 
 \arguments{
   \item{risk}{A vector or prognostic risk scores. }
+  \item{draws}{A vector of draws via
+the posterior predictive distribution restricted to the horizon of
+the data (a la restricted mean survival time). }
   \item{times}{A vector of failure times. }
   \item{delta}{ The corresponding failure time status code: 0,
     right-censored; 1, failure;
     or 2, left-censored. Defaults to all failures if not specified.}
 }
 \value{
-The return value is the calculated C-index.
+The return value is the calculated C-index/concordance.
 }
 \references{
 Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. (1982)
