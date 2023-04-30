@@ -1,6 +1,6 @@
 
 Changes and New Features in 1.6 (2023-04-29):
-        * C++11 is now the CRAN standard
+        * C++14 is required for this package
 
 	* hard-wiring Windows Makevars for OpenMP
 
