@@ -131,30 +131,23 @@ times <- pmax(1, ceiling(transplant$futime/7)) ## weeks
 ##times <- pmax(1, ceiling(transplant$futime/30.5)) ## months
 table(times)
 
-typeO <- 1*(transplant$abo=='O')
-typeA <- 1*(transplant$abo=='A')
-typeB <- 1*(transplant$abo=='B')
-typeAB <- 1*(transplant$abo=='AB')
-table(typeA, typeO)
-
-x.train <- cbind(typeO, typeA, typeB, typeAB)
-
-x.test <- cbind(1, 0, 0, 0)
-dimnames(x.test)[[2]] <- dimnames(x.train)[[2]]
+x.train=transplant[ , 3]
+i=which(transplant$abo=='O')[1]
+i[2]=which(transplant$abo=='A')[1]
+i[3]=which(transplant$abo=='B')[1]
+i[4]=which(transplant$abo=='AB')[1]
+x.test=transplant[i, 3]
 
 ## parallel::mcparallel/mccollect do not exist on windows
 if(.Platform$OS.type=='unix') {
 ##test BART with token run to ensure installation works
         post <- mc.crisk2.bart(x.train=x.train, times=times, delta=delta,
                                seed=99, mc.cores=2, nskip=5, ndpost=5,
-                               keepevery=1)
-
-        pre <- surv.pre.bart(x.train=x.train, x.test=x.test,
-                             times=times, delta=delta)
+                               x.test=x.test, keepevery=1)
 
         K <- post$K
 
-        pred <- mc.crisk2.pwbart(pre$tx.test, pre$tx.test,
+        pred <- mc.crisk2.pwbart(post$tx.test, post$tx.test,
                                 post$treedraws, post$treedraws2,
                                 post$binaryOffset, post$binaryOffset2)
 }

@@ -54,7 +54,7 @@ crisk.bart(x.train=matrix(0,0,0), y.train=NULL,
            x.test=matrix(0,0,0), x.test2=x.test, cond=NULL,
            sparse=FALSE, theta=0, omega=1,
            a=0.5, b=1, augment=FALSE,
-           rho=NULL, rho2=NULL,
+           rho=0, grp=NULL, rho2=0, grp2=NULL,
            xinfo=matrix(0,0,0), xinfo2=matrix(0,0,0),
            usequants=FALSE, %cont=FALSE,
            rm.const=TRUE, type='pbart',
@@ -83,7 +83,7 @@ mc.crisk.bart(x.train=matrix(0,0,0), y.train=NULL,
               x.test=matrix(0,0,0), x.test2=x.test, cond=NULL,
               sparse=FALSE, theta=0, omega=1,
               a=0.5, b=1, augment=FALSE,
-              rho=NULL, rho2=NULL,
+              rho=0, grp=NULL, rho2=0, grp2=NULL,
               xinfo=matrix(0,0,0), xinfo2=matrix(0,0,0),
               usequants=FALSE, %cont=FALSE,
               rm.const=TRUE, type='pbart',
@@ -176,10 +176,16 @@ dependent on whether \code{y.train} has been specified; see below).  }
      \eqn{0.5<=a<=1} where lower values inducing more sparsity.}
    \item{b}{Sparse parameter for \eqn{Beta(a, b)} prior; typically,
      \code{b=1}.}
-   \item{rho}{Sparse parameter: typically \code{rho=p} where \code{p} is the
+   \item{rho}{Sparse parameters that are generally set
+     automatically. Typically \code{rho=p} where \code{p} is the
      number of covariates in \code{x.train}.}
-   \item{rho2}{Sparse parameter: typically \code{rho2=p} where \code{p} is the
-     number of covariates  in \code{x.train2}.}
+  \item{grp}{A vector of inverse weights for the Dirichlet prior arguments.
+     If all the variables are continuous, then \code{grp} is a vector of 1s.
+     However, for categorical variables (like factors in a data.frame), the
+   inverse weights are the number of categories.  See \code{bartModelMatrix}
+   for the details of the default automated derivation when \code{grp=NULL}.
+ }
+   \item{rho2,grp2}{Corresponding to \code{rho, grp} for \code{x.train2}.}
    \item{augment}{Whether data augmentation is to be performed in sparse
      variable selection.}
    
@@ -400,16 +406,12 @@ times <- pmax(1, ceiling(transplant$futime/7)) ## weeks
 ##times <- pmax(1, ceiling(transplant$futime/30.5)) ## months
 table(times)
 
-typeO <- 1*(transplant$abo=='O')
-typeA <- 1*(transplant$abo=='A')
-typeB <- 1*(transplant$abo=='B')
-typeAB <- 1*(transplant$abo=='AB')
-table(typeA, typeO)
-
-x.train <- cbind(typeO, typeA, typeB, typeAB)
-
-x.test <- cbind(1, 0, 0, 0)
-dimnames(x.test)[[2]] <- dimnames(x.train)[[2]]
+x.train=transplant[ , 3]
+i=which(transplant$abo=='O')[1]
+i[2]=which(transplant$abo=='A')[1]
+i[3]=which(transplant$abo=='B')[1]
+i[4]=which(transplant$abo=='AB')[1]
+x.test=transplant[i, 3]
 
 ##test BART with token run to ensure installation works
 set.seed(99)
@@ -429,9 +431,9 @@ post <- mc.crisk.bart(x.train=x.train, times=times, delta=delta,
 
 K <- post$K
 
-typeO.cif.mean <- apply(post$cif.test, 2, mean)
-typeO.cif.025 <- apply(post$cif.test, 2, quantile, probs=0.025)
-typeO.cif.975 <- apply(post$cif.test, 2, quantile, probs=0.975)
+typeO.cif.mean <- post$cif.test.mean[1:K]
+typeO.cif.025 <- apply(post$cif.test[ , 1:K], 2, quantile, probs=0.025)
+typeO.cif.975 <- apply(post$cif.test[ , 1:K], 2, quantile, probs=0.975)
 
 plot(pfit[4,], xscale=7, xmax=735, col=1:3, lwd=2, ylim=c(0, 0.8),
        xlab='t (weeks)', ylab='CI(t)')

@@ -1,8 +1,9 @@
 
-library(BART)
+library(BART3)
 
-B <- getOption('mc.cores', 1)
-figures = getOption('figures', default='NONE')
+B = 8
+## B <- getOption('mc.cores', 1)
+## figures = getOption('figures', default='NONE')
 
 data(arq)
 str(arq)
@@ -80,7 +81,8 @@ lines(bmxbmi, rep(0, H))
 
 par(mfrow=c(1, 1))
 
-if(figures!='NONE')
-    dev.copy2pdf(file=paste(figures, 'chronic-pain2.pdf', sep='/'))
+## if(figures!='NONE')
+##     dev.copy2pdf(file=paste(figures, 'chronic-pain2.pdf', sep='/'))
 ##dev.copy2pdf(file='../vignettes/figures/chronic-pain2.pdf')
+dev.copy2pdf(file='chronic-pain2.pdf')
 

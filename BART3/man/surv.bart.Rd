@@ -47,7 +47,7 @@ surv.bart( x.train=matrix(0,0,0),
            x.test=matrix(0,0,0),
            K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
            sparse=FALSE, theta=0, omega=1,
-           a=0.5, b=1, augment=FALSE, rho=NULL,
+           a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
            xinfo=matrix(0,0,0), usequants=FALSE,
            %cont=FALSE,
            rm.const=TRUE, type='pbart',
@@ -74,7 +74,7 @@ mc.surv.bart( x.train=matrix(0,0,0),
               x.test=matrix(0,0,0), 
               K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
               sparse=FALSE, theta=0, omega=1,
-              a=0.5, b=1, augment=FALSE, rho=NULL,
+              a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
               xinfo=matrix(0,0,0), usequants=FALSE,
               %cont=FALSE,
               rm.const=TRUE, type='pbart',
@@ -165,6 +165,12 @@ that the definition of \code{x.train} is dependent on whether
      \eqn{b=1}.}
    \item{rho}{Sparse parameter: typically \eqn{rho=p} where \eqn{p} is the
      number of covariates under consideration.}
+  \item{grp}{A vector of inverse weights for the Dirichlet prior arguments.
+     If all the variables are continuous, then \code{grp} is a vector of 1s.
+     However, for categorical variables (like factors in a data.frame), the
+   inverse weights are the number of categories.  See \code{bartModelMatrix}
+   for the details of the default automated derivation when \code{grp=NULL}.
+ }
    \item{augment}{Whether data augmentation is to be performed in sparse
      variable selection.}
    

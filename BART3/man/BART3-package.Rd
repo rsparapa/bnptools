@@ -60,7 +60,7 @@ To avoid duplication, the main references that this package relies upon appear h
   \emph{JASA}, \bold{113}, 626-636.
   <doi:10.1080/01621459.2016.1264957>.
 
-  Liu Y. and Ročková V. (2021)
+  Liu Y. and Rockova V. (2021)
   Variable selection via Thompson sampling.
   \emph{JASA}. \bold{ahead of print}, 1-8.
     

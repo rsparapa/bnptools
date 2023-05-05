@@ -7,7 +7,9 @@ suitable for the BART competing risks model; see \code{crisk.bart} for more deta
 }
 \usage{
 crisk.pre.bart( times, delta, x.train=NULL, x.test=NULL,
-                x.train2=x.train, x.test2=x.test, K=NULL )
+                x.train2=x.train, x.test2=x.test, K=NULL,
+                rm.const=TRUE, numcut=100, grp=NULL,
+                xinfo=matrix(0, 0, 0), usequants=FALSE )
 }
 \arguments{
    \item{times}{
@@ -44,6 +46,37 @@ crisk.pre.bart( times, delta, x.train=NULL, x.test=NULL,
      If provided, then coarsen \code{times} per the quantiles
      \eqn{1/K, 2/K, ..., K/K}.
    }
+
+      \item{xinfo}{ You can provide the cutpoints to BART or let BART
+     choose them for you.  To provide them, use the \code{xinfo}
+     argument to specify a list (matrix) where the items (rows) are the
+     covariates and the contents of the items (columns) are the
+     cutpoints.  }
+
+      \item{numcut}{ The number of possible values of \eqn{c} (see
+   \code{usequants}).  If a single number if given, this is used for all
+   variables.  Otherwise a vector with length equal to
+   \code{ncol(x.train)} is required, where the \eqn{i^{th}}{i^th}
+   element gives the number of \eqn{c} used for the \eqn{i^{th}}{i^th}
+   variable in \code{x.train}.  If usequants is false, numcut equally
+   spaced cutoffs are used covering the range of values in the
+   corresponding column of \code{x.train}.  If \code{usequants} is true, then
+   \eqn{min(numcut, the number of unique values in the corresponding
+     columns of x.train - 1)} values are used.  }
+ 
+   \item{usequants}{ If \code{usequants=FALSE}, then the
+    cutpoints in \code{xinfo} are generated uniformly; otherwise,
+    if \code{TRUE}, uniform quantiles are used for the cutpoints. }
+   
+  \item{rm.const}{ Whether or not to remove constant variables.}
+
+  \item{grp}{A vector of inverse weights for the Dirichlet prior arguments.
+     If all the variables are continuous, then \code{grp} is a vector of 1s.
+     However, for categorical variables (like factors in a data.frame), the
+   inverse weights are the number of categories.  See \code{bartModelMatrix}
+   for the details of the default automated derivation when \code{grp=NULL}.
+ }
+ 
 }
 
 \value{

@@ -413,16 +413,12 @@ times <- pmax(1, ceiling(transplant$futime/7)) ## weeks
 ##times <- pmax(1, ceiling(transplant$futime/30.5)) ## months
 table(times)
 
-typeO <- 1*(transplant$abo=='O')
-typeA <- 1*(transplant$abo=='A')
-typeB <- 1*(transplant$abo=='B')
-typeAB <- 1*(transplant$abo=='AB')
-table(typeA, typeO)
-
-x.train <- cbind(typeO, typeA, typeB, typeAB)
-
-x.test <- cbind(1, 0, 0, 0)
-dimnames(x.test)[[2]] <- dimnames(x.train)[[2]]
+x.train=transplant[ , 3]
+i=which(transplant$abo=='O')[1]
+i[2]=which(transplant$abo=='A')[1]
+i[3]=which(transplant$abo=='B')[1]
+i[4]=which(transplant$abo=='AB')[1]
+x.test=transplant[i, 3]
 
 ##test BART with token run to ensure installation works
 set.seed(99)
@@ -442,9 +438,9 @@ post <- mc.crisk2.bart(x.train=x.train, times=times, delta=delta,
 
 K <- post$K
 
-typeO.cif.mean <- apply(post$cif.test, 2, mean)
-typeO.cif.025 <- apply(post$cif.test, 2, quantile, probs=0.025)
-typeO.cif.975 <- apply(post$cif.test, 2, quantile, probs=0.975)
+typeO.cif.mean <- post$cif.test.mean[1:K]
+typeO.cif.025 <- apply(post$cif.test[ , 1:K], 2, quantile, probs=0.025)
+typeO.cif.975 <- apply(post$cif.test[ , 1:K], 2, quantile, probs=0.975)
 
 plot(pfit[4,], xscale=7, xmax=735, col=1:3, lwd=2, ylim=c(0, 0.8),
        xlab='t (weeks)', ylab='CI(t)')

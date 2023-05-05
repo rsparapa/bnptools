@@ -1,17 +1,19 @@
 \name{xdm20.train}
 \alias{xdm20.train}
+\alias{xdm.train}
 \docType{data}
 \title{
 A real data example for \code{recur.bart}. 
 }
 \description{
    
-A matrix containing a 20\% random sample of the training set for a real
-data example of recurrent events survival analysis.  There are 100
-patients in the cohort: 50 in the training set and 50 in the testing
-set.  The full data set, \code{xdm.train}, can be obtained online at
+  A matrix containing a 20\% random sample as well as the whole 100\% of
+  the training set for a real data example of recurrent events survival
+  analysis.  There are 100 patients in the cohort: 50 in the training
+  set and 50 in the testing set.  %The full data set, \code{xdm.train},
+  can be obtained online at
 %\url{http://www.mcw.edu/FileLibrary/Groups/Biostatistics/TechReports/TechReports5175/tr064.tar}.
-\url{https://www.mcw.edu/-/media/MCW/Departments/Biostatistics/Tech-Report-64-April-2017-data-file.tar?la=en}.
+%\url{https://www.mcw.edu/-/media/MCW/Departments/Biostatistics/Tech-Report-64-April-2017-data-file.tar?la=en}.
 There are 488 patients in the full cohort: 235 in the training set and
 253 in the testing set.  See the Reference below (and the References
 therein) for more detailed information; a brief synopsis follows.
@@ -104,7 +106,10 @@ which are defined by prescription orders.  Seven conditions are a
 composite of diagnosis codes and prescription orders.
 
 }
-\usage{data(xdm20.train)}
+\usage{
+data(xdm20.train)
+data(xdm.train)
+}
 \seealso{xdm20.test}
 \references{
 Sparapani, Rein, Tarima, Jackson, Meurer (2020).  Non-parametric recurrent
