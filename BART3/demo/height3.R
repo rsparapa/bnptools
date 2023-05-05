@@ -12,11 +12,11 @@ L=1000 ## burn-in discard
 T=10   ## thin 
 M=1000 ## keep
 
-file.='height3-fit2.rds'
+file.='height3.fit2.rds'
 if(file.exists(file.)) { fit2=readRDS(file.)
 } else {
     fit2 = mc.gbart(x.train, bmx$BMXHT, seed=21, sparse=TRUE,
-                    ndpost=M, nskip=L, keepevery=T)
+                    ndpost=M, nskip=L, keepevery=T, verbose=0)
     saveRDS(fit2, file.)
 }
 print(sort(fit2$varprob.mean, TRUE))
@@ -58,7 +58,7 @@ K=64
 x.train.=bmx[ , 3:4]
 print(cor(bmx$BMXWT, x.train.[ , 2])^2)
 
-file.='height3-fit0.rds'
+file.='height3.fit0.rds'
 if(file.exists(file.)) { fit0=readRDS(file.)
 } else {
     fit0 = mc.gbart(x.train., bmx$BMXWT, seed=20, sparse=TRUE,
