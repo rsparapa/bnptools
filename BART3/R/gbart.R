@@ -405,6 +405,7 @@ if(TSVS) return(res)
 
     res$offset = offset
     names(res$treedraws$cutpoints) = dimnames(x.train)[[1]]
+    res$x.train = t(x.train)
     ## dimnames(res$varcount)[[2]] = as.list(dimnames(x.train)[[1]])
     ## res$varcount.mean <- apply(res$varcount, 2, mean)
     ## dimnames(res$varprob)[[2]] = as.list(dimnames(x.train)[[1]])

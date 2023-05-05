@@ -18,16 +18,17 @@
 
 ## kernel sampling Friedman's partial dependence (FPD) function
 FPDK.wbart=function(object, ## object returned from BART
-                   x.train, ## x.train to estimate coverage
+##                 x.train, ## x.train to estimate coverage
                    x.test,  ## settings of x.test: only x.test[ , S]
                             ## are used but they must all be given
                    S,       ## indices of subset
+                   x.train=object$x.train, ## x.train to estimate coverage
                    mult.impute=4L,
-                   kern.var=FALSE, ## kernel sampling variance adjustment
+                   kern.var=TRUE, ## kernel sampling variance adjustment
                    alpha=0.05, ## kernel sampling symmetric credible interval
                    probs=c(0.025, 0.975),
                             ## kernel sampling asymmetric credible interval
-                   mc.cores=1L,
+                   mc.cores=getOption('mc.cores', 1L),
                    seed=99L,
                    nice=19L)
 {

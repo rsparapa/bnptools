@@ -1,4 +1,22 @@
 
+Main differences between BART and BART3
+        * support for Thompson Sampling Variable Selection
+
+	* using S3 methods for Friedman's partial dependence function (FPD)
+
+	* support for cold-decking and hot-decking missing imputation
+
+	* better automated detection of OpenMP on Windows and macOS
+
+        * better support for factors in data.frames especially with DART
+
+Changes and New Features in 4.6 (2023-05-05):
+	* updates for FPD/FPDK methods and new docs
+
+	* updates to docs and fixing examples
+
+	* better automated detection of OpenMP on Windows and macOS
+
 Changes and New Features in 4.5 (2023-03-27):
 	* to avoid further confusion, renaming prefix HD "hot-deck"
 	methods (introduced in v3.9) to suffix K for "kernel" sampling

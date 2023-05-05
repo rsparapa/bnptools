@@ -52,10 +52,10 @@ crisk.bart <- function(
     if(is.na(ntype) || ntype==1)
         stop("type argument must be set to either 'pbart' or 'lbart'")
 
-    ## x.train2 <- bartModelMatrix(x.train2)
-    ## x.test2 <- bartModelMatrix(x.test2)
-    ## x.train <- bartModelMatrix(x.train)
-    ## x.test <- bartModelMatrix(x.test)
+    x.train2 <- bartModelMatrix(x.train2)
+    x.test2 <- bartModelMatrix(x.test2)
+    x.train <- bartModelMatrix(x.train)
+    x.test <- bartModelMatrix(x.test)
 
     ## if(length(rho)==0) rho=ncol(x.train)
     ## if(length(rho2)==0) rho2=ncol(x.train2)
