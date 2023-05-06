@@ -32,7 +32,7 @@ de-identification procedures.
 We identified likely incident diabetes mellitus type 2 patients by
 tabulating their first diagnosis code of primary diabetes (ICD-9 codes
 250.x0 and 250.x2) in 2006 or 2007, i.e., no such codes were found for
-these patients prior to 2006 for as far back as each patient's records
+these patients prior to 2006 for as far back as each their records
 go which is variable.  We restricted the population to adults aged 21 to
 90 by 01/01/2008.  Among the patients treated in this health system, the
 vast majority were racially self-identified as either white or black so
@@ -43,7 +43,7 @@ gestational diabetes.
 
 For this cohort, we identified every hospital admission between
 01/01/2008 and 12/31/2012.  For convenience, follow-up begins on
-01/01/2008, rather than from each patient's actual incident diagnosis
+01/01/2008, rather than from each their actual incident diagnosis
 date which varied over the preceding 2 years.  Following all patients
 concurrently allows us to temporally adapt, via our model, for
 seasonal/epidemic hospital admissions such as the H1N1 influenza
@@ -73,7 +73,7 @@ or current status indication within the prior 270 days; otherwise zero.
 Health care charges and relative value units (RVU) are measures related
 to the services and procedures delivered.  However, they are so closely
 related that recent charges/RVUs are of no practical value in this
-analysis.  For example, just prior to a patient's hospital admission on
+analysis.  For example, just prior to a hospital admission on
 a non-emergent basis, they often have a series of diagnostic tests and
 imaging.  Similarly, for an emergent admission, the patient is often
 seen in the emergency department just prior to admission where similar
@@ -104,7 +104,94 @@ Similarly, we employed 15 general conditions which are the Charlson
 diagnoses and 18 general conditions from the RxRisk adult diagnoses
 which are defined by prescription orders.  Seven conditions are a
 composite of diagnosis codes and prescription orders.
-
+}
+\format{A matrix with 84 columns of, mainly, binary indicators.
+\describe{
+  \item{\code{t}}{time in days}
+  \item{\code{v}}{sojourn time since last event in days}
+  \item{\code{n}}{number of previous events}
+  \item{\code{age}}{age in years}
+  \item{\code{sex_c}}{1:F, 2:M}
+  \item{\code{race1}}{1:W, 2:B}
+  \item{\code{insur}}{Insurance status 0:Government aged 65+, 1:Government aged<65, 2:Commercial aged<65, 3:Other aged<65}
+\item{\code{ins270}}{Insulin prescription within last 270 days}
+\item{\code{met270}}{Metformin prescription within last 270 days}
+\item{\code{sulf270}}{Sulfonylurea prescription within last 270 days}
+\item{\code{charges31_90}}{Health care charges 31 to 90 days prior}
+\item{\code{charges91_180}}{Health care charges 91 to 180 days prior}
+\item{\code{charges181_300}}{Health care charges 181 to 300 days prior}
+\item{\code{rvus31_90}}{Relative value units 31 to 90 days prior}
+\item{\code{rvus91_180}}{Relative value units 91 to 180 days prior}
+\item{\code{rvus181_300}}{Relative value units 181 to 300 days prior}
+\item{\code{keto}}{Ketoacidosis}
+\item{\code{hypergly}}{Hyperglycemia}
+\item{\code{hyperins}}{Hyperinsulinism}
+\item{\code{ckd}}{Chronic kidney disease}
+\item{\code{nephropath}}{Nephropathy}
+\item{\code{kidfail}}{Kidney failure}
+\item{\code{dialy}}{Dialysis}
+\item{\code{kidtrans}}{Kidney transplant}
+\item{\code{retinopath}}{Retinopathy}
+\item{\code{blind}}{Blindness}
+\item{\code{neuropath}}{Neuropathy}
+\item{\code{dfoot}}{Diabetic foot}
+\item{\code{enceph}}{Encephalopathy}
+\item{\code{gang}}{Gangrene}
+\item{\code{cmyopath}}{Cardiomyopathy}
+\item{\code{cad}}{Coronary artery disease}
+\item{\code{hypertsn}}{Hypertension}
+\item{\code{afib}}{Atrial fibrillation}
+\item{\code{ulcer}}{Diabetic ulceration}
+\item{\code{dmbone}}{Diabetic bone changes}
+\item{\code{apnea}}{Sleep apnea}
+\item{\code{depress}}{Depression}
+\item{\code{cci_mi}}{Myocardial infarction}
+\item{\code{cci_chf}}{Congestive heart failure}
+\item{\code{cci_pvd}}{Peripheral vascular disease}
+\item{\code{cci_stroke}}{Cerebrovascular disease}
+\item{\code{cci_dement}}{Dementia}
+\item{\code{cci_cpd}}{Chronic pulmonary disease}
+\item{\code{cci_rhd}}{Rheumatic disease}
+\item{\code{cci_pud}}{Peptic ulcer disease}
+\item{\code{cci_ldmild}}{Mild liver disease}
+\item{\code{cci_ldsev}}{Moderate/severe liver disease}
+\item{\code{cci_dmw}}{Diabetes with chronic complications}
+\item{\code{cci_plegia}}{Hemiplegia/paraplegia}
+\item{\code{cci_rend}}{Renal disease}
+\item{\code{cci_malig}}{Malignancy}
+\item{\code{cci_tumor}}{Metastatic solid tumor}
+\item{\code{barsurg}}{Bariatric surgery}
+\item{\code{cabg}}{Coronary artery bypass graft}
+\item{\code{ptca}}{Percutaneous transluminal coronary angioplasty}
+\item{\code{nutr}}{Medical nutrition therapy}
+\item{\code{asthma}}{Asthma}
+\item{\code{hyperlip}}{Hyperlipidemia}
+\item{\code{anxiety}}{Anxiety and tension}
+\item{\code{psycho}}{Psychosis}
+\item{\code{epilepsy}}{Epilepsy}
+\item{\code{hd}}{Heart disease}
+\item{\code{gout}}{Gout}
+\item{\code{cd}}{Cardiac disease}
+\item{\code{thyroid}}{Thyroid disorder}
+\item{\code{tb}}{Tuberculosis}
+\item{\code{pd}}{Parkinson''s disease}
+\item{\code{bp_systolic}}{Systolic blood pressure}
+\item{\code{bp_diastolic}}{Diastolic blood pressure}
+\item{\code{bmi}}{Body mass index}
+\item{\code{weight}}{Body weight}
+\item{\code{height}}{Body height}
+\item{\code{temperature}}{Body temperature}
+\item{\code{pulse}}{Heart rate}
+\item{\code{respirations}}{Respiratory rate}
+\item{\code{a1c}}{Glycohemoglobin A1c}
+\item{\code{crea}}{Creatinine}
+\item{\code{sod}}{Sodium}
+\item{\code{pot}}{Potassium}
+\item{\code{bcar}}{Bicarbonate}
+\item{\code{bun}}{Blood urea nitrogen}
+\item{\code{ca}}{Calcium}
+\item{\code{cl}}{Chloride}
+}
 }
 \usage{
 data(xdm20.train)

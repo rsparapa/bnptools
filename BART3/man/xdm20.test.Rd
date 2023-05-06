@@ -17,7 +17,7 @@ information; a brief synopsis follows.
 \code{xdm20.test} contains both the training set and the testing set.
 There are 798 unique time points so there are 50*798=39900 rows of the
 training set followed by 50*798=39900 rows of the testing set.  For
-patient's who died prior to the end of follow-up, their external factors
+a patient dying prior to the end of follow-up, their external factors
 are last value carried forward.  Therefore, we can use \code{xdm20.test}
 to estimate the cumulative hazard for all patients for all time points.
 %The full data set, \code{xdm.test}, can be obtained online at
@@ -29,7 +29,7 @@ the testing set.
 \code{xdm.test} contains both the training set and the testing set.
 There are 798 unique time points so there are 235*798=187530 rows of the
 training set followed by 253*798=201894 rows of the testing set.  For
-patient's who died prior to the end of follow-up, their external factors
+a patient dying prior to the end of follow-up, their external factors
 are last value carried forward.
 
 }

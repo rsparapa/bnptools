@@ -18,37 +18,34 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 tsvs <- function(
-                    x.train=matrix(0,0,0), y.train=NULL,
-                    ##tsvs args
-                    T=20, a.=1, b.=0.5, C=0.5,
-                    rds.file='tsvs.rds',
-                    pdf.file='tsvs.pdf',
-                     type='wbart',
-                     ntype=as.integer(
-                         factor(type,
-                                levels=c('wbart', 'pbart', 'lbart'))),
-                     ##treeinit=FALSE, trees=NULL,
-                     sparse=TRUE, theta=0, omega=1,
-                     a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
-                     varprob=NULL,
-                     xinfo=matrix(0,0,0), usequants=FALSE,
-                     rm.const=TRUE,
-                     sigest=NA, sigdf=3, sigquant=0.90,
-                     k=2, power=2, base=0.95,
-                     impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
-                     lambda=NA, tau.num=c(NA, 3, 6)[ntype],
-                     offset=NULL, w=rep(1, length(y.train)),
-                     ntree=10L, numcut=100L,
-                     ndpost=1000L, nskip=100L,
-                     keepevery=c(1L, 10L, 10L)[ntype],
-                     printevery=100L, transposed=FALSE,
-                     probs=c(0.025, 0.975),
-                     ##mc.cores = getOption('mc.cores', 2L),
-                     ##nice = 19L,
-                     verbose = 1L,
-                     shards=1L, weight=rep(NA, shards),
-                     meta = FALSE
-                     )
+                 x.train=matrix(0,0,0), y.train=NULL,
+                 ##tsvs args
+                 T=20, a.=1, b.=0.5, C=0.5,
+                 rds.file='tsvs.rds',
+                 pdf.file='tsvs.pdf',
+                 type='wbart',
+                 ntype=as.integer(
+                     factor(type,
+                            levels=c('wbart', 'pbart', 'lbart'))),
+                 sparse=TRUE, theta=0, omega=1,
+                 a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
+                 varprob=NULL,
+                 xinfo=matrix(0,0,0), usequants=FALSE,
+                 rm.const=TRUE,
+                 sigest=NA, sigdf=3, sigquant=0.90,
+                 k=2, power=2, base=0.95,
+                 impute.mult=NULL, impute.prob=NULL, impute.miss=NULL,
+                 lambda=NA, tau.num=c(NA, 3, 6)[ntype],
+                 offset=NULL, w=rep(1, length(y.train)),
+                 ntree=10L, numcut=100L,
+                 ndpost=1000L, nskip=100L,
+                 keepevery=c(1L, 10L, 10L)[ntype],
+                 printevery=100L, transposed=FALSE,
+                 probs=c(0.025, 0.975),
+                 verbose = 1L
+                 ## shards=1L, weight=rep(NA, shards),
+                 ## meta = FALSE
+                 )
 {
 
     if(T==0) return(T)
@@ -82,14 +79,17 @@ tsvs <- function(
     if(length(impute.mult)==1)
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
 
-        temp = bartModelMatrix(x.train, numcut, usequants=usequants,
-                               xinfo=xinfo, rm.const=rm.const)
-        x.train = temp$X
-        numcut = temp$numcut
-        xinfo = temp$xinfo
-        if(length(grp)==0) grp <- temp$grp
-        rm(temp)
-  
+    temp = bartModelMatrix(x.train, numcut, usequants=usequants,
+                           xinfo=xinfo, rm.const=rm.const)
+    x.train = temp$X
+    numcut = temp$numcut
+    xinfo = temp$xinfo
+    if(length(grp)==0) grp <- temp$grp
+    rm(temp)
+    
+    P=ncol(x.train)
+    if(length(grp)==0) grp <- rep(1, P)
+
     grp.=0
     h=1
     j=0
@@ -99,36 +99,22 @@ tsvs <- function(
             h=h+1
             j=i-1
         } else { j=j-1 }
+        ##return(list(grp=grp, grp.=grp.))
     }
-    ##return(list(grp=grp, grp.=grp.))
-        
-    P=ncol(x.train)
-    
-            dummy=matrix(0, nrow=2, ncol=P)
-            h=1
-            l=1
-            for(i in 1:length(grp.)) {
-                for(j in 1:grp.[i]) {
-                    dummy[1, h]=l
-                    dummy[2, h]=l+grp.[i]-1
-                    h=h+1
-                }
-                l=h
-            }
-            dimnames(dummy)[[2]]=dimnames(x.train)[[2]]
-##return(dummy)
-    
-    ## mc.cores.detected <- detectCores()
-
-    ## if(mc.cores>mc.cores.detected) mc.cores <- mc.cores.detected
-
-    ## mc.ndpost <- ceiling(ndpost/mc.cores)
-
-    if(meta && shards>1) {
-        ##weight=rep(1, shards)
-        shards=1 ## Meta-analysis-like: No Modified LISA adjustment
+    dummy=matrix(0, nrow=2, ncol=P)
+    h=1
+    l=1
+    for(i in 1:length(grp.)) {
+        for(j in 1:grp.[i]) {
+            dummy[1, h]=l
+            dummy[2, h]=l+grp.[i]-1
+            h=h+1
+        }
+        l=h
     }
-        
+    dimnames(dummy)[[2]]=dimnames(x.train)[[2]]
+    ##return(dummy)
+
     Names=dimnames(x.train)[[2]] 
     A=matrix(a., nrow=T, ncol=P)
     B=matrix(b., nrow=T, ncol=P)
@@ -176,34 +162,34 @@ tsvs <- function(
                 numcut.[h]=numcut[j]
                 grp.[h]=grp[j]
             }
-            ##dimnames(xinfo.)[[2]]=dimnames(xinfo)[[2]]
+        ##dimnames(xinfo.)[[2]]=dimnames(xinfo)[[2]]
         
         x.train.=cbind(x.train[ , pick])
         dimnames(x.train.)[[2]]=Names[pick]
         
         post=gbart(x.train=t(x.train.), y.train=y.train,
-                     type=type, ntype=ntype,
-                     sparse=sparse, theta=theta, omega=omega,
-                     a=a, b=b, augment=augment, rho=rho, grp=grp.,
-                     varprob=varprob,
-                     xinfo=xinfo., usequants=usequants,
-                     rm.const=rm.const,
-                     sigest=sigest, sigdf=sigdf, sigquant=sigquant,
-                     k=k, power=power, base=base,
-                     impute.mult=impute.mult, impute.prob=impute.prob,
-                     impute.miss=impute.miss,
-                     lambda=lambda, tau.num=tau.num,
-                     offset=offset, w=w,
-                     ntree=ntree, numcut=numcut.,
-                     ndpost=ndpost, nskip=nskip,
-                     keepevery=keepevery, printevery=printevery,
-                     probs=probs,
-                     ##mc.cores = mc.cores,
-                     ##nice = nice,
-                     TSVS=TRUE, verbose = verbose,
-                     shards=shards, weight=weight, ##meta = meta,
+                   type=type, ntype=ntype,
+                   sparse=sparse, theta=theta, omega=omega,
+                   a=a, b=b, augment=augment, rho=rho, grp=grp.,
+                   varprob=varprob,
+                   xinfo=xinfo., usequants=usequants,
+                   rm.const=rm.const,
+                   sigest=sigest, sigdf=sigdf, sigquant=sigquant,
+                   k=k, power=power, base=base,
+                   impute.mult=impute.mult, impute.prob=impute.prob,
+                   impute.miss=impute.miss,
+                   lambda=lambda, tau.num=tau.num,
+                   offset=offset, w=w,
+                   ntree=ntree, numcut=numcut.,
+                   ndpost=ndpost, nskip=nskip,
+                   keepevery=keepevery, printevery=printevery,
+                   probs=probs,
+                   ##mc.cores = mc.cores,
+                   ##nice = nice,
+                   TSVS=TRUE, verbose = verbose,
+                   ##shards=shards, weight=weight, ##meta = meta,
                    transposed=TRUE
-                 )
+                   )
         ##return(post)
 
         names.=dimnames(post$varcount)[[2]]
