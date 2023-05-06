@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 ## load 20 percent random sample
 data(xdm20.train)

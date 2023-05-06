@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 f <- function(x) ## adpated Friedman's five dimensional test function
     3+sin(pi*x[ , 1]*x[ , 2])-2*(x[ , 3]-0.5)^2+x[ , 4]-0.5*x[ , 5]

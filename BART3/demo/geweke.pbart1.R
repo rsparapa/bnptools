@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 k = 50       #number of covariates
 C = 8

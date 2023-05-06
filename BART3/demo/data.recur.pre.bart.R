@@ -1,4 +1,4 @@
-library(BART)
+library(BART3)
 
 times <- matrix(c(3,  8,  9,
                   4, 12, 12),

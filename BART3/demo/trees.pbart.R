@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 f = function(x) #only the first 5 matter
     sin(pi*x[ , 1]*x[ , 2]) + 2*x[ , 3]*x[ , 4]^2 + x[ , 5]

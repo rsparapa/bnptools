@@ -1,6 +1,6 @@
 
 library(survival)
-library(BART)
+library(BART3)
 
 ## load survival package for the advanced lung cancer example
 data(lung)

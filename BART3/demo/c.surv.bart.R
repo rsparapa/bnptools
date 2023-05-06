@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 ## estimate concordance probability: P(t1<t2)
 N <- 2000

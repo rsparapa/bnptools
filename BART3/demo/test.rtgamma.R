@@ -1,4 +1,4 @@
-library(BART)
+library(BART3)
 
 N <- 1
 A <- 3

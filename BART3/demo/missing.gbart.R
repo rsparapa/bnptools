@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 set.seed(12)
 N=50

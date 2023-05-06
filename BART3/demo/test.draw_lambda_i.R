@@ -1,4 +1,4 @@
-library(BART)
+library(BART3)
 
 T <- 1
 MU <- 0

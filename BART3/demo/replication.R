@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 ## replication script for JSS article
 

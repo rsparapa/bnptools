@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 B <- getOption('mc.cores', 1)
 figures = getOption('figures', default='NONE')

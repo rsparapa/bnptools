@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 N = 500
 P = 1       #number of covariates

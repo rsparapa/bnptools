@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 N = 1000
 NP = 200

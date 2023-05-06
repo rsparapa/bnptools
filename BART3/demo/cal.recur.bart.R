@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 ## simulate recurrent events data set with Exponential proportional intensity
 N <- 250

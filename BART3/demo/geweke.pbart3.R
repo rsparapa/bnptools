@@ -1,5 +1,5 @@
 
-library(BART)
+library(BART3)
 
 ##simulate from Friedman's five-dimensional test function
 ##Friedman JH. Multivariate adaptive regression splines
