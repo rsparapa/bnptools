@@ -65,20 +65,17 @@ surv.bart <- function(
     if(impute==1)
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
 
-## we can now replace cold-decking with hot-decking
-## stratified by the event indicator
     ## cold = CDimpute(x.train, x.test, impute.mult)
     ## x.train = cold$x.train
     ## x.test = cold$x.test
 
     if(length(y.train)==0) {
-## how do we seed this for a single chain vs. multiple
-        times.=times
-        times.[delta==0]=times.[delta==0]+max(times[delta==1])
+        ## times.=times
+        ## times.[delta==0]=times.[delta==0]+max(times[delta==1])
     
-        hot = HDimpute(x.train, times., x.test)
-        x.train = hot$x.train
-        x.test = hot$x.test
+        ## hot = HDimpute(x.train, times., x.test)
+        ## x.train = hot$x.train
+        ## x.test = hot$x.test
 
         pre <- surv.pre.bart(times, delta, x.train, x.test, K=K,
                              events=events, ztimes=ztimes, zdelta=zdelta,

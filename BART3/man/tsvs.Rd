@@ -41,8 +41,7 @@ tsvs(
       keepevery=c(1L, 10L, 10L)[ntype],
       printevery=100L, transposed=FALSE,
       probs=c(0.025, 0.975),
-      verbose = 1L, shards = 1L, weight=rep(NA, shards),
-      meta = FALSE
+      verbose = 1L
 )
 }
 
@@ -234,13 +233,7 @@ argument \code{type} to specify a logit BART model.
  %% }
  
    \item{verbose}{ If set to \code{0L}, then compute silently.}
-   \item{shards}{ For the Modified LISA method, this is the number of
-     shards: the default is \code{1L}.}
-   \item{weight}{ For the Modified LISA method, this is a vector of
-     weights to combine the shards: the default is \code{rep(NA, shards)}.}
-   \item{meta}{ Whether or not to produce meta-analysis-like
-     estimates from a sharded analysis (as opposed to a Modified LISA
-     approach): default is \code{FALSE}.}
+
 }
 \details{
    Thompson Sampling Variable Selection returns a list of objects as follows.

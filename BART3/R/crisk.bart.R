@@ -61,16 +61,16 @@ crisk.bart <- function(
     ## if(length(rho2)==0) rho2=ncol(x.train2)
 
     if(length(y.train)==0) {
-        times.=times
-        times.[delta==0]=times.[delta==0]+max(times[delta>0])
+        ## times.=times
+        ## times.[delta==0]=times.[delta==0]+max(times[delta>0])
     
-        hot = HDimpute(x.train, times., x.test)
-        x.train = hot$x.train
-        x.test = hot$x.test
+        ## hot = HDimpute(x.train, times., x.test)
+        ## x.train = hot$x.train
+        ## x.test = hot$x.test
         
-        hot = HDimpute(x.train2, times., x.test2)
-        x.train2 = hot$x.train
-        x.test2 = hot$x.test
+        ## hot = HDimpute(x.train2, times., x.test2)
+        ## x.train2 = hot$x.train
+        ## x.test2 = hot$x.test
         
         pre <- crisk.pre.bart(times, delta, x.train, x.test,
                               x.train2, x.test2, K=K,
