@@ -23,8 +23,10 @@ FPD.survbart=function(object,  ## object returned from BART
                    x.test,  ## settings of x.test: only x.test[ , S]
                             ## are used but they must all be given
                    S,       ## indices of subset
-                   x.train=object$x.train, ## x.train to estimate coverage
-                   dots=NULL,## list of extra parameters if needed
+                   x.train=object$tx.test,
+                   ##x.train=object$x.train,
+                   ##dots=NULL,## list of extra parameters if needed
+                   probs=c(0.025, 0.975),
                    mc.cores=getOption('mc.cores', 1L),
                    mult.impute=4L,
                    seed=99L)
@@ -41,7 +43,8 @@ FPD.survbart=function(object,  ## object returned from BART
     if(P!=ncol(x.test))
         stop('the number of columns in x.train and x.test are not the same')
 
-    if(P!=(length(object$treedraws$cutpoints)-1))
+    if(P!=(length(object$treedraws$cutpoints)))
+    ##if(P!=(length(object$treedraws$cutpoints)-1))
         stop(paste0('the number of columns in x.train and\n',
                     'the length of cutpoints are not the same'))
 
@@ -52,21 +55,20 @@ FPD.survbart=function(object,  ## object returned from BART
                 stop(paste0('Row ', i, ' and ', j,
                             ' of x.test are equal with respect to S'))
 
-    N=nrow(x.train)
+    NK=nrow(x.train)
     K=object$K
-    NK=N*K
+    N=NK/K
     M=object$ndpost
-    probs=dots$probs
-    if(length(probs)==0) probs=c(0.025, 0.975)
     set.seed(seed)
     X.test = x.train
     for(i in 1:Q) {
         for(j in S) X.test[ , j]=x.test[i, j]
-        pre=surv.pre.bart(times=dots$times, delta=dots$delta,
-                          x.train=X.test, x.test=X.test,
-                          K=dots$K, events=dots$events,
-                          ztimes=dots$ztimes, zdelta=dots$zdelta)
-        pred=predict(object, pre$tx.test, mc.cores=mc.cores,
+        ## pre=surv.pre.bart(times=dots$times, delta=dots$delta,
+        ##                   x.train=X.test, x.test=X.test,
+        ##                   K=K, events=dots$events,
+        ##                   ztimes=dots$ztimes, zdelta=dots$zdelta)
+        ##pred=predict(object, pre$tx.test, mc.cores=mc.cores,
+        pred=predict(object, X.test, mc.cores=mc.cores,
                             mult.impute=mult.impute, seed=NA)
         prob.test.=matrix(nrow=M, ncol=K)
         surv.test.=matrix(nrow=M, ncol=K)
