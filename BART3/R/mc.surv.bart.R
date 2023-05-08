@@ -65,8 +65,8 @@ mc.surv.bart <- function(
     if(is.na(ntype) || ntype==1)
         stop("type argument must be set to either 'pbart' or 'lbart'")
 
-    x.train <- bartModelMatrix(x.train)
-    x.test <- bartModelMatrix(x.test)
+    ## x.train <- bartModelMatrix(x.train)
+    ## x.test <- bartModelMatrix(x.test)
 
     impute = length(impute.mult)
     if(impute==1)
