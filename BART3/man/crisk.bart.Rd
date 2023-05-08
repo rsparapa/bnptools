@@ -406,12 +406,12 @@ times <- pmax(1, ceiling(transplant$futime/7)) ## weeks
 ##times <- pmax(1, ceiling(transplant$futime/30.5)) ## months
 table(times)
 
-x.train=transplant[ , 3]
+x.train=data.frame(abo=transplant[ , 3])
 i=which(transplant$abo=='O')[1]
 i[2]=which(transplant$abo=='A')[1]
 i[3]=which(transplant$abo=='B')[1]
 i[4]=which(transplant$abo=='AB')[1]
-x.test=transplant[i, 3]
+x.test=data.frame(abo=transplant[i, 3])
 
 ##test BART with token run to ensure installation works
 set.seed(99)
