@@ -58,28 +58,28 @@ mc.crisk.bart <- function(
     if(is.na(ntype) || ntype==1)
         stop("type argument must be set to either 'pbart' or 'lbart'")
 
-    x.train2 <- bartModelMatrix(x.train2)
-    x.test2 <- bartModelMatrix(x.test2)
-    x.train <- bartModelMatrix(x.train)
-    x.test <- bartModelMatrix(x.test)
+    ## x.train2 <- bartModelMatrix(x.train2)
+    ## x.test2 <- bartModelMatrix(x.test2)
+    ## x.train <- bartModelMatrix(x.train)
+    ## x.test <- bartModelMatrix(x.test)
 
     if(length(y.train)==0) {
         pre <- crisk.pre.bart(times, delta, x.train, x.test,
                               x.train2, x.test2, K=K)
 
-        y.train <- pre$y.train
-        x.train <- pre$tx.train
-        x.test  <- pre$tx.test
-        y.train2 <- pre$y.train2
-        x.train2 <- pre$tx.train2
-        x.test2  <- pre$tx.test2
+        ## y.train <- pre$y.train
+        ## x.train <- pre$tx.train
+        ## x.test  <- pre$tx.test
+        ## y.train2 <- pre$y.train2
+        ## x.train2 <- pre$tx.train2
+        ## x.test2  <- pre$tx.test2
+        tx.train <- pre$tx.train
+        tx.test  <- pre$tx.test
 
-        times   <- pre$times
-        K       <- pre$K
+        ## times   <- pre$times
+        ## K       <- pre$K
 
-        if(length(cond)==0) cond <- pre$cond
-        ##if(length(binaryOffset)==0) binaryOffset <- pre$binaryOffset
-        ##if(length(binaryOffset2)==0) binaryOffset2 <- pre$binaryOffset2
+        ## if(length(cond)==0) cond <- pre$cond
     }
     else {
         if(length(x.train)==0 | length(x.train2)==0)
@@ -88,8 +88,8 @@ mc.crisk.bart <- function(
         if(nrow(x.train)!=nrow(x.train2))
             stop('number of rows in x.train and x.train2 must be equal')
 
-        ##if(length(binaryOffset)==0) binaryOffset <- 0
-        ##if(length(binaryOffset2)==0) binaryOffset2 <- 0
+        tx.train <- x.train
+        tx.test  <- x.test
 
         times <- unique(sort(x.train[ , 1]))
         K     <- length(times)
@@ -97,7 +97,7 @@ mc.crisk.bart <- function(
 
     H <- 1
     Mx <- 2^31-1
-    Nx <- 2*max(nrow(x.train), nrow(x.test))
+    Nx <- 2*max(nrow(tx.train), nrow(tx.test))
 
     if(Nx>Mx%/%ndpost) {
         H <- ceiling(ndpost / (Mx %/% Nx))
@@ -130,6 +130,7 @@ mc.crisk.bart <- function(
               crisk.bart(x.train=x.train, y.train=y.train,
                          x.train2=x.train2, y.train2=y.train2,
                          x.test=x.test, x.test2=x.test2, cond=cond,
+                         times=times, delta=delta,
                          sparse=sparse, theta=theta, omega=omega,
                          a=a, b=b, augment=augment,
                          rho=rho, rho2=rho2,
@@ -166,7 +167,8 @@ mc.crisk.bart <- function(
             if(h==1 & i==mc.cores) {
                 post <- post.list[[1]][[mc.cores]]
                 post$ndpost <- H*mc.cores*mc.ndpost
-                p <- ncol(x.train[ , post$rm.const])
+                p <- ncol(post$tx.train)
+                ##p <- ncol(x.train[ , post$rm.const])
                 old.text <- paste0(as.character(mc.ndpost), ' ',
                                    as.character(ntree), ' ', as.character(p))
                 old.stop <- nchar(old.text)
@@ -177,7 +179,8 @@ mc.crisk.bart <- function(
                                                    ' ', as.character(p)),
                                             post$treedraws$trees)
 
-                p <- ncol(x.train2[ , post$rm.const2])
+                p <- ncol(post$tx.train2)
+                ##p <- ncol(x.train2[ , post$rm.const2])
                 old.text <- paste0(as.character(mc.ndpost), ' ',
                                    as.character(ntree), ' ', as.character(p))
                 old.stop2 <- nchar(old.text)

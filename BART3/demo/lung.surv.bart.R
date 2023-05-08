@@ -1,7 +1,7 @@
 
 library(BART3)
 
-## options(mc.cores=8)
+options(mc.cores=8)
 B <- getOption('mc.cores', 1)
 figures = getOption('figures', default='NONE')
 
@@ -10,7 +10,7 @@ data(lung)
 
 N <- length(lung$status)
 
-table(lung$ph.karno, lung$pat.karno)
+table(lung$ph.karno, lung$pat.karno, useNA='ifany')
 
 ## if physician's KPS unavailable, then use the patient's
 h <- which(is.na(lung$ph.karno))
@@ -29,14 +29,17 @@ times <- ceiling(times/7)  ## weeks
 table(delta)
 
 ## matrix of observed covariates
-x.train <- cbind(lung$sex, lung$age, lung$ph.karno)
+##x.train <- cbind(lung$sex, lung$age, lung$ph.karno)
+x.train <- data.frame(lung$sex, lung$age, lung$ph.karno, factor(lung$inst))
 
 ## lung$sex:        Male=1 Female=2
 ## lung$age:        Age in years
 ## lung$ph.karno:   Karnofsky performance score (dead=0:normal=100:by=10)
 ##                  rated by physician
 
-dimnames(x.train)[[2]] <- c('M(1):F(2)', 'age(39:82)', 'ph.karno(50:100:10)')
+names(x.train) <- c('M(1):F(2)', 'age(39:82)', 'ph.karno(50:100:10)',
+                    'Institution')
+##dimnames(x.train)[[2]] <- c('M(1):F(2)', 'age(39:82)', 'ph.karno(50:100:10)')
 
 table(x.train[ , 1])
 summary(x.train[ , 2])
@@ -44,15 +47,16 @@ table(x.train[ , 3])
 
 ## run one long MCMC chain in one process
 ## set.seed(99)
-## post <- surv.bart(x.train=x.train, times=times, delta=delta, x.test=x.test)
+## post <- surv.bart(x.train=x.train, times=times, delta=delta,
+##                   x.test=x.train, sparse=TRUE, K=50, usequants=TRUE)
 
 ## in the interest of time, consider speeding it up by parallel processing
 ## run "mc.cores" number of shorter MCMC chains in parallel processes
 post <- mc.surv.bart(x.train=x.train, times=times, delta=delta,
-                     mc.cores=B, seed=99)##(, K=50)
+                     mc.cores=B, seed=99, sparse=TRUE)
 
 pre <- surv.pre.bart(times=times, delta=delta, x.train=x.train,
-                     x.test=x.train)##(, K=50)
+                     x.test=x.train, K=50, usequants=TRUE)
 
 K <- pre$K
 M <- post$ndpost
