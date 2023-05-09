@@ -1,4 +1,5 @@
 
+options(mc.cores=8)
 library(BART3)
 
 B <- getOption('mc.cores', 1)

@@ -16,17 +16,21 @@ if(!file.exists(file.)) {
 } else { fit1=readRDS(file.) }
 print(cor(bmx$BMXHT, fit1$yhat.train.mean)^2)
 
+pdf(file='growth1-zep1.pdf')
 col.=c(4, 2) ## males=blue, females=red
 plot(fit1$yhat.train.mean, bmx$BMXHT, asp=1,
      pch='.', col=col.[bmx$RIAGENDR],
      xlab='Predicted Height (cm)',
      ylab='Observed Height (cm)')
 abline(b=1, a=0, col=8)
+dev.off()
 
+pdf(file='growth1-fit1.pdf')
 plot(bmx$RIDAGEEX, fit1$yhat.train.mean,
      pch='.', col=col.[bmx$RIAGENDR],
      ylab='Height (cm)',
      xlab='Age (yr)')
+dev.off()
 
 (N=length(bmx$BMXHT))
 K=16 ##K=64
@@ -49,12 +53,14 @@ x.test[ , P]=fit0$yhat.test.mean
 print(x.test[ , c(1, 2, P)])
 
 pred1 = FPDK(fit1, x.test, c(1, 2, P), kern.var=FALSE)
+pred2 = FPDK(fit1, x.test, c(1, 2, P)) ## kern.var=TRUE default
 
-pdf(file='growth3-pred1.pdf')
+pdf(file='growth3-FPDK.pdf')
+
+par(mfrow=c(1, 2))
 plot(bmx$RIDAGEEX, fit1$yhat.train.mean,
-     pch='.', col=col.[bmx$RIAGENDR],
-     ylab='Height (cm)',
-     xlab='Age (yr)')
+     pch='.', col=col.[bmx$RIAGENDR], type='n',
+     ylab='Height (cm)', xlab='Age (yr)', sub='kern.var=FALSE')
 for(i in 1:2) {
     lines(age, pred1$yhat.test.mean[(i-1)*K+1:K], col=col.[i])
     lines(age, pred1$yhat.test.lower[(i-1)*K+1:K],
@@ -62,15 +68,10 @@ for(i in 1:2) {
     lines(age, pred1$yhat.test.upper[(i-1)*K+1:K],
           lty=2, col=col.[i], lwd=2)
 }
-dev.off()
 
-pred2 = FPDK(fit1, x.test, c(1, 2, P), kern.var=TRUE) ## the default
-
-pdf(file='growth3-pred2.pdf')
 plot(bmx$RIDAGEEX, fit1$yhat.train.mean,
-     pch='.', col=col.[bmx$RIAGENDR],
-     ylab='Height (cm)',
-     xlab='Age (yr)')
+     pch='.', col=col.[bmx$RIAGENDR], type='n',
+     ylab='', xlab='Age (yr)', sub='kern.var=TRUE')
 for(i in 1:2) {
     lines(age, pred2$yhat.test.mean[(i-1)*K+1:K], col=col.[i])
     lines(age, pred2$yhat.test.lower[(i-1)*K+1:K],
@@ -78,4 +79,5 @@ for(i in 1:2) {
     lines(age, pred2$yhat.test.upper[(i-1)*K+1:K],
           lty=2, col=col.[i], lwd=2)
 }
+par(mfrow=c(1, 1))
 dev.off()
