@@ -10,7 +10,7 @@
 }
 \usage{
 \method{FPD}{wbart}(object, x.test,
-    S, x.train=object$x.train, dots=NULL,
+    S, x.train=object$x.train, probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L, seed = 99L)
 }
@@ -33,12 +33,9 @@
 
    \item{S}{Indices for the marginal effects subset.}
 
-   \item{dots}{List of extra parameters if needed.  Currently, not
-     used.}
+   \item{probs}{The lower and upper limits for the credible interval.}
    
-   \item{mc.cores}{
-   Number of threads to utilize.
-   }
+   \item{mc.cores}{ Number of threads to utilize. }
 
    \item{mult.impute}{ For missing data in \code{x.train}, perform
      multiple imputation this many times.}
