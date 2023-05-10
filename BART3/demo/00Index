@@ -51,8 +51,7 @@ lung.surv.lbart	   Lung cancer example for survival analysis with logit BART
 missing.gbart	   Example of missing imputation with gbart
 modlisa	   Example of using Modified LISA
 optimaldonor	   Hematopoietic stem cell transplantation optimal donor
-nhanes.pbart1 	   Friedman's partial dependence function for binary outcomes with BART part 1
-nhanes.pbart2 	   Friedman's partial dependence function for binary outcomes with BART part 2
+nhanes.pbart 	   Friedman's partial dependence function for binary outcomes with BART
 np.recur.bart	   Nonproportional intensity for recurrent events with BART
 nox		   Boston air pollution: Nitrogen Oxides and Housing Values
 replication	   Replication script for JSS article

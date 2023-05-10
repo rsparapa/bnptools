@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
-## FPD.pbart
+## Copyright (C) 2023 Robert McCulloch and Rodney Sparapani
+## FPDK.pbart
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,18 +17,31 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Friedman's partial dependence (FPD) function
-FPD.pbart=function(object,  ## object returned from BART
+## kernel sampling Friedman's partial dependence (FPD) function
+FPDK.pbart=function(object, ## object returned from BART
                    x.test,  ## settings of x.test: only x.test[ , S]
                             ## are used but they must all be given
                    S,       ## indices of subset
-                   x.train=object$x.train, ## x.train to estimate coverage
-                   ##dots=NULL,## list of extra parameters if needed
-                   probs=c(0.025, 0.975),
-                   mc.cores=getOption('mc.cores', 1L),
+                   x.train=object$x.train, 
                    mult.impute=4L,
-                   seed=99L)
+                   kern.var=TRUE, ## kernel sampling variance adjustment
+                   alpha=0.05, ## kernel sampling symmetric credible interval
+                   probs=c(0.025, 0.975),
+                            ## kernel sampling asymmetric credible interval
+                   mc.cores=getOption('mc.cores', 1L),
+                   seed=99L,
+                   nice=19L)
 {
+    if(mc.cores>1L) {
+        if(.Platform$OS.type!='unix')
+            stop('parallel::mcparallel/mccollect do not exist on windows')
+        else {
+            RNGkind("L'Ecuyer-CMRG")
+            set.seed(seed)
+            parallel::mc.reset.stream()
+        }
+    } else { set.seed(seed) }
+
     for(v in S)
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
@@ -51,29 +64,19 @@ FPD.pbart=function(object,  ## object returned from BART
             if(all(x.test[i, S]==x.test[j, S]))
                 stop(paste0('Row ', i, ' and ', j,
                             ' of x.test are equal with respect to S'))
+    
+    if(mc.cores>1L) pred=mc.kernsamp(x.train, x.test, S, object$treedraws,
+                          object$offset, mult.impute=mult.impute,
+                          kern.var=kern.var, alpha=alpha, probs=probs,
+                          mc.cores=mc.cores, nice=nice)
+    else pred=kernsamp(x.train, x.test, S, object$treedraws,
+                       object$offset, mult.impute=mult.impute,
+                       kern.var=kern.var, alpha=alpha, probs=probs)
 
-    set.seed(seed)
-    X.test = x.train
-    for(i in 1:Q) {
-        for(j in S)
-            X.test[ , j]=x.test[i, j]
-        pred=apply(predict(object, X.test, mc.cores=mc.cores,
-                           mult.impute=mult.impute, seed=NA)$yhat.test,
-                   1, mean)
-        if(i==1) 
-            yhat.test=cbind(pred)
-        else
-            yhat.test=cbind(yhat.test, pred)
-    }
-
-    prob.test=pnorm(yhat.test)
-    yhat.test.mean=apply(yhat.test, 2, mean)
-    prob.test.mean=apply(prob.test, 2, mean)
-    prob.test.lower=apply(prob.test, 2, quantile, min(probs))
-    prob.test.upper=apply(prob.test, 2, quantile, max(probs))
-    pred=list(prob.test=prob.test, prob.test.mean=prob.test.mean,
-              prob.test.lower=prob.test.lower, prob.test.upper=prob.test.upper,
-              yhat.test=yhat.test, yhat.test.mean=yhat.test.mean)
+    pred$prob.test=pnorm(pred$yhat.test)
+    pred$prob.test.mean=apply(pred$prob.test, 2, mean)
+    pred$prob.test.lower=apply(pred$prob.test, 2, quantile, min(probs))
+    pred$prob.test.upper=apply(pred$prob.test, 2, quantile, max(probs))
 
     return(pred)
 }
