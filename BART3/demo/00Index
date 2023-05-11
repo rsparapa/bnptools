@@ -32,6 +32,7 @@ imputation         Imputing a categorical covariate variable with BART
 imputation.probit         Imputing a categorical covariate variable with probit BART
 inform.null.gbart  Specifying an informative null hypothesis prior with BART
 inform.alt.gbart   Specifying an informative alternative hypothesis prior with BART
+diabetes     	   Diabetes and hospital admission example for TSVS with BART
 dm.recur.bart	   Diabetes and hospital admission example for recurrent events with BART
 FPD  		   Marginal expecation via FPD
 FPDK  		   Marginal expecation comparison of FPD to FPDK
