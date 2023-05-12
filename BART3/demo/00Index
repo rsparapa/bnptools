@@ -46,6 +46,7 @@ liver.crisk2.bart   Liver transplant example for competing risks with BART alter
 liver.crisk2.mbart   Liver transplant example for competing risks with Multinomial BART
 liver.crisk3.bart   Liver transplant example for competing risks with BART for 3 causes
 liver50.crisk.bart   Liver transplant example setting K=50 for competing risks with BART
+lung.relrisk	   Lung cancer example for survival analysis with relative risks
 lung.surv.bart	   Lung cancer example for survival analysis with probit BART
 lung.surv.ice	   Lung cancer example for survival analysis: ICE-like S(t) plot
 lung.surv.lbart	   Lung cancer example for survival analysis with logit BART

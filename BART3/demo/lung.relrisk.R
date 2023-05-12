@@ -55,19 +55,37 @@ table(x.train[ , 3])
 post <- mc.surv.bart(x.train=x.train, times=times, delta=delta,
                      x.test=x.train, mc.cores=B, seed=99, sparse=TRUE)
 
-x.test = post$tx.test[1:2, ]
-## sex pushed to col 2, since time is always in col 1
-x.test[ , 2]=1:2
-pred. <- FPD(post, x.test, S=2, mc.cores=B)
-
 K=post$K
-plot(c(0, post$times), c(1, pred.$surv.test.mean[1:K]), type='s', col='blue',
-     ylim=0:1, ylab='S(t, x)', xlab='t (weeks)',
+(NK=N*K)
+x.test = rbind(post$tx.test, post$tx.test) 
+## sex pushed to col 2, since time is always in col 1
+x.test[ , 2]=rep(1:2, each=NK)
+
+pred <- predict(post, x.test, mc.cores=B)
+
+RR = matrix(nrow=post$ndpost, ncol=K)
+for(j in 1:K) {
+    h=seq(j, NK, K)
+    RR[ , j]=apply(pred$prob.test[ , h]/pred$prob.test[ , NK+h], 1, mean)
+}
+
+RR.mean = apply(RR, 2, mean)
+RR.lower = apply(RR, 2, quantile, 0.025)
+RR.upper = apply(RR, 2, quantile, 0.975)
+RR.mean. = apply(RR, 1, mean)
+RR.lower. = quantile(RR.mean., probs=0.025)
+RR.upper. = quantile(RR.mean., probs=0.975)
+RR.mean. = mean(RR.mean.)
+
+plot(post$times, RR.mean, type='l', log='y',
+     ylim=c(0.1, 10), ylab='RR(t, x)', xlab='t (weeks)',
      sub="Friedman's partial dependence function")
-lines(c(0, post$times), c(1, pred.$surv.test.lower[1:K]), col='blue', type='s', lty=2)
-lines(c(0, post$times), c(1, pred.$surv.test.upper[1:K]), col='blue', type='s', lty=2)
-lines(c(0, post$times), c(1, pred.$surv.test.mean[K+1:K]), col='red', type='s')
-lines(c(0, post$times), c(1, pred.$surv.test.lower[K+1:K]), col='red', type='s', lty=2)
-lines(c(0, post$times), c(1, pred.$surv.test.upper[K+1:K]), col='red', type='s', lty=2)
+lines(post$times, RR.lower, lty=2)
+lines(post$times, RR.upper, lty=2)
+abline(h=1, col=8)
+abline(h=RR.mean., col=2)
+abline(h=c(RR.lower., RR.upper.), col=2, lty=2)
+legend('bottomleft', c('M vs. F', 'Time-varying', 'Proportionality'),
+       col=c(0, 1, 2), lty=1)
 
 
