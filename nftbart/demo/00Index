@@ -1,4 +1,5 @@
 lung	   Adv. lung cancer example with nft()
 lung2	   Adv. lung cancer example with nft2()
+lung.relrisk	   Adv. lung cancer example with RR
 lungCindex	   Adv. lung cancer example with Cindex()
 TSVSlung	   Adv. lung cancer example with TSVS
