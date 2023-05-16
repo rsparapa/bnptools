@@ -162,17 +162,31 @@ tsvs = function(
 
         pdf(file=pdf.file)
         plot(1:i, prob[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, K),
-             xlab='Steps', ylab='Inclusion Probability')
+             xlab='Steps', ylab='VIMP Probability')
         abline(h=0:1, v=c(0, K))
         abline(h=0.5, col=8, lty=2)
         for(j in 1:P)
             if(prob[i, j]>0.5) {
-                if(i==1) points(i, theta[i, j], col=j)
-                else lines(1:i, theta[1:i, j], col=j)
+                if(i==1) points(i, prob[i, j], col=j)
+                else lines(1:i, prob[1:i, j], col=j)
                 h=sample(1:i, 1)
-                text(h, theta[h, j], namesX[j], col=j, pos=1)
+                text(h, prob[h, j], namesX[j], col=j, pos=1)
             }
         dev.off()
+        
+        ## pdf(file=pdf.file)
+        ## plot(1:i, prob[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, K),
+        ##      xlab='Steps', ylab='Inclusion Probability')
+        ## abline(h=0:1, v=c(0, K))
+        ## abline(h=0.5, col=8, lty=2)
+        ## for(j in 1:P)
+        ##     if(prob[i, j]>0.5) {
+        ##         if(i==1) points(i, theta[i, j], col=j)
+        ##         else lines(1:i, theta[1:i, j], col=j)
+        ##         h=sample(1:i, 1)
+        ##         text(h, theta[h, j], namesX[j], col=j, pos=1)
+        ##     }
+        ## dev.off()
     }
 
     return(res)

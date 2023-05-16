@@ -239,26 +239,26 @@ tsvs2 = function(
         pdf(file=pdf.file)
         par(mfrow=c(2, 1))
         plot(1:i, probf[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, K),
-             xlab='Steps: f(x)', ylab='Inclusion Probability')
+             xlab='Steps: f(x)', ylab='VIMP Probability')
         abline(h=0:1, v=c(0, K))
         abline(h=0.5, col=8, lty=3)
         for(j in 1:Pf) 
             if(probf[i, j]>0.5) {
-                if(i==1) points(i, thetaf[i, j], col=j)
-                else lines(1:i, thetaf[1:i, j], col=j)
+                if(i==1) points(i, probf[i, j], col=j)
+                else lines(1:i, probf[1:i, j], col=j)
                 h=sample(1:i, 1)
-                text(h, thetaf[h, j], Namesf[j], col=j, pos=1)
+                text(h, probf[h, j], Namesf[j], col=j, pos=1)
             }
         plot(1:i, probs[1:i, 1], type='n', ylim=c(0, 1), xlim=c(0, K),
-             xlab='Steps: s(x)', ylab='Inclusion Probability')
+             xlab='Steps: s(x)', ylab='VIMP Probability')
         abline(h=0:1, v=c(0, K))
         abline(h=0.5, col=8, lty=3)
         for(j in 1:Ps) 
             if(probs[i, j]>0.5) {
-                if(i==1) points(i, thetas[i, j], col=j)
-                else lines(1:i, thetas[1:i, j], col=j)
+                if(i==1) points(i, probs[i, j], col=j)
+                else lines(1:i, probs[1:i, j], col=j)
                 h=sample(1:i, 1)
-                text(h, thetas[h, j], Namess[j], col=j, pos=1)
+                text(h, probs[h, j], Namess[j], col=j, pos=1)
             }
         par(mfrow=c(1, 1))
         dev.off()
