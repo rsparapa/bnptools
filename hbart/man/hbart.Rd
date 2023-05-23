@@ -7,12 +7,12 @@
 }
 \usage{
 hbart(x.train, y.train, x.test=matrix(0.0,0,0), ntree=200, ntreeh=40,
-      ndpost=1000, nskip=100, k=2, power=2.0, base=.95,
+      ndpost=1000, nskip=100, k=5, power=2.0, base=.95,
       tc=getOption('mc.cores', 1L), sigmav=rep(1,length(y.train)), 
       fmean=mean(y.train), overallsd = sd(y.train), overallnu=10, 
       chv = cor(x.train,method="spearman"), pbd=.7, pb=.5, stepwpert=.1,
       probchv=.1, minnumbot=5, printevery=100, numcut=100, xicuts=NULL,
-      nadapt=1000, adaptevery=100, summarystats=FALSE)
+      nadapt=1000, adaptevery=100, summarystats=TRUE)
 }
 \arguments{
   \item{x.train}{nxp matrix of predictor variables for the training data.}
@@ -94,7 +94,7 @@ Maintainer: Matthew T. Pratola <mpratola@stat.osu.edu>, Robert E. McCulloch <rob
 ##  For more realistic examples, please see:
 ##   (i) the vignette at www.rob-mcculloch.org
 ##   (ii) the example simulated data (see ?simdat)
-##        and the longer run in ?hbartonsimd, 
+##        and the longer run in ?rbartonsimd, 
 ##        where a saved run of hbart is run on simdat is plotted. 
 ##################################################
 

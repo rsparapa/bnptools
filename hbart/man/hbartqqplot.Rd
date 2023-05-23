@@ -30,10 +30,10 @@ hbartqqplot(y,rbmod,nunif=10000,linecolor="red",linewd=3,...)
 data(simdat)
 
 ##get hbart run on the simulated data
-data(hbartonsimd)
+data(rbartonsimd)
 
 ##  Predictive quantile-quantile plot
-temp = hbartqqplot(simdat$yp,hbartonsimd,xlab="predictive quantile",ylab="uniform",
+temp = hbartqqplot(simdat$yp,rbartonsimd,xlab="predictive quantile",ylab="uniform",
                       cex.axis=1.4,cex.lab=1.2)
 }
 

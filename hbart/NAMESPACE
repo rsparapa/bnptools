@@ -12,7 +12,5 @@ importFrom(Rcpp, evalCpp)
 S3method(predict, hbart)
 importFrom(stats, ar, lm, predict, pnorm, qnorm, qchisq, plogis, qlogis,
            residuals, coef, vcov)
-##export(nftModelMatrix, nft, CDimpute, srstepwise)
-##S3method(predict, nft)
 importFrom(nnet, class.ind)
 importFrom(survival, survfit, Surv, survreg)

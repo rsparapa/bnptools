@@ -11,16 +11,22 @@ object,
 x.test=object$x.train,
 tc=getOption('mc.cores', 1L),
 fmean=mean(object$y.train),
-q.lower=0.025,
-q.upper=0.975,...)
+probs=c(0.025, 0.975),
+XPtr=TRUE,
+soffset=object$soffset,...)
 }
 \arguments{
   \item{object}{Object of type \code{hbart} from a previous call to \code{hbart()}}
   \item{x.test}{New input settings in the form of an \code{npred x p} matrix at which to construct predictions.  Defaults to the training inputs.}
   \item{tc}{Number of OpenMP threads to use for parallel computing.}
   \item{fmean}{Mean-centering vector for the training data.  Defaults to the value used by \code{hbart()} when fitting the model.  Usually should be left to the default.}
-  \item{q.lower}{Lower quantile to return.}
-  \item{q.upper}{Upper quantile to return.}
+  \item{probs}{Lower and upper quantile to return.}
+  \item{XPtr}{If the \code{hbart} file was undertaken in the same R
+    session as this, then the R objects are already loaded into RAM
+    (\code{TRUE}); otherwise, these R objects must be re-loaded
+    (\code{FALSE}).}
+\item{soffset}{If the R objects need to be re-loaded, then their
+  \code{soffset} is automatically set, but can be manually over-ridden here.}
    \item{...}{not used.}
 }
 \details{
@@ -76,7 +82,7 @@ Maintainer: Matthew T. Pratola <mpratola@stat.osu.edu>, Robert E. McCulloch <rob
 ##  For more realistic examples, please see:
 ##   (i) the vignette at www.rob-mcculloch.org
 ##   (ii) the example simulated data (see ?simdat)
-##        and the longer run in ?hbartonsimd, 
+##        and the longer run in ?rbartonsimd, 
 ##        where a saved run of hbart is run on simdat is plotted. 
 ##################################################
 

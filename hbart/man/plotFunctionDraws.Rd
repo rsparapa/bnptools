@@ -49,10 +49,10 @@ and alternative model such as the linear model.}
 data(simdat)
 
 ##get hbart run on the simulated data
-data(hbartonsimd)
+data(rbartonsimd)
 
 ## plot function (f and s) draws
-shat = sqrt(mean((simdat$yp-hbartonsimd$mmean)^2)) #overall estimate of sigma
+shat = sqrt(mean((simdat$yp-rbartonsimd$mmean)^2)) #overall estimate of sigma
 lmfit = lm(y~x,data.frame(x=simdat$x,y=simdat$y)) 
 yhatlm = predict(lmfit,data.frame(x=simdat$xp)) #fits from a linear model
 
@@ -63,12 +63,12 @@ yhatlm = predict(lmfit,data.frame(x=simdat$xp)) #fits from a linear model
 par(mfrow=c(1,2))
 
 ## look at mean inference
-plotFunctionDraws(hbartonsimd$mdraws,complevel=mean(simdat$y), probs=c(.05,.95),
+plotFunctionDraws(rbartonsimd$mdraws,complevel=mean(simdat$y), probs=c(.05,.95),
    xlab=expression(hat(f)(x)), pts=yhatlm, ptscol="black",
    cex.lab=1.2, cex.axis=1.4, main="intervals for f(x)")
 
 ##look at the standard deviation inference
-plotFunctionDraws(hbartonsimd$sdraws, complevel=shat, xlab=expression(hat(s)(x)),
+plotFunctionDraws(rbartonsimd$sdraws, complevel=shat, xlab=expression(hat(s)(x)),
    intervalcol="magenta", linecol="blue",
    cex.lab=1.2, cex.axis=1.4, main="intervals for s(x)")
 
