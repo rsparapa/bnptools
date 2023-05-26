@@ -34,6 +34,7 @@ export(SHAP)  ## SHAP additive explanation function
 export(SHAPK) ## SHAP additive explanation
 export(SHAP2) ## SHAP for two-way interactions
 export(CDimpute, HDimpute)
+export(Cindex)
 importFrom(Rcpp, evalCpp)
 importFrom(nlme, lme)
 importFrom(nnet, class.ind)
