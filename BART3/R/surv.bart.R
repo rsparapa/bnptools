@@ -119,8 +119,17 @@ surv.bart <- function(
 
         ##if(length(binaryOffset)==0) binaryOffset <- 0
 
-        times <- unique(sort(x.train[ , 1]))
+        N = length(y.train)
+
+        if(N==nrow(x.train)) {
+            times <- unique(sort(x.train[ , 1]))
+            x.train=t(x.train)
+            x.test=t(x.test)
+        } else {
+            times <- unique(sort(x.train[1, ]))
+        }
         K     <- length(times)
+
     }
 
     ##if(length(binaryOffset)==0) binaryOffset <- qnorm(mean(y.train))
