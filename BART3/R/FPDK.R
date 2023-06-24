@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2020-2023 Robert McCulloch and Rodney Sparapani
+## FPDK.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -18,11 +19,10 @@
 
 ## kernel sampling Friedman's partial dependence (FPD) function
 FPDK=function(object, ## object returned from BART
-             x.test,  ## settings of x.test: only x.test[ , S]
-                      ## are used but they must all be given
+             x.test,  ## settings of x.test
              S,       ## indices of subset
              x.train, 
-             mult.impute=4L,
+             mult.impute=30L,
              kern.var=TRUE, ## kernel sampling variance adjustment
              alpha=0.05, ## kernel sampling symmetric credible interval
              probs=c(0.025, 0.975),

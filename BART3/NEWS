@@ -1,14 +1,21 @@
 
-Main differences between BART and BART3
-        * support for Thompson Sampling Variable Selection
+Main differences between BART (stable) and BART3 (development)
+        * new support for Thompson Sampling Variable Selection
 
-	* using S3 methods for Friedman's partial dependence function (FPD)
+	* new S3 methods for Friedman's partial dependence function (FPD)
+        and Shapley values (SHAP)
 
-	* support for cold-decking and hot-decking missing imputation
+	* better support for cold-/hot-decking missing imputation
 
 	* better automated detection of OpenMP on Windows and macOS
 
-        * better support for factors in data.frames especially with DART
+        * better support for factors in data.frames 
+        especially for DART where it is the most sorely needed
+
+Changes and New Features in 4.7 (2023-06-24):
+	* for FPD/FPDK, the x.test argument is smarter as a matrix 
+        of settings corresponding to ONLY the S columns of x.train 
+        and a more realistic default of mult.impute=30 (FPDK only)
 
 Changes and New Features in 4.6 (2023-05-05):
 	* updates for FPD/FPDK methods and new docs

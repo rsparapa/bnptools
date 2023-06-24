@@ -33,15 +33,15 @@ post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
 sort(post$varprob.mean*P, TRUE)
 
 H=20
-x=seq(-3, 3, length.out=H+1)[-(H+1)]
-x.test=matrix(x, nrow=H, ncol=P)
-yhat.test=FPD(post, x.train=x.train, x.test=x.test, S=3)
+x.test=seq(-3, 3, length.out=H+1)[-(H+1)]
+yhat.test=FPD(post, x.test, S=3)
 yhat.test.mean=apply(yhat.test, 2, mean)
 
 yhat.test.025=apply(yhat.test, 2, quantile, probs=0.025)
 yhat.test.975=apply(yhat.test, 2, quantile, probs=0.975)
 
 pdf('FPDex.pdf')
+x=x.test
 plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', col=4, lwd=2)
 lines(x, yhat.test.mean, col=2, lty=2, lwd=2)
 lines(x, yhat.test.025, col=2, lty=3, lwd=2)
@@ -50,7 +50,7 @@ legend('topleft', col=c(4, 2, 1), lty=c(1, 2),
        legend=c('True', 'FPD'), lwd=2)
 dev.off()
 
-marg=FPDK(post, x.train=x.train, x.test=x.test, S=3, mult.impute=20)
+marg=FPDK(post, x.test, S=3)
 yhat.test.meanK=apply(marg$yhat.test, 2, mean)
 yhat.test.025K=apply(marg$yhat.test, 2, quantile, probs=0.025)
 yhat.test.975K=apply(marg$yhat.test, 2, quantile, probs=0.975)

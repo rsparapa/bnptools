@@ -1,8 +1,8 @@
 Package: BART3
 Type: Package
 Title: Bayesian Additive Regression Trees
-Version: 4.6
-Date: 2023-05-05
+Version: 4.7
+Date: 2023-06-24
 Authors@R: c(person('Robert', 'McCulloch', role='aut'),
   person('Rodney', 'Sparapani', role=c('aut', 'cre'), 
   email='rsparapa@mcw.edu'),

@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
 ## Copyright (C) 2023 Robert McCulloch and Rodney Sparapani
-## FPDK.pbart
+## FPDK.pbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,11 +19,10 @@
 
 ## kernel sampling Friedman's partial dependence (FPD) function
 FPDK.pbart=function(object, ## object returned from BART
-                   x.test,  ## settings of x.test: only x.test[ , S]
-                            ## are used but they must all be given
+                   x.test,  ## settings of x.test
                    S,       ## indices of subset
                    x.train=object$x.train, 
-                   mult.impute=4L,
+                   mult.impute=30L,
                    kern.var=TRUE, ## kernel sampling variance adjustment
                    alpha=0.05, ## kernel sampling symmetric credible interval
                    probs=c(0.025, 0.975),
@@ -42,23 +41,29 @@ FPDK.pbart=function(object, ## object returned from BART
         }
     } else { set.seed(seed) }
 
-    for(v in S)
-        if(any(is.na(x.test[ , v])))
-            stop(paste0('x.test column with missing values:', v))
-
     P = ncol(x.train)
 
     if(!all(S %in% 1:P))
-        stop('some elements of S are not in x.train')
+        stop('some elements of S are not columns of x.train')
 
-    if(P!=ncol(x.test))
-        stop('the number of columns in x.train and x.test are not the same')
+    L=length(S)
+    x.test=cbind(x.test)
+    Q=nrow(x.test)
+    if(L==ncol(x.test)) {
+        X.test=x.test
+        x.test=matrix(0, nrow=Q, ncol=P)
+        for(j in 1:L) x.test[ , S[j]]=X.test[ , j]
+    } else if(P!=ncol(x.test)) { 
+        stop('the number of columns in x.train and x.test are not equal') }
+
+    for(v in S)
+        if(any(is.na(x.test[ , v])))
+            stop(paste0('x.test column with missing values: S=', v))
 
     if(P!=length(object$treedraws$cutpoints))
         stop(paste0('the number of columns in x.train and\n',
                     'the length of cutpoints are not the same'))
 
-    Q=nrow(x.test)
     for(i in 1:(Q-1))
         for(j in (i+1):Q)
             if(all(x.test[i, S]==x.test[j, S]))

@@ -20,9 +20,9 @@
    }
 
    \item{x.test}{
-     Matrix of Q x P covariate settings. Only the
-     subset \code{x.test[ , S]} are actually
-     used.  Nevertheless, all P columns must be provided.
+     Matrix of Q x L covariate settings (where L is
+     the length of \code{S}) in the order of
+     columns suggested by \code{S}.
    }
 
     \item{x.train}{

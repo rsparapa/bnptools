@@ -11,7 +11,7 @@
 \usage{
 \method{FPDK}{wbart}(object, x.test,
     S, x.train=object$x.train,
-    mult.impute=4L, kern.var=TRUE,
+    mult.impute=30L, kern.var=TRUE,
     alpha=0.05, probs=c(0.025, 0.975), 
     mc.cores=getOption('mc.cores', 1L),
     seed = 99L, nice=19L)
@@ -22,9 +22,9 @@
    }
 
    \item{x.test}{
-     Matrix of Q x P covariate settings. Only the
-     subset \code{x.test[ , S]} are actually
-     used.  Nevertheless, all P columns must be provided.
+     Matrix of Q x L covariate settings (where L is
+     the length of \code{S}) in the order of
+     columns suggested by \code{S}.
    }
 
     \item{x.train}{
