@@ -1,2 +1,4 @@
 
 CXX_STD = CXX14
+PKG_CPPFLAGS = -fopenmp
+PKG_LIBS = -fopenmp
