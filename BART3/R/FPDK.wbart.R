@@ -22,13 +22,12 @@ FPDK.wbart=function(object, ## object returned from BART
                    x.test,  ## settings of x.test
                    S,       ## indices of subset
                    x.train=object$x.train, 
+                   probs=c(0.025, 0.975),
+                   mc.cores=getOption('mc.cores', 1L),
                    mult.impute=30L,
+                   seed=99L,
                    kern.var=TRUE, ## kernel sampling variance adjustment
                    alpha=0.05, ## kernel sampling symmetric credible interval
-                   probs=c(0.025, 0.975),
-                            ## kernel sampling asymmetric credible interval
-                   mc.cores=getOption('mc.cores', 1L),
-                   seed=99L,
                    nice=19L)
 {
     if(mc.cores>1L) {

@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2020-2023 Robert McCulloch and Rodney Sparapani
+## SHAP.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -18,12 +19,15 @@
 
 ## Shapley additive explanation (SHAP) partial dependence function
 SHAP=function(object,  ## object returned from BART
-              x.train, ## x.train to estimate coverage
-              x.test,  ## settings of x.test: only x.test[ , S]
-                       ## are used but they must all be given
+              x.test,  ## settings of x.test
               S,       ## indices of subset
-              call=FALSE, ## default to R vs. C++ code
-              ...)
+              x.train, 
+              probs=c(0.025, 0.975),
+              mc.cores=getOption('mc.cores', 1L),
+              mult.impute=4L,
+              seed=99L,
+              call=FALSE ## default to R vs. C++ code
+              )
 {
     UseMethod('SHAP')
 }
