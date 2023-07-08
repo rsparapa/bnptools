@@ -33,13 +33,14 @@ sort(post$varprob.mean*P, TRUE)
 
 ## x.test = x.train
 H=50
-x.test=matrix(0, nrow=H, ncol=P)
+##x.test=matrix(0, nrow=H, ncol=P)
 x=seq(-3, 3, length.out=H+1)[-(H+1)]
-x.test[ , 3]=x
+##x.test[ , 3]=x
+x.test=x
 
 ## FPD: no kernel sampling
 proc.time.=proc.time()
-yhat.test=FPD(post, x.train, x.test, 3, mc.cores=B)
+yhat.test=FPD(post, x.test, 3, mc.cores=B)
 yhat.test=yhat.test-post$offset
 print(proc.time()-proc.time.)
 yhat.test.mean=apply(yhat.test, 2, mean)
@@ -51,7 +52,7 @@ file.='SHAP-naive.rds'
 if(file.exists(file.)) { naive=readRDS(file.)
 } else {
     proc.time.=proc.time()
-    naive=SHAP(post, x.train, x.test, 3, mult.impute=50, mc.cores=B)
+    naive=SHAP(post, x.test=x.test, S=3, mult.impute=50, mc.cores=B)
     print(proc.time()-proc.time.)
     saveRDS(naive, file.)
 }
@@ -66,16 +67,16 @@ file.='SHAP-adjust.rds'
 if(file.exists(file.)) { adjust=readRDS(file.)
 } else {
     proc.time.=proc.time()
-    adjust=SHAP(post, x.train, x.test, 3, mult.impute=50, kern.var=TRUE,
+    adjust=SHAPK(post, x.test=x.test, S=3, mult.impute=50, kern.var=TRUE,
                 mc.cores=B)
     print(proc.time()-proc.time.)
     saveRDS(adjust, file.)
 }
 
-adjust=list(SHAP=adjust)
-adjust$yhat.test.mean =apply(adjust$SHAP, 2, mean)
-adjust$yhat.test.lower=apply(adjust$SHAP, 2, quantile, probs=0.025)
-adjust$yhat.test.upper=apply(adjust$SHAP, 2, quantile, probs=0.975)
+## adjust=list(SHAP=adjust)
+## adjust$yhat.test.mean =apply(adjust$SHAP, 2, mean)
+## adjust$yhat.test.lower=apply(adjust$SHAP, 2, quantile, probs=0.025)
+## adjust$yhat.test.upper=apply(adjust$SHAP, 2, quantile, probs=0.975)
 
 pdf(file='SHAP.pdf')
 plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
