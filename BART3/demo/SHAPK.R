@@ -1,5 +1,7 @@
 
 library(BART3)
+B=8
+options(mc.cores=B)
 
 f = function(x)
     10*sin(pi*x[ , 1]*x[ , 2]) +  20*x[ , 3]
@@ -25,13 +27,11 @@ x.train=x.train[order(x), ]
 x = x.train[ , 3]
 y.train=(f(x.train)+sigma*rnorm(N))
 
-B=8
-post = mc.gbart(x.train, y.train, sparse=TRUE, mc.cores=B, seed=12)
+post = mc.gbart(x.train, y.train, sparse=TRUE, seed=12)
 # set.seed(21)
 ## post = mc.gbart(x.train, y.train, sparse=TRUE)
 sort(post$varprob.mean*P, TRUE)
 
-## x.test = x.train
 H=50
 x.test=matrix(0, nrow=H, ncol=P)
 x=seq(-3, 3, length.out=H+1)[-(H+1)]
@@ -39,7 +39,8 @@ x.test[ , 3]=x
 
 ## FPD: no kernel sampling
 proc.time.=proc.time()
-yhat.test=FPD(post, x.train, x.test, 3, mc.cores=B)
+yhat.test=FPD(post, x.test, 3)
+##yhat.test=FPD(post, x.train, x.test, 3, mc.cores=B)
 print(proc.time()-proc.time.)
 yhat.test.mean=apply(yhat.test, 2, mean)
 yhat.test.lower=apply(yhat.test, 2, quantile, probs=0.025)
@@ -47,15 +48,13 @@ yhat.test.upper=apply(yhat.test, 2, quantile, probs=0.975)
 
 ## SHAPK: naive kernel sampling variance
 proc.time.=proc.time()
-naive=SHAPK(post, x.train, x.test, 3, mult.impute=50, mc.cores=B)
+naive=SHAPK(post, x.train, x.test, 3, mult.impute=60, mc.cores=B)
 print(proc.time()-proc.time.)
-
 ## SHAPK: adjusted kernel sampling variance
 proc.time.=proc.time()
-adjust=SHAPK(post, x.train, x.test, 3, mult.impute=50, kern.var=TRUE,
+adjust=SHAPK(post, x.train, x.test, 3, mult.impute=60, kern.var=TRUE,
              mc.cores=B)
 print(proc.time()-proc.time.)
-
 pdf(file='SHAPK.pdf')
 plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
      xlim=c(-0.5, 0.5), ylim=c(-15, 15))
@@ -69,6 +68,7 @@ lines(x, adjust$yhat.test.lower, col=4, lty=4, lwd=2)
 lines(x, adjust$yhat.test.upper, col=4, lty=4, lwd=2)
 lines(x, adjust$yhat.test.mean, col=4, lty=4, lwd=2)
 legend('topleft', col=0:4, lty=0:4, lwd=2,
-       legend=c('Marginal Effects', 'True', 'FPD', 'Naive', 'Adjusted'))
+       legend=c('Marginal Effects', 'True', 'FPD', 'KS SHAP NV',
+                'KS SHAP EV'))
 dev.off()
 

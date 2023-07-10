@@ -12,10 +12,12 @@ Main differences between BART (stable) and BART3 (development)
         * better support for factors in data.frames 
         especially for DART where it is the most sorely needed
 
-Changes and New Features in 4.7 (2023-06-24):
-	* for FPD/FPDK, the x.test argument is smarter as a matrix 
-        of settings corresponding to ONLY the S columns of x.train 
-        and a more realistic default of mult.impute=30 (FPDK only)
+Changes and New Features in 4.7 (2023-07-10):
+	* for FPD/FPDK/SHAP/SHAPK, the x.test argument is smarter
+	now a matrix of settings corresponding to ONLY the S columns 
+        of x.train in the order of S (and backwards compatible if 
+        all P columns of x.train are present as initially required)
+        also more realistic default of mult.impute=30 (FPDK/SHAPK only)
 
 Changes and New Features in 4.6 (2023-05-05):
 	* updates for FPD/FPDK methods and new docs

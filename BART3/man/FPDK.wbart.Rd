@@ -9,12 +9,17 @@
    with kernel sampling for the marginal effect of a variable or variables.
 }
 \usage{
-\method{FPDK}{wbart}(object, x.test,
-    S, x.train=object$x.train,
-    mult.impute=30L, kern.var=TRUE,
-    alpha=0.05, probs=c(0.025, 0.975), 
-    mc.cores=getOption('mc.cores', 1L),
-    seed = 99L, nice=19L)
+\method{FPDK}{wbart}(object,
+                     x.test,
+                     S,
+                     x.train=object$x.train,
+                     probs=c(0.025, 0.975), 
+                     mc.cores=getOption('mc.cores', 1L),
+                     mult.impute=30L,
+                     seed = 99L,
+                     kern.var=TRUE,
+                     alpha=0.05,
+                     nice=19L)
 }
 \arguments{
    \item{object}{
