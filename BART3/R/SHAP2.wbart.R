@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2020-2023 Robert McCulloch and Rodney Sparapani
+## SHAP2.wbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -18,31 +19,41 @@
 
 ## Shapley additive explanation (SHAP) partial dependence function
 ## for two-way interactions
-SHAP2.wbart=function(object, ## object returned from BART
-                    x.train, ## x.train to estimate coverage
-                    x.test,  ## settings of x.test: only x.test[ , S]
-                             ## are used but they must all be given
-                    S)       ## indices of two variables
+SHAP2.wbart=function(object,  ## object returned from BART
+              x.test,  ## settings of x.test
+              S,       ## indices of two variables
+              x.train=object$x.train,
+              call=FALSE
+              )
 {
-    if(length(S)!=2)
-        stop('S must be of length 2')
-
-    for(v in S)
-        if(any(is.na(x.test[ , v])))
-            stop(paste0('x.test column with missing values:', v))
+    if(length(S)!=2) stop('S must be of length 2')
 
     P = ncol(x.train)
 
     if(!all(S %in% 1:P))
         stop('some elements of S are not in x.train')
 
-    if(P!=ncol(x.test))
-        stop('the number of columns in x.train and x.test are not the same')
+    L=length(S)
+    x.test=cbind(x.test)
+    Q=nrow(x.test)
+    if(L==ncol(x.test)) {
+        X.test=x.test
+        x.test=matrix(0, nrow=Q, ncol=P)
+        for(j in 1:L) x.test[ , S[j]]=X.test[ , j]
+    } else if(P!=ncol(x.test)) { 
+        stop('the number of columns in x.train and x.test are not equal') }
+
+    for(v in S)
+        if(any(is.na(x.test[ , v])))
+            stop(paste0('x.test column with missing values: S=', v))
+    
+    ## if(P!=ncol(x.test))
+    ##     stop('the number of columns in x.train and x.test are not the same')
 
     if(P!=length(object$treedraws$cutpoints))
         stop('the number of columns in x.train and length of cutpoints are not the same')
 
-    Trees=read.trees(object$treedraws, x.train)
+    Trees=read.trees(object$treedraws, x.train, call)
 
     ##M=P-length(S)
     M=P-1 ## use the same notation as SHAP

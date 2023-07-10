@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2020-2023 Robert McCulloch and Rodney Sparapani
+## SHAP.survbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,14 +18,14 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## Shapley additive explanation (SHAP) partial dependence function
-SHAP.survbart  =function(object,       ## object returned from BART
-                         x.train,      ## x.train to estimate coverage
-                         x.test,       ## settings: only x.test[ , S]
-                                       ## are used but they must all be given
-                         S,            ## indices of subset
-                         type='pbart', ## type of probability model
-                         probs=c(0.025, 0.975),
-                         ...)
+SHAP.survbart=function(object,  ## object returned from BART
+                    x.test,  ## settings of x.test
+              S,       ## indices of subset
+              x.train=object$x.train,
+              type='pbart',
+              probs=c(0.025, 0.975),
+              call=FALSE
+              )
 {
     for(v in S)
         if(any(is.na(x.test[ , v])))
@@ -41,6 +42,8 @@ SHAP.survbart  =function(object,       ## object returned from BART
     if(P!=length(object$treedraws$cutpoints))
         stop('the number of columns in x.train and length of cutpoints are not the same')
 
+    probs=sort(probs)
+    
     trees=read.trees(object$treedraws, x.train)
 
     pred=list()

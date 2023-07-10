@@ -21,12 +21,10 @@
 SHAP.wbart=function(object,  ## object returned from BART
                     x.test,  ## settings of x.test
               S,       ## indices of subset
-              x.train=object$x.train, 
+              x.train=object$x.train,
+              type='wbart',
               probs=c(0.025, 0.975),
-              mc.cores=getOption('mc.cores', 1L),
-              mult.impute=4L,
-              seed=99L,
-              call=FALSE ## default to R vs. C++ code
+              call=FALSE
               )
 {
     ## for(v in S)

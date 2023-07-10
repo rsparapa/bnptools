@@ -27,7 +27,7 @@ SHAPK.wbart=function(object,  ## object returned from BART
             mult.impute=30L,
             seed=99L,
             comb.draw=0L,
-            kern.var=FALSE, ## kernel sampling variance adjustment
+            kern.var=TRUE, ## kernel sampling variance adjustment
             alpha=0.05, ## kernel sampling symmetric credible interval
             nice=19L)
 {
@@ -70,6 +70,8 @@ SHAPK.wbart=function(object,  ## object returned from BART
     if(P!=length(object$treedraws$cutpoints))
         stop(paste0('the number of columns in x.train and\n',
                     'the length of cutpoints are not the same'))
+
+    probs=sort(probs)
 
     Q=nrow(x.test)
     for(i in 1:(Q-1))

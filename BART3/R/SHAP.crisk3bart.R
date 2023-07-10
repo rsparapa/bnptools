@@ -1,6 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2020-2023 Robert McCulloch and Rodney Sparapani
+## SHAP.crisk3bart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,14 +18,14 @@
 ## https://www.R-project.org/Licenses/GPL-2
 
 ## Shapley additive explanation (SHAP) partial dependence function
-SHAP.crisk3bart=function(object,       ## object returned from BART
-                         x.train,      ## x.train to estimate coverage
-                         x.test,       ## settings: only x.test[ , S]
-                                       ## are used but they must all be given
-                         S,            ## indices of subset
-                         type='pbart', ## type of probability model
-                         probs=c(0.025, 0.975),
-                         ...)
+SHAP.crisk3bart=function(object,  ## object returned from BART
+                    x.test,  ## settings of x.test
+              S,       ## indices of subset
+              x.train=object$x.train,
+              type='pbart',
+              probs=c(0.025, 0.975),
+              call=FALSE
+              )
 {
     for(v in S)
         if(any(is.na(x.test[ , v])))
@@ -46,6 +47,8 @@ SHAP.crisk3bart=function(object,       ## object returned from BART
 
     if(P!=length(object$treedraws3$cutpoints))
         stop('the number of columns in x.train and length of cutpoints3 are not the same')
+
+    probs=sort(probs)
 
     Trees =read.trees(object$treedraws,  x.train)
     Trees2=read.trees(object$treedraws2, x.train)

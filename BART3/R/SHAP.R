@@ -21,12 +21,10 @@
 SHAP=function(object,  ## object returned from BART
               x.test,  ## settings of x.test
               S,       ## indices of subset
-              x.train, 
-              probs=c(0.025, 0.975),
-              mc.cores=getOption('mc.cores', 1L),
-              mult.impute=4L,
-              seed=99L,
-              call=FALSE ## default to R vs. C++ code
+              x.train,
+              type,
+              probs,
+              call
               )
 {
     UseMethod('SHAP')
