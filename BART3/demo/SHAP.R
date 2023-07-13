@@ -47,23 +47,23 @@ yhat.test.mean=apply(yhat.test, 2, mean)
 yhat.test.lower=apply(yhat.test, 2, quantile, probs=0.025)
 yhat.test.upper=apply(yhat.test, 2, quantile, probs=0.975)
 
-## SHAP: naive kernel sampling variance
-file.='SHAP-naive.rds'
-if(file.exists(file.)) { naive=readRDS(file.)
+## SHAP: no kernel sampling 
+file.='SHAP-noks.rds'
+if(file.exists(file.)) { noks=readRDS(file.)
 } else {
     proc.time.=proc.time()
-    naive=SHAP(post, x.test=x.test, S=3, mult.impute=50, mc.cores=B)
+    noks=SHAP(post, x.test=x.test, S=3)
     print(proc.time()-proc.time.)
-    saveRDS(naive, file.)
+    saveRDS(noks, file.)
 }
 
-naive=list(SHAP=naive)
-naive$yhat.test.mean =apply(naive$SHAP, 2, mean)
-naive$yhat.test.lower=apply(naive$SHAP, 2, quantile, probs=0.025)
-naive$yhat.test.upper=apply(naive$SHAP, 2, quantile, probs=0.975)
+noks=list(SHAP=noks)
+noks$yhat.test.mean =apply(noks$SHAP, 2, mean)
+noks$yhat.test.lower=apply(noks$SHAP, 2, quantile, probs=0.025)
+noks$yhat.test.upper=apply(noks$SHAP, 2, quantile, probs=0.975)
                             
 ## SHAP: adjusted kernel sampling variance
-file.='SHAP-adjust.rds'
+file.='SHAP-ks.rds'
 if(file.exists(file.)) { adjust=readRDS(file.)
 } else {
     proc.time.=proc.time()
@@ -73,24 +73,19 @@ if(file.exists(file.)) { adjust=readRDS(file.)
     saveRDS(adjust, file.)
 }
 
-## adjust=list(SHAP=adjust)
-## adjust$yhat.test.mean =apply(adjust$SHAP, 2, mean)
-## adjust$yhat.test.lower=apply(adjust$SHAP, 2, quantile, probs=0.025)
-## adjust$yhat.test.upper=apply(adjust$SHAP, 2, quantile, probs=0.975)
-
 pdf(file='SHAP.pdf')
 plot(x, 20*x, type='l', xlab='x3', ylab='f(x3)', lwd=2,
      xlim=c(-0.5, 0.5), ylim=c(-15, 15))
 lines(x, yhat.test.lower, col=2, lty=2, lwd=2)
 lines(x, yhat.test.upper, col=2, lty=2, lwd=2)
 lines(x, yhat.test.mean, col=2, lty=2, lwd=2)
-lines(x, naive$yhat.test.lower, col=3, lty=3, lwd=2)
-lines(x, naive$yhat.test.upper, col=3, lty=3, lwd=2)
-lines(x, naive$yhat.test.mean, col=3, lty=3, lwd=2)
+lines(x, noks$yhat.test.lower, col=3, lty=3, lwd=2)
+lines(x, noks$yhat.test.upper, col=3, lty=3, lwd=2)
+lines(x, noks$yhat.test.mean, col=3, lty=3, lwd=2)
 lines(x, adjust$yhat.test.lower, col=4, lty=4, lwd=2)
 lines(x, adjust$yhat.test.upper, col=4, lty=4, lwd=2)
 lines(x, adjust$yhat.test.mean, col=4, lty=4, lwd=2)
 legend('topleft', col=0:4, lty=0:4, lwd=2,
-       legend=c('Marginal Effects', 'True', 'FPD', 'Naive', 'Adjusted'))
+       legend=c('Marginal Effects', 'True', 'FPD', 'SHAP', 'SHAPK'))
 dev.off()
 

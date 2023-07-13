@@ -36,7 +36,7 @@ diabetes     	   Diabetes and hospital admission example for TSVS with BART
 dm.recur.bart	   Diabetes and hospital admission example for recurrent events with BART
 FPD  		   Marginal expecation via FPD
 FPDK  		   Marginal expecation comparison of FPD to FPDK
-SHAP  		   Marginal expecation comparison of FPD to SHAP
+SHAP  		   Marginal expecation comparison of FPD to SHAP and SHAPK
 SHAPT  		   Marginal expecation comparison of FPD to SHAP call=TRUE
 SHAPK  		   Marginal expecation comparison of FPD to SHAPK
 informative	   Example of sharding with an informative prior
