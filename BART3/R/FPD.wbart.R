@@ -54,14 +54,28 @@ FPD.wbart=function(object,  ## object returned from BART
     X.test = x.train
     for(i in 1:Q) {
         for(j in 1:L) X.test[ , S[j]]=x.test[i, j]
-        ## for(j in S)
-        ##     X.test[ , j]=x.test[i, j]
-        pred.=apply(predict(object, X.test, mc.cores=mc.cores,
-                            mult.impute=mult.impute, seed=NA), 1, mean)
+
+        pred.=cbind(apply(predict(object, X.test, mc.cores=mc.cores,
+                            mult.impute=mult.impute, seed=NA), 1, mean))
+        
         if(i==1)
-            pred=cbind(pred.)
-        else
-            pred=cbind(pred, pred.)
+            pred=list(yhat.test      =pred.,
+                      yhat.test.mean =mean(pred.),
+                      yhat.test.lower=quantile(pred., probs=min(probs)),
+                      yhat.test.upper=quantile(pred., probs=max(probs)))
+        else {
+            pred$yhat.test      =cbind(pred$yhat.test, pred.)
+            pred$yhat.test.mean =c(pred$yhat.test.mean, mean(pred.))
+            pred$yhat.test.lower=c(pred$yhat.test.lower, quantile(pred., min(probs)))
+            pred$yhat.test.upper=c(pred$yhat.test.upper, quantile(pred., max(probs)))
+        }
+        
+        ## pred.=apply(predict(object, X.test, mc.cores=mc.cores,
+        ##                     mult.impute=mult.impute, seed=NA), 1, mean)
+        ## if(i==1)
+        ##     pred=cbind(pred.)
+        ## else
+        ##     pred=cbind(pred, pred.)
     }
 
     return(pred)

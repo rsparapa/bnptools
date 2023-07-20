@@ -20,7 +20,7 @@
 ## Shapley additive explanation (SHAP) partial dependence function
 SHAP.wbart=function(object,  ## object returned from BART
                     x.test,  ## settings of x.test
-              S,       ## indices of subset
+              S=NULL,        ## indices of subset
               x.train=object$x.train,
               type='wbart',
               probs=c(0.025, 0.975),
@@ -78,7 +78,13 @@ SHAP.wbart=function(object,  ## object returned from BART
         }
     }
 
-    return(D/P)
+    ##return(D/P)
+    D=D/P
+    D=list(yhat.test=D,
+           yhat.test.mean =apply(D, 2, mean),
+           yhat.test.lower=apply(D, 2, quantile, probs=min(probs)),
+           yhat.test.upper=apply(D, 2, quantile, probs=max(probs)))
+    return(D)
 
     ## unweighted difference
     ## N=1 ## number of terms
