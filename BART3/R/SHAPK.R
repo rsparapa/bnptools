@@ -22,14 +22,22 @@ SHAPK=function(object,  ## object returned from BART
             x.test,  ## settings of x.test
             S,       ## indices of subset
             x.train,
-            probs=c(0.025, 0.975),
-            mc.cores=getOption('mc.cores', 1L),
-            mult.impute=30L,
-            seed=99L,
-            comb.draw=0L,
-            kern.var=FALSE, ## kernel sampling variance adjustment
-            alpha=0.05, ## kernel sampling symmetric credible interval
-            nice=19L)
+            probs,
+            mc.cores,
+            mult.impute,
+            seed,
+            comb.draw,
+            kern.var,
+            alpha,
+            nice)
+            ## probs=c(0.025, 0.975),
+            ## mc.cores=getOption('mc.cores', 1L),
+            ## mult.impute=30L,
+            ## seed=99L,
+            ## comb.draw=0L,
+            ## kern.var=FALSE, ## kernel sampling variance adjustment
+            ## alpha=0.05, ## kernel sampling symmetric credible interval
+            ## nice=19L)
 {
     UseMethod('SHAPK')
 }
