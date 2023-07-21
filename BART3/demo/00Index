@@ -28,6 +28,7 @@ geweke.lung.surv.bart   Geweke diagnostics for advanced lung cancer survival ana
 growth1			Growth chart example for variable selection
 growth2			Growth chart example for marginal effects assuming independence
 growth3			Growth chart example for marginal effects assuming dependence
+growth4			Growth chart example for marginal effects with FPD/FPDK/SHAP/SHAPK
 imputation         Imputing a categorical covariate variable with BART
 imputation.probit         Imputing a categorical covariate variable with probit BART
 inform.null.gbart  Specifying an informative null hypothesis prior with BART
