@@ -20,42 +20,42 @@
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
 tsvs2 = function(
-               ## data
-               xftrain, xstrain, times, delta=NULL,
-               rm.const=TRUE, rm.dupe=TRUE,
-               ##tsvs args
-               K=20, a.=1, b.=0.5, C=0.5,
-               rds.file='tsvs2.rds', pdf.file='tsvs2.pdf',
-               ## multi-threading
-               tc=getOption("mc.cores", 1), ##OpenMP thread count
-               ##MCMC
-               nskip=1000, ndpost=2000, 
-               nadapt=1000, adaptevery=100,
-               chvf = NULL, chvs = NULL,
-               method="spearman", use="pairwise.complete.obs",
-               pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
-               stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
-               minnumbot=c(5, 5),
-               ## BART and HBART prior parameters
-               ntree=c(10, 2), numcut=100,
-               xifcuts=NULL, xiscuts=NULL,
-               power=c(2, 2), base=c(0.95, 0.95),
-               ## f function
-               fmu=NA, k=5, tau=NA, dist='weibull', 
-               ## s function
-               total.lambda=NA, total.nu=10, mask=0.95,
-               ## survival analysis 
-               ##K=100, events=NULL, 
-               ## DPM LIO
-               drawDPM=1L, 
-               alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
-               neal.m=2, constrain=1, 
-               m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
-               a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
-               ## misc
-               na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
-               transposed=FALSE
-               )
+                 ## data
+                 xftrain, xstrain, times, delta=NULL,
+                 rm.const=TRUE, rm.dupe=TRUE,
+                 ##tsvs args
+                 K=20, a.=1, b.=0.5, C=0.5,
+                 rds.file='tsvs2.rds', pdf.file='tsvs2.pdf',
+                 ## multi-threading
+                 tc=getOption("mc.cores", 1), ##OpenMP thread count
+                 ##MCMC
+                 nskip=1000, ndpost=2000, 
+                 nadapt=1000, adaptevery=100,
+                 chvf = NULL, chvs = NULL,
+                 method="spearman", use="pairwise.complete.obs",
+                 pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
+                 stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
+                 minnumbot=c(5, 5),
+                 ## BART and HBART prior parameters
+                 ntree=c(10, 2), numcut=100,
+                 xifcuts=NULL, xiscuts=NULL,
+                 power=c(2, 2), base=c(0.95, 0.95),
+                 ## f function
+                 fmu=NA, k=5, tau=NA, dist='weibull', 
+                 ## s function
+                 total.lambda=NA, total.nu=10, mask=0.95,
+                 ## survival analysis 
+                 ##K=100, events=NULL, 
+                 ## DPM LIO
+                 drawDPM=1L, 
+                 alpha=1, alpha.a=1, alpha.b=0.1, alpha.draw=1,
+                 neal.m=2, constrain=1, 
+                 m0=0, k0.a=1.5, k0.b=7.5, k0=1, k0.draw=1,
+                 a0=3, b0.a=2, b0.b=1, b0=1, b0.draw=1,
+                 ## misc
+                 na.rm=FALSE, probs=c(0.025, 0.975), printevery=100,
+                 transposed=FALSE
+                 )
 {
     if(K==0) return(K)
 
@@ -63,7 +63,7 @@ tsvs2 = function(
         stop('tsvs2 is run with xftrain/xstrain untransposed, i.e., prior to bMM processing')
 
     xf.=bMM(xftrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
-           method=method, use=use)
+            method=method, use=use)
     xifcuts=xf.$xicuts
     chvf   =xf.$chv
     dummyf =xf.$dummy
@@ -71,13 +71,13 @@ tsvs2 = function(
     xftrain=imputef$x.train
 
     xs.=bMM(xstrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
-           method=method, use=use)
+            method=method, use=use)
     xiscuts=xs.$xicuts
     chvs   =xs.$chv
     dummys =xs.$dummy
     imputes=CDimpute(x.train=xs.$X)
     xstrain=imputes$x.train
-        
+    
     Namesf=dimnames(xftrain)[[2]] 
     Pf=ncol(xftrain)
     Af=matrix(a., nrow=K, ncol=Pf)
@@ -106,6 +106,10 @@ tsvs2 = function(
     dimnames(probs)[[2]]=Namess
     varcounts=matrix(0, nrow=K, ncol=Ps)
     dimnames(varcounts)[[2]]=Namess
+    ## i=1
+    ## post=list()
+    ## while(i<K) {
+    ##     if(length(post$f.varcount)>0) i=i+1
     for(i in 1:K) {
         set.seed(i)
         print(paste('Step:', i))
@@ -158,76 +162,80 @@ tsvs2 = function(
 
         post=nft2(xftrain=t(xftrain.), xstrain=t(xstrain.),
                   times=times, delta=delta, 
-                 ## multi-threading
-                 tc=tc, ##OpenMP thread count
-                 ##MCMC
-                 nskip=nskip, ndpost=ndpost, 
-                 nadapt=nadapt, adaptevery=adaptevery, 
-                 chvf=chvf., chvs=chvs.,
-                 ##method=method, use=use,
-                 pbd=pbd, pb=pb,
-                 stepwpert=stepwpert, probchv=probchv,
-                 minnumbot=minnumbot,
-                 ## BART and HBART prior parameters
-                 ntree=ntree, numcut=numcut,
-                 xifcuts=xifcuts., xiscuts=xiscuts.,
-                 power=power, base=base,
-                 ## f function
-                 fmu=fmu, k=k, tau=tau, dist=dist, 
-                 ## s function
-                 total.lambda=total.lambda, total.nu=total.nu, mask=mask,
-                 ## survival analysis 
-                 K=0, events=NULL, TSVS=TRUE, 
-                 ## DPM LIO
-                 drawDPM=drawDPM,
-                 alpha=alpha, alpha.a=alpha.a,
-                 alpha.b=alpha.b, alpha.draw=alpha.draw,
-                 neal.m=neal.m, constrain=constrain, 
-                 m0=m0, k0.a=k0.a, k0.b=k0.b, k0=k0, k0.draw=k0.draw,
-                 a0=a0, b0.a=b0.a, b0.b=b0.b, b0=b0, b0.draw=b0.draw,
-                 ## misc
-                 na.rm=na.rm, probs=probs, printevery=printevery,
-                 transposed=TRUE
-                 )
+                  ## multi-threading
+                  tc=tc, ##OpenMP thread count
+                  ##MCMC
+                  nskip=nskip, ndpost=ndpost, 
+                  nadapt=nadapt, adaptevery=adaptevery, 
+                  chvf=chvf., chvs=chvs.,
+                  ##method=method, use=use,
+                  pbd=pbd, pb=pb,
+                  stepwpert=stepwpert, probchv=probchv,
+                  minnumbot=minnumbot,
+                  ## BART and HBART prior parameters
+                  ntree=ntree, numcut=numcut,
+                  xifcuts=xifcuts., xiscuts=xiscuts.,
+                  power=power, base=base,
+                  ## f function
+                  fmu=fmu, k=k, tau=tau, dist=dist, 
+                  ## s function
+                  total.lambda=total.lambda, total.nu=total.nu, mask=mask,
+                  ## survival analysis 
+                  K=0, events=NULL, TSVS=TRUE, 
+                  ## DPM LIO
+                  drawDPM=drawDPM,
+                  alpha=alpha, alpha.a=alpha.a,
+                  alpha.b=alpha.b, alpha.draw=alpha.draw,
+                  neal.m=neal.m, constrain=constrain, 
+                  m0=m0, k0.a=k0.a, k0.b=k0.b, k0=k0, k0.draw=k0.draw,
+                  a0=a0, b0.a=b0.a, b0.b=b0.b, b0=b0, b0.draw=b0.draw,
+                  ## misc
+                  na.rm=na.rm, probs=probs, printevery=printevery,
+                  transposed=TRUE
+                  )
 
-        namesf=dimnames(post$f.varcount)[[2]]
-        M=nrow(post$f.varcount)
-        namess=dimnames(post$s.varcount)[[2]]
-        for(j in 1:Pf) {
-            if(Sf[i, j]==1) {
-                h=which(Namesf[j]==namesf)
-                l=post$f.varcount[M, h]
-                ## if(length(l)==0) print(str(post))
-                ## else
+        if(length(post$f.varcount)>0) {
+            namesf=dimnames(post$f.varcount)[[2]]
+            M=nrow(post$f.varcount)
+            for(j in 1:Pf) {
+                if(Sf[i, j]==1) {
+                    h=which(Namesf[j]==namesf)
+                    l=post$f.varcount[M, h]
+                    ## if(length(l)==0) print(str(post))
+                    ## else
                     if(l>0) {
-                    varcountf[i, j]=l
-                    gammaf[i, j]=1
+                        varcountf[i, j]=l
+                        gammaf[i, j]=1
+                    }
+                    Af[i, j]=Af[i, j]+gammaf[i, j]
+                    Bf[i, j]=Bf[i, j]+1-gammaf[i, j]
+                } else {
+                    Bf[i, j]=Bf[i, j]+1
                 }
-                Af[i, j]=Af[i, j]+gammaf[i, j]
-                Bf[i, j]=Bf[i, j]+1-gammaf[i, j]
-            } else {
-                Bf[i, j]=Bf[i, j]+1
+                probf[i, j]=Af[i, j]/(Af[i, j]+Bf[i, j])
             }
-            probf[i, j]=Af[i, j]/(Af[i, j]+Bf[i, j])
-        }
-        for(j in 1:Ps) {
-            if(Ss[i, j]==1) {
-                h=which(Namess[j]==namess)
-                l=post$s.varcount[M, h]
-                ## if(length(l)==0) print(str(post))
-                ## else
+        } ##else if(i>1) for(j in 1:Pf) probf[i, j]=probf[i-1, j]
+        if(length(post$s.varcount)>0) {
+            namess=dimnames(post$s.varcount)[[2]]
+            M=nrow(post$s.varcount)
+            for(j in 1:Ps) {
+                if(Ss[i, j]==1) {
+                    h=which(Namess[j]==namess)
+                    l=post$s.varcount[M, h]
+                    ## if(length(l)==0) print(str(post))
+                    ## else
                     if(l>0) {
-                    varcounts[i, j]=l
-                    gammas[i, j]=1
+                        varcounts[i, j]=l
+                        gammas[i, j]=1
+                    }
+                    As[i, j]=As[i, j]+gammas[i, j]
+                    Bs[i, j]=Bs[i, j]+1-gammas[i, j]
+                } else {
+                    Bs[i, j]=Bs[i, j]+1
                 }
-                As[i, j]=As[i, j]+gammas[i, j]
-                Bs[i, j]=Bs[i, j]+1-gammas[i, j]
-            } else {
-                Bs[i, j]=Bs[i, j]+1
+                probs[i, j]=As[i, j]/(As[i, j]+Bs[i, j])
             }
-            probs[i, j]=As[i, j]/(As[i, j]+Bs[i, j])
-        }
-        if(length(warnings())>0) print(warnings())
+        } ##else if(i>1) for(j in 1:Ps) probs[i, j]=probs[i-1, j]
         res=list(step=i,
                  probf=probf, Sf=Sf, af=Af, bf=Bf, gammaf=gammaf,
                  thetaf=thetaf, varcountf=varcountf,
@@ -243,7 +251,7 @@ tsvs2 = function(
         abline(h=0:1, v=c(0, K))
         abline(h=0.5, col=8, lty=3)
         for(j in 1:Pf) 
-            if(probf[i, j]>0.5) {
+            if(!is.na(probf[i, j]) && probf[i, j]>0.5) {
                 if(i==1) points(i, probf[i, j], col=j)
                 else lines(1:i, probf[1:i, j], col=j)
                 h=sample(1:i, 1)
@@ -254,7 +262,7 @@ tsvs2 = function(
         abline(h=0:1, v=c(0, K))
         abline(h=0.5, col=8, lty=3)
         for(j in 1:Ps) 
-            if(probs[i, j]>0.5) {
+            if(!is.na(probs[i, j]) && probs[i, j]>0.5) {
                 if(i==1) points(i, probs[i, j], col=j)
                 else lines(1:i, probs[1:i, j], col=j)
                 h=sample(1:i, 1)
@@ -262,6 +270,8 @@ tsvs2 = function(
             }
         par(mfrow=c(1, 1))
         dev.off()
+
+        if(length(warnings())>0) print(warnings())
     }
 
     return(res)
