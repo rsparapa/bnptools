@@ -1,0 +1,52 @@
+
+Here we give a brief overview of the C++ source code.
+BART3 is designed as a header-only C++ class library.
+Directories end with / and filenames do not.
+
+inst/include/
+BART3.h		This is the single C++ header file to be included in source
+		code, e.g., as done by BART3.cpp below.  This includes all
+		headers that will be needed.
+
+inst/include/BART3/
+bart.h		Defines the "bart" class
+bartfuns.h	These helper functions are not members of the "bart"
+		class yet provide necessary cross-class operations
+bd.h		The "bd" birth/death function
+heterbart.h	Defines the "heterbart" class that inherits from "bart".
+		The difference is that here "sigma" is a vector rather
+		than a scalar.
+heterbartfuns.h	"heter" versions of functions like bartfuns.h
+heterbd.h	"heterbd" function like "bd"
+info.h		Definition of "dinfo" class for data and the 
+		"pinfo" class for prior/posterior/MCMC.
+lambda.h	To draw "lambda" for Logistic BART.
+rn.h		The pseudo-random number generator setup
+rtgamma.h	Drawing truncated Gamma
+rtnorm.h	Drawing truncated Normal
+tree.h		Defines the "tree" class
+treefuns.h	These helper functions are not members of the "tree"
+		class yet provide necessary cross-class operations
+
+src/
+BART3.cpp	This is the single C++ source file that is compiled/linked
+cEXPVALUE.h	For SHapley value Additive exPlanation (SHAP), the "G"
+		and "cEXPVALUE" functions of Lundberg and Erion et al. 2020
+cabart.h	A simple logarithm-based accelerated failure time (as 
+		opposed to the more sophisticated AFT approach of 
+		Henderson and Louis et al. 2020)
+cgbart.h	The Generalized BART function "cgbart" supporting the most
+		common features: Weighted BART, Probit BART, Logistic BART
+		and DART
+cgbmm.h		The old Mixed BART implementation.  For a more up-to-date
+		approach, see rsparapa/bnptools/mxBART
+ckermsamp.h	To speed-up FPD/SHAP, use Kernel Sampling (FPD/SHAPK)
+clbart.h	Of legacy interest only: Logistic BART
+cpbart.h	Of legacy interest only: Probit BART
+cpwbart.h	C++ support for the "predict" R function
+cwbart.h	Weighted BART implementation only
+init.c		Defines the C++ functions that can be called and the
+		number of arguments that they take
+mc_cores_openmp.h
+		C++ support for the "mc.cores.openmp" R function
+		 

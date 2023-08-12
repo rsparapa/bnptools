@@ -2,7 +2,7 @@
 
 rm -rf config.* src/Makevars
 
-for i in README src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
+for i in src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
 	 inst/cxx-ex/*.o inst/cxx-ex/*.out inst/cxx-ex/core* demo/core* \
 	 demo/myeloid.multi.state.R vignettes/wbart.Rmd vignettes/jss.* \
 	 vignettes/Sweave.sty vignettes/jsslogo.* \

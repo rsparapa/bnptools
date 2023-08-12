@@ -380,10 +380,15 @@ if(TSVS) return(res)
         ##res$LPML=sum(log(CPO))
     }
 
+    res$offset = offset
+    names(res$treedraws$cutpoints) = dimnames(x.train)[[1]]
+    res$x.train = t(x.train)
+
     keeptestfits <- (np>0)
     ##if(length(keeptestfits)==0) keeptestfits <- (np>0)
 
     if(keeptestfits) {
+        res$x.test = t(x.test)
         if(type=='wbart') {
             res$yhat.test.mean <- apply(res$yhat.test, 2, mean)
             res$yhat.test.lower <- apply(res$yhat.test, 2, quantile,
@@ -403,9 +408,6 @@ if(TSVS) return(res)
         }
     }
 
-    res$offset = offset
-    names(res$treedraws$cutpoints) = dimnames(x.train)[[1]]
-    res$x.train = t(x.train)
     ## dimnames(res$varcount)[[2]] = as.list(dimnames(x.train)[[1]])
     ## res$varcount.mean <- apply(res$varcount, 2, mean)
     ## dimnames(res$varprob)[[2]] = as.list(dimnames(x.train)[[1]])
