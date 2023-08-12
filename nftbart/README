@@ -1,0 +1,31 @@
+
+Here we give a brief overview of the C++ source code in the src directory.
+
+DPMLIOmutau.h  For the DPM LIO method of Shi and Martens et al. 2018
+DPMLIOneal8.h  Algorithm 8 for non-conjugate DPM draws from Neal 2000
+ambrt.h	       The "ambrt" class inherited from "mbrt"
+brt.h	       The "sinfo" class for sufficient statistics and the
+	       "brt" virtual class for generic BART
+brtfuns.h      These helper functions are not members of the "brt"
+	       class yet provide necessary cross-class operations
+cnft2.h	       The "cnft2" function for NFT BART that has two different 
+	       X matrices: "xftrain" for mu(xftrain) and "xstrain" for 
+	       sd(xstrain)
+cprnft2.h      The "cprnft2" function for predictions from mu(xftrain) and 
+	       sd(xstrain) when "xftrain" and "xstrain" are strings
+cpsambrt_predict2.h      
+	       The "cpsambrt_predict2" function for predictions from 
+	       mu(xftrain) and sd(xstrain) when "xftrain" and "xstrain" 
+	       are available in RAM via XPtr
+dinfo.h	       The "dinfo" class for data
+getpred.h      Definition of the "getpred" function for tree predictions
+init.c	       Defines the C++ functions that can be called and the
+	       number of arguments that they take
+mbrt.h	       The "mbrt" class for additive tree means inherited from "brt"
+nftbart.cpp    The only C++ source file to be compiled/linked
+psbrt.h	       The "psbrt" class for inherited from "sbrt"
+rn.h	       Setup the pseudo-random number generator class
+sbrt.h	       The "sbrt" class for product tree variance inherited from "brt"
+tree.h	       Defines the "tree" class
+treefuns.h     These helper functions are not members of the "tree"
+	       class yet provide necessary cross-class operations
