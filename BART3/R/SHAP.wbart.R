@@ -65,26 +65,50 @@ SHAP.wbart=function(object,  ## object returned from BART
     Trees=read.trees(object$treedraws, x.train, call)
 
     M=P-length(S)
-    D=EXPVALUE(Trees, x.test, S, call) ## S vs. emptyset, i.e., subtract zero
+
+    if(M<=0)
+        stop('The length of S must be smaller than P')
+
+    P.=lfactorial(P)
+    D=EXPVALUE(Trees, x.test, S, call)*exp(lfactorial(M)-P.)
+    ## S vs. emptyset, i.e., subtract zero
 
     ## weighted difference
-    if(M>0) {
         for(k in 1:M) {
             C=comb(M, k, (1:P)[-S])
             R=nrow(C)
             for(i in 1:R)
                 D=D+(EXPVALUE(Trees, x.test, c(C[i, ], S), call)-
-                    EXPVALUE(Trees, x.test, C[i, ], call))/choose(M, k)
+                    EXPVALUE(Trees, x.test, C[i, ], call)*
+                    exp(lfactorial(k)+lfactorial(M-k)-P.))
         }
-    }
 
-    ##return(D/P)
-    D=D/P
     D=list(yhat.test=D,
            yhat.test.mean =apply(D, 2, mean),
            yhat.test.lower=apply(D, 2, quantile, probs=min(probs)),
            yhat.test.upper=apply(D, 2, quantile, probs=max(probs)))
     return(D)
+    
+    ## M=P-length(S)
+    ## D=EXPVALUE(Trees, x.test, S, call) ## S vs. emptyset, i.e., subtract zero
+
+    ## ## weighted difference
+    ## if(M>0) {
+    ##     for(k in 1:M) {
+    ##         C=comb(M, k, (1:P)[-S])
+    ##         R=nrow(C)
+    ##         for(i in 1:R)
+    ##             D=D+(EXPVALUE(Trees, x.test, c(C[i, ], S), call)-
+    ##                 EXPVALUE(Trees, x.test, C[i, ], call))/choose(M, k)
+    ##     }
+    ## }
+
+    ## D=D/P
+    ## D=list(yhat.test=D,
+    ##        yhat.test.mean =apply(D, 2, mean),
+    ##        yhat.test.lower=apply(D, 2, quantile, probs=min(probs)),
+    ##        yhat.test.upper=apply(D, 2, quantile, probs=max(probs)))
+    ## return(D)
 
     ## unweighted difference
     ## N=1 ## number of terms
