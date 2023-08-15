@@ -79,8 +79,12 @@ SHAPK.wbart=function(object,  ## object returned from BART
             if(all(x.test[i, ]==x.test[j, ]))
                 warning(paste0('Row ', i, ' and ', j,
                                ' of x.test are equal'))
-    M=P-length(S)
+    M=P-L
+    P.=lfactorial(P)
+    M.=lfactorial(M)
 
+    if(M<=0) stop('The length of S must be smaller than P')
+    
     if(mc.cores>1L) call.=mc.kernsamp
     else call.=kernsamp
 
@@ -89,21 +93,22 @@ SHAPK.wbart=function(object,  ## object returned from BART
               mc.cores=mc.cores, nice=nice)
 
     shap.=list()
+    shap.$wt=M.-P.
 
     if(kern.var) {
-        shap.$yhat.test.=shap$yhat.test.
+        shap.$yhat.test.=shap$yhat.test.*exp(shap.$wt)
         shap.$yhat.test.var.=shap$yhat.test.var.
     } else {
-        shap.$yhat.test=shap$yhat.test
+        shap.$yhat.test=shap$yhat.test*exp(shap.$wt)
     }
 
     ## weighted difference
-    if(M>0) {
         varprob=object$varprob.mean
         varprob[S]=0
         for(k in 1:M) {
             C=comb(M, k, (1:P)[-S])
             R=nrow(C)
+            shap.$wt[k]=lfactorial(k)+lfactorial(M-k)-P.
             if(comb.draw>0 && comb.draw<R) {
                 R=comb.draw
                 C=matrix(0, nrow=R, ncol=k)
@@ -131,7 +136,7 @@ SHAPK.wbart=function(object,  ## object returned from BART
                              mc.cores=mc.cores, nice=nice)
                 if(kern.var) {
                     shap.$yhat.test.=shap.$yhat.test.+
-                        (shap.in$yhat.test.-shap.ex$yhat.test.)/R
+                        (shap.in$yhat.test.-shap.ex$yhat.test.)*exp(shap.$wt[k])
                         ##(shap.in$yhat.test.-shap.ex$yhat.test.)/choose(M, k)
                     ## shap.var=shap.in$yhat.test.var.+shap.ex$yhat.test.var.
                     ## for(i in 1:Q) {
@@ -144,15 +149,15 @@ SHAPK.wbart=function(object,  ## object returned from BART
                     ##     shap.var/(choose(M, k)^2)
                 } else {
                     shap.$yhat.test=shap.$yhat.test+
-                        (shap.in$yhat.test-shap.ex$yhat.test)/R
+                        (shap.in$yhat.test-shap.ex$yhat.test)*exp(shap.$wt[k])
                         ##(shap.in$yhat.test-shap.ex$yhat.test)/choose(M, k)
                 }
             }
         }
-    }
+    
 
     if(kern.var) {
-        shap.$yhat.test.=shap.$yhat.test./P
+        shap.$yhat.test.=shap.$yhat.test.
         shap.$yhat.test.mean =apply(shap.$yhat.test., 2, mean)
         shap.$yhat.test.lower=apply(shap.$yhat.test., 2, quantile,
                                     probs=probs[1])
@@ -160,7 +165,7 @@ SHAPK.wbart=function(object,  ## object returned from BART
                                     probs=probs[2])
         ##shap.$yhat.test.var.=shap.$yhat.test.var./(P^2)
     } else {
-        shap.$yhat.test=shap.$yhat.test/P
+        shap.$yhat.test=shap.$yhat.test
         shap.$yhat.test.mean =apply(shap.$yhat.test, 2, mean)
         shap.$yhat.test.lower=apply(shap.$yhat.test, 2, quantile,
                                     probs=probs[1])
