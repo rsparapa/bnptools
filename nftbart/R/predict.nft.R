@@ -34,7 +34,8 @@ predict.nft = function(
                        probs=c(0.025, 0.975),
                        take.logs=TRUE,
                        na.rm=FALSE,
-                       seed=NULL,
+                       RMST.max=NULL,
+                       ##seed=NULL,
                        ## default settings for NFT:BART/HBART/DPM
                        fmu=object$NFT$fmu,
                        soffset=object$soffset,
@@ -72,7 +73,8 @@ predict.nft = function(
                        probs=probs,
                        take.logs=take.logs,
                        na.rm=na.rm,
-                       seed=seed,
+                       RMST.max=RMST.max,
+                       ##seed=seed,
                        ## default settings for NFT:BART/HBART/DPM
                        fmu=fmu,
                        soffset=soffset,

@@ -4,6 +4,9 @@ Changes and New Features in 1.7 (2023-05-16):
 
 	* add bmx data set example
 
+	* calculate Restricted Mean Surival Time (RMST) via the new
+	argument RMST.max
+
 Changes and New Features in 1.6 (2023-04-29):
         * C++14 is required for this package
 
