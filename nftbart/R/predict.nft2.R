@@ -65,7 +65,9 @@ predict.nft2 = function(
     ps = ncol(object$xstrain)
     events.matrix=FALSE
     
-    if(length(K)==0) {
+    if(length(RMST.max)>0) {
+        K=0
+    } else if(length(K)==0) {
         K=0
         take.logs=FALSE
     } else if(K>0) {
