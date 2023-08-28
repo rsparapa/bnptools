@@ -23,7 +23,7 @@
             probs=c(0.025, 0.975),
             take.logs=TRUE,
             na.rm=FALSE,
-            seed=NULL,
+            RMST.max=NULL,
             ## default settings for NFT:BART/HBART/DPM
             fmu=object$NFT$fmu,
             soffset=object$soffset,
@@ -46,7 +46,7 @@
             probs=c(0.025, 0.975),
             take.logs=TRUE,
             na.rm=FALSE,
-            seed=NULL,
+            RMST.max=NULL,
             ## default settings for NFT:BART/HBART/DPM
             fmu=object$NFT$fmu,
             soffset=object$soffset,
@@ -79,8 +79,13 @@
   \item{take.logs}{Whether or not to take logarithms.}
   \item{na.rm}{Whether \code{NA} values should be removed from the
     summaries.}
-  \item{seed}{If provided, then this value is used to generate random
-    natural logarithms of event times from the predictive distribution.}
+  \item{RMST.max}{To calculate Restricted Mean Survival Time (RMST),
+    we need to set a reasonable time maxima. Typically, a clinically
+    important time that a majority (or a large
+    plurality) of censored subjects have been followed through that
+    point or beyond.}
+  %%\item{seed}{If provided, then this value is used to generate random
+  %%  natural logarithms of event times from the predictive distribution.}
   \item{fmu}{BART centering parameter for the test data.  Defaults to
     the value used by \code{nft2()/nft()} when training the model.}
   \item{soffset}{HBART centering parameter for the test data.  Defaults to the value used by \code{nft2()/nft()} when training the model.}
