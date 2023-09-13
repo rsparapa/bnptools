@@ -328,7 +328,7 @@ predict.nft2 = function(
         
         if(take.logs && length(RMST.max)>0) {
             ##set.seed(seed)
-            RMST.max.log=log(RMST.max)
+            log.RMST.max=log(RMST.max)
             if(drawDPM>0) {
                 ##res$logt.test=matrix(0, nrow=nd, ncol=np)
                 res$RMST.test=matrix(0, nrow=nd, ncol=np)
@@ -342,9 +342,9 @@ predict.nft2 = function(
                         var.h=sd.h^2
                         res$RMST.test[ , i]=res$RMST.test[ , i]+
                             object$dpwt.[ , h]*(
-                            pnorm(RMST.max.log, mu.h+var.h, sd.h)*
+                            pnorm(log.RMST.max, mu.h+var.h, sd.h)*
                             exp(mu.h+var.h/2)+
-                            pnorm(RMST.max.log, mu.h, sd.h,lower.tail=FALSE)*
+                            pnorm(log.RMST.max, mu.h, sd.h,lower.tail=FALSE)*
                             RMST.max)
                         ## res$logt.test[ , i]=res$logt.test[ , i]+
                         ##     object$dpwt.[ , h]*
@@ -361,14 +361,29 @@ predict.nft2 = function(
                     var. = sd.^2
                     ##res$logt.test[ , i]=rnorm(nd, mu., sd.)
                     res$RMST.test[ , i]=
-                            pnorm(RMST.max.log, mu.+var., sd.)*
+                            pnorm(log.RMST.max, mu.+var., sd.)*
                             exp(mu.+var./2)+
-                            pnorm(RMST.max.log, mu., sd., lower.tail=FALSE)*
+                            pnorm(log.RMST.max, mu., sd., lower.tail=FALSE)*
                             RMST.max
                 }
             }
+            if(FPD) {
+                res$f.test = NULL
+                res$s.test = NULL
+                H=np%/%n
+                res$RMST.fpd=matrix(nrow=nd, ncol=H)
+                for(h in 1:H) 
+                    res$RMST.fpd[ , h]=apply(res$RMST.test[ , (h-1)*n+1:n], 1, mean)
+                res$RMST.fpd.mean =apply(res$RMST.fpd, 2, mean)
+                res$RMST.fpd.lower=apply(res$RMST.fpd, 2, quantile, probs=q.lower)
+                res$RMST.fpd.upper=apply(res$RMST.fpd, 2, quantile, probs=q.upper)
+            } else {
             res$RMST.test.mean=apply(res$RMST.test, 2, mean)
-            ##res$logt.test.mean=apply(res$logt.test, 2, mean)
+            res$RMST.test.lower=
+                apply(res$RMST.test, 2, quantile, probs=q.lower)
+            res$RMST.test.upper=
+                apply(res$RMST.test, 2, quantile, probs=q.upper)
+            }
         }
     } else {
         res$f.test=res$f.test.
