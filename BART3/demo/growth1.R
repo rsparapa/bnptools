@@ -51,3 +51,27 @@ plot(bmx$RIDAGEEX, fit1$yhat.train.mean,
 for(i in 1:2)
     lines(age, apply(pred1[ , (i-1)*K+1:K], 2, mean), col=col.[i], lwd=2)
 dev.off()
+
+age=c(age, 18)
+K=length(age)
+x.test = fit1$x.train[1:(2*K), ]
+x.test[ , 1]=rep(1:2, each=K)
+x.test[ , 2]=age
+
+file.='growth1-pred2.rds'
+if(!file.exists(file.)) {
+    pred2 = FPD(fit1, x.test, 1:2, Subset=1:2)
+    saveRDS(pred2, file.)
+} else { pred2=readRDS(file.) }
+
+pdf(file='growth1-pred2.pdf')
+plot(bmx$RIDAGEEX, fit1$yhat.train.mean,
+     pch='.', col=col.[bmx$RIAGENDR],
+     ylab='Height (cm)',
+     xlab='Age (yr)')
+for(i in 1:2) {
+    lines(age, pred2$yhat.test.mean[(i-1)*K+1:K], col=col.[i], lwd=2)
+    lines(age, pred2$yhat.test.lower[(i-1)*K+1:K], col=col.[i], lwd=2, lty=2)
+    lines(age, pred2$yhat.test.upper[(i-1)*K+1:K], col=col.[i], lwd=2, lty=2)
+}
+dev.off()

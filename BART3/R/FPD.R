@@ -21,6 +21,7 @@
 FPD=function(object,  ## object returned from BART
              x.test,  ## settings of x.test
              S,       ## indices of subset
+             subset.=NULL,
              x.train, 
              probs=c(0.025, 0.975),
              mc.cores=getOption('mc.cores', 1L),

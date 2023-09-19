@@ -9,8 +9,8 @@
   the marginal effect of a variable or variables.
 }
 \usage{
-\method{FPD}{wbart}(object, x.test,
-    S, x.train=object$x.train, probs=c(0.025, 0.975),
+\method{FPD}{wbart}(object, x.test, S,
+    subset.=NULL, x.train=object$x.train, probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L, seed = 99L)
 }
@@ -32,6 +32,13 @@
    }
 
    \item{S}{Indices for the marginal effects subset.}
+
+   \item{subset.}{If \code{S} has one or two dimensions,
+     then this function supports the Conditional dependence method,
+     i.e., subsetting the data according the grid of values in \code{x.test}.
+     For two-dimensions, with a continuous and a category, the
+     continuous covariate must be increasing.  If feasible,
+     more complex two-dimensional scenarios can be considered in the future.}
 
    \item{probs}{The lower and upper limits for the credible interval.}
    

@@ -21,6 +21,7 @@
 FPD.wbart=function(object,  ## object returned from BART
                    x.test,  ## settings of x.test
                    S,       ## indices of subset
+                   subset.=NULL,
                    x.train=object$x.train,
                    probs=c(0.025, 0.975),
                    mc.cores=getOption('mc.cores', 1L),
@@ -51,9 +52,25 @@ FPD.wbart=function(object,  ## object returned from BART
                 stop(paste0('Row ', i, ' and ', j, ' of x.test are equal'))
 
     set.seed(seed)
-    X.test = x.train
+    ##X.test = x.train
     for(i in 1:Q) {
-        for(j in 1:L) X.test[ , S[j]]=x.test[i, j]
+        X.test = x.train
+        for(j in 1:L) {
+            if(j %in% subset.) {
+                ## assuming an increasing grid or a constant
+                if(i==1) low=-Inf
+                else low=x.test[i-1, j]
+                if(low>x.test[i, j]) low=-Inf
+                if(i==Q) high=Inf
+                else high=x.test[i+1, j]
+                if(high<x.test[i, j]) high=Inf
+                if(low==x.test[i, j] | high==x.test[i, j])
+                    X.test=X.test[X.test[ , S[j]]==x.test[i,j], ]
+                else X.test=X.test[(low<X.test[ , S[j]] & X.test[ , S[j]]<high), ]
+                ##print(c(low=low, high=high))
+            }
+            X.test[ , S[j]]=x.test[i, j] 
+        }
 
         pred.=cbind(apply(predict(object, X.test, mc.cores=mc.cores,
                             mult.impute=mult.impute, seed=NA), 1, mean))
