@@ -271,14 +271,9 @@ if(K>0) {
         s.train.mask=which(s.train.mask)
         res$f.train=res$f.train[s.train.mask, ]
         res$s.train=res$s.train[s.train.mask, ]
-        ##res$z.train=res$z.train[s.train.mask, ]
-        ##res$e.train=res$e.train[s.train.mask, ]
-        ##if(length(res$rho)>0) res$rho=res$rho[s.train.mask]
     } else s.train.mask=1:nd 
-    res$z.train=res$z.train[s.train.mask, ]
+    ##res$z.train=res$z.train[s.train.mask, ]
     s.train.burn=c(1:burn, s.train.mask)
-    ##res$z.train=res$z.train[s.train.burn, ]
-    ##res$e.train=res$e.train[s.train.burn, ]
 
     summarystats=(ndpost>=2)
     if(summarystats) {
@@ -308,25 +303,24 @@ if(K>0) {
         else res$dpn.=res$dpn
     }
 
-    ##if(take.logs) res$z.train=exp(res$z.train)
     res$f.train=res$f.train+fmu
     res$f.train.mean=apply(res$f.train, 2, mean)
-    res$z.train=res$z.train+fmu
-    if(take.logs) {
-        z.trunc=apply(res$z.train, 2, pmin, max(log(times)))
-        res$z.train.mean=log(apply(exp(z.trunc), 2, mean))
-    } else {
-        z.trunc=apply(res$z.train, 2, pmin, max(times))
-        res$z.train.mean=apply(z.trunc, 2, mean)
-    }
-    ##res$z.train.mean=apply(res$z.train, 2, mean)
-    ##res$e.train.mean=res$z.train.mean-res$f.train.mean
-    ##res$MSE=mean(res$e.train.mean^2)
+    res$f.train.min=apply(res$f.train, 1, quantile, probs=0)
+    res$f.train.max=apply(res$f.train, 1, quantile, probs=1)
+    ## if(take.logs) {
+    ##     z.trunc=apply(res$z.train, 2, pmin, max(log(times)))
+    ##     res$z.train.mean=log(apply(exp(z.trunc), 2, mean))
+    ## } else {
+    ##     z.trunc=apply(res$z.train, 2, pmin, max(times))
+    ##     res$z.train.mean=apply(z.trunc, 2, mean)
+    ## }
     res$s.train.mean=apply(res$s.train, 2, mean)
     res$ssd=sqrt(mean(res$s.train.mean^2))
     res$mask=mask
     res$s.train.mask=s.train.mask
-    res$s.train.max=s.train.max.
+    res$s.train.max.=s.train.max.
+    res$s.train.min=apply(res$s.train, 1, quantile, probs=0)
+    res$s.train.max=apply(res$s.train, 1, quantile, probs=1)
         
     if(np>0) {
         res$f.test=res$f.test[s.train.mask, ]+fmu

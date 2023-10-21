@@ -72,7 +72,8 @@ predict.nft2 = function(
         take.logs=FALSE
     } else if(K>0) {
         if(length(events)==0) {
-            events = unique(quantile(object$z.train.mean,
+            ##events = unique(quantile(object$z.train.mean,
+            events = unique(quantile(object$times,
                                       probs=(1:K)/(K+1)))
             attr(events, 'names') = NULL
             take.logs=FALSE

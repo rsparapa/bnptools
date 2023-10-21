@@ -188,8 +188,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
     //drawsd=0; //(1-draws)*(1-drawMuTau);
 
   Rcpp::NumericMatrix mdraws(nd, n), //sdraws(nd, pow(n, draws)),
-    sdraws(nd, n), mpred(nd, np), spred(nd, np), zdraws(nd, n); 
-    //zdraws(nd+burn, n), edraws(nd+burn, n);
+    sdraws(nd, n), mpred(nd, np), spred(nd, np); // zdraws(nd, n); 
   //Rcpp::NumericVector sddraws((nd+burn)*drawsd);
 
   // for varcounts
@@ -583,25 +582,14 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	    z[k]=censor[k]*gen.rtnorm(censor[k]*y[k], 
 				       censor[k]*ambm.f(k), sig[k]);
 	}
-
-/*
-	if(drawrho && !adapting) {
-	  if(z[k]>zdraws2(h, k)) z[k]=zdraws2(h, k);
-	}
-*/
       }
 /*
-      e[k]=z[k];
-      if(keeping || burning) {
-	zdraws(h, k)=z[k];
-	if(drawrho) sig[k] *= pow(1.-pow(rho, 2.), 0.5);
-      }
-*/
       if(keeping) {
 	if(drawDP) zdraws(j, k)=gen.normal(phi(g, 0)*sig[k]+ambm.f(k), 
 					   pow(phi(g, 1), -0.5)*sig[k]);
 	else zdraws(j, k)=gen.normal(ambm.f(k), sig[k]);
       }
+*/
     }
 
     for(size_t k=0;k<n;k++) {
@@ -866,9 +854,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
     ret["s.test"]=spred;
   }
 
-  ret["z.train"]=zdraws;
-  //ret["e.train"]=edraws;
-  //if(drawrho) ret["rho"]=rhodraws;
+  //ret["z.train"]=zdraws;
 
   // summary statistics
   if(summarystats) {

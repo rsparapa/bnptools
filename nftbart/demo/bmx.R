@@ -37,6 +37,14 @@ col=c(4, 2)
 M=(bmx$RIAGENDR==1)
 F=(!M)
 
+CDC = read.csv('height.csv')                     
+str(CDC)
+CDC$age=CDC$month/12
+## sex coded like EPIC: the opposite of NHANES
+M.=(CDC$sex_c==2 & CDC$age<18)
+F.=(CDC$sex_c==1 & CDC$age<18)
+
+pdf(file='bmx-M.pdf')
 plot(bmx$RIDAGEEX[M], bmx$BMXHT[M], pch='.', col=4,
      xlab='Age', ylab='Height (cm)')
 for(j in 1:L) {
@@ -44,7 +52,9 @@ for(j in 1:L) {
           col=4, lty=lty[j], lwd=3-lty[j])
     text(age[K]+0.25, exp(post$f.test.mean[K]+q[j]*post$s.test.mean[K]), Q[j])
 }
+dev.off()
 
+pdf(file='bmx-F.pdf')
 plot(bmx$RIDAGEEX[F], bmx$BMXHT[F], pch='.', col=2,
      xlab='Age', ylab='Height (cm)')
 for(j in 1:L) {
@@ -52,3 +62,4 @@ for(j in 1:L) {
           col=2, lty=lty[j], lwd=3-lty[j])
     text(age[K]+0.25, exp(post$f.test.mean[2*K]+q[j]*post$s.test.mean[2*K]), Q[j])
 }
+dev.off()
