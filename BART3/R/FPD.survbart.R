@@ -21,6 +21,7 @@
 FPD.survbart=function(object,  ## object returned from BART
                    x.test,  ## settings of x.test
                    S,       ## indices of subset
+                   subset.=NULL,
                    x.train=object$tx.test,
                    probs=c(0.025, 0.975),
                    mc.cores=getOption('mc.cores', 1L),
@@ -61,9 +62,27 @@ FPD.survbart=function(object,  ## object returned from BART
     N=NK/K
     M=object$ndpost
     set.seed(seed)
-    X.test = x.train
+    ##X.test = x.train
     for(i in 1:Q) {
-        for(j in 1:L) X.test[ , S[j]]=x.test[i, j]
+        X.test = x.train
+        for(j in 1:L) {
+            if(j %in% subset.) {
+                ## assuming an increasing grid or a constant
+                if(i==1) low=-Inf
+                else low=x.test[i-1, j]
+                if(low>x.test[i, j]) low=-Inf
+                if(i==Q) high=Inf
+                else high=x.test[i+1, j]
+                if(high<x.test[i, j]) high=Inf
+                if(low==x.test[i, j] | high==x.test[i, j])
+                    X.test=X.test[X.test[ , S[j]]==x.test[i,j], ]
+                else X.test=X.test[(low<X.test[ , S[j]] & X.test[ , S[j]]<high), ]
+                ##print(c(low=low, high=high))
+            }
+            X.test[ , S[j]]=x.test[i, j] 
+        }
+
+        ##for(j in 1:L) X.test[ , S[j]]=x.test[i, j]
         ##for(j in S) X.test[ , j]=x.test[i, j]
         ## pre=surv.pre.bart(times=dots$times, delta=dots$delta,
         ##                   x.train=X.test, x.test=X.test,
