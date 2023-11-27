@@ -1,5 +1,5 @@
 
-Changes and New Features in 1.7 (2023-11-01):
+Changes and New Features in 2.0 (2023-11-27):
         * tsvs/tsvs2 now plot VIMP prob. rather than inclusion prob.  
 
 	* add bmx data set example
@@ -8,6 +8,9 @@ Changes and New Features in 1.7 (2023-11-01):
 	argument RMST.max
 
 	* no longer sampling from the posterior predictive for z
+
+Changes and New Features in 1.7/1.8/1.9 (2023-11-01): 
+	* skipping due to pre-test issues
 
 Changes and New Features in 1.6 (2023-04-29):
         * C++14 is required for this package
