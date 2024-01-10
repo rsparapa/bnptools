@@ -137,9 +137,10 @@ argument \code{type} to specify a logit BART model.
    estimate.  Not used if \eqn{y} is binary.  }
 
    \item{k}{ For numeric \eqn{y}, \code{k} is the number of prior
-   standard deviations \eqn{E(Y|x) = f(x)} is away from +/-0.5.  The
-   response, code{y.train}, is internally scaled to range from -0.5 to
-   0.5.  For binary \eqn{y}, \code{k} is the number of prior standard
+     standard deviations \eqn{E(Y|x) = f(x)} is away from +/-0.5.
+     %The response, code{y.train}, is internally scaled to range from
+     %-0.5 to0.5.  
+     For binary \eqn{y}, \code{k} is the number of prior standard
    deviations \eqn{f(x)} is away from +/-3.  The bigger \code{k} is, the more
    conservative the fitting will be.  }
 

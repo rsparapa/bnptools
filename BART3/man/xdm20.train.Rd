@@ -11,7 +11,7 @@ A real data example for \code{recur.bart}.
   the training set for a real data example of recurrent events survival
   analysis.  There are 100 patients in the cohort: 50 in the training
   set and 50 in the testing set.  %The full data set, \code{xdm.train},
-  can be obtained online at
+  %can be obtained online at
 %\url{http://www.mcw.edu/FileLibrary/Groups/Biostatistics/TechReports/TechReports5175/tr064.tar}.
 %\url{https://www.mcw.edu/-/media/MCW/Departments/Biostatistics/Tech-Report-64-April-2017-data-file.tar?la=en}.
 There are 488 patients in the full cohort: 235 in the training set and
