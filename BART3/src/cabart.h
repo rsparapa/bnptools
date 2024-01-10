@@ -273,10 +273,10 @@ if(type==1) {
    time_t tp;
    int time1 = time(&tp), total=nd+burn;
    xinfo& xi = bm.getxinfo();
-
+   
    for(int i=0;i<total;i++) {
    //for(size_t i=0;i<total;i++) {
-      if(i%printevery==0) printf("done %d (out of %lu)\n",i,nd+burn);
+      if(i%printevery==0) printf("done %d (out of %d)\n",i,total);
       //if(i%printevery==0) printf("done %zu (out of %lu)\n",i,nd+burn);
       if(i==(burn/2)&&dart) bm.startdart();
       //draw bart

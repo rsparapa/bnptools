@@ -419,7 +419,7 @@ void cgbart(
    for(int i=0;i<total;i++) {
    //for(size_t i=0;i<total;i++) {
       if(verbose==1 && i%printevery==0) 
-	printf("done %d (out of %lu)\n",i,nd+burn);
+	printf("done %d (out of %d)\n",i,total);
       //if(i%printevery==0) printf("done %zu (out of %lu)\n",i,nd+burn);
       if(i==(burn/2)&&dart) bm.startdart();
       //draw bart
