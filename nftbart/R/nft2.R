@@ -94,8 +94,8 @@ nft2 = function(## data
                    method=method, use=use)
             xstrain=xs.$X
         }
-        xifcuts=xf.$xicuts
-        xiscuts=xs.$xicuts
+        if(length(xifcuts)==0) xifcuts=xf.$xicuts
+        if(length(xiscuts)==0) xiscuts=xs.$xicuts
         chvf = xf.$chv
         chvs = xs.$chv
         
