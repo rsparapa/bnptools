@@ -281,8 +281,8 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   //--------------------------------------------------
   //print args
   //  Rprintf("**********************\n");
-  Rprintf("n: %lu\n",n);
-  Rprintf("pf, ps: %lu, %lu\n",pf,ps);
+  Rprintf("n: %d\n",(int)n);
+  Rprintf("pf, ps: %d, %d\n",(int)pf,(int)ps);
   Rprintf("xftrain first row: %lf, %lf\n",xftrain[0],xftrain[pf-1]);
 //  Rprintf("xftrain second row: %lf, %lf\n",xftrain[pf],xftrain[2*pf-1]);
   Rprintf("xftrain last row: %lf, %lf\n",xftrain[(n-1)*pf],xftrain[n*pf-1]);
@@ -291,7 +291,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   Rprintf("xstrain last row: %lf, %lf\n",xstrain[(n-1)*ps],xstrain[n*ps-1]);
   Rprintf("first and last y: %lf, %lf\n",y[0],y[n-1]);
   if(np) {
-    Rprintf("np: %lu\n",np);
+    Rprintf("np: %d\n",(int)np);
     Rprintf("xftest first row xftest: %lf, %lf\n",xftest[0],xftest[pf-1]);
 //    Rprintf("xftest second row xftest: %lf, %lf\n",xftest[pf],xftest[2*pf-1]);
     Rprintf("xftest last row xftest : %lf, %lf\n",xftest[(np-1)*pf],xftest[np*pf-1]);
@@ -301,15 +301,15 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   } else {
     Rprintf("no test observations\n");
   }
-  Rprintf("number of trees mean: %lu\n",m);
-  Rprintf("number of trees stan dev: %lu\n",mh);
+  Rprintf("number of trees mean: %d\n",(int)m);
+  Rprintf("number of trees stan dev: %d\n",(int)mh);
   Rprintf("tau: %lf\n",tau);
   Rprintf("total.lambda, lambda: %lf, %lf\n",overalllambda, lambda);
   Rprintf("total.nu, nu: %lf, %lf\n",overallnu, nu);
-  Rprintf("burn (nskip): %lu\n",burn);
-  Rprintf("nd (ndpost): %lu\n",nd);
-  Rprintf("nadapt: %lu\n",nadapt);
-  Rprintf("adaptevery: %lu\n",adaptevery);
+  Rprintf("burn (nskip): %d\n",(int)burn);
+  Rprintf("nd (ndpost): %d\n",(int)nd);
+  Rprintf("nadapt: %d\n",(int)nadapt);
+  Rprintf("adaptevery: %d\n",(int)adaptevery);
   Rprintf("mean tree prior base: %lf\n",falpha);
   Rprintf("mean tree prior power: %lf\n",mybeta);
   Rprintf("variance tree prior base: %lf\n",salpha);
@@ -328,8 +328,8 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
   Rprintf("variance trees initial step width pert move: %lf\n",stepwperth);
   Rprintf("mean trees prob of a change var move : %lf\n",probchv);
   Rprintf("variance trees prob of a change var move : %lf\n",probchvh);
-  Rprintf("mean trees min num obs in bottom node: %lu\n",minnumbot);
-  Rprintf("variance trees min num obs in bottom node: %lu\n",minnumboth);
+  Rprintf("mean trees min num obs in bottom node: %d\n",(int)minnumbot);
+  Rprintf("variance trees min num obs in bottom node: %d\n",(int)minnumboth);
 //  Rprintf("sigma prior : alphao=%lf, betao=%lf\n", alphao, betao);
   //Rprintf("base prior : muo=%lf, ko=%lf, alphao=%lf, betao=%lf\n",
   // muo, ko, alphao, betao);
@@ -359,7 +359,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	 << ',' << "index n-1=" << impute_prior[n-1] << endl;
   }
 */
-  Rprintf("printevery: %lu\n",printevery);
+  Rprintf("printevery: %d\n",(int)printevery);
 
   //--------------------------------------------------
   //make xinfo
