@@ -384,7 +384,7 @@ void cgbart(
      bm.settree(itv);
    }
 */
-   bm.setdart(a,b,grp,aug,dart,rho);
+   bm.setdart(a,b,grp,aug,dart,rho,theta,omega);
    //bm.setdart(a,b,rho,aug,dart);
    bm.setpv(&varprob[0]);
 

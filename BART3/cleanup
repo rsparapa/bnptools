@@ -26,7 +26,7 @@ for i in src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
 	 src/DpBase.* src/DpMuTau.* src/cdpgbart.cpp \
 	 R/dpgbart.R demo/cube.dpgbart.R R/surv.gbmm.R \
 	 R/gbmm.R R/mc.gbmm.R man/gbmm.Rd src/cgbmm.cpp \
-	 demo/check.mbart.R
+	 demo/check.mbart.R demo/*.rds
 do
     if [ -f $i ]
        then rm -rf $i

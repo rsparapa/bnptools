@@ -12,8 +12,11 @@ Main differences between BART (stable) and BART3 (development)
         * better support for factors in data.frames 
         especially for DART where it is the most sorely needed
 
+Changes and New Features in 4.9 (2024-04-06):
+	* theta/omega DART settings now properly propagated in gbart 
+
 Changes and New Features in 4.8 (2023-09-19):
-	* for FPD, new conditional dependence method with subset. arg
+	* for FPD, new conditional dependence method with subset arg
 
 Changes and New Features in 4.7 (2023-07-10):
 	* for FPD/FPDK/SHAP/SHAPK, the x.test argument is smarter
