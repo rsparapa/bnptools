@@ -112,10 +112,14 @@ tsvs <- function(
         }
         l=h
     }
-    dimnames(dummy)[[2]]=dimnames(x.train)[[2]]
+    Names=dimnames(x.train)[[2]] 
+    if(length(Names) == 0) {
+        Names <- paste0('x', 1:ncol(x.train))
+        dimnames(x.train)[[2]] <- Names
+    } 
+    dimnames(dummy)[[2]]=Names
     ##return(dummy)
 
-    Names=dimnames(x.train)[[2]] 
     A=matrix(a., nrow=T, ncol=P)
     B=matrix(b., nrow=T, ncol=P)
     S=matrix(0,  nrow=T, ncol=P)
@@ -128,6 +132,8 @@ tsvs <- function(
     dimnames(vimp)[[2]]=Names
     varcount=matrix(0, nrow=T, ncol=P)
     dimnames(varcount)[[2]]=Names
+
+print(Names)
 
     for(i in 1:T) {
         set.seed(i)
@@ -197,6 +203,7 @@ tsvs <- function(
         for(j in 1:P) {
             if(S[i, j]==1) {
                 h=which(Names[j]==names.)
+                ##return(list(M = M, h = h, varcount = post$varcount))
                 l=post$varcount[M, h]
                 if(l>0) {
                     varcount[i, j]=l
@@ -209,7 +216,7 @@ tsvs <- function(
             }
             vimp[i, j]=A[i, j]/(A[i, j]+B[i, j])
         }
-        if(length(warnings())>0) print(warnings())
+        if(length(warnings())>0) stop(warnings())
         res=list(step=i, vimp=vimp, S=S, a=A, b=B, reward=reward,
                  prob=prob, varcount=varcount)
         saveRDS(res, rds.file)

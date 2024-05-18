@@ -53,6 +53,7 @@ lung.surv.ice	   Lung cancer example for survival analysis: ICE-like S(t) plot
 lung.surv.lbart	   Lung cancer example for survival analysis with logit BART
 missing.gbart	   Example of missing imputation with gbart
 modlisa	   Example of using Modified LISA
+nci-topo   TSVS example with the NCItopo data
 optimaldonor	   Hematopoietic stem cell transplantation optimal donor
 nhanes.pbart 	   Friedman's partial dependence function for binary outcomes with BART
 np.recur.bart	   Nonproportional intensity for recurrent events with BART
@@ -60,11 +61,12 @@ nox		   Boston air pollution: Nitrogen Oxides and Housing Values
 replication	   Replication script for JSS article
 SHAP		   SHAP marginal expectation
 sigma.known.gbart	Sigma is fixed and known
-sparse.dart	   Dirichlet sparsity prior: categories vs. continuous
-sparse.gbart	   Dirichlet sparsity prior: uniform vs. Bernoulli
-sparse.lbart	   Dirichlet sparsity prior with logit BART
-sparse.pbart	   Dirichlet sparsity prior with probit BART
-sparse.wbart	   Dirichlet sparsity prior with continuous BART
+sparse.dart	   DART: categories vs. continuous
+sparse.gbart	   DART: uniform vs. Bernoulli
+sparse.lbart	   DART with logit BART
+sparse.pbart	   DART with probit BART
+sparse.tsvs	   TSVS: uniform vs. Bernoulli
+sparse.wbart	   DART with continuous BART
 test.rtnorm	   Test truncated Normal sampler for probit/logit BART
 test.rtgamma	   Test truncated Gamma sampler for generalized mixed BART
 test.srstepwise	   Test stepwise implementation for survreg
