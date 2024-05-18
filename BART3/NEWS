@@ -12,6 +12,12 @@ Main differences between BART (stable) and BART3 (development)
         * better support for factors in data.frames 
         especially for DART where it is the most sorely needed
 
+
+Changes and New Features in 5.0 (2024-05-18):
+	* TSVS:	create names for columns if they don't exist
+	        print the list of names for independent variables
+	        stop at the first warning for debugging
+
 Changes and New Features in 4.9 (2024-04-06):
 	* theta/omega DART settings now properly propagated in gbart 
 
