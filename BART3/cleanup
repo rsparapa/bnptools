@@ -27,7 +27,8 @@ for i in src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
 	 R/dpgbart.R demo/cube.dpgbart.R R/surv.gbmm.R \
 	 R/gbmm.R R/mc.gbmm.R man/gbmm.Rd src/cgbmm.cpp \
 	 demo/check.mbart.R demo/*.rds \
-	 data/bodyfat.R data/bodyfat.dat data/bodyfat.txt
+	 data/bodyfat.R data/bodyfat.dat data/bodyfat.txt \
+	 inst/HNSCC/hnscc.csv man/optimaldonor.txt
 do
     if [ -f $i ]
        then rm -rf $i

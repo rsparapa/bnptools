@@ -17,6 +17,9 @@ Changes and New Features in 5.0 (2024-05-18):
 	* TSVS:	create names for columns if they don't exist
 	        print the list of names for independent variables
 	        stop at the first warning for debugging
+        * HNSCC: a new installed sub-directory with data and source
+	code for the Head and Neck Squamous Cell Carcinoma study
+	see the new hnscc data set for more details
 
 Changes and New Features in 4.9 (2024-04-06):
 	* theta/omega DART settings now properly propagated in gbart 
