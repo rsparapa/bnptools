@@ -12,19 +12,18 @@ times <- hnscc$DFS_months
 delta <- hnscc$DFS
 
 x.train <-  hnscc[ , -(1:2)]
-## x.train <- data.frame(hnscc[,c("Study", "diag_year", "Age", "Male", 
-## "White", "Black", "Asian", 
-## "Smoker", "Alcohol", "PriorChemo", "Oropharynx", "Larynx", "OralCavity",
-## "P16M", "P16P", "P16N", "ECSM", "ECSY", "ECSN", 
-## "Positive_MM", "Positive_MY", "Positive_MN",
-## "Close_MM", "Close_MY", "Close_MN", "PNIM", "PNIY", "PNIN", 
-## "LVIM", "LVIY", "LVIN", "RSM", "RSY", "RSN", "LN2M", "LN2Y", "LN2N")])
-##x.train <- data.frame(hnscc[,c(55:89,4,93)])
 
-post = mc.surv.bart(x.train, times = times, delta = delta, x.test = x.train, 
-	ndpost=1000, nskip=5000, keepevery=10, seed = 2025)
+## chains run in parallel
+## post = mc.surv.bart(x.train, times = times, delta = delta, 
+## x.test = x.train, ndpost=1000, nskip=5000, keepevery=10, seed = 2025)
 
-pre <- surv.pre.bart(times = times, delta = delta, x.train = x.train, x.test = x.train)
+## a single serial chain
+set.seed(2025)
+post = surv.bart(x.train, times = times, delta = delta, x.test = x.train, 
+                 ndpost=1000, nskip=5000, keepevery=10)
+
+pre <- surv.pre.bart(times = times, delta = delta, x.train = x.train, 
+                     x.test = x.train)
 
 # predict from bart
  

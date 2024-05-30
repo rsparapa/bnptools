@@ -17,3 +17,12 @@ coxPH.R: predicted disease-free survival estimates from a Cox model
 rsf.R: predicted disease-free survival estimates from RSF
 
 bart.R: predicted disease-free survival estimates from BART
+
+Other packages required.
+
+dbarts
+ggplot2
+MatchIt
+randomForest
+randomForestSRC
+survminer

@@ -9,18 +9,19 @@ source(system.file('HNSCC/recode.R', package = 'BART3'))
 
 match = matchit(Study ~ Age + White + Black + Asian + Male +
 	Smoker + Alcohol + PriorChemo + Larynx + OralCavity + Oropharynx +
-	P16P + P16N + P16M + ECSY + ECSN + ECSM + hnscc$Positive_MY +
-	hnscc$Positive_MN + hnscc$Positive_MM + hnscc$Close_MY + hnscc$Close_MN +
-	hnscc$Close_MM + PNIY + PNIN + PNIM + LVIY + LVIN + LVIM +LN2Y + LN2N +
-	LN2M + RSY + RSN + RSM + diag_year, data = hnscc, method = "nearest", 	
+	P16P + P16N + P16M + ECSY + ECSN + ECSM + Positive_MY +
+	Positive_MN + Positive_MM + Close_MY + Close_MN +
+	Close_MM + PNIY + PNIN + PNIM + LVIY + LVIN + LVIM +
+        LN2Y + LN2N + LN2M + RSY + RSN + RSM + diag_year, 
+        data = hnscc, method = "nearest", 
 	distance = "bart", ratio = 2, caliper = 0.25, 
 	distance.options = list(n.samples = 10000, n.burn = 5000, 
 	n.thin = 10, seed = 2025))
 
-mdata =  match.data(match, drop.unmatched=F)
+mdata = match.data(match, drop.unmatched=F)
 
 # modified adjusted.KM function from RISCA package to include se
-source("adjKM.R")
+source(system.file('HNSCC/adjKM.R', package = 'BART3'))
 
 # fit adjusted KM estimator by IPTW
 ps <- mdata$distance
