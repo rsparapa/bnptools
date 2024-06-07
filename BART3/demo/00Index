@@ -53,7 +53,8 @@ lung.surv.ice	   Lung cancer example for survival analysis: ICE-like S(t) plot
 lung.surv.lbart	   Lung cancer example for survival analysis with logit BART
 missing.gbart	   Example of missing imputation with gbart
 modlisa	   Example of using Modified LISA
-nci-topo   TSVS example with the NCItopo data
+nci-topo   DART example with the NCItopo data
+nci-tsvs   TSVS example with the NCItopo data
 optimaldonor	   Hematopoietic stem cell transplantation optimal donor
 nhanes.pbart 	   Friedman's partial dependence function for binary outcomes with BART
 np.recur.bart	   Nonproportional intensity for recurrent events with BART
