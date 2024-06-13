@@ -8,7 +8,7 @@ for i in src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
 	 vignettes/Sweave.sty vignettes/jsslogo.* \
 	 vignettes/*.aux vignettes/*.bbl vignettes/*.blg \
 	 vignettes/*.log vignettes/*.out \
-	 vignettes/*.tex vignettes/*.tpt vignettes/*.pdf \
+	 vignettes/*.tex vignettes/*.tpt vignettes/*.pdf vignettes/figures/* \
 	 vignettes/*.md  vignettes/*.html \
 	 R/dpmbart.R man/dpmbart.Rd R/dpmwbart.R man/dpmwbart.Rd \
 	 src/cdpmbart.cpp src/cdpmwbart.cpp \
@@ -28,7 +28,8 @@ for i in src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
 	 R/gbmm.R R/mc.gbmm.R man/gbmm.Rd src/cgbmm.cpp \
 	 demo/check.mbart.R demo/*.rds \
 	 data/bodyfat.R data/bodyfat.dat data/bodyfat.txt \
-	 inst/HNSCC/hnscc.csv man/optimaldonor.txt
+	 inst/HNSCC/hnscc.csv man/optimaldonor.txt \
+	 R/read.forest.R R/ss.zbart.R data/bodyfat.* data/tr064.tar
 do
     if [ -f $i ]
        then rm -rf $i

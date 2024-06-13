@@ -26,7 +26,7 @@ export(gewekediag, spectrum0ar)
 export(bartModelMatrix)
 export(srstepwise)
 export(read.trees, write.trees)
-export(read.forest)
+##export(read.forest)
 export(EXPVALUE, comb, perm)
 export(FPD)   ## Friedman's partial dependence function
 export(FPDK)   ## Friedman's partial dependence function

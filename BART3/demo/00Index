@@ -40,7 +40,6 @@ FPDK  		   Marginal expecation comparison of FPD to FPDK
 SHAP  		   Marginal expecation comparison of FPD to SHAP and SHAPK
 SHAPT  		   Marginal expecation comparison of FPD to SHAP call=TRUE
 SHAPK  		   Marginal expecation comparison of FPD to SHAPK
-informative	   Example of sharding with an informative prior
 leuk		   Multi-state model example with leukemia data set
 liver.crisk.bart   Liver transplant example for competing risks with BART
 liver.crisk2.bart   Liver transplant example for competing risks with BART alternative
