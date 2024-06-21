@@ -111,8 +111,11 @@ RcppExport SEXP cgbart(
    
    Rcpp::NumericVector  yv(_iy); 
    double *iy = &yv[0];
-   Rcpp::NumericVector  xpv(_ixp);
-   double *ixp = &xpv[0];
+   //Rcpp::NumericVector  xpv(_ixp);
+   //double *ixp = &xpv[0];
+   Rcpp::NumericMatrix xpv(_ixp);
+   double *ixp = nullptr;
+   if(np>0) ixp = &xpv[0];
    //Rcpp::NumericVector z_train(_z_train);
    //double *z = &z_train[0];
    //Rcpp::IntegerVector z_draw(_z_draw);

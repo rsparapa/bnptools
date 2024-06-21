@@ -13,6 +13,9 @@ Main differences between BART (stable) and BART3 (development)
         especially for DART where it is the most sorely needed
 
 
+Changes and New Features in 5.1 (2024-06-20):
+	* resolving UBSAN when x.test is not provided 
+
 Changes and New Features in 5.0 (2024-05-18):
 	* TSVS:	create names for columns if they don't exist
 	        print the list of names for independent variables
