@@ -26,9 +26,7 @@
 
       \usage{
       data(hnscc)
-      ## you can analyze this data set with BART as follows
-      source(system.file('HNSCC/bart.R', package = 'BART3'))
-      ## see the HNSCC sub-directory above for more examples 
+
 }
 
 \format{A data frame with 110 subjects on the following 20 variables.
@@ -94,5 +92,13 @@
   Head and Neck". 
   \emph{Clin Cancer Res}, \bold{28(16)}, pp.=3464-3472. 
 }
+
+\examples{
+  \dontrun{
+      ## you can analyze this data set with BART as follows
+      source(system.file('HNSCC/bart.R', package = 'BART3'))
+      ## see the HNSCC sub-directory above for more examples 
+    }
+  }
 
 \keyword{datasets}

@@ -18,9 +18,9 @@ data(bmx)
     BMXHT:\tab Height in cm\cr
     RIAGENDR:\tab Gender: 1=male, 2=female\cr
     RIDAGEEX:\tab Age in years with fractions for months\cr
+    BMXWT:\tab Weight in kg\cr
     RIDRETH2:\tab Race/ethnicity: 1=Non-Hispanic White,
     2=Non-Hispanic Black, 3=Hispanic\cr
-    BMXWT:\tab Weight in kg\cr
   }
 }
 

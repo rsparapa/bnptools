@@ -18,7 +18,7 @@ for i in src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
 	 inst/bootcamp/* src/rtruncnorm.* \
 	 src/randomkit.* src/rand_draws.* src/latent.* \
 	 src/arms.* src/cspbart.cpp R/spbart.R R/mc.spbart.R \
-	 R/class.ind.R man/class.ind.Rd src/cmbart.cpp \
+	 R/class.ind.R src/cmbart.cpp data/bmx.R \
 	 vignettes/bincat.Rnw vignettes/computing.Rnw \
 	 vignettes/cont1.Rnw vignettes/cont2.Rnw \
 	 vignettes/time-to-event.Rnw vignettes/hwbart.Rmd \
