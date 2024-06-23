@@ -35,11 +35,12 @@ export(SHAPK) ## SHAP additive explanation
 export(SHAP2) ## SHAP for two-way interactions
 export(CDimpute, HDimpute)
 export(Cindex)
+export(oldRhat, splitRhat, maxRhat)
 importFrom(Rcpp, evalCpp)
 importFrom(nlme, lme)
 importFrom(nnet, class.ind)
 importFrom(parallel, detectCores)
-importFrom(stats, ar, coef, cor, dbinom, dnorm, lm, plogis, pnorm, predict, qchisq, qlogis, qnorm, quantile)
+importFrom(stats, acf, anova, ar, coef, cor, dbinom, dnorm, lm, median, plogis, pnorm, predict, qchisq, qlogis, qnorm, quantile)
 importFrom(stats, residuals, rbeta, rmultinom, rpois, runif, sd, sigma, vcov, var)
 importFrom(survival, survfit, Surv, survreg)
 importFrom(tools, psnice)
