@@ -3,9 +3,11 @@
 \title{EXPVALUE function for BART}
 
 \description{ The EXPVALUE function was originally proposed for a single
-tree as a marginal expectation of \eqn{E[x[C]](g(x[S], x[C]; T, M)|x[S])} over the
-training cohort.  Here we adapt it to an ensemble of trees for BART:
-\eqn{E[[x[C]](f(x[S], x[C])|x[S])}. }
+tree as a marginal expectation of \eqn{E(g(x.S, x.C; T, M)|x.S)} over
+the training cohort where \eqn{S} are the covariate subset of interest
+while \eqn{C} is the complement, i.e., \eqn{x.S} are settings of
+interest and \eqn{x.C} are arbitrary.  Here we adapt it to an ensemble
+of trees for BART: \eqn{E(f(x.S, x.C)|x.S)}. }
 
 \usage{
 EXPVALUE(trees,
