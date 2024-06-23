@@ -41,7 +41,8 @@ abline(h = 0, v = quantile(pred0[ , 1], probs = c(0.025, 0.975)), col = 8)
 
 C <- ncol(fit1$sigma)
 if(C>1) { ## requires parallel chains typically multi-thread
-    print(maxRhat(fit1$sigma., 8)$maxRhat)
+    check <- maxRhat(fit1$sigma., 8)
+    print(check$maxRhat)
     sigma.mean <- mean(fit1$sigma.) 
     sigma.max <- max(c(fit1$sigma))
     sigma.y <- mean(c(sigma.max, sigma.mean))
@@ -51,6 +52,10 @@ if(C>1) { ## requires parallel chains typically multi-thread
     abline(v = c(0, 100), h = sigma.mean, col = 8)
     text(50, sigma.y, "Burn-in discarded")
     text(160, sigma.y, "Converged posterior samples kept")
-    ##dev.copy2pdf(file='growth1-sigma.pdf')
+    ##dev.copy2pdf(file='growth0-sigma.pdf')
+    plot(check$splitrho, ylim = c(-1, 1), type = 'h',
+         ylab = 'Auto-correlation', sub = 'Split Rhat rho')
+    abline(h = (-1):1, col = 8)
+    ##dev.copy2pdf(file='growth0-sigma.pdf')
 }
 
