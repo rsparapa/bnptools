@@ -1,16 +1,33 @@
 \name{FPD.wbart}
 \title{Friedman's partial dependence function for a previously fitted BART model}
 \alias{FPD.wbart}
-%\alias{predict.pbart}
-%\alias{predict.lbart}
-%\alias{predict.mbart}
+\alias{FPD.pbart}
+\alias{FPD.survbart}
+\alias{FPD}
 \description{
   Friedman's partial dependence function estimates
   the marginal effect of a variable or variables.
 }
 \usage{
+FPD(object,  ## object returned from BART
+    x.test,  ## settings of x.test
+    S,       ## indices of subset
+    subset.=NULL,
+    x.train, 
+    probs=c(0.025, 0.975),
+    mc.cores=getOption('mc.cores', 1L),
+    mult.impute=4L,
+    seed=99L)
 \method{FPD}{wbart}(object, x.test, S,
     subset.=NULL, x.train=object$x.train, probs=c(0.025, 0.975),
+    mc.cores=getOption('mc.cores', 1L),
+    mult.impute=4L, seed = 99L)
+\method{FPD}{pbart}(object, x.test, S,
+    subset.=NULL, x.train=object$x.train, probs=c(0.025, 0.975),
+    mc.cores=getOption('mc.cores', 1L),
+    mult.impute=4L, seed = 99L)
+\method{FPD}{survbart}(object, x.test, S,
+    subset.=NULL, x.train=object$tx.test, probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L, seed = 99L)
 }

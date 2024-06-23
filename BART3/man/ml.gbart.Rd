@@ -1,82 +1,36 @@
-\name{gbart}
-\title{Generalized BART for continuous and binary outcomes}
-\alias{gbart}
-\alias{mc.gbart}
+\name{ml.gbart}
+\title{Modified LISA BART for continuous outcomes}
+\alias{ml.gbart}
 \description{
-BART is a Bayesian \dQuote{sum-of-trees} model.\cr
-For a numeric response \eqn{y}, we have
-\eqn{y = f(x) + \epsilon}{y = f(x) + e},
-where \eqn{\epsilon \sim N(0,\sigma^2)}{e ~ N(0,sigma^2)}.\cr
-
-\eqn{f} is the sum of many tree models.
-The goal is to have very flexible inference for the uknown
-function \eqn{f}.
-
-In the spirit of \dQuote{ensemble models},
-each tree is constrained by a prior to be a weak learner
-so that it contributes a small amount to the overall fit.
+  Likelihood inflating sampling algorithm (LISA)
+  is a method for sharding large data sets for
+  computations that would otherwise be too demanding.
+  Modified LISA BART is only capable of handling
+  continuous outcomes.
 }
 \usage{
-gbart(
-      x.train, y.train,
-      x.test=matrix(0,0,0), type='wbart',
-      ntype=as.integer(
-          factor(type, levels=c('wbart', 'pbart', 'lbart'))),
-      sparse=FALSE, theta=0, omega=1,
-      a=0.5, b=1, augment=FALSE, rho=0, grp=NULL, varprob=NULL,
-      xinfo=matrix(0,0,0), usequants=FALSE,
-      rm.const=TRUE,
-      sigest=NA, sigdf=3, sigquant=0.90,
-      k=2, power=2, base=0.95,
-      impute.mult=NULL, impute.prob=NULL,
-      impute.miss=NULL,
-      %sigmaf=NA,
-      lambda=NA, tau.num=c(NA, 3, 6)[ntype], %tau.interval=0.9973,
-      offset=NULL, w=rep(1, length(y.train)),
-      ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
-      %ntree=200L, numcut=100L,
-      ndpost=1000L, nskip=100L, %keepevery=1L,
-      keepevery=c(1L, 10L, 10L)[ntype],
-      printevery=100L, transposed=FALSE,
-      probs=c(0.025, 0.975),
-      mc.cores = 1L, ## mc.gbart only
-      nice = 19L,    ## mc.gbart only
-      seed = 99L,    ## mc.gbart only
-      meta = FALSE,  ## mc.gbart only
-      TSVS = FALSE,  ## gbart only
-      verbose = 1L, shards = 1L, weight=rep(NA, shards)
-)
-
-mc.gbart(
-         x.train=matrix(0,0,0), y.train=NULL,
+ml.gbart(x.train, y.train,
          x.test=matrix(0,0,0), type='wbart',
          ntype=as.integer(
-             factor(type, levels=c('wbart', 'pbart', 'lbart'))),
+             factor(type,
+                    levels=c('wbart', 'pbart', 'lbart'))),
          sparse=FALSE, theta=0, omega=1,
-         a=0.5, b=1, augment=FALSE, rho=0, grp=NULL, varprob=NULL,
+         a=0.5, b=1, augment=FALSE, rho=NULL,
          xinfo=matrix(0,0,0), usequants=FALSE,
          rm.const=TRUE,
          sigest=NA, sigdf=3, sigquant=0.90,
          k=2, power=2, base=0.95,
-         impute.mult=NULL, impute.prob=NULL,
-         impute.miss=NULL,
-         %sigmaf=NA,
-         lambda=NA, tau.num=c(NA, 3, 6)[ntype], %tau.interval=0.9973,
+         lambda=NA, tau.num=c(NA, 3, 6)[ntype],
          offset=NULL, w=rep(1, length(y.train)),
-         %ntree=200L, numcut=100L,
          ntree=c(200L, 50L, 50L)[ntype], numcut=100L,
-         ndpost=1000L, nskip=100L, %keepevery=1L,
+         ndpost=1000L, nskip=100L,
          keepevery=c(1L, 10L, 10L)[ntype],
          printevery=100L, transposed=FALSE,
          probs=c(0.025, 0.975),
-         mc.cores = getOption('mc.cores', 2L), ## mc.gbart only
-         nice = 19L,  ## mc.gbart only
-         seed = 99L,  ## mc.gbart only
-         meta = FALSE,## mc.gbart only
-         TSVS = FALSE,  ## gbart only
-         verbose = 1L, shards = 1L, weight=rep(NA, shards)
-)
-
+         mc.cores = getOption('mc.cores', 2L),
+         nice = 19L, seed = 99L,
+         shards = 1L, weight=rep(NA, shards),
+         meta=FALSE)
 }
 
 \arguments{
@@ -128,14 +82,14 @@ argument \code{type} to specify a logit BART model.
      number of covariates under consideration: the default, \code{rho=0}
      means \eqn{rho=p} (computed by \code{rho=sum(1/grp)}). For more sparsity,
      \eqn{rho<p}, set this argument manually.  See also \code{grp}.}
-   \item{grp}{A vector of inverse weights for the Dirichlet prior arguments.
-     If all the variables are continuous, then \code{grp} is a vector of 1s.
-     However, for categorical variables (like factors in a data.frame), the
-   inverse weights are the number of categories.  See \code{bartModelMatrix}
-   for the details of the default automated derivation when \code{grp=NULL}.
-     }   
-   \item{varprob}{ You initialize the variable selection probability:
-     defaults to \code{NULL} that means \eqn{1/p}.}
+   %% \item{grp}{A vector of inverse weights for the Dirichlet prior arguments.
+   %%   If all the variables are continuous, then \code{grp} is a vector of 1s.
+   %%   However, for categorical variables (like factors in a data.frame), the
+   %% inverse weights are the number of categories.  See \code{bartModelMatrix}
+   %% for the details of the default automated derivation when \code{grp=NULL}.
+   %%   }   
+   %% \item{varprob}{ You initialize the variable selection probability:
+   %%   defaults to \code{NULL} that means \eqn{1/p}.}
    
    \item{xinfo}{ You can provide the cutpoints to BART or let BART
      choose them for you.  To provide them, use the \code{xinfo}
@@ -185,15 +139,15 @@ argument \code{type} to specify a logit BART model.
    \item{base}{
    Base parameter for tree prior.
  }
- \item{impute.mult}{ A vector of the columns of \code{x.train}
-   which are multinomial indicators that require imputation:
-   the default is \code{NULL}.}
- \item{impute.prob}{ A matrix of probabilities for the
-   multinomial indicators that require imputation:
-   the default is \code{NULL}.}
- \item{impute.miss}{ A vector of missing indicators for
-   the multinomial indicators that require imputation:
-   the default is \code{NULL}.}
+ %% \item{impute.mult}{ A vector of the columns of \code{x.train}
+ %%   which are multinomial indicators that require imputation:
+ %%   the default is \code{NULL}.}
+ %% \item{impute.prob}{ A matrix of probabilities for the
+ %%   multinomial indicators that require imputation:
+ %%   the default is \code{NULL}.}
+ %% \item{impute.miss}{ A vector of missing indicators for
+ %%   the multinomial indicators that require imputation:
+ %%   the default is \code{NULL}.}
    %% \item{sigmaf}{
    %% The SD of \eqn{f}.  Not used if \eqn{y} is binary.
    %% }
@@ -279,9 +233,6 @@ argument \code{type} to specify a logit BART model.
      Set the job niceness.  The default
      niceness is 19: niceness goes from 0 (highest) to 19 (lowest).
    }
-   \item{TSVS}{ If \code{TRUE}, then avoid unnecessary calculations
-     for speed: \code{gbart} only.}
-   \item{verbose}{ If set to \code{0L}, then compute silently.}
    \item{shards}{ For the Modified LISA method, this is the number of
      shards: the default is \code{1L}.}
    \item{weight}{ For the Modified LISA method, this is a vector of
@@ -289,70 +240,17 @@ argument \code{type} to specify a logit BART model.
    \item{meta}{ Whether or not to produce meta-analysis-like
      estimates from a sharded analysis (as opposed to a Modified LISA
      approach): default is \code{FALSE}.}
-}
+ }
+ 
 \details{
-   BART is a Bayesian MCMC method.
-   At each MCMC interation, we produce a draw from the joint posterior
-   \eqn{(f,\sigma) | (x,y)}{(f,sigma) \| (x,y)} in the numeric \eqn{y} case
-   and just \eqn{f} in the binary \eqn{y} case.
-
-   Thus, unlike a lot of other modelling methods in R, we do not produce
-   a single model object from which fits and summaries may be extracted.
-   The output consists of values \eqn{f^*(x)}{f*(x)} (and
-   \eqn{\sigma^*}{sigma*} in the numeric case) where * denotes a
-   particular draw.  The \eqn{x} is either a row from the training data,
-   \code{x.train} or the test data, \code{x.test}.
-
-   For \code{x.train}/\code{x.test} with missing data elements, \code{gbart}
-   will singly impute them with hot decking. For one or more missing
-   covariates, record-level hot-decking imputation \cite{deWaPann11} is
-   employed that is biased towards the null, i.e., nonmissing values
-   from another record are randomly selected regardless of the
-   outcome. Since \code{mc.gbart} runs multiple \code{gbart} threads in
-   parallel, \code{mc.gbart} performs multiple imputation with hot
-   decking, i.e., a separate imputation for each thread.  This
-   record-level hot-decking imputation is biased towards the null, i.e.,
-   nonmissing values from another record are randomly selected
-   regardless of \code{y.train}.
-
+  Behaves similarly to the \code{mc.gbart} function.
  }
 
- \value{
-   %% The \code{plot} method sets mfrow to c(1,2) and makes two plots.\cr
-   %% The first plot is the sequence of kept draws of \eqn{\sigma}{sigma}
-   %% including the burn-in draws.  Initially these draws will decline as BART finds fit
-   %% and then level off when the MCMC has burnt in.\cr
-   %% The second plot has \eqn{y} on the horizontal axis and posterior intervals for
-   %% the corresponding \eqn{f(x)} on the vertical axis.
-
-   \code{gbart} returns an object of type \code{gbart} which is
-   essentially a list. % assigned class \sQuote{bart}.
-   In the numeric \eqn{y} case, the list has components:
-
-   \item{yhat.train}{
-   A matrix with ndpost rows and nrow(x.train) columns.
-   Each row corresponds to a draw \eqn{f^*}{f*} from the posterior of \eqn{f}
-   and each column corresponds to a row of x.train.
-   The \eqn{(i,j)} value is \eqn{f^*(x)}{f*(x)} for the \eqn{i^{th}}{i\^th} kept draw of \eqn{f}
-   and the \eqn{j^{th}}{j\^th} row of x.train.\cr
-   Burn-in is dropped.
-   }
-
-   \item{yhat.test}{Same as yhat.train but now the x's are the rows of the test data.}
-   \item{yhat.train.mean}{train data fits = mean of yhat.train columns.}
-   \item{yhat.test.mean}{test data fits = mean of yhat.test columns.}
-   \item{sigma}{post burn in draws of sigma, length = ndpost.}
-   \item{first.sigma}{burn-in draws of sigma.}
-   \item{varcount}{a matrix with ndpost rows and nrow(x.train) columns.
-   Each row is for a draw. For each variable (corresponding to the columns),
-   the total count of the number of times
-   that variable is used in a tree decision rule (over all trees) is given.}
-
-   \item{sigest}{
-   The rough error standard deviation (\eqn{\sigma}{sigma}) used in the prior.
-   }
-}
-%% \references{
+ \references{
+  R Entezari, RV Craiu and JS Rosenthal (2018).
+  Likelihood inflating sampling algorithm.
+  \emph{Canadian Journal of Statistics}, \bold{46}, 147-175.
+ }
 %% Chipman, H., George, E., and McCulloch R. (2010)
 %%    Bayesian Additive Regression Trees.
 %%    \emph{The Annals of Applied Statistics}, \bold{4,1}, 266-298 <doi:10.1214/09-AOAS285>.
@@ -388,29 +286,7 @@ argument \code{type} to specify a logit BART model.
 %% Rodney Sparapani: \email{rsparapa@mcw.edu}.
 %% }
 \seealso{
-\code{\link{bartModelMatrix}}
+\code{\link{mc.gbart}}
 }
-\examples{
-##simulate data (example from Friedman MARS paper)
-f = function(x){
-10*sin(pi*x[,1]*x[,2]) + 20*(x[,3]-.5)^2+10*x[,4]+5*x[,5]
-}
-n = 100      ##number of observations
-set.seed(99)
-x=matrix(runif(n*10),n,10) ##10 variables, only first 5 matter
-y=f(x)+rnorm(n)
 
-##test BART with token run to ensure installation works
-set.seed(99)
-bartFit = gbart(x,y,nskip=5,ndpost=5)
-
-\dontrun{
-##run BART
-set.seed(99)
-bartFit = gbart(x,y)
-}
-}
-\keyword{nonparametric}
-\keyword{tree}
-\keyword{regression}
-\keyword{nonlinear}
+\keyword{big data}

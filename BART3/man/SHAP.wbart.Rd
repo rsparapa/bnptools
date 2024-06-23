@@ -1,14 +1,19 @@
 \name{SHAP.wbart}
 \title{Shapley values for a previously fitted BART model}
 \alias{SHAP.wbart}
-%\alias{predict.pbart}
-%\alias{predict.lbart}
-%\alias{predict.mbart}
+\alias{SHAP}
 \description{
   Shapley values are additive estimates for
   the marginal effect of a variable or variables.
 }
 \usage{
+SHAP(object,  ## object returned from BART
+     x.test,  ## settings of x.test
+     S,       ## indices of subset
+     x.train,
+     type,
+     probs,
+     call)
 \method{SHAP}{wbart}(object, x.test, S, x.train=object$x.train,
               type='wbart', probs=c(0.025, 0.975), call=FALSE)
 }

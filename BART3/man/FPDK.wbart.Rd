@@ -1,15 +1,36 @@
 \name{FPDK.wbart}
 \title{Friedman's partial dependence function with kernel sampling for a previously fitted BART model}
 \alias{FPDK.wbart}
-%\alias{predict.pbart}
-%\alias{predict.lbart}
-%\alias{predict.mbart}
+\alias{FPDK.pbart}
+\alias{FPDK}
 \description{
   Friedman's partial dependence function estimates
    with kernel sampling for the marginal effect of a variable or variables.
 }
 \usage{
+FPDK(object, ## object returned from BART
+     x.test, ## settings of x.test
+     S,      ## indices of subset
+     x.train, 
+     probs,
+     mc.cores,
+     mult.impute,
+     seed,
+     kern.var,
+     alpha,
+     nice)
 \method{FPDK}{wbart}(object,
+                     x.test,
+                     S,
+                     x.train=object$x.train,
+                     probs=c(0.025, 0.975), 
+                     mc.cores=getOption('mc.cores', 1L),
+                     mult.impute=30L,
+                     seed = 99L,
+                     kern.var=TRUE,
+                     alpha=0.05,
+                     nice=19L)
+\method{FPDK}{pbart}(object,
                      x.test,
                      S,
                      x.train=object$x.train,

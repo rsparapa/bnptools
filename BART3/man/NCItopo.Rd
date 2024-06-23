@@ -20,9 +20,9 @@
   (TII).  TII are a common choice since they are easy to calculate; very
   sensitive to small changes in molecular structure; and do not depend
   on conformation of the molecule.  This is a data frame with 29374
-  observations and 262 variables.  However, due to the vast number of
-  TII variables, they are not described further (except to note that
-  \code{Name} is an identifier and not a TII variable).  See the
+  observations and 262 variables.  Except for \code{Potency} and
+  \code{Name}, there are 260 TII variables that are included. However,
+  due to the vast number, TII are not described further.  See the
   Todeschini and Consonni reference (pp.447-456) for more information.}
 
 \references{

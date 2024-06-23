@@ -1,14 +1,24 @@
 \name{SHAPK.wbart}
 \title{Shapley values with kernel sampling for a previously fitted BART model}
 \alias{SHAPK.wbart}
-%\alias{predict.pbart}
-%\alias{predict.lbart}
-%\alias{predict.mbart}
+\alias{SHAPK}
 \description{
   Shapley value additive estimates
    with kernel sampling for the marginal effect of a variable or variables.
 }
 \usage{
+SHAPK(object,  ## object returned from BART
+      x.test,  ## settings of x.test
+      S,       ## indices of subset
+      x.train,
+      probs,
+      mc.cores,
+      mult.impute,
+      seed,
+      comb.draw,
+      kern.var,
+      alpha,
+      nice)
 \method{SHAPK}{wbart}(object,
                      x.test,
                      S,
