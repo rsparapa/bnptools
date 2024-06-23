@@ -61,10 +61,16 @@ splitRhat = function(y, C) {
         j <- 2*i-1
         P[i] <- rho[j]+rho[j+1]
     }
-    if(min(P)<0) k <- max(1, min(which(P<0)))
-    P <- P[1:k]
-    tau <- -1+2*sum(P)
-    if(tau<0) tau <- 1
+    if(min(P)<0) k <- max(1, min(which(P<0)))-1
+
+    if(k == 0) {
+        tau <- 1
+        P <- 0
+    } else {
+        P <- P[1:k]
+        tau <- -1+2*sum(P)
+    }
+
     ## t = 0
     ## rho = 1
     ## while(t<2 || rho[t]>0 || rho[t-1]>0) {
