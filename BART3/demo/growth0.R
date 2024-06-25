@@ -32,20 +32,25 @@ if(!file.exists(file.)) {
 print(c(train.Rsqr = cor(bmx$BMXHT[train], fit1$yhat.train.mean)^2))
 print(c(test.Rsqr = cor(bmx$BMXHT[!train], fit1$yhat.test.mean)^2))
 
-pred0 <- predict(fit1, x.test)
-pred0.mean <- apply(pred0, 2, mean)
-print(c(test.Rsqr = cor(pred0.mean, fit1$yhat.test.mean)^2))
-pred0. <- density(pred0[ , 1])
-plot(pred0., main='First child: SEQN=1', xlab='Height (cm)')
-abline(h = 0, v = quantile(pred0[ , 1], probs = c(0.025, 0.975)), col = 8)
+acf(fit1$sigma., ci.type = 'ma')
 
 C <- ncol(fit1$sigma)
-if(C>1) { ## requires parallel chains typically multi-thread
+if(C>1) { ## requires parallel chains typically multi-threaded
+
     check <- maxRhat(fit1$sigma., 8)
     print(check$maxRhat)
+
+    plot(check$splitrho[1:30], ylim = c(-0.1, 1), type = 'h',
+         ylab = 'Auto-correlation', sub = 'Split Rhat rho')
+    abline(h = 0:1, col = 8)
+
+    acf(fit1$sigma., ci.type = 'ma', col = 2, lwd = 2, main = '')
+    points(check$splitrho[1:30])
+    ##dev.copy2pdf(file='growth0-acf.pdf')
     sigma.mean <- mean(fit1$sigma.) 
     sigma.max <- max(c(fit1$sigma))
     sigma.y <- mean(c(sigma.max, sigma.mean))
+
     plot(fit1$sigma[ , 1], type = 'l', 
          ylab = expression(sigma))
     for(i in 2:C) lines(fit1$sigma[ , i], col = i)
@@ -53,9 +58,25 @@ if(C>1) { ## requires parallel chains typically multi-thread
     text(50, sigma.y, "Burn-in discarded")
     text(160, sigma.y, "Converged posterior samples kept")
     ##dev.copy2pdf(file='growth0-sigma.pdf')
-    plot(check$splitrho, ylim = c(-1, 1), type = 'h',
-         ylab = 'Auto-correlation', sub = 'Split Rhat rho')
-    abline(h = (-1):1, col = 8)
-    ##dev.copy2pdf(file='growth0-sigma.pdf')
+
 }
 
+pred0 <- predict(fit1, x.test)
+pred0.mean <- apply(pred0, 2, mean)
+print(c(test.Rsqr = cor(pred0.mean, fit1$yhat.test.mean)^2))
+plot(pred0.mean, fit1$yhat.test.mean)
+
+library(lattice)
+K <- 30
+(ndpost <- fit1$ndpost)
+df <- data.frame(pred = c(pred0[ , 1:K]), 
+                 SEQN = rep(bmx$SEQN[!train][1:K], each = ndpost))
+densityplot(~pred|SEQN, data = df, layout = c(6, 5), plot.points = FALSE,
+            ##strip = strip.custom(strip.names = FALSE), as.table = TRUE)
+            strip = FALSE, as.table = TRUE,
+            panel=function(...) {
+                i <- panel.number()
+                panel.abline(v = bmx$BMXHT[!train][i], col = 2)
+                panel.abline(h = 0, col = 8)
+                panel.densityplot(...)
+            })

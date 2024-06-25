@@ -25,9 +25,10 @@ geweke.recur.bart	   Geweke diagnostics for recurrent events with BART
 geweke.rs.pbart    Geweke diagnostics for binary outcomes with BART and random sampling
 geweke.surv.bart   Geweke diagnostics for survival analysis with BART
 geweke.lung.surv.bart   Geweke diagnostics for advanced lung cancer survival analysis with BART
-growth1			Growth chart example for variable selection
-growth2			Growth chart example for marginal effects assuming independence
-growth3			Growth chart example for marginal effects assuming dependence
+growth0			Growth chart example for convergence diagnostics
+growth1			Growth chart example for FPD
+growth2			Growth chart example for FPD vs. FPDK
+growth3			Growth chart example for FPD vs. SHAPK
 growth4			Growth chart example for marginal effects with FPD/FPDK/SHAP/SHAPK
 imputation         Imputing a categorical covariate variable with BART
 imputation.probit         Imputing a categorical covariate variable with probit BART

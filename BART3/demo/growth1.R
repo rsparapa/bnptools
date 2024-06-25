@@ -32,20 +32,6 @@ if(!file.exists(file.)) {
 print(c(train.Rsqr = cor(bmx$BMXHT[train], fit1$yhat.train.mean)^2))
 print(c(test.Rsqr = cor(bmx$BMXHT[!train], fit1$yhat.test.mean)^2))
 
-C <- ncol(fit1$sigma)
-if(C>1) { ## requires parallel chains typically multi-thread
-    sigma.max <- max(c(fit1$sigma))
-    sigma.mean <- mean(fit1$sigma.) 
-    sigma.y <- mean(c(sigma.max, sigma.mean))
-    plot(fit1$sigma[ , 1], type = 'l', 
-         ylab = expression(sigma))
-    for(i in 2:C) lines(fit1$sigma[ , i], col = i)
-    abline(v = c(0, 100), h = sigma.mean, col = 8)
-    text(50, sigma.y, "Burn-in discarded")
-    text(160, sigma.y, "Converged posterior samples kept")
-    ##dev.copy2pdf(file='growth1-sigma.pdf')
-}
-
 col.=c(4, 2) ## 1:M=blue, 2:F=red
 plot(fit1$yhat.test.mean, bmx$BMXHT[!train], asp=1,
      pch=19, col=col.[bmx$RIAGENDR[!train]],
