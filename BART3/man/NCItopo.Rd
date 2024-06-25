@@ -12,18 +12,20 @@
 
 \usage{data(NCItopo)}
 
-\details{\code{Potency} is the categorical response that measures
-  whether a compound protects CEM cells (a cell line derived from human
-  T cells) from HIV-1 infection.  Presumably, compounds with
-  \code{Potency=0} are inactive and \code{Potency>0} are active.  The
-  structural features provided are the Topological Information Indices
-  (TII).  TII are a common choice since they are easy to calculate; very
-  sensitive to small changes in molecular structure; and do not depend
-  on conformation of the molecule.  This is a data frame with 29374
-  observations and 262 variables.  Except for \code{Potency} and
-  \code{Name}, there are 260 TII variables that are included. However,
-  due to the vast number, TII are not described further.  See the
-  Todeschini and Consonni reference (pp.447-456) for more information.}
+\details{CEM cells are derived from T cells provided by a patient (with
+  initals CEM) who suffered from acute lymphoblastic leukemia.
+  \code{Potency} is the categorical response that measures whether a
+  compound protects CEM cells from HIV-1 infection.  Presumably,
+  compounds with \code{Potency=0} are inactive and \code{Potency>0} are
+  active.  The structural features provided are the Topological
+  Information Indices (TII).  TII are a common choice since they are
+  easy to calculate; very sensitive to small changes in molecular
+  structure; and do not depend on conformation of the molecule.  This is
+  a data-frame with 29,374 observations and 262 variables.  Except for
+  \code{Potency} and \code{Name}, there are 260 TII variables that are
+  included. However, due to the vast number, TII covariates are not
+  described further.  See the Todeschini and Consonni reference
+  (pp.447-456) for more information.}
 
 \references{
   Feng et al. (2003)
