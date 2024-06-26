@@ -54,7 +54,7 @@ x.test. <- rbind(x.test., x.test.)
 x.test.[ , 1] <- rep(1:2, each = K)
 x.test.
 
-pred1 <- FPD(fit1, x.test., S = 1:2) ## assuming independence
+print(system.time(pred1 <- FPD(fit1, x.test., S = 1:2))) ## assuming independence
 
 F.test <- (!train & bmx$RIAGENDR == 2)
 plot(bmx$RIDAGEEX[F.test], bmx$BMXHT[F.test],
@@ -88,7 +88,7 @@ if(!file.exists(file.)) {
 print(c(train.Rsqr = cor(bmx$BMXWT[train], fit2$yhat.train.mean)^2))
 
 (x.test. <- cbind(x.test., fit2$yhat.test.mean))
-pred2 <- FPD(fit1, x.test., S = 1:3) ## conditional means
+print(system.time(pred2 <- FPD(fit1, x.test., S = 1:3))) ## conditional means
 
 plot(bmx$RIDAGEEX[F.test], bmx$BMXHT[F.test],
      pch=1, col=8,
@@ -111,7 +111,7 @@ lines(age., pred2$yhat.test.upper[1:K], col=4, lwd=2, lty=2)
 ##dev.copy2pdf(file='growth1-cmM.pdf')
 
 (x.test. <- x.test.[ , -3])
-pred3 <- FPD(fit1, x.test., S = 1:2, subset. = 1:2) ## conditional dependence
+print(system.time(pred3 <- FPD(fit1, x.test., S = 1:2, subset. = 1:2))) ## conditional dependence
 
 plot(bmx$RIDAGEEX[F.test], bmx$BMXHT[F.test],
      pch=1, col=8,
