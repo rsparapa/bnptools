@@ -28,8 +28,8 @@ geweke.lung.surv.bart   Geweke diagnostics for advanced lung cancer survival ana
 growth0			Growth chart example for convergence diagnostics
 growth1			Growth chart example for FPD
 growth2			Growth chart example for FPD vs. FPDK
-growth3			Growth chart example for FPD vs. SHAPK
-growth4			Growth chart example for marginal effects with FPD/FPDK/SHAP/SHAPK
+growth3			Growth chart example for FPD vs. SHAP
+growth4			Growth chart example for FPD vs. SHAPK
 imputation         Imputing a categorical covariate variable with BART
 imputation.probit         Imputing a categorical covariate variable with probit BART
 inform.null.gbart  Specifying an informative null hypothesis prior with BART
