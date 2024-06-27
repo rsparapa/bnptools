@@ -37,7 +37,7 @@ if(!file.exists(file.)) {
 print(c(train.Rsqr = cor(bmx$BMXWT[train], fit2$yhat.train.mean)^2))
 
 (x.test. <- cbind(x.test., fit2$yhat.test.mean))
-print(system.time(pred2 <- FPD(fit1, x.test., S = 1:3))) ## conditional means
+print(system.time(pred2 <- FPD(fit1, x.test., S = 1:3))) ## Imputation Marginal
 
 F.test <- (!train & bmx$RIAGENDR == 2)
 plot(bmx$RIDAGEEX[F.test], bmx$BMXHT[F.test],
@@ -66,21 +66,21 @@ print(system.time(pred5 <- FPDK(fit1, x.test., S = 1:3, seed = 22, mult.impute =
 
 plot(bmx$RIDAGEEX, bmx$BMXHT, type = 'n',
      ylab='Height (cm)', xlab='Age (yr)')
-lines(c(1.65, 1.95), c(192, 192), lwd = 2)
+lines(c(1.65, 1.95), c(188, 188), lwd = 2)
 lines(age., pred2$yhat.test.mean[L+1:L], col = 2, lwd = 2)
 lines(age., pred2$yhat.test.mean[1:L], col = 4, lwd = 2)
 points(age., pred30$yhat.test.mean[L+1:L], col = 2, pch = 24)
 points(age., pred30$yhat.test.mean[1:L], col = 4, pch = 24)
 points(age., pred5$yhat.test.mean[L+1:L], col = 2, pch = 25)
 points(age., pred5$yhat.test.mean[1:L], col = 4, pch = 25)
-legend('topleft', legend = c('Conditional means', 'FPDK: K=30', 'FPDK: K=5'),
-       pch = c(32, 24, 25))
+legend('topleft', legend = c('Imputation Marginal', 'FPD: N=2748', 'FPDK: K=30', 'FPDK: K=5'),
+       pch = c(32, 32, 24, 25))
 ##dev.copy2pdf(file='growth2-FPDK.pdf')
 
 plot(bmx$RIDAGEEX, bmx$BMXHT, type = 'n',
      ylab='Height (cm)', xlab='Age (yr)',
      xlim = c(12, 17), ylim = c(150, 180))
-lines(c(11.875, 12), c(180, 180), lwd = 2)
+lines(c(11.875, 12), c(178.75, 178.75), lwd = 2)
 lines(age., pred2$yhat.test.lower[L+1:L], col = 2, lwd = 2)
 lines(age., pred2$yhat.test.upper[L+1:L], col = 2, lwd = 2)
 lines(age., pred2$yhat.test.lower[1:L], col = 4, lwd = 2)
@@ -93,6 +93,7 @@ points(age., pred5$yhat.test.upper[L+1:L], col = 2, pch = 25)
 points(age., pred5$yhat.test.lower[L+1:L], col = 2, pch = 25)
 points(age., pred5$yhat.test.upper[1:L], col = 4, pch = 25)
 points(age., pred5$yhat.test.lower[1:L], col = 4, pch = 25)
-legend('topleft', legend = c('Conditional means', 'FPDK: K=30', 'FPDK: K=5'),
-       pch = c(32, 24, 25))
+legend('topleft', legend = c('Imputation Marginal', 
+                             'FPD: N=2748', 'FPDK: K=30', 'FPDK: K=5'),
+       pch = c(32, 32, 24, 25))
 ##dev.copy2pdf(file='growth2-FPDK-EV.pdf')

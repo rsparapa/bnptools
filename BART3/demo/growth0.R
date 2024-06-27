@@ -47,6 +47,7 @@ if(C>1) { ## requires parallel chains typically multi-threaded
     acf(fit1$sigma., ci.type = 'ma', col = 2, lwd = 2, main = '')
     points(check$splitrho[1:30])
     ##dev.copy2pdf(file='growth0-acf.pdf')
+
     sigma.mean <- mean(fit1$sigma.) 
     sigma.max <- max(c(fit1$sigma))
     sigma.y <- mean(c(sigma.max, sigma.mean))

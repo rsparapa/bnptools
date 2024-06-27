@@ -37,7 +37,7 @@ if(!file.exists(file.)) {
 print(c(train.Rsqr = cor(bmx$BMXWT[train], fit2$yhat.train.mean)^2))
 
 (x.test. <- cbind(x.test., fit2$yhat.test.mean))
-print(system.time(pred2 <- FPD(fit1, x.test., S = 1:3))) ## conditional means
+print(system.time(pred2 <- FPD(fit1, x.test., S = 1:3))) ## imputation marginal
 
 F.test <- (!train & bmx$RIAGENDR == 2)
 plot(bmx$RIDAGEEX[F.test], bmx$BMXHT[F.test],
@@ -48,7 +48,6 @@ plot(bmx$RIDAGEEX[F.test], bmx$BMXHT[F.test],
 lines(age., pred2$yhat.test.mean[L+1:L], col=2, lwd=2)
 lines(age., pred2$yhat.test.lower[L+1:L], col=2, lwd=2, lty=2)
 lines(age., pred2$yhat.test.upper[L+1:L], col=2, lwd=2, lty=2)
-##dev.copy2pdf(file='growth1-cmF.pdf')
 
 M.test <- (!train & bmx$RIAGENDR == 1)
 plot(bmx$RIDAGEEX[M.test], bmx$BMXHT[M.test],
@@ -59,7 +58,6 @@ plot(bmx$RIDAGEEX[M.test], bmx$BMXHT[M.test],
 lines(age., pred2$yhat.test.mean[1:L], col=4, lwd=2)
 lines(age., pred2$yhat.test.lower[1:L], col=4, lwd=2, lty=2)
 lines(age., pred2$yhat.test.upper[1:L], col=4, lwd=2, lty=2)
-##dev.copy2pdf(file='growth1-cmM.pdf')
 
 file. <- "growth3-pred.t.RDS" 
 if(!file.exists(file.)) {
@@ -94,8 +92,9 @@ lines(age., pred2$yhat.test.mean[1:L], col = 4, lwd = 2)
 points(age., pred.t$yhat.test.mean)
 points(age., pred.u$yhat.test.mean[2]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[L+1:L], col = 2, pch = 25)
 points(age., pred.u$yhat.test.mean[1]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[1:L], col = 4, pch = 24)
-legend('topleft', legend = c('FPD Conditional Means', 'SHAP: age-only', 
+lines(c(1.65, 1.95), c(188, 188), lwd = 2)
+legend('topleft', legend = c('Imputation Marginal', 'FPD', 'SHAP: age-only', 
 'SHAP: age, F, weight', 'SHAP: age, M, weight'),
-       pch = c(32, 1, 25, 24), col = c(0, 1, 2, 4))
-dev.copy2pdf(file='growth3-SHAP.pdf')
+       pch = c(32, 32, 1, 25, 24), col = c(0, 0, 1, 2, 4))
+##dev.copy2pdf(file='growth3-SHAP.pdf')
 
