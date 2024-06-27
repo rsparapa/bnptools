@@ -6,9 +6,8 @@ data(Boston) ## corrected data set
 (B <- getOption('mc.cores', 1))
 figures = getOption('figures', default='NONE')
 
-y = Boston$CMEDV ## median value
+y = Boston$CMEDV ## corrected median value
 x.train = Boston[ , -c(1:4, 7:8)]
-(N=length(y))   ## total sample size
 post = mc.gbart(x.train, y, mc.cores=B, seed=99)
 
 R=cor(cbind(y, x.train))
@@ -25,7 +24,8 @@ plot(x, pred$yhat.test.mean, type='l', lwd=2,
      ylim=c(0, 50))
 lines(x, pred$yhat.test.lower, lty=2, lwd=2)
 lines(x, pred$yhat.test.upper, lty=2, lwd=2)
-abline(h=c(0, 50), col='gray')
+abline(h=c(0, 50), col='gray', lwd=2)
+abline(h=c(mean(y)), col='blue', lwd=2)
 
 ## model similar to that presented in Harrison and Rubinfeld (1978)
 fit=lm(log(y)~I(rm^2)+age+I(log(dis))+I(log(rad))+tax+ptratio+
