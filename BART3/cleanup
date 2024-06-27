@@ -29,7 +29,8 @@ for i in src/TAGS src/BROWSE demo/*.pdf CopyrightReversion.pdf \
 	 demo/check.mbart.R demo/*.rds \
 	 data/bodyfat.R data/bodyfat.dat data/bodyfat.txt \
 	 inst/HNSCC/hnscc.csv man/optimaldonor.txt \
-	 R/read.forest.R R/ss.zbart.R data/bodyfat.* data/tr064.tar
+	 R/read.forest.R R/ss.zbart.R data/bodyfat.* data/tr064.tar \
+	 data/boston_corrected.dat data/boston_corrected.txt
 do
     if [ -f $i ]
        then rm -rf $i
