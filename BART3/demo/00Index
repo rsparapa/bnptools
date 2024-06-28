@@ -59,6 +59,7 @@ optimaldonor	   Hematopoietic stem cell transplantation optimal donor
 nhanes.pbart 	   Friedman's partial dependence function for binary outcomes with BART
 np.recur.bart	   Nonproportional intensity for recurrent events with BART
 nox		   Boston air pollution: Nitrogen Oxides and Housing Values
+nox2		   Boston air pollution: informative prior for BART
 replication	   Replication script for JSS article
 SHAP		   SHAP marginal expectation
 sigma.known.gbart	Sigma is fixed and known
