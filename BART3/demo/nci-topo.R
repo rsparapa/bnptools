@@ -18,7 +18,7 @@ x.train <- NCItopo[train, -c(1, P)] ## the first column is an id
 post <-  list()
 H <- c(5, 10)
 H. <- length(H)
-##H <- c(5, 10, 20)
+
 for(l in 1:2) 
     for(i in 1:H.) {
         m <- H.*(l-1)+i
@@ -55,7 +55,6 @@ post[[m]]$varprob.mean <- post[[m]]$varcount.mean/sum(post[[m]]$varcount.mean)
         points(post[[m]]$varprob.mean, col = 2^(i-1))
         x <- which(post[[m]]$varprob.mean>(2/P))
         y <- post[[m]]$varprob.mean[x]
-        ##for(j in 1:length(x)) lines(c(x[j], x[j]), c(1/P, y[j]), col = 2^(i-1))
         text(x, y, dimnames(x.train)[[2]][x], col = 2^(i-1), pos = i+1)
     }
     for(i in 1:H.) {
@@ -74,7 +73,6 @@ post[[m]]$varprob.mean <- post[[m]]$varcount.mean/sum(post[[m]]$varcount.mean)
         x <- which(post[[m]]$varprob.mean[h]>(2/P))
         y <- post[[m]]$varprob.mean[h][x]
         for(j in 1:length(x)) {
-            ##lines(c(x[j], x[j]), c(1/P, y[j]), col = 2^(i-1))
             text(x[j], y[j], dimnames(x.train)[[2]][h][x[j]], 
                  col = 2^(i-1), pos = (j%%3)+1)
         }
