@@ -13,6 +13,11 @@ Main differences between BART (stable) and BART3 (development)
         especially for DART where it is the most sorely needed
 
 
+Changes and New Features in 5.2 (2024-06-28):
+	* releasing version for BART short course at ISBA 2024
+
+	* adding corrected Boston housing data set
+
 Changes and New Features in 5.1 (2024-06-20):
 	* resolving UBSAN when x.test is not provided 
 
