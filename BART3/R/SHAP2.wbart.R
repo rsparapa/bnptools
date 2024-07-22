@@ -55,6 +55,8 @@ SHAP2.wbart=function(object,  ## object returned from BART
 
     Trees=read.trees(object$treedraws, x.train, call)
 
+    i=S[1]
+    j=S[2]
     ##M=P-length(S)
     M=P-1 ## use the same notation as SHAP
     L=M-1 ## but introduce L for convenience
@@ -62,8 +64,6 @@ SHAP2.wbart=function(object,  ## object returned from BART
         EXPVALUE(Trees, x.test, i)-
         EXPVALUE(Trees, x.test, j)
     ##N=1 ## number of terms
-    i=S[1]
-    j=S[2]
 
     ##weighted
     if(L>0) {
