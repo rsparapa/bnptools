@@ -46,7 +46,7 @@ predict.survbart <- function(object, newdata,
 
     if(!miss.) mult.impute=1
     else {
-        set.seed(seed)
+        if(!is.na(seed)) set.seed(seed)
         newdata.=newdata
         n=nrow(newdata)
     }
