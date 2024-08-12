@@ -48,6 +48,12 @@ predict.nft2 = function(
     np = nrow(xftest)
     if(np!=nrow(xstest))
         stop('The number of rows in xftest and xstest must be the same')
+    pf = ncol(object$xftrain)
+    if(pf!=ncol(xftest))
+        stop('The number of columns in xftrain and xftest must be the same')
+    ps = ncol(object$xstrain)
+    if(ps!=ncol(xstest))
+        stop('The number of columns in xstrain and xstest must be the same')
     ptm <- proc.time()
     xftest = t(xftest)
     xstest = t(xstest)
@@ -61,8 +67,6 @@ predict.nft2 = function(
     n = nrow(object$xftrain)
     if(FPD && np!=(n*(np%/%n)))
         stop('the number of FPD blocks must be an integer')
-    pf = ncol(object$xftrain)
-    ps = ncol(object$xstrain)
     events.matrix=FALSE
     
     if(length(RMST.max)>0) {
