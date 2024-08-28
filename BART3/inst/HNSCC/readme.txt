@@ -14,6 +14,8 @@ ipwKM.R: adjusted KM estimates for disease-free survival using IPW
 
 coxPH.R: predicted disease-free survival estimates from a Cox model
 
+diradj.sas: direct adjusted survival curves for nonproportional strata
+
 rsf.R: predicted disease-free survival estimates from RSF
 
 bart.R: predicted disease-free survival estimates from BART
