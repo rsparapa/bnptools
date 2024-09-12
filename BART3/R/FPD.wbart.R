@@ -29,11 +29,24 @@ FPD.wbart=function(object,  ## object returned from BART
                    seed=99L)
 {
     P = ncol(x.train)
+    L=length(S)
+
+    if(class(S)[1] == 'character') {
+        class. <- class(x.train)[1]
+        if(class. == 'matrix') names. <- dimnames(x.train)[[2]]
+        else if(class. == 'data.frame') names. <- names(x.train)
+        S. <- 0
+        for(i in 1:L) {
+            if(S[i] %in% names.) S.[i] <- which(S[i] == names.)
+            else stop(paste0(S[i], ' has NOT been found to be a column name of x.train'))
+        }
+        S <- S.
+    }
 
     if(!all(S %in% 1:P))
         stop('some elements of S are not columns of x.train')
 
-    L=length(S)
+    ##L=length(S)
     x.test=cbind(x.test)
     if(P==ncol(x.test)) x.test=cbind(x.test[ , S])
     else if(L!=ncol(x.test)) 
