@@ -77,34 +77,72 @@ nft2 = function(## data
         if(np!=nrow(xstest))
             stop('The number of rows in xftest and xstest must be the same')
 
+        ## preliminary: could change based on bMM 
+        pf=ncol(xftrain)
+        ps=ncol(xstrain)
+
         if(np>0) {
-            xf.=bMM(rbind(xftrain, xftest), numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
-                   method=method, use=use)
-            xftrain=cbind(xf.$X[1:n, ])
-            xftest =cbind(xf.$X[n+(1:np), ])
-            xs.=bMM(rbind(xstrain, xstest), numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
-                   method=method, use=use)
-            xstrain=cbind(xs.$X[1:n, ])
-            xstest =cbind(xs.$X[n+(1:np), ])
+            xftrain. <- rbind(xftrain, xftest)
+            xstrain. <- rbind(xstrain, xstest)
+            if(length(xifcuts)==0) xifcuts=xicuts(xftrain., numcut=numcut)
+            if(length(xiscuts)==0) xiscuts=xicuts(xstrain., numcut=numcut)
+            impute=CDimpute(x.train=xftrain, x.test=xftest)
+            xftrain=impute$x.train
+            xftest=impute$x.test
+            xf.=bMM(rbind(xftrain, xftest), numcut=numcut, rm.const=rm.const,
+                   rm.dupe=rm.dupe, method=method, use=use, xicuts = xifcuts)
+            xftrain=t(cbind(xf.$X[1:n, ]))
+            xftest =t(cbind(xf.$X[n+(1:np), ]))
+            chvf = xf.$chv
+            if(pf == ps && !is.na(all(xftrain.[!is.na(xftrain.)] == xstrain.[!is.na(xftrain.)])) && all(xftrain.[!is.na(xftrain.)] == xstrain.[!is.na(xftrain.)])) {
+                xstrain <- xftrain
+                xstest  <- xftest
+                chvs <- chvf
+            } else {
+                impute=CDimpute(x.train=xstrain, x.test=xstest)
+                xstrain=impute$x.train
+                xstest=impute$x.test
+                xs.=bMM(rbind(xstrain, xstest), numcut=numcut, rm.const=rm.const, 
+                    rm.dupe=rm.dupe, method=method, use=use, xicuts = xiscuts)
+                xstrain=t(cbind(xs.$X[1:n, ]))
+                xstest =t(cbind(xs.$X[n+(1:np), ]))
+                chvs = xs.$chv
+            }
         } else {
-            xf.=bMM(xftrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
-                   method=method, use=use)
-            xftrain=xf.$X
-            xs.=bMM(xstrain, numcut=numcut, rm.const=rm.const, rm.dupe=rm.dupe,
-                   method=method, use=use)
-            xstrain=xs.$X
+            if(length(xifcuts)==0) 
+                xifcuts=xicuts(xftrain, numcut=numcut)
+            if(length(xiscuts)==0) 
+                xiscuts=xicuts(xstrain, numcut=numcut)
+            impute=CDimpute(x.train=xftrain)
+            xftrain. <- xftrain
+            xftrain=impute$x.train
+            xf.=bMM(xftrain, numcut=numcut, rm.const=rm.const, 
+                    rm.dupe=rm.dupe, method=method, use=use, xicuts = xifcuts)
+            xftrain=t(xf.$X)
+            chvf = xf.$chv
+            if(pf == ps && !is.na(all(xftrain.[!is.na(xftrain.)] == xstrain[!is.na(xftrain.)])) && all(xftrain.[!is.na(xftrain.)] == xstrain[!is.na(xftrain.)])) {
+                xstrain <- xftrain
+                chvs <- chvf
+            } else {
+                impute=CDimpute(x.train=xstrain)
+                xstrain=impute$x.train
+                xs.=bMM(xstrain, numcut=numcut, rm.const=rm.const, 
+                    rm.dupe=rm.dupe, method=method, use=use, xicuts = xiscuts)
+                xstrain=t(xs.$X)
+                chvs = xs.$chv
+            }
         }
-        if(length(xifcuts)==0) xifcuts=xf.$xicuts
-        if(length(xiscuts)==0) xiscuts=xs.$xicuts
-        chvf = xf.$chv
-        chvs = xs.$chv
+        ##if(length(xifcuts)==0) xifcuts=xf.$xicuts
+        ##if(length(xiscuts)==0) xiscuts=xs.$xicuts
+        ##chvf = xf.$chv
+        ##chvs = xs.$chv
         
-        impute=CDimpute(x.train=xftrain, x.test=xftest)
-        xftrain=t(impute$x.train)
-        xftest=t(impute$x.test)
-        impute=CDimpute(x.train=xstrain, x.test=xstest)
-        xstrain=t(impute$x.train)
-        xstest=t(impute$x.test)
+        ## impute=CDimpute(x.train=xftrain, x.test=xftest)
+        ## xftrain=t(impute$x.train)
+        ## xftest=t(impute$x.test)
+        ## impute=CDimpute(x.train=xstrain, x.test=xstest)
+        ## xstrain=t(impute$x.train)
+        ## xstest=t(impute$x.test)
         transposed=TRUE
     } else {
         np=ncol(xftest)
@@ -119,6 +157,13 @@ nft2 = function(## data
     
     pf=nrow(xftrain)
     ps=nrow(xstrain)
+
+    if(np>0) {
+        if(pf!=nrow(xftest))
+          stop('The number of columns in xftrain and xftest must be the same')
+        if(ps!=nrow(xstest))
+          stop('The number of columns in xstrain and xstest must be the same')
+    }
 
     take.logs = (dist!='extreme')
     if(length(events)==0 && K>0) {
