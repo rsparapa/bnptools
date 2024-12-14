@@ -241,7 +241,7 @@ qbart=function(x.train1=NULL, x.train2, times, delta,
     res$prob.train.mean <- apply(res$prob.train, 2, mean)
 
     K <- min(n, K)
-    if(is.na(grid)){
+    if(all(is.na(as.vector(grid)))){
         events=unique(sort(times))
     }
     else {
