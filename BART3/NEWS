@@ -13,6 +13,10 @@ Main differences between BART (stable) and BART3 (development)
         especially for DART where it is the most sorely needed
 
 
+Changes and New Features in 5.5 (2024-12-14):
+	* rename FPDK to the more accurate description
+	of SRS for simple random sampling marginal
+
 Changes and New Features in 5.4 (2024-10-01):
 	* S argument to FPD/SHAP functions: much safer and more user-friendly 
 	to supply variable names rather than indices that are easily mistaken

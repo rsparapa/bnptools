@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020-203 Robert McCulloch and Rodney Sparapani
-## FPDK.wbart.R
+## Copyright (C) 2023-2024 Robert McCulloch and Rodney Sparapani
+## SRS.pbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## kernel sampling for Friedman's partial dependence (FPD) function
-FPDK.wbart=function(object, ## object returned from BART
+## kernel sampling Friedman's partial dependence (FPD) function
+SRS.pbart=function(object, ## object returned from BART
                    x.test,  ## settings of x.test
                    S,       ## indices of subset
                    x.train=object$x.train, 
@@ -26,7 +26,7 @@ FPDK.wbart=function(object, ## object returned from BART
                    mc.cores=getOption('mc.cores', 1L),
                    mult.impute=30L,
                    seed=99L,
-                   kern.var=TRUE, ## kernel sampling variance adjustment
+                   kern.var=FALSE, ## kernel sampling variance adjustment
                    alpha=0.05, ## kernel sampling symmetric credible interval
                    nice=19L)
 {
@@ -81,15 +81,20 @@ FPDK.wbart=function(object, ## object returned from BART
             if(all(x.test[i, S]==x.test[j, S]))
                 stop(paste0('Row ', i, ' and ', j,
                             ' of x.test are equal with respect to S'))
-
-    if(mc.cores>1L)
-        return(mc.kernsamp(x.train, x.test, S, object$treedraws,
+    
+    if(mc.cores>1L) pred=mc.kernsamp(x.train, x.test, S, object$treedraws,
                           object$offset, mult.impute=mult.impute,
                           kern.var=kern.var, alpha=alpha, probs=probs,
-                          mc.cores=mc.cores, nice=nice))
-    else
-        return(kernsamp(x.train, x.test, S, object$treedraws,
+                          mc.cores=mc.cores, nice=nice)
+    else pred=kernsamp(x.train, x.test, S, object$treedraws,
                        object$offset, mult.impute=mult.impute,
-                       kern.var=kern.var, alpha=alpha, probs=probs))
+                       kern.var=kern.var, alpha=alpha, probs=probs)
+
+    pred$prob.test=pnorm(pred$yhat.test)
+    pred$prob.test.mean=apply(pred$prob.test, 2, mean)
+    pred$prob.test.lower=apply(pred$prob.test, 2, quantile, min(probs))
+    pred$prob.test.upper=apply(pred$prob.test, 2, quantile, max(probs))
+
+    return(pred)
 }
 

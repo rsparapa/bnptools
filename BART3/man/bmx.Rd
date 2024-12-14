@@ -6,9 +6,11 @@
 \description{ This data set was created from the National Health and
   Nutrition Examination Survey (NHANES) 1999-2000 Body Measures Exam and
   Demographics. To create growth charts, this data is restricted to
-  3435 children aged 2 to 17. The relative uncertainty is derived
-  from the CDC growth charts based on the width from the 2.5 to
-  the 97.5 percentile; see \code{CDCweight} and \code{CDCheight}.}
+  3435 children aged 2 to 17.
+  %% The relative uncertainty is derived
+  %% from the CDC growth charts based on the width from the 2.5 to
+  %% the 97.5 percentile; see \code{CDCweight} and \code{CDCheight}.
+}
 
 \usage{
 data(bmx)
@@ -17,14 +19,13 @@ data(bmx)
 \format{
   \tabular{ll}{
     SEQN:\tab Sequence number\cr
-    BMXHT:\tab Height in cm\cr
-    RIAGENDR:\tab Gender: 1=male, 2=female\cr
-    RIDAGEEX:\tab Age in years with fractions for months\cr
-    BMXWT:\tab Weight in kg\cr
-    RIDRETH2:\tab Race/ethnicity: 1=Non-Hispanic White,
-    2=Non-Hispanic Black, 3=Hispanic\cr
-    CDCwt:\tab Relative uncertainty for weight\cr
-    CDCht:\tab Relative uncertainty for height\cr
+    height:\tab BMXHT in cm\cr
+    sex:\tab RIAGENDR 1=male, 2=female\cr
+    age:\tab RIDAGEEX in years with fractions for months\cr
+    weight:\tab BMXWT in kg\cr
+    race:\tab RIDRETH2 1=White, 2=Black, 3=Hispanic\cr
+    %%CDCwt:\tab Relative uncertainty for weight\cr
+    %%CDCht:\tab Relative uncertainty for height\cr
   }
 }
 

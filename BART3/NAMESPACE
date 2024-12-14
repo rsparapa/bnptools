@@ -29,7 +29,7 @@ export(read.trees, write.trees)
 ##export(read.forest)
 export(EXPVALUE, comb, perm)
 export(FPD)   ## Friedman's partial dependence function
-export(FPDK)   ## Friedman's partial dependence function
+export(SRS)  
 export(SHAP)  ## SHAP additive explanation function
 export(SHAPK) ## SHAP additive explanation
 export(SHAP2) ## SHAP for two-way interactions
@@ -51,8 +51,8 @@ importFrom("grDevices", "dev.off", "pdf")
 S3method(FPD, wbart)
 S3method(FPD, pbart)
 S3method(FPD, survbart)
-S3method(FPDK, wbart)
-S3method(FPDK, pbart)
+S3method(SRS, wbart)
+S3method(SRS, pbart)
 S3method(SHAP, wbart)
 S3method(SHAP2, wbart)
 S3method(SHAP, survbart)

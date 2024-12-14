@@ -1,14 +1,13 @@
-\name{FPDK.wbart}
-\title{Friedman's partial dependence function with kernel sampling for a previously fitted BART model}
-\alias{FPDK.wbart}
-\alias{FPDK.pbart}
-\alias{FPDK}
+\name{SRS.wbart}
+\title{Marginal effect by simple random sampling}
+\alias{SRS.wbart}
+\alias{SRS.pbart}
+\alias{SRS}
 \description{
-  Friedman's partial dependence function estimates
-   with kernel sampling for the marginal effect of a variable or variables.
+  Marginal effect by simple random sampling for a previously fitted BART model.
 }
 \usage{
-FPDK(object, ## object returned from BART
+SRS(object, ## object returned from BART
      x.test, ## settings of x.test
      S,      ## indices of subset
      x.train, 
@@ -19,7 +18,7 @@ FPDK(object, ## object returned from BART
      kern.var,
      alpha,
      nice)
-\method{FPDK}{wbart}(object,
+\method{SRS}{wbart}(object,
                      x.test,
                      S,
                      x.train=object$x.train,
@@ -27,10 +26,10 @@ FPDK(object, ## object returned from BART
                      mc.cores=getOption('mc.cores', 1L),
                      mult.impute=30L,
                      seed = 99L,
-                     kern.var=TRUE,
+                     kern.var=FALSE,
                      alpha=0.05,
                      nice=19L)
-\method{FPDK}{pbart}(object,
+\method{SRS}{pbart}(object,
                      x.test,
                      S,
                      x.train=object$x.train,
@@ -38,7 +37,7 @@ FPDK(object, ## object returned from BART
                      mc.cores=getOption('mc.cores', 1L),
                      mult.impute=30L,
                      seed = 99L,
-                     kern.var=TRUE,
+                     kern.var=FALSE,
                      alpha=0.05,
                      nice=19L)
 }
@@ -105,7 +104,7 @@ Janzing, D. and Minorics, L. and Blobaum, P. (2020)
 %% Rodney Sparapani: \email{rsparapa@mcw.edu}.
 }
 %%\seealso{
-%%  \code{\link{FPD.pbart}}, \code{\link{FPDK.wbart}}
+%%  \code{\link{FPD.pbart}}, \code{\link{SRS.wbart}}
 %%}
 
 \keyword{nonparametric}
