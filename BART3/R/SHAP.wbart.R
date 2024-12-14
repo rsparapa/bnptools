@@ -32,9 +32,7 @@ SHAP.wbart=function(object,  ## object returned from BART
     ##         stop(paste0('x.test column with missing values:', v))
 
     P = ncol(x.train)
-
     L=length(S)
-    if(L!=2) stop('S must be of length 2')
 
     if(class(S)[1] == 'character') {
         class. <- class(x.train)[1]
