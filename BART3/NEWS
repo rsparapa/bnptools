@@ -17,6 +17,9 @@ Changes and New Features in 5.5 (2024-12-14):
 	* rename FPDK to the more accurate description
 	of SRS for simple random sampling marginal
 
+	* similarly, moving subset. argument from FPD
+	to its own method NN for nearest neighbors
+
 Changes and New Features in 5.4 (2024-10-01):
 	* S argument to FPD/SHAP functions: much safer and more user-friendly 
 	to supply variable names rather than indices that are easily mistaken

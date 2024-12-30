@@ -12,22 +12,21 @@
 FPD(object,  ## object returned from BART
     x.test,  ## settings of x.test
     S,       ## indices of subset
-    subset.=NULL,
     x.train, 
     probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L,
     seed=99L)
 \method{FPD}{wbart}(object, x.test, S,
-    subset.=NULL, x.train=object$x.train, probs=c(0.025, 0.975),
+    x.train=object$x.train, probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L, seed = 99L)
 \method{FPD}{pbart}(object, x.test, S,
-    subset.=NULL, x.train=object$x.train, probs=c(0.025, 0.975),
+    x.train=object$x.train, probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L, seed = 99L)
 \method{FPD}{survbart}(object, x.test, S,
-    subset.=NULL, x.train=object$tx.test, probs=c(0.025, 0.975),
+    x.train=object$tx.test, probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L, seed = 99L)
 }
@@ -50,12 +49,12 @@ FPD(object,  ## object returned from BART
 
    \item{S}{Indices for the marginal effects subset.}
 
-   \item{subset.}{If \code{S} has one or two dimensions,
-     then this function supports the Conditional dependence method,
-     i.e., subsetting the data according the grid of values in \code{x.test}.
-     For two-dimensions, with a continuous and a category, the
-     continuous covariate must be increasing.  If feasible,
-     more complex two-dimensional scenarios can be considered in the future.}
+   %% \item{subset.}{If \code{S} has one or two dimensions,
+   %%   then this function supports the Conditional dependence method,
+   %%   i.e., subsetting the data according the grid of values in \code{x.test}.
+   %%   For two-dimensions, with a continuous and a category, the
+   %%   continuous covariate must be increasing.  If feasible,
+   %%   more complex two-dimensional scenarios can be considered in the future.}
 
    \item{probs}{The lower and upper limits for the credible interval.}
    

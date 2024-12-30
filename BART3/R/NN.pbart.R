@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020-2024 Robert McCulloch and Rodney Sparapani
-## FPD.survbart.R
+## Copyright (C) 2024 Robert McCulloch and Rodney Sparapani
+## NN.pbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Friedman's partial dependence (FPD) function
-FPD.survbart=function(object,  ## object returned from BART
+## Nearest Neighbors marginal (NN) function
+NN.pbart=function(object,  ## object returned from BART
                    x.test,  ## settings of x.test
                    S,       ## indices of subset
-                   ##subset.=NULL,
-                   x.train=object$tx.test,
+                   subset.=NULL,
+                   x.train=object$x.train, ## x.train to estimate coverage
                    probs=c(0.025, 0.975),
                    mc.cores=getOption('mc.cores', 1L),
                    mult.impute=4L,
@@ -46,7 +46,7 @@ FPD.survbart=function(object,  ## object returned from BART
         }
         S <- S.
     }
-    
+
     if(!all(S %in% 1:P))
         stop('some elements of S are not columns of x.train')
 
@@ -60,7 +60,7 @@ FPD.survbart=function(object,  ## object returned from BART
 
     if(any(is.na(c(x.test)))) stop('x.test cannot contain missing values')
 
-    if(P!=(length(object$treedraws$cutpoints)))
+    if(P!=length(object$treedraws$cutpoints))
         stop(paste0('the number of columns in x.train and\n',
                     'the length of cutpoints are not the same'))
 
@@ -70,52 +70,46 @@ FPD.survbart=function(object,  ## object returned from BART
             if(all(x.test[i, ]==x.test[j, ]))
                 stop(paste0('Row ', i, ' and ', j, ' of x.test are equal'))
 
-    NK=nrow(x.train)
-    K=object$K
-    N=NK/K
-    M=object$ndpost
     set.seed(seed)
     ##X.test = x.train
     for(i in 1:Q) {
         X.test = x.train
+        ##for(j in 1:L) X.test[ , S[j]]=x.test[i, j]
         for(j in 1:L) {
+            if(j %in% subset.) {
+                ## assuming an increasing grid or a constant
+                if(i==1) low=-Inf
+                else low=x.test[i-1, j]
+                if(low>x.test[i, j]) low=-Inf
+                if(i==Q) high=Inf
+                else high=x.test[i+1, j]
+                if(high<x.test[i, j]) high=Inf
+                if(low==x.test[i, j] | high==x.test[i, j])
+                    X.test=X.test[X.test[ , S[j]]==x.test[i,j], ]
+                else X.test=X.test[(low<X.test[ , S[j]] & X.test[ , S[j]]<high), ]
+                ##print(c(low=low, high=high))
+            }
             X.test[ , S[j]]=x.test[i, j] 
         }
-
-        ##for(j in 1:L) X.test[ , S[j]]=x.test[i, j]
-        ##for(j in S) X.test[ , j]=x.test[i, j]
-        ## pre=surv.pre.bart(times=dots$times, delta=dots$delta,
-        ##                   x.train=X.test, x.test=X.test,
-        ##                   K=K, events=dots$events,
-        ##                   ztimes=dots$ztimes, zdelta=dots$zdelta)
-        ##pred=predict(object, pre$tx.test, mc.cores=mc.cores,
-        pred=predict(object, X.test, mc.cores=mc.cores,
-                            mult.impute=mult.impute, seed=NA)
-        prob.test.=matrix(nrow=M, ncol=K)
-        surv.test.=matrix(nrow=M, ncol=K)
-        for(k in 1:K) {
-            h=seq(k, NK, K)
-            prob.test.[ , k]=apply(pred$prob.test[ , h], 1, mean)
-            surv.test.[ , k]=apply(pred$surv.test[ , h], 1, mean)
-        }
-        if(i==1) {
-            prob.test=cbind(prob.test.)
-            surv.test=cbind(surv.test.)
-        } else {
-            prob.test=cbind(prob.test, prob.test.)
-            surv.test=cbind(surv.test, surv.test.)
-        }
+        
+        pred=apply(predict(object, X.test, mc.cores=mc.cores,
+                           mult.impute=mult.impute, seed=NA)$yhat.test,
+                   1, mean)
+        if(i==1) 
+            yhat.test=cbind(pred)
+        else
+            yhat.test=cbind(yhat.test, pred)
     }
+
+    prob.test=pnorm(yhat.test)
+    yhat.test.mean=apply(yhat.test, 2, mean)
     prob.test.mean=apply(prob.test, 2, mean)
-    prob.test.lower=apply(prob.test, 2, quantile, probs[1])
-    prob.test.upper=apply(prob.test, 2, quantile, probs[2])
-    surv.test.mean=apply(surv.test, 2, mean)
-    surv.test.lower=apply(surv.test, 2, quantile, probs[1])
-    surv.test.upper=apply(surv.test, 2, quantile, probs[2])
-    pred=list(surv.test=surv.test, surv.test.mean=surv.test.mean,
-              surv.test.lower=surv.test.lower, surv.test.upper=surv.test.upper,
-              prob.test=prob.test, prob.test.mean=prob.test.mean,
-              prob.test.lower=prob.test.lower, prob.test.upper=prob.test.upper)
+    prob.test.lower=apply(prob.test, 2, quantile, min(probs))
+    prob.test.upper=apply(prob.test, 2, quantile, max(probs))
+    pred=list(prob.test=prob.test, prob.test.mean=prob.test.mean,
+              prob.test.lower=prob.test.lower, prob.test.upper=prob.test.upper,
+              yhat.test=yhat.test, yhat.test.mean=yhat.test.mean)
+
     return(pred)
 }
 

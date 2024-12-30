@@ -5,6 +5,8 @@ bladder.recur.bart	   Bladder cancer example for recurrent events with BART
 boston			   Boston housing data example with wbart
 c.surv.bart	   BART and the concordance probability
 cal.recur.bart	   Interval coverage calibration for recurrent events with BART
+child1		   Comparing FPD to other marginal methods
+child2		   Comparing SHAP to other marginal methods
 concord.surv.bart  Concordance probability for survival analysis with BART
 cube.abart	   x-cubed example for log time with AFT BART
 cube.gbart	   x-cubed example for generic BART
@@ -26,21 +28,12 @@ geweke.rs.pbart    Geweke diagnostics for binary outcomes with BART and random s
 geweke.surv.bart   Geweke diagnostics for survival analysis with BART
 geweke.lung.surv.bart   Geweke diagnostics for advanced lung cancer survival analysis with BART
 growth0			Growth chart example for convergence diagnostics
-growth1			Growth chart example for FPD
-growth2			Growth chart example for FPD vs. FPDK
-growth3			Growth chart example for FPD vs. SHAP
-growth4			Growth chart example for FPD vs. SHAPK
 imputation         Imputing a categorical covariate variable with BART
 imputation.probit         Imputing a categorical covariate variable with probit BART
 inform.null.gbart  Specifying an informative null hypothesis prior with BART
 inform.alt.gbart   Specifying an informative alternative hypothesis prior with BART
 diabetes     	   Diabetes and hospital admission example for TSVS with BART
 dm.recur.bart	   Diabetes and hospital admission example for recurrent events with BART
-FPD  		   Marginal expecation via FPD
-FPDK  		   Marginal expecation comparison of FPD to FPDK
-SHAP  		   Marginal expecation comparison of FPD to SHAP and SHAPK
-SHAPT  		   Marginal expecation comparison of FPD to SHAP call=TRUE
-SHAPK  		   Marginal expecation comparison of FPD to SHAPK
 leuk		   Multi-state model example with leukemia data set
 liver.crisk.bart   Liver transplant example for competing risks with BART
 liver.crisk2.bart   Liver transplant example for competing risks with BART alternative
