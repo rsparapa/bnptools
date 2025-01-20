@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2025 Robert McCulloch and Rodney Sparapani
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -55,10 +55,6 @@ surv.pre.bart <- function(
                       usequants=FALSE
                       ## parameters for bartModelMatrix
                       ) {
-    ## currently does not handle time dependent Xs
-    ## can be extended later
-    ## most likely via the alternative counting process notation
-
     ##binaryOffset <- qnorm(1-exp(-sum(delta)/sum(times)))
 
     N <- length(times)
