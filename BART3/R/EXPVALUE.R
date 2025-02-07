@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2024 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2024-2025 Robert McCulloch and Rodney Sparapani
 ## EXPVALUE.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -24,16 +24,28 @@
 EXPVALUE = function(trees,
                     x.test,
                     S,
-                    call=FALSE)## default to R vs. C++ code
+                    x.train)
+                    ##call=FALSE)## default to R vs. C++ code
 {
-    if(call) {
-        ## attempting to speed this up with compiled code
-        P = ncol(x.test)
-        mask = integer(P)
-        for(i in 1:P) mask[i] = (i %in% S)*1
-        return(.Call('cEXPVALUE', trees, x.test, mask))
-    } else {
-        H = nrow(x.test)
+    P = ncol(x.test)
+    N <- nrow(x.train)
+    ## mask = integer(P)
+    ## for(i in 1:P) mask[i] = (i %in% S)*1
+    H = nrow(x.test)
+    X.test <- x.test
+    if(any(is.na(X.test)))  
+        for(h in 1:H)  ## settings
+            for(i in S) { ## subset of interest
+                value <- X.test[h, i]
+                while(is.na(value)) {
+                    value <- x.train[sample.int(N, 1), i]
+                    X.test[h, i] <- value
+                }
+            }
+
+    ## if(call) {
+    ##     return(.Call('cEXPVALUE', trees, x.test, mask))
+    ## } else {
         M = dim(trees)[1]
         T = dim(trees)[2]
         node.max = dim(trees)[3]
@@ -47,7 +59,7 @@ EXPVALUE = function(trees,
                 n=2*n
                 m=n+1
                 if(v %in% S) {
-                    if(x.test[h, v]<c) return(G(n))
+                    if(X.test[h, v]<c) return(G(n))
                     else return(G(m))
                 } else {
                     a=trees[i, j, n, 5]
@@ -65,7 +77,7 @@ EXPVALUE = function(trees,
             A[ , h]=apply(B, 1, sum)
         }
         return(A)
-    }
+##    }
 }
 
 ## ## version using a sparse array object

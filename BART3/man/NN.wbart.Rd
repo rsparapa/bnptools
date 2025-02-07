@@ -12,22 +12,22 @@
 NN(object,  ## object returned from BART
     x.test,  ## settings of x.test
     S,       ## indices of subset
-    subset.=NULL,
+    nearest,
     x.train, 
     probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L,
     seed=99L)
 \method{NN}{wbart}(object, x.test, S,
-    subset.=NULL, x.train=object$x.train, probs=c(0.025, 0.975),
+    nearest, x.train=object$x.train, probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L, seed = 99L)
 \method{NN}{pbart}(object, x.test, S,
-    subset.=NULL, x.train=object$x.train, probs=c(0.025, 0.975),
+    nearest, x.train=object$x.train, probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L, seed = 99L)
 \method{NN}{survbart}(object, x.test, S,
-    subset.=NULL, x.train=object$tx.test, probs=c(0.025, 0.975),
+    nearest, x.train=object$tx.test, probs=c(0.025, 0.975),
     mc.cores=getOption('mc.cores', 1L),
     mult.impute=4L, seed = 99L)
 }
@@ -50,12 +50,10 @@ NN(object,  ## object returned from BART
 
    \item{S}{Indices for the marginal effects subset.}
 
-   \item{subset.}{If \code{S} has one or two dimensions,
-     then this argument subsets the Nearest Neighbors,
-     i.e., subsetting the data according the grid of values in \code{x.test}.
-     For two-dimensions, with a continuous and a category, the
-     continuous covariate must be increasing.  If feasible,
-     more complex two-dimensional scenarios can be considered in the future.}
+   \item{nearest}{The indices of \code{x.train} specifying Nearest Neighbors,
+     i.e., subsetting the data according to corresponding the grid of values in
+     \code{x.test}.
+     }
 
    \item{probs}{The lower and upper limits for the credible interval.}
    

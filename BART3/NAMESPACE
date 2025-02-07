@@ -34,6 +34,8 @@ export(NN)    ## nearest neighbors
 export(SHAP)  ## SHAP additive explanation function
 export(SHAPK) ## SHAP additive explanation
 export(SHAP2) ## SHAP for two-way interactions
+export(SHNN)  ## SHAP via NN
+export(SHNN2) ## SHAP2 via NN
 export(CDimpute, HDimpute)
 export(Cindex)
 export(oldRhat, splitRhat, maxRhat)
@@ -62,6 +64,8 @@ S3method(SHAP2, wbart)
 S3method(SHAP, survbart)
 S3method(SHAP, crisk3bart)
 S3method(SHAPK, wbart)
+S3method(SHNN, wbart)
+S3method(SHNN2, wbart)
 S3method(predict, wbart)
 S3method(predict, pbart)
 S3method(predict, survbart)

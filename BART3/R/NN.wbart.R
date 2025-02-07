@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2024 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2024-2025 Robert McCulloch and Rodney Sparapani
 ## NN.wbart.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 NN.wbart=function(object,  ## object returned from BART
                    x.test,  ## settings of x.test
                    S,       ## indices of subset
-                   subset.=NULL,
+                   nearest,
                    x.train=object$x.train,
                    probs=c(0.025, 0.975),
                    mc.cores=getOption('mc.cores', 1L),
@@ -38,7 +38,8 @@ NN.wbart=function(object,  ## object returned from BART
         S. <- 0
         for(i in 1:L) {
             if(S[i] %in% names.) S.[i] <- which(S[i] == names.)
-            else stop(paste0(S[i], ' has NOT been found to be a column name of x.train'))
+            else stop(paste0(S[i], 
+                          ' has NOT been found to be a column name of x.train'))
         }
         S <- S.
     }
@@ -46,7 +47,23 @@ NN.wbart=function(object,  ## object returned from BART
     if(!all(S %in% 1:P))
         stop('some elements of S are not columns of x.train')
 
-    ##L=length(S)
+    if(class(nearest)[1] == 'character') {
+        class. <- class(x.train)[1]
+        if(class. == 'matrix') names. <- dimnames(x.train)[[2]]
+        else if(class. == 'data.frame') names. <- names(x.train)
+        nearest. <- 0
+        for(i in 1:length(nearest)) {
+            if(nearest[i] %in% names.) 
+                nearest.[i] <- which(nearest[i] == names.)
+            else stop(paste0(nearest[i], 
+                          ' has NOT been found to be a column name of x.train'))
+        }
+        nearest <- nearest.
+    }
+
+    if(!all(nearest %in% 1:P))
+        stop('some elements of nearest are not columns of x.train')
+
     x.test=cbind(x.test)
     if(P==ncol(x.test)) x.test=cbind(x.test[ , S])
     else if(L!=ncol(x.test)) 
@@ -65,26 +82,31 @@ NN.wbart=function(object,  ## object returned from BART
                 stop(paste0('Row ', i, ' and ', j, ' of x.test are equal'))
 
     set.seed(seed)
-    ##X.test = x.train
+    N <- nrow(x.train)
+    dummy <- logical(P)
+    for(j in 1:P) 
+        dummy[j] <- (length(object$treedraws$cutpoints[[j]])==1)
     for(i in 1:Q) {
         X.test = x.train
-        for(j in 1:L) {
-            if(j %in% subset.) {
-                ## assuming an increasing grid or a constant
-                if(i==1) low=-Inf
-                else low=x.test[i-1, j]
-                if(low>x.test[i, j]) low=-Inf
-                if(i==Q) high=Inf
-                else high=x.test[i+1, j]
-                if(high<x.test[i, j]) high=Inf
-                if(low==x.test[i, j] | high==x.test[i, j])
-                    X.test=X.test[X.test[ , S[j]]==x.test[i,j], ]
-                else X.test=X.test[(low<X.test[ , S[j]] & X.test[ , S[j]]<high), ]
-                ##print(c(low=low, high=high))
+        NN <- 1:N
+        for(l in 1:L) {
+            j <- S[l]
+            if(j %in% nearest) {
+                if(dummy[j]) { 
+                    NN <- NN[x.train[NN, j] == x.test[i, l]]
+                } else {
+                    grid <- unique(sort(x.test[ , l]))
+                    low <- -Inf
+                    h <- which(grid == x.test[i, l])
+                    if(h>1) low <- grid[h-1]
+                    high <- Inf
+                    if(h<length(grid)) high <- grid[h+1]
+                    NN <- NN[low<x.train[NN, j] & x.train[NN, j]<high]
+                }
             }
-            X.test[ , S[j]]=x.test[i, j] 
+            X.test[ , j]=x.test[i, l] 
         }
-
+        X.test <- X.test[NN, ]
         pred.=cbind(apply(predict(object, X.test, mc.cores=mc.cores,
                             mult.impute=mult.impute, seed=NA), 1, mean))
         

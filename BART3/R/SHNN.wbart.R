@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020-2025 Robert McCulloch and Rodney Sparapani
-## SHAP.wbart.R
+## Copyright (C) 2025 Robert McCulloch and Rodney Sparapani
+## SHNN.wbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Shapley additive explanation (SHAP) 
-SHAP.wbart=function(object,  ## object returned from BART
+## Shapley additive explanation with Nearest Neighbors 
+SHNN.wbart=function(object,  ## object returned from BART
                     x.test,  ## settings of x.test
               S=NULL,        ## indices of subset
               x.train=object$x.train,
@@ -33,6 +33,8 @@ SHAP.wbart=function(object,  ## object returned from BART
 
     P = ncol(x.train)
     L=length(S)
+
+    ##if(L>2) stop('NN is only supports 1 or 2 variables of interest')
 
     if(class(S)[1] == 'character') {
         class. <- class(x.train)[1]
@@ -78,16 +80,11 @@ SHAP.wbart=function(object,  ## object returned from BART
 
     if(M<=0) stop('The length of S must be smaller than P')
 
+    ##dummy <- logical(L)
+    ##for(l in 1:L) dummy[l] <- (length(object$treedraws$cutpoints[[ S[l] ]])==1)
     N <- nrow(x.train)
-    ##x.test[ , -S] <- NA
-    ## for(h in 1:Q)  ## settings
-    ##     for(i in c(1:P)[-S]) { ## complement
-    ##         value <- x.test[h, i]
-    ##         while(is.na(value)) {
-    ##             value <- x.train[sample.int(N, 1), i]
-    ##             x.test[h, i] <- value
-    ##         }
-    ##     }
+    dummy <- logical(P)
+    for(j in 1:P) dummy[j] <- (length(object$treedraws$cutpoints[[j]])==1)
 
     P.=lfactorial(P)
     D <- 0
@@ -101,17 +98,28 @@ SHAP.wbart=function(object,  ## object returned from BART
             for(h in 1:Q) {
                 missing <- is.na(x.test[h, ])
                 while(any(missing)) {
-                    x.test[h, missing] <- x.train[sample.int(N, 1), missing]
+                        NN <- 1:N
+                        for(l in 1:L) {
+                            if(dummy[S[l]]) { 
+                               NN <- NN[x.train[NN, S[l]] == x.test[h, S[l]]]
+                            } else {
+                                low <- -Inf
+                                high <- Inf
+                                ## if(h>1 && x.test[h-1, S[l]]<x.test[h, S[l]])
+                                ##     low <- x.test[h-1, S[l]]
+                                ## if(h<Q && x.test[h, S[l]]<x.test[h+1, S[l]])
+                                ##     high <- x.test[h+1, S[l]]
+                                grid <- unique(sort(x.test[ , S[l]]))
+                                i <- which(grid == x.test[h, S[l]])
+                                if(i>1) low <- grid[i-1]
+                                if(i<length(grid)) high <- grid[i+1]
+                                NN <- NN[low<x.train[NN, S[l]] & x.train[NN, S[l]]<high]
+                            }
+                        }
+                        x.test[h, missing] <- x.train[sample(NN, 1), missing]
                     missing <- is.na(x.test[h, ])
+                    }
                 }
-            }
-                ## for(i in c(1:P)[-S]) { 
-                ##     value <- x.test[h, i]
-                ##     while(is.na(value)) {
-                ##         value <- x.train[sample.int(N, 1), i]
-                ##         x.test[h, i] <- value
-                ##     }
-                ## }
             if(j == 1) diff=0 
             if(k == 0) {
                 diff=diff+EXPVALUE(Trees, x.test, S, x.train)*

@@ -6,7 +6,7 @@ boston			   Boston housing data example with wbart
 c.surv.bart	   BART and the concordance probability
 cal.recur.bart	   Interval coverage calibration for recurrent events with BART
 child1		   Comparing FPD to other marginal methods
-child2		   Comparing SHAP to other marginal methods
+child2		   Comparing SHAP variants of marginal methods
 concord.surv.bart  Concordance probability for survival analysis with BART
 cube.abart	   x-cubed example for log time with AFT BART
 cube.gbart	   x-cubed example for generic BART

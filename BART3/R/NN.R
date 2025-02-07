@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2024 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2024-2025 Robert McCulloch and Rodney Sparapani
 ## NN.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 NN=function(object,  ## object returned from BART
              x.test,  ## settings of x.test
              S,       ## indices of subset
-             subset.=NULL,
+             nearest, ## indices of nearest neighbors
              x.train, 
              probs=c(0.025, 0.975),
              mc.cores=getOption('mc.cores', 1L),

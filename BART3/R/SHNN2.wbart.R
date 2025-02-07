@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020-2025 Robert McCulloch and Rodney Sparapani
-## SHAP2.wbart.R
+## Copyright (C) 2025 Robert McCulloch and Rodney Sparapani
+## SHNN2.wbart.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,9 +17,8 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Shapley additive explanation (SHAP) partial dependence function
-## for two-way interactions
-SHAP2.wbart=function(object,  ## object returned from BART
+## Shapley additive explanation for 2-way interactions by Nearest Neighbors
+SHNN2.wbart=function(object,  ## object returned from BART
               x.test,  ## settings of x.test
               S,       ## indices of two variables
               x.train=object$x.train,
@@ -71,7 +70,11 @@ SHAP2.wbart=function(object,  ## object returned from BART
 
     Trees=read.trees(object$treedraws, x.train) 
 
+   ##  dummy <- logical(2)
+   ## for(l in 1:2) dummy[l] <- (length(object$treedraws$cutpoints[[ S[l] ]])==1)
     N <- nrow(x.train)
+    dummy <- logical(P)
+    for(j in 1:P) dummy[j] <- (length(object$treedraws$cutpoints[[j]])==1)
 
     i=S[1]
     j=S[2]
@@ -90,17 +93,30 @@ SHAP2.wbart=function(object,  ## object returned from BART
             for(q in 1:Q) {
                 missing <- is.na(x.test[q, ])
                 while(any(missing)) {
-                    x.test[q, missing] <- x.train[sample.int(N, 1), missing]
-                    missing <- is.na(x.test[q, ])
+                        NN <- 1:N
+                        for(s in 1:2) {
+                            if(dummy[S[s]]) { 
+                               NN <- NN[x.train[NN, S[s]] == x.test[q, S[s]]]
+                            } else {
+                                low <- -Inf
+                                high <- Inf
+                                ## if(q>1 && x.test[q-1, S[s]]<x.test[q, S[s]])
+                                ##     low <- x.test[q-1, S[s]]
+                                ## if(q<Q && x.test[q, S[s]]<x.test[q+1, S[s]])
+                                ##     high <- x.test[q+1, S[s]]
+                                grid <- unique(sort(x.test[ , S[s]]))
+                                l <- which(grid == x.test[q, S[s]])
+                                if(l>1) low <- grid[l-1]
+                                if(l<length(grid)) high <- grid[l+1]
+                                NN <- NN[low<x.train[NN, S[s]] & x.train[NN, S[s]]<high]
+                            }
+                        }
+                x.test[q, missing] <- x.train[sample(NN, 1), missing]
+                missing <- is.na(x.test[q, ])
+                        ##print(c(col = l, x.test[q, ]))
+                        ##print(c(mean = mean(x.train[NN, l]), x.train[z, ]))
+                    }
                 }
-            }
-                ## for(l in c(1:P)[-S]) { 
-                ##     value <- x.test[q, l]
-                ##     while(is.na(value)) {
-                ##         value <- x.train[sample.int(N, 1), l]
-                ##         x.test[q, l] <- value
-                ##     }
-                ## }
             if(h == 1) diff=0 
             if(k == 0) {
                 diff <- diff+(EXPVALUE(Trees, x.test, S, x.train)-

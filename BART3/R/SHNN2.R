@@ -1,7 +1,7 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2020-2025 Robert McCulloch and Rodney Sparapani
-## SHAP2.R
+## Copyright (C) 2025 Robert McCulloch and Rodney Sparapani
+## SHNN2.R
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-## Shapley additive explanation for two-way interactions
-SHAP2=function(object,  ## object returned from BART
+## Shapley additive explanation for 2-way interactions by Nearest Neighbors
+SHNN2=function(object,  ## object returned from BART
               x.test,  ## settings of x.test
               S,       ## indices of two variables
               x.train,
@@ -26,5 +26,5 @@ SHAP2=function(object,  ## object returned from BART
               mult.impute=5L
 )
 {
-    UseMethod('SHAP2')
+    UseMethod('SHNN2')
 }

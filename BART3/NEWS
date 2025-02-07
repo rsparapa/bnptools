@@ -17,8 +17,13 @@ Changes and New Features in 5.5 (2024-12-14):
 	* rename FPDK to the more accurate description
 	of SRS for simple random sampling marginal
 
-	* similarly, moving subset. argument from FPD
-	to its own method NN for nearest neighbors
+	* similarly, from FPD moving Nearest Neighbors argument
+	(and renaming it to "nearest") to its own method NN
+	with more intelligent grid-based subsetting
+
+	* Shapley value marginals: now using multiple imputation
+	to speed up calculations; see mult.impute argument 
+	similarly, new SHNN methods with nearest neighbor draws
 
 Changes and New Features in 5.4 (2024-10-01):
 	* S argument to FPD/SHAP functions: much safer and more user-friendly 
