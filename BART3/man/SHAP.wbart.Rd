@@ -2,9 +2,13 @@
 \title{Shapley values for a previously fitted BART model}
 \alias{SHAP.wbart}
 \alias{SHAP}
+\alias{SHNN.wbart}
+\alias{SHNN}
 \description{
   Shapley values are additive estimates for
   the marginal effect of a variable or variables.
+  \code{SHAP} for simple random sampling
+  and \code{SHNN} for nearest neighbor sampling.
 }
 \usage{
 SHAP(object,  ## object returned from BART
@@ -13,9 +17,22 @@ SHAP(object,  ## object returned from BART
      x.train,
      type,
      probs,
-     call)
+     seed,
+     mult.impute)
 \method{SHAP}{wbart}(object, x.test, S, x.train=object$x.train,
-              type='wbart', probs=c(0.025, 0.975), call=FALSE)
+              type='wbart', probs=c(0.025, 0.975), seed = 99L,
+              mult.impute=5L)
+SHNN(object,  ## object returned from BART
+     x.test,  ## settings of x.test
+     S,       ## indices of subset
+     x.train,
+     type,
+     probs,
+     seed,
+     mult.impute)
+\method{SHNN}{wbart}(object, x.test, S, x.train=object$x.train,
+              type='wbart', probs=c(0.025, 0.975), seed = 99L,
+              mult.impute=5L)
 }
 \arguments{
    \item{object}{
@@ -38,11 +55,11 @@ SHAP(object,  ## object returned from BART
 
    \item{probs}{The lower and upper limits for the credible interval.}
    
-   \item{call}{ Whether to use C++ or R code: FALSE for R code, TRUE for
-     C+.}
-
    \item{type}{The type of BART object fit.}
-
+   \item{mult.impute}{Perform
+     multiple imputation this many times: default is \code{5}.}
+   \item{seed}{Perform
+     multiple imputation with this seed: default is \code{99}.}
 }
 %%% \details{
 %%%

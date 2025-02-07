@@ -13,7 +13,7 @@ of trees for BART: \eqn{E(f(x.S, x.C)|x.S)}. }
 EXPVALUE(trees,
          x.test,
          S,
-         call=FALSE)
+         x.train)
 }
 
 \arguments{
@@ -26,9 +26,7 @@ EXPVALUE(trees,
   first item of \code{S} is for the first column
   of \code{x.test} corresponding to the \code{S[1]}th column of
   \code{x.train}.}
-\item{call}{Whether to call the R or C++ implementation.
-  \code{FALSE} defaults to calling R.
-}
+\item{x.train}{A matrix of training values.}
 }
 
 \details{ The expectation is returned.  }

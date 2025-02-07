@@ -59,9 +59,9 @@ NN(object,  ## object returned from BART
    
    \item{mc.cores}{ Number of threads to utilize. }
 
-   \item{mult.impute}{ For missing data in \code{x.train}, perform
+   \item{mult.impute}{ Perform
      multiple imputation this many times.}
-   \item{seed}{ For missing values in \code{x.train}, perform
+   \item{seed}{ Perform
      multiple imputation with this seed.}
 }
 %%% \details{

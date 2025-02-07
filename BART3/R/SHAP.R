@@ -24,7 +24,6 @@ SHAP=function(object,  ## object returned from BART
               x.train,
               type,
               probs,
-              ##call,
               seed,
               mult.impute
               )
