@@ -22,8 +22,9 @@ SHAP2=function(object,  ## object returned from BART
               x.test,  ## settings of x.test
               S,       ## indices of two variables
               x.train,
+              probs,
               seed,
-              mult.impute=5L
+              mult.impute
 )
 {
     UseMethod('SHAP2')

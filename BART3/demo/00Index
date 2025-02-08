@@ -54,7 +54,6 @@ np.recur.bart	   Nonproportional intensity for recurrent events with BART
 nox		   Boston air pollution: Nitrogen Oxides and Housing Values
 nox2		   Boston air pollution: informative prior for BART
 replication	   Replication script for JSS article
-SHAP		   SHAP marginal expectation
 sigma.known.gbart	Sigma is fixed and known
 sparse.dart	   DART: categories vs. continuous
 sparse.gbart	   DART: uniform vs. Bernoulli

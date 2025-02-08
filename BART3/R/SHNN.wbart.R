@@ -22,7 +22,6 @@ SHNN.wbart=function(object,  ## object returned from BART
                     x.test,  ## settings of x.test
               S=NULL,        ## indices of subset
               x.train=object$x.train,
-              type='wbart',
               probs=c(0.025, 0.975),
               seed = 99L,
               mult.impute=5L

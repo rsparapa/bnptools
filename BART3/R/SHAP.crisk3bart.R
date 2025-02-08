@@ -22,11 +22,13 @@ SHAP.crisk3bart=function(object,  ## object returned from BART
                     x.test,  ## settings of x.test
               S,       ## indices of subset
               x.train=object$x.train,
-              type='pbart',
               probs=c(0.025, 0.975),
-              call=FALSE
+              seed = 99L,
+              mult.impute=5L
               )
 {
+    set.seed(seed)
+
     for(v in S)
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
@@ -78,12 +80,12 @@ SHAP.crisk3bart=function(object,  ## object returned from BART
     pred$yhat.test3 <- SHAP(object., x.train, x.test, S)
     attr(object, 'class') <- 'crisk3bart'
 
-    if(type=='pbart') {
+    if(object$type=='pbart') {
         pred$prob.test  <- pnorm(pred$yhat.test)
         pred$prob.test2 <- pnorm(pred$yhat.test2)
         pred$prob.test3 <- pnorm(pred$yhat.test3)
     }
-    else if(type=='lbart') {
+    else if(object$type=='lbart') {
         pred$prob.test  <- plogis(pred$yhat.test)
         pred$prob.test2 <- plogis(pred$yhat.test2)
         pred$prob.test3 <- plogis(pred$yhat.test3)

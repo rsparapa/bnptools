@@ -2,37 +2,56 @@
 \title{Shapley values for a previously fitted BART model}
 \alias{SHAP.wbart}
 \alias{SHAP}
+\alias{SHAP2.wbart}
+\alias{SHAP2}
 \alias{SHNN.wbart}
 \alias{SHNN}
+\alias{SHNN2.wbart}
+\alias{SHNN2}
 \description{
   Shapley values are additive estimates for
   the marginal effect of a variable or variables.
   \code{SHAP} for simple random sampling
   and \code{SHNN} for nearest neighbor sampling.
+  \code{SHAP2} and \code{SHNN2} for 2-way interactions.
 }
 \usage{
 SHAP(object,  ## object returned from BART
      x.test,  ## settings of x.test
      S,       ## indices of subset
      x.train,
-     type,
      probs,
      seed,
      mult.impute)
 \method{SHAP}{wbart}(object, x.test, S, x.train=object$x.train,
-              type='wbart', probs=c(0.025, 0.975), seed = 99L,
-              mult.impute=5L)
+              probs=c(0.025, 0.975), seed = 99L, mult.impute=5L)
 SHNN(object,  ## object returned from BART
      x.test,  ## settings of x.test
      S,       ## indices of subset
      x.train,
-     type,
      probs,
      seed,
      mult.impute)
 \method{SHNN}{wbart}(object, x.test, S, x.train=object$x.train,
-              type='wbart', probs=c(0.025, 0.975), seed = 99L,
-              mult.impute=5L)
+              probs=c(0.025, 0.975), seed = 99L, mult.impute=5L)
+SHAP2(object, ## object returned from BART
+     x.test,  ## settings of x.test
+     S,       ## indices of subset
+     x.train,
+     probs,
+     seed,
+     mult.impute)
+\method{SHAP2}{wbart}(object, x.test, S, x.train=object$x.train,
+              probs=c(0.025, 0.975), seed = 99L, mult.impute=5L)
+SHNN2(object, ## object returned from BART
+     x.test,  ## settings of x.test
+     S,       ## indices of subset
+     x.train,
+     probs,
+     seed,
+     mult.impute)
+\method{SHNN2}{wbart}(object, x.test, S, x.train=object$x.train,
+              probs=c(0.025, 0.975), seed = 99L, mult.impute=5L)
 }
 \arguments{
    \item{object}{
@@ -55,7 +74,6 @@ SHNN(object,  ## object returned from BART
 
    \item{probs}{The lower and upper limits for the credible interval.}
    
-   \item{type}{The type of BART object fit.}
    \item{mult.impute}{Perform
      multiple imputation this many times: default is \code{5}.}
    \item{seed}{Perform

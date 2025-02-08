@@ -25,7 +25,7 @@ NN=function(object,  ## object returned from BART
              x.train, 
              probs=c(0.025, 0.975),
              mc.cores=getOption('mc.cores', 1L),
-             mult.impute=4L,
+             mult.impute=5L,
              seed=99L)
 {
     UseMethod('NN')

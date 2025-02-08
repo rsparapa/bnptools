@@ -22,9 +22,7 @@ SHNN=function(object,  ## object returned from BART
               x.test,  ## settings of x.test
               S,       ## indices of subset
               x.train,
-              type,
               probs,
-              ##call,
               seed,
               mult.impute
               )

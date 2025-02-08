@@ -23,6 +23,7 @@ SHAP2.wbart=function(object,  ## object returned from BART
               x.test,  ## settings of x.test
               S,       ## indices of two variables
               x.train=object$x.train,
+              probs=c(0.025, 0.975),
               seed = 99L,
               mult.impute=5L
               )

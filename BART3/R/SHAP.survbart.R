@@ -22,11 +22,12 @@ SHAP.survbart=function(object,  ## object returned from BART
                     x.test,  ## settings of x.test
               S,       ## indices of subset
               x.train=object$x.train,
-              type='pbart',
               probs=c(0.025, 0.975),
-              call=FALSE
+              seed = 99L
               )
 {
+    set.seed(seed)
+
     for(v in S)
         if(any(is.na(x.test[ , v])))
             stop(paste0('x.test column with missing values:', v))
@@ -57,9 +58,9 @@ SHAP.survbart=function(object,  ## object returned from BART
     pred$K = K
     pred$offset <- object$offset
 
-    if(type=='pbart')
+    if(object$type=='pbart')
         pred$prob.test <- pnorm(pred$yhat.test)
-    else if(type=='lbart')
+    else if(object$type=='lbart')
         pred$prob.test <- plogis(pred$yhat.test)
 
     pred$surv.test <- 1-pred$prob.test
