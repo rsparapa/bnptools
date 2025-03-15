@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2018-2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2018-2025 Robert McCulloch and Rodney Sparapani
 ## gbart.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -49,6 +49,7 @@ gbart=function(
                shards = 1L, weight=rep(NA, shards)
                )
 {
+
    if(is.na(ntype))
         stop("type argument must be set to either 'wbart', 'pbart' or 'lbart'")
 
@@ -70,8 +71,7 @@ gbart=function(
         rm.const <- temp$rm.const
         if(length(grp)==0) grp <- temp$grp
         rm(temp)
-    }
-    else {
+    } else {
         rm.const <- NULL
         ##grp <- NULL
     }
@@ -159,7 +159,6 @@ gbart=function(
     if(type=='wbart') {
         y.train = y.train-offset
         ##z.train = z.train-offset
-
         if(!is.na(sigest) && !is.na(lambda) && lambda==0) {
             ##no op: sigma is fixed and known at given sigest value
         }
@@ -176,7 +175,6 @@ gbart=function(
         } else {
             sigest=sqrt(lambda)
         }
-
         if(is.na(tau.num)) {
             tau=(max(y.train)-min(y.train))/(2*k*sqrt(ntree))
         } else {
@@ -187,7 +185,6 @@ gbart=function(
         sigest=1
         tau=tau.num/(k*sqrt(ntree))
         ## tau=1-tau.interval
-
         ## if(type=='pbart')
         ##     tau=qnorm(1-0.5*tau)/(k*sqrt(ntree))
         ## else if(type=='lbart')
@@ -226,8 +223,8 @@ gbart=function(
                 }
             }
 
-    if(check && !impute.flag) x.test=x.train
-    else if(np>0) {
+    if(check && !impute.flag) { x.test=x.train
+    } else if(np>0) {
         for(i in 1:np)
             for(j in 1:p) {
                 k = is.na(x.test[ , i])
@@ -421,5 +418,6 @@ if(TSVS) return(res)
     res$chains = mc.cores
     ##if(treeinit) res$trees = trees
     attr(res, 'class') <- type
+
     return(res)
 }

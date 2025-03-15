@@ -1,6 +1,6 @@
 /*
  *  BART: Bayesian Additive Regression Trees
- *  Copyright (C) 2018 Robert McCulloch and Rodney Sparapani
+ *  Copyright (C) 2018-2025 Robert McCulloch and Rodney Sparapani
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -371,10 +371,10 @@ void cgbart(
 	 XV(impute_mult[k], i)=1;
 	 prevXV[impute_mult[k]]=1;
        }
-     }
      else if(impute_miss[i]==2) 
        for(size_t j=0; j<K; j++) 
 	 XV(impute_mult[j], i)=prevXV[impute_mult[j]];
+     }
    }
    //--------------------------------------------------
    //set up BART model
