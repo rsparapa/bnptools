@@ -1,30 +1,13 @@
 The programs in this folder.
 
-recode.R: creates dummy variables for dichotomous/categorical variables
+bart.R: predicted disease-free survival estimates from BART
 
-weights.R: calculates weights from PS using different methods
+bartATE.R: calculate the ATE from BART
 
-unadjKM.R: KM estimates for disease-free survival
+coxph.R: predicted disease-free survival estimates from a Cox model
 
-matchKM.R: KM estimates for disease-free survival after PS matching
-
-adjKM.R: adjusted KM estmates for disease-free survival SE
-
-ipwKM.R: adjusted KM estimates for disease-free survival using IPW
-
-coxPH.R: predicted disease-free survival estimates from a Cox model
-
-diradj.sas: direct adjusted survival curves for nonproportional strata
+km.R: predicted disease-free survival estimates by Kaplan-Meier
 
 rsf.R: predicted disease-free survival estimates from RSF
 
-bart.R: predicted disease-free survival estimates from BART
-
-Other packages required.
-
-dbarts
-ggplot2
-MatchIt
-randomForest
-randomForestSRC
-survminer
+Other packages required: ggplot2 and randomForestSRC
