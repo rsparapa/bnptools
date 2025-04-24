@@ -73,6 +73,7 @@ x.test. <- cbind(age., 0)
 x.test. <- rbind(x.test., x.test.)
 x.test.[ , 2] <- rep(1:2, each = K)
 
+##print(system.time(pred1 <- FPD(fit1, x.test., S = 1:2))) ## assuming independence
 
 file.='child1-fit2.rds'
 if(!file.exists(file.)) {
@@ -86,114 +87,122 @@ print(c(train.Rsqr = cor(bmxht$weight[train], fit2$yhat.train.mean)^2)) ## 71.3
 
 (x.test. <- cbind(x.test.[ , 1:2], fit2$yhat.test.mean))
 
-file. <- "child2NN5-pred.tu.RDS" 
+print(system.time(pred2 <- FPD(fit1, x.test., S = c('age', 'sex', 'weight'))))  ## synthetic approx
+
+F.test <- (!train & bmxht$sex == 2)
+plot(bmxht$age[F.test], bmxht$height[F.test],
+     pch=1, col=8,
+     cex = log2(bmx$age[F.test])/2,
+     ylab='Height (cm)',
+     xlab='Age (yr)')
+lines(age., pred2$yhat.test.mean[K+1:K], col=2, lwd=2)
+lines(age., pred2$yhat.test.lower[K+1:K], col=2, lwd=2, lty=2)
+lines(age., pred2$yhat.test.upper[K+1:K], col=2, lwd=2, lty=2)
+##dev.copy2pdf(file='child1-cmF.pdf')
+
+M.test <- (!train & bmxht$sex == 1)
+plot(bmxht$age[M.test], bmxht$height[M.test],
+     pch=1, col=8,
+     cex = log2(bmxht$age[M.test])/2,
+     ylab='Height (cm)',
+     xlab='Age (yr)')
+lines(age., pred2$yhat.test.mean[1:K], col=4, lwd=2)
+lines(age., pred2$yhat.test.lower[1:K], col=4, lwd=2, lty=2)
+lines(age., pred2$yhat.test.upper[1:K], col=4, lwd=2, lty=2)
+##dev.copy2pdf(file='child1-cmM.pdf')
+
+file. <- "child2-pred.tu.RDS" 
 if(!file.exists(file.)) {
-    print(system.time(NN5.tu <- SHNN2(fit1, x.test.[ , 1:2], S = c('age', 'sex'))))
-    saveRDS(NN5.tu, file.) 
+    print(system.time(pred.tu <- SHNN2(fit1, x.test.[ , 1:2], S = c('age', 'sex'))))
+    saveRDS(pred.tu, file.) 
 } else {
-    NN5.tu <- readRDS(file.) 
+    pred.tu <- readRDS(file.) 
 }
 ##     user   system  elapsed 
 ## 4862.598    2.152 4864.989 
 
-NN5.tu. <- list()
-NN5.tu.$yhat.test.mean <- apply(NN5.tu, 2, mean)
-NN5.tu.$yhat.test.lower <- apply(NN5.tu, 2, quantile, probs = 0.025)
-NN5.tu.$yhat.test.upper <- apply(NN5.tu, 2, quantile, probs = 0.975)
+pred.tu. <- list()
+pred.tu.$yhat.test.mean <- apply(pred.tu, 2, mean)
+pred.tu.$yhat.test.lower <- apply(pred.tu, 2, quantile, probs = 0.025)
+pred.tu.$yhat.test.upper <- apply(pred.tu, 2, quantile, probs = 0.975)
 
-file. <- "child2NN5-pred.t.RDS" 
+file. <- "child2-pred.t.RDS" 
 if(!file.exists(file.)) {
-    print(system.time(NN5.t <- SHNN(fit1, age., S = 'age')))
-    saveRDS(NN5.t, file.) 
+    print(system.time(pred.t <- SHNN(fit1, age., S = 'age')))
+    saveRDS(pred.t, file.) 
 } else {
-    NN5.t <- readRDS(file.) 
+    pred.t <- readRDS(file.) 
 }
 
-NN5.t$yhat.test <- NN5.t$yhat.test+fit1$offset
-NN5.t$yhat.test.mean <- NN5.t$yhat.test.mean+fit1$offset
-NN5.t$yhat.test.lower <- NN5.t$yhat.test.lower+fit1$offset
-NN5.t$yhat.test.upper <- NN5.t$yhat.test.upper+fit1$offset
+pred.t$yhat.test <- pred.t$yhat.test+fit1$offset
+pred.t$yhat.test.mean <- pred.t$yhat.test.mean+fit1$offset
+pred.t$yhat.test.lower <- pred.t$yhat.test.lower+fit1$offset
+pred.t$yhat.test.upper <- pred.t$yhat.test.upper+fit1$offset
 
-file. <- "child2NN5-pred.w.RDS" 
+file. <- "child2-pred.w.RDS" 
 if(!file.exists(file.)) {
-    print(system.time(NN5.w <- SHNN(fit1, x.test.[ , 3], S = 'weight')))
-    saveRDS(NN5.w, file.)
+    print(system.time(pred.w <- SHNN(fit1, x.test.[ , 3], S = 'weight')))
+    saveRDS(pred.w, file.)
 } else {
-    NN5.w <- readRDS(file.) 
+    pred.w <- readRDS(file.) 
 }
 
-file. <- "child2NN5-pred.u.RDS" 
+file. <- "child2-pred.u.RDS" 
 if(!file.exists(file.)) {
-    print(system.time(NN5.u <- SHNN(fit1, 1:2, S = 'sex')))
-    saveRDS(NN5.u, file.)
+    print(system.time(pred.u <- SHNN(fit1, 1:2, S = 'sex')))
+    saveRDS(pred.u, file.)
 } else {
-    NN5.u <- readRDS(file.) 
+    pred.u <- readRDS(file.) 
 }
 
-x.train <- bmxht[train, pick]
-x.test  <- bmxht[!train, pick]
+##pdf(file = 'growth6.pdf')
+plot(bmx$age, bmx$height, type = 'n',
+     ylab='Height (cm)', xlab='Age (yr)')
+lines(age., pred2$yhat.test.mean[K+1:K], col = 2, lwd = 2)
+lines(age., pred2$yhat.test.mean[1:K], col = 4, lwd = 2)
+points(age., pred.t$yhat.test.mean)
+points(age., pred.u$yhat.test.mean[2]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[K+1:K], col = 2, pch = 25)
+points(age., pred.u$yhat.test.mean[1]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[1:K], col = 4, pch = 24)
+lines(c(1.65, 1.95), c(188, 188), lwd = 2)
+legend('topleft', legend = c('Imputation Marginal', 'FPD', 'SHAP: age-only', 
+'SHAP: age, F, weight', 'SHAP: age, M, weight'),
+       pch = c(32, 32, 1, 25, 24), col = c(0, 0, 1, 2, 4))
+##dev.copy2pdf(file='growth3-SHAP.pdf')
 
-age. <- 2:17
-K <- length(age.)
-x.test. <- cbind(age., 0) 
-x.test. <- rbind(x.test., x.test.)
-x.test.[ , 2] <- rep(1:2, each = K)
+plot(bmx$age, bmx$height, type = 'n',
+     ylab='Height (cm)', xlab='Age (yr)')
+lines(age., pred2$yhat.test.mean[K+1:K], col = 2, lwd = 2)
+lines(age., pred2$yhat.test.mean[1:K], col = 4, lwd = 2)
+points(age., pred.t$yhat.test.mean)
+points(age., 2*pred.tu[K+1:K]+pred.u$yhat.test.mean[2]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[K+1:K], col = 2, pch = 25)
+points(age., 2*pred.tu[1:K]+pred.u$yhat.test.mean[1]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[1:K], col = 4, pch = 24)
+lines(c(1.65, 1.95), c(188, 188), lwd = 2)
+legend('topleft', legend = c('Imputation Marginal', 'FPD', 'SHAP: age-only', 
+'SHAP: age, F, weight', 'SHAP: age, M, weight'),
+       pch = c(32, 32, 1, 25, 24), col = c(0, 0, 1, 2, 4))
+##dev.copy2pdf(file='growth3-SHAP.pdf')
+##dev.off()
 
-(x.test. <- cbind(x.test.[ , 1:2], fit2$yhat.test.mean))
-
-
-file. <- "child2SRS5-pred.tu.RDS" 
-if(!file.exists(file.)) {
-    print(system.time(SRS5.tu <- SHAP2(fit1, x.test.[ , 1:2], S = c('age', 'sex'))))
-    saveRDS(SRS5.tu, file.) 
-} else {
-    SRS5.tu <- readRDS(file.) 
-}
-##     user   system  elapsed 
-## 4862.598    2.152 4864.989 
-
-SRS5.tu. <- list()
-SRS5.tu.$yhat.test.mean <- apply(SRS5.tu, 2, mean)
-SRS5.tu.$yhat.test.lower <- apply(SRS5.tu, 2, quantile, probs = 0.025)
-SRS5.tu.$yhat.test.upper <- apply(SRS5.tu, 2, quantile, probs = 0.975)
-
-file. <- "child2SRS5-pred.t.RDS" 
-if(!file.exists(file.)) {
-    print(system.time(SRS5.t <- SHAP(fit1, age., S = 'age')))
-    saveRDS(SRS5.t, file.) 
-} else {
-    SRS5.t <- readRDS(file.) 
-}
-
-SRS5.t$yhat.test <- SRS5.t$yhat.test+fit1$offset
-SRS5.t$yhat.test.mean <- SRS5.t$yhat.test.mean+fit1$offset
-SRS5.t$yhat.test.lower <- SRS5.t$yhat.test.lower+fit1$offset
-SRS5.t$yhat.test.upper <- SRS5.t$yhat.test.upper+fit1$offset
-
-file. <- "child2SRS5-pred.w.RDS" 
-if(!file.exists(file.)) {
-    print(system.time(SRS5.w <- SHAP(fit1, x.test.[ , 3], S = 'weight')))
-    saveRDS(SRS5.w, file.)
-} else {
-    SRS5.w <- readRDS(file.) 
-}
-
-file. <- "child2SRS5-pred.u.RDS" 
-if(!file.exists(file.)) {
-    print(system.time(SRS5.u <- SHAP(fit1, 1:2, S = 'sex')))
-    saveRDS(SRS5.u, file.)
-} else {
-    SRS5.u <- readRDS(file.) 
-}
-
+plot(bmx$age, bmx$height, type = 'n',
+     ylab='Height (cm)', xlab='Age (yr)')
+lines(age., pred2$yhat.test.mean[K+1:K], col = 2, lwd = 2)
+lines(age., pred2$yhat.test.mean[1:K], col = 4, lwd = 2)
+points(age., pred.t$yhat.test.mean)
+points(age., 2*(pred.tu[K+1:K])+pred.u$yhat.test.mean[2]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[K+1:K], col = 2, pch = 25)
+points(age., 2*(pred.tu[1:K]  )+pred.u$yhat.test.mean[1]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[1:K], col = 4, pch = 24)
+lines(c(1.65, 1.95), c(188, 188), lwd = 2)
+legend('topleft', legend = c('Imputation Marginal', 'FPD', 'SHAP: age-only', 
+'SHAP: age, F, weight', 'SHAP: age, M, weight'),
+       pch = c(32, 32, 1, 25, 24), col = c(0, 0, 1, 2, 4))
+##dev.copy2pdf(file='growth3-SHAP.pdf')
 
 df <- data.frame(sex = bmx$sex[train], age = bmx$age[train], height = bmx$height[train])
 N <- nrow(df)
-df <- rbind(df, df, df, df, df)
-df$marginal <- rep(c('A', 'B', 'C', 'D', 'E'), each = N)
+df <- rbind(df, df, df)
+df$marginal <- rep(c('A', 'DI', 'NN'), each = N)
 df$marginal <- factor(df$marginal)
 
-pdf(file = 'SHAP-final5.pdf')
+pdf(file = 'SHAP.pdf')
 xyplot(height~age|sex+marginal, data = df, as.table = TRUE, strip = FALSE, col = 8, type = 'n', ylab = 'height (cm)',
 xlim = c(1.5, 17.5),
 panel=function(...) { 
@@ -208,52 +217,42 @@ panel=function(...) {
                lpoints(df$age[F], df$height[F], col = grey., pch = 21)
            }
            if(i == 1) { 
-               llines(age., SRS5.u$yhat.test.mean[1]+SRS5.t$yhat.test.mean, col = 4, lwd = 2)
-               llines(age., apply(SRS5.u$yhat.test[ , 1]+SRS5.t$yhat.test, 2, quantile, probs = 0.025), col = 4, lty = 3, lwd = 2)
-               llines(age., apply(SRS5.u$yhat.test[ , 1]+SRS5.t$yhat.test, 2, quantile, probs = 0.975), col = 4, lty = 3, lwd = 2)
-               ltext(1.5, 180, 'SRS t,u', pos = 4)
+               ##llines(age., pred2$yhat.test.mean[1:K], col = 1)
+               llines(age., pred.u$yhat.test.mean[1]+pred.t$yhat.test.mean, col = 4, lwd = 2)
+               llines(age., apply(pred.u$yhat.test[ , 1]+pred.t$yhat.test, 2, quantile, probs = 0.025), col = 4, lty = 3, lwd = 2)
+               llines(age., apply(pred.u$yhat.test[ , 1]+pred.t$yhat.test, 2, quantile, probs = 0.975), col = 4, lty = 3, lwd = 2)
+               ltext(2, 180, 'SV: t,u', pos = 4)
                ltext(15, 85, 'M', col = 4, pos = 4)
            } else if(i == 2) { 
-               llines(age., SRS5.u$yhat.test.mean[2]+SRS5.t$yhat.test.mean, col = 2, lwd = 2)
-               llines(age., apply(SRS5.u$yhat.test[ , 2]+SRS5.t$yhat.test, 2, quantile, probs = 0.025), col = 2, lty = 3, lwd = 2)
-               llines(age., apply(SRS5.u$yhat.test[ , 2]+SRS5.t$yhat.test, 2, quantile, probs = 0.975), col = 2, lty = 3, lwd = 2)
+               ##llines(age., pred2$yhat.test.mean[K+1:K], col = 1)
+               llines(age., pred.u$yhat.test.mean[2]+pred.t$yhat.test.mean, col = 2, lwd = 2)
+               ##llines(age., pred.t$yhat.test.lower, col = 2, lty = 3, lwd = 2)
+               ##llines(age., pred.t$yhat.test.upper, col = 2, lty = 3, lwd = 2)
+               llines(age., apply(pred.u$yhat.test[ , 2]+pred.t$yhat.test, 2, quantile, probs = 0.025), col = 2, lty = 3, lwd = 2)
+               llines(age., apply(pred.u$yhat.test[ , 2]+pred.t$yhat.test, 2, quantile, probs = 0.975), col = 2, lty = 3, lwd = 2)
                ltext(15, 85, 'F', col = 2, pos = 4)
            } else if(i == 3) { 
-               ltext(1.5, 180, 'SRS t,u,t:u', pos = 4)
-               llines(age., 2*SRS5.tu.$yhat.test.mean[1:K]+SRS5.u$yhat.test.mean[1]+SRS5.t$yhat.test.mean, col = 4, lwd = 2)
-               llines(age., apply(2*SRS5.tu[ , 1:K]+SRS5.u$yhat.test[ , 1]+SRS5.t$yhat.test, 2, quantile, probs = 0.025), col = 4, lty = 3, lwd = 2)
-               llines(age., apply(2*SRS5.tu[ , 1:K]+SRS5.u$yhat.test[ , 1]+SRS5.t$yhat.test, 2, quantile, probs = 0.975), col = 4, lty = 3, lwd = 2)
+               ##llines(age., pred2$yhat.test.mean[1:K], col = 1)
+               ltext(2, 180, 'SV: t,u,t:u', pos = 4)
+               llines(age., 2*pred.tu.$yhat.test.mean[1:K]+pred.u$yhat.test.mean[1]+pred.t$yhat.test.mean, col = 4, lwd = 2)
+               llines(age., apply(2*pred.tu[ , 1:K]+pred.u$yhat.test[ , 1]+pred.t$yhat.test, 2, quantile, probs = 0.025), col = 4, lty = 3, lwd = 2)
+               llines(age., apply(2*pred.tu[ , 1:K]+pred.u$yhat.test[ , 1]+pred.t$yhat.test, 2, quantile, probs = 0.975), col = 4, lty = 3, lwd = 2)
            } else if(i == 4) { 
-               llines(age., 2*SRS5.tu.$yhat.test.mean[K+1:K]+SRS5.u$yhat.test.mean[2]+SRS5.t$yhat.test.mean, col = 2, lwd = 2)
-               llines(age., apply(2*SRS5.tu[ , K+1:K]+SRS5.u$yhat.test[ , 2]+SRS5.t$yhat.test, 2, quantile, probs = 0.025), col = 2, lty = 3, lwd = 2)
-               llines(age., apply(2*SRS5.tu[ , K+1:K]+SRS5.u$yhat.test[ , 2]+SRS5.t$yhat.test, 2, quantile, probs = 0.975), col = 2, lty = 3, lwd = 2)
+               ##llines(age., pred2$yhat.test.mean[K+1:K], col = 1)
+               llines(age., 2*pred.tu.$yhat.test.mean[K+1:K]+pred.u$yhat.test.mean[2]+pred.t$yhat.test.mean, col = 2, lwd = 2)
+               llines(age., apply(2*pred.tu[ , K+1:K]+pred.u$yhat.test[ , 2]+pred.t$yhat.test, 2, quantile, probs = 0.025), col = 2, lty = 3, lwd = 2)
+               llines(age., apply(2*pred.tu[ , K+1:K]+pred.u$yhat.test[ , 2]+pred.t$yhat.test, 2, quantile, probs = 0.975), col = 2, lty = 3, lwd = 2)
            } else if(i == 5) { 
-               ltext(1.5, 180, 'NN t,u,t:u', pos = 4)
-               llines(age., 2*NN5.tu.$yhat.test.mean[1:K]+NN5.u$yhat.test.mean[1]+NN5.t$yhat.test.mean, col = 4, lwd = 2)
-               llines(age., apply(2*NN5.tu[ , 1:K]+NN5.u$yhat.test[ , 1]+NN5.t$yhat.test, 2, quantile, probs = 0.025), col = 4, lty = 3, lwd = 2)
-               llines(age., apply(2*NN5.tu[ , 1:K]+NN5.u$yhat.test[ , 1]+NN5.t$yhat.test, 2, quantile, probs = 0.975), col = 4, lty = 3, lwd = 2)
+               ##llines(age., pred2$yhat.test.mean[1:K], col = 1)
+               ltext(2, 180, 'SA: t,u,t:u,w(t,u)', pos = 4)
+               llines(age., 2*pred.tu.$yhat.test.mean[1:K]+pred.u$yhat.test.mean[1]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[1:K], col = 4, lwd = 2)
+               llines(age., apply(2*pred.tu[ , 1:K]+pred.u$yhat.test[ , 1]+pred.t$yhat.test+pred.w$yhat.test[, 1:K], 2, quantile, probs = 0.025), col = 4, lty = 3, lwd = 2)
+               llines(age., apply(2*pred.tu[ , 1:K]+pred.u$yhat.test[ , 1]+pred.t$yhat.test+pred.w$yhat.test[ , 1:K], 2, quantile, probs = 0.975), col = 4, lty = 3, lwd = 2)
            } else if(i == 6) { 
-               llines(age., 2*NN5.tu.$yhat.test.mean[K+1:K]+NN5.u$yhat.test.mean[2]+NN5.t$yhat.test.mean, col = 2, lwd = 2)
-               llines(age., apply(2*NN5.tu[ , K+1:K]+NN5.u$yhat.test[ , 2]+NN5.t$yhat.test, 2, quantile, probs = 0.025), col = 2, lty = 3, lwd = 2)
-               llines(age., apply(2*NN5.tu[ , K+1:K]+NN5.u$yhat.test[ , 2]+NN5.t$yhat.test, 2, quantile, probs = 0.975), col = 2, lty = 3, lwd = 2)
-           } else if(i == 7) { 
-               ltext(1.5, 180, 'SRS/SA t,u,t:u,w(t,u)', pos = 4)
-               llines(age., 2*SRS5.tu.$yhat.test.mean[1:K]+SRS5.u$yhat.test.mean[1]+SRS5.t$yhat.test.mean+SRS5.w$yhat.test.mean[1:K], col = 4, lwd = 2)
-               llines(age., apply(2*SRS5.tu[ , 1:K]+SRS5.u$yhat.test[ , 1]+SRS5.t$yhat.test+SRS5.w$yhat.test[, 1:K], 2, quantile, probs = 0.025), col = 4, lty = 3, lwd = 2)
-               llines(age., apply(2*SRS5.tu[ , 1:K]+SRS5.u$yhat.test[ , 1]+SRS5.t$yhat.test+SRS5.w$yhat.test[ , 1:K], 2, quantile, probs = 0.975), col = 4, lty = 3, lwd = 2)
-           } else if(i == 8) { 
-               llines(age., 2*SRS5.tu.$yhat.test.mean[K+1:K]+SRS5.u$yhat.test.mean[2]+SRS5.t$yhat.test.mean+SRS5.w$yhat.test.mean[K+1:K], col = 2, lwd = 2)
-               llines(age., apply(2*SRS5.tu[ , K+1:K]+SRS5.u$yhat.test[ , 2]+SRS5.t$yhat.test+SRS5.w$yhat.test[, K+1:K], 2, quantile, probs = 0.025), col = 2, lty = 3, lwd = 2)
-               llines(age., apply(2*SRS5.tu[ , K+1:K]+SRS5.u$yhat.test[ , 2]+SRS5.t$yhat.test+SRS5.w$yhat.test[ , K+1:K], 2, quantile, probs = 0.975), col = 2, lty = 3, lwd = 2)
-           } else if(i == 9) { 
-               ltext(1.5, 180, 'NN/SA t,u,t:u,w(t,u)', pos = 4)
-               llines(age., 2*NN5.tu.$yhat.test.mean[1:K]+NN5.u$yhat.test.mean[1]+NN5.t$yhat.test.mean+NN5.w$yhat.test.mean[1:K], col = 4, lwd = 2)
-               llines(age., apply(2*NN5.tu[ , 1:K]+NN5.u$yhat.test[ , 1]+NN5.t$yhat.test+NN5.w$yhat.test[, 1:K], 2, quantile, probs = 0.025), col = 4, lty = 3, lwd = 2)
-               llines(age., apply(2*NN5.tu[ , 1:K]+NN5.u$yhat.test[ , 1]+NN5.t$yhat.test+NN5.w$yhat.test[ , 1:K], 2, quantile, probs = 0.975), col = 4, lty = 3, lwd = 2)
-           } else if(i == 10) { 
-               llines(age., 2*NN5.tu.$yhat.test.mean[K+1:K]+NN5.u$yhat.test.mean[2]+NN5.t$yhat.test.mean+NN5.w$yhat.test.mean[K+1:K], col = 2, lwd = 2)
-               llines(age., apply(2*NN5.tu[ , K+1:K]+NN5.u$yhat.test[ , 2]+NN5.t$yhat.test+NN5.w$yhat.test[, K+1:K], 2, quantile, probs = 0.025), col = 2, lty = 3, lwd = 2)
-               llines(age., apply(2*NN5.tu[ , K+1:K]+NN5.u$yhat.test[ , 2]+NN5.t$yhat.test+NN5.w$yhat.test[ , K+1:K], 2, quantile, probs = 0.975), col = 2, lty = 3, lwd = 2)
+               ##llines(age., pred2$yhat.test.mean[K+1:K], col = 1)
+               llines(age., 2*pred.tu.$yhat.test.mean[K+1:K]+pred.u$yhat.test.mean[2]+pred.t$yhat.test.mean+pred.w$yhat.test.mean[K+1:K], col = 2, lwd = 2)
+               llines(age., apply(2*pred.tu[ , K+1:K]+pred.u$yhat.test[ , 2]+pred.t$yhat.test+pred.w$yhat.test[, K+1:K], 2, quantile, probs = 0.025), col = 2, lty = 3, lwd = 2)
+               llines(age., apply(2*pred.tu[ , K+1:K]+pred.u$yhat.test[ , 2]+pred.t$yhat.test+pred.w$yhat.test[ , K+1:K], 2, quantile, probs = 0.975), col = 2, lty = 3, lwd = 2)
            }
 })
 dev.off()
