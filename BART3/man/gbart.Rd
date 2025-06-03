@@ -341,8 +341,8 @@ argument \code{type} to specify a logit BART model.
    \item{yhat.test}{Same as yhat.train but now the x's are the rows of the test data.}
    \item{yhat.train.mean}{train data fits = mean of yhat.train columns.}
    \item{yhat.test.mean}{test data fits = mean of yhat.test columns.}
-   \item{sigma}{post burn in draws of sigma, length = ndpost.}
-   \item{first.sigma}{burn-in draws of sigma.}
+   \item{sigma}{all draws of sigma including burn-in.}
+   \item{sigma.}{only kept draws of sigma with burn-in discarded.}
    \item{varcount}{a matrix with ndpost rows and nrow(x.train) columns.
    Each row is for a draw. For each variable (corresponding to the columns),
    the total count of the number of times

@@ -222,6 +222,7 @@ mc.gbart <- function(
                                            probs=min(probs))
             post$yhat.train.upper <- apply(post$yhat.train, 2, quantile,
                                            probs=max(probs))
+            post$sigest <- sigest
             if(type1.sigest) {
                 SD=matrix(post$sigma., nrow=post$ndpost, ncol=n)
                 ##CPO=1/apply(1/dnorm(Y, post$yhat.train, SD), 2, mean)

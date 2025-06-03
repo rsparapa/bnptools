@@ -348,6 +348,7 @@ if(TSVS) return(res)
                                       probs=min(probs))
         res$yhat.train.upper <- apply(res$yhat.train, 2, quantile,
                                       probs=max(probs))
+        res$sigest <- sigest
         if(type1.sigest) {
             res$sigma.=res$sigma[-(1:nskip)]
             SD=matrix(res$sigma., nrow=ndpost, ncol=n)
