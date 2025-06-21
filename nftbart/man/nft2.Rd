@@ -15,7 +15,7 @@ nft2(
     xftrain, xstrain, times, delta=NULL,
     xftest=matrix(nrow=0, ncol=0),
     xstest=matrix(nrow=0, ncol=0),
-    rm.const=TRUE, rm.dupe=TRUE,
+    rm.const=TRUE, rm.dupe=TRUE, right.max = Inf,
     ## multi-threading
     tc=getOption("mc.cores", 1), 
     ##MCMC
@@ -49,7 +49,7 @@ nft2(
 nft(
     ## data
     x.train, times, delta=NULL, x.test=matrix(nrow=0, ncol=0),
-    rm.const=TRUE, rm.dupe=TRUE,
+    rm.const=TRUE, rm.dupe=TRUE, right.max = Inf,
     ## multi-threading
     tc=getOption("mc.cores", 1), 
     ##MCMC
@@ -94,6 +94,7 @@ nft(
   %\item{impute.prob}{nx1 vector of prior probabilities for imputation.}
       \item{rm.const}{To remove constant variables or not.}
     \item{rm.dupe}{To remove duplicate variables or not.}
+\item{right.max}{The maximum value augmented by right censoring.}
   %\item{edraws2}{Draws of \eqn{e} from a mortality model.}
   %\item{zdraws2}{Draws of \eqn{z} from a mortality model.}
   \item{tc}{Number of OpenMP threads to use.}

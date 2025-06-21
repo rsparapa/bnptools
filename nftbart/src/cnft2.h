@@ -53,6 +53,7 @@ RcppExport SEXP cnft2(
 		     SEXP _ixstrain,
 		     SEXP _iy, 		//train y
 		     SEXP _idelta,         //delta
+		     SEXP _right_max,      //max value for augmented right censored draws
 		     //  SEXP _ievents,        //events
 		     SEXP _ixftest,
 		     SEXP _ixstest,
@@ -129,10 +130,9 @@ RcppExport SEXP cnft2(
 
   //delta
   Rcpp::IntegerVector delta(_idelta), censor(n);
-/*
-  Rcpp::NumericVector deltav(_idelta);
-  double *delta = &deltav[0];
-*/
+
+  //right_max
+  double right_max = Rcpp::as<double>(_right_max);
 
   //events
   //  Rcpp::NumericVector events(_ievents);
@@ -359,6 +359,7 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	 << ',' << "index n-1=" << impute_prior[n-1] << endl;
   }
 */
+  Rprintf("right.max: %lf\n", right_max);
   Rprintf("printevery: %d\n",(int)printevery);
 
   //--------------------------------------------------
@@ -582,15 +583,17 @@ double nu=2./(1.-pow(1.-2/overallnu, opm));
 	    z[k]=censor[k]*gen.rtnorm(censor[k]*y[k], 
 				       censor[k]*ambm.f(k), sig[k]);
 	}
+	if(delta[k] == 0 && z[k]>right_max) z[k] = right_max;
       }
+    }
 /*
       if(keeping) {
 	if(drawDP) zdraws(j, k)=gen.normal(phi(g, 0)*sig[k]+ambm.f(k), 
 					   pow(phi(g, 1), -0.5)*sig[k]);
 	else zdraws(j, k)=gen.normal(ambm.f(k), sig[k]);
       }
-*/
     }
+*/
 
     for(size_t k=0;k<n;k++) {
       if(drawDP) {

@@ -23,7 +23,7 @@ nft2 = function(## data
                xftrain, xstrain, times, delta=NULL, 
                xftest=matrix(nrow=0, ncol=0),
                xstest=matrix(nrow=0, ncol=0),
-               rm.const=TRUE, rm.dupe=TRUE,
+               rm.const=TRUE, rm.dupe=TRUE, right.max = Inf,
                ##edraws2=matrix(nrow=0, ncol=0),
                ##zdraws2=matrix(nrow=0, ncol=0),
                ##impute.bin=NULL, impute.prob=NULL,
@@ -84,8 +84,8 @@ nft2 = function(## data
         if(np>0) {
             xftrain. <- rbind(xftrain, xftest)
             xstrain. <- rbind(xstrain, xstest)
-            if(length(xifcuts)==0) xifcuts=xicuts(xftrain., numcut=numcut)
-            if(length(xiscuts)==0) xiscuts=xicuts(xstrain., numcut=numcut)
+            ## if(length(xifcuts)==0) xifcuts=xicuts(xftrain., numcut=numcut)
+            ## if(length(xiscuts)==0) xiscuts=xicuts(xstrain., numcut=numcut)
             impute=CDimpute(x.train=xftrain, x.test=xftest)
             xftrain=impute$x.train
             xftest=impute$x.test
@@ -93,11 +93,13 @@ nft2 = function(## data
                    rm.dupe=rm.dupe, method=method, use=use, xicuts = xifcuts)
             xftrain=t(cbind(xf.$X[1:n, ]))
             xftest =t(cbind(xf.$X[n+(1:np), ]))
+            if(length(xifcuts)==0) xifcuts=xf.$xicuts
             chvf = xf.$chv
             if(pf == ps && !is.na(all(xftrain.[!is.na(xftrain.)] == xstrain.[!is.na(xftrain.)])) && all(xftrain.[!is.na(xftrain.)] == xstrain.[!is.na(xftrain.)])) {
                 xstrain <- xftrain
                 xstest  <- xftest
                 chvs <- chvf
+                xiscuts <- xifcuts
             } else {
                 impute=CDimpute(x.train=xstrain, x.test=xstest)
                 xstrain=impute$x.train
@@ -107,12 +109,11 @@ nft2 = function(## data
                 xstrain=t(cbind(xs.$X[1:n, ]))
                 xstest =t(cbind(xs.$X[n+(1:np), ]))
                 chvs = xs.$chv
+                if(length(xiscuts)==0) xiscuts=xs.$xicuts
             }
         } else {
-            if(length(xifcuts)==0) 
-                xifcuts=xicuts(xftrain, numcut=numcut)
-            if(length(xiscuts)==0) 
-                xiscuts=xicuts(xstrain, numcut=numcut)
+            ## if(length(xifcuts)==0) xifcuts=xicuts(xftrain, numcut=numcut)
+            ## if(length(xiscuts)==0) xiscuts=xicuts(xstrain, numcut=numcut)
             impute=CDimpute(x.train=xftrain)
             xftrain. <- xftrain
             xftrain=impute$x.train
@@ -120,9 +121,11 @@ nft2 = function(## data
                     rm.dupe=rm.dupe, method=method, use=use, xicuts = xifcuts)
             xftrain=t(xf.$X)
             chvf = xf.$chv
+            if(length(xifcuts)==0) xifcuts=xf.$xicuts
             if(pf == ps && !is.na(all(xftrain.[!is.na(xftrain.)] == xstrain[!is.na(xftrain.)])) && all(xftrain.[!is.na(xftrain.)] == xstrain[!is.na(xftrain.)])) {
                 xstrain <- xftrain
                 chvs <- chvf
+                xiscuts <- xifcuts
             } else {
                 impute=CDimpute(x.train=xstrain)
                 xstrain=impute$x.train
@@ -130,6 +133,7 @@ nft2 = function(## data
                     rm.dupe=rm.dupe, method=method, use=use, xicuts = xiscuts)
                 xstrain=t(xs.$X)
                 chvs = xs.$chv
+                if(length(xiscuts)==0) xiscuts=xs.$xicuts
             }
         }
         ##if(length(xifcuts)==0) xifcuts=xf.$xicuts
@@ -149,10 +153,8 @@ nft2 = function(## data
         if(length(chvf)==0) chvf = cor(t(xftrain), method=method, use=use)
         if(length(chvs)==0) chvs = cor(t(xstrain), method=method, use=use)
 
-        if(length(xifcuts)==0) 
-            xifcuts=xicuts(xftrain, transposed=transposed, numcut=numcut)
-        if(length(xiscuts)==0) 
-            xiscuts=xicuts(xstrain, transposed=transposed, numcut=numcut)
+        if(length(xifcuts)==0) xifcuts=xicuts(xftrain, TRUE, numcut)
+        if(length(xiscuts)==0) xiscuts=xicuts(xstrain, TRUE, numcut)
     }
     
     pf=nrow(xftrain)
@@ -206,6 +208,7 @@ nft2 = function(## data
     if(take.logs) {
         y=log(times)-fmu
         if(K>0) events=log(events)
+        right.max <- log(right.max)
     } else {
         y=times-fmu
     }
@@ -258,7 +261,7 @@ nft2 = function(## data
     res=.Call("cnft2",
               xftrain, xstrain,
               y,
-              as.integer(delta),
+              as.integer(delta), right.max,
               xftest, xstest,
               c(ntree[1], ntree[2]),
               nd,

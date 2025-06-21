@@ -20,21 +20,26 @@
 ## Rodney A. Sparapani: rsparapa@mcw.edu
 
 xicuts = function(x.train, transposed=FALSE, numcut=100) {
-    x = x.train
+    ##x = data.matrix(x.train)
     numcut.=0
     grid=list()
-    if(transposed) {
-        p=nrow(x)
-        n=ncol(x)
-        for(i in 1:p) grid[[i]]=unique(sort(x[i, ]))
-        names.=dimnames(x)[[1]]
-    } else {
-        p=ncol(x)
-        n=nrow(x)
-        for(i in 1:p) grid[[i]]=unique(sort(x[ , i]))
-        names.=dimnames(x)[[2]]
-    }
-    ##return(grid)
+    if(transposed) x <- t(x)
+    p=ncol(x)
+    n=nrow(x)
+    for(i in 1:p) grid[[i]]=unique(sort(x[ , i]))
+    names.=dimnames(x)[[2]]
+    ## }
+    ## if(transposed) {
+    ##     p=nrow(x)
+    ##     n=ncol(x)
+    ##     for(i in 1:p) grid[[i]]=unique(sort(x[i, ]))
+    ##     names.=dimnames(x)[[1]]
+    ## } else {
+    ##     p=ncol(x)
+    ##     n=nrow(x)
+    ##     for(i in 1:p) grid[[i]]=unique(sort(x[ , i]))
+    ##     names.=dimnames(x)[[2]]
+    ## }
     if(length(names.)==0) names.=paste0('x', 1:p)
     xicuts.=list()
     for(i in 1:p) {
