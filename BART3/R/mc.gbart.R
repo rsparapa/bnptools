@@ -159,7 +159,7 @@ mc.gbart <- function(
 
         if(class(rm.const)[1]!='logical') post$rm.const <- rm.const
 
-        post$ndpost <- mc.cores*mc.ndpost
+        post$ndpost <- as.integer(mc.cores*mc.ndpost)
 
         p <- nrow(x.train[post$rm.const, ])
 
