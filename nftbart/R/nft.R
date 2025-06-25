@@ -24,7 +24,7 @@
 nft = function(## data
                x.train, times, delta=NULL, 
                x.test=matrix(nrow=0, ncol=0),
-               rm.const=TRUE, rm.dupe=TRUE, right.max = Inf,
+               rm.const=TRUE, rm.dupe=TRUE, right.max=Inf,
                ## multi-threading
                tc=getOption("mc.cores", 1), ##OpenMP thread count
                ##MCMC

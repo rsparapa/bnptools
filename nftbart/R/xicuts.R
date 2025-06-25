@@ -1,4 +1,4 @@
-## Copyright (C) 2021 Rodney A. Sparapani
+## Copyright (C) 2021-2025 Rodney A. Sparapani
 
 ## This file is part of nftbart.
 ## xicuts.R
@@ -23,7 +23,8 @@ xicuts = function(x.train, transposed=FALSE, numcut=100) {
     ##x = data.matrix(x.train)
     numcut.=0
     grid=list()
-    if(transposed) x <- t(x)
+    x <- x.train
+    if(transposed) x <- t(x) 
     p=ncol(x)
     n=nrow(x)
     for(i in 1:p) grid[[i]]=unique(sort(x[ , i]))

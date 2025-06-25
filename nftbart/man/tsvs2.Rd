@@ -10,7 +10,7 @@
 tsvs2(
                ## data
                xftrain, xstrain, times, delta=NULL, 
-               rm.const=TRUE, rm.dupe=TRUE,
+               rm.const=TRUE, rm.dupe=TRUE, right.max=Inf,
                ##tsvs args
                K=20, a.=1, b.=0.5, C=0.5,
                rds.file='tsvs2.rds', pdf.file='tsvs2.pdf',
@@ -48,7 +48,7 @@ tsvs2(
 tsvs(
                ## data
                x.train, times, delta=NULL, 
-               rm.const=TRUE, rm.dupe=TRUE,
+               rm.const=TRUE, rm.dupe=TRUE, right.max=Inf,
                ##tsvs args
                K=20, a.=1, b.=0.5, C=0.5,
                rds.file='tsvs.rds', pdf.file='tsvs.pdf',
@@ -93,6 +93,7 @@ tsvs(
     left-censoring.}
       \item{rm.const}{To remove constant variables or not.}
     \item{rm.dupe}{To remove duplicate variables or not.}
+\item{right.max}{The maximum value augmented by right censoring.}
   \item{K}{The number of Thompson sampling steps to take.
   Not to be confused with the size of the time grid for survival
   distribution estimation.}

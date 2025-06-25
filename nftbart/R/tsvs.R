@@ -1,4 +1,4 @@
-## Copyright (C) 2021-2022 Rodney A. Sparapani
+## Copyright (C) 2021-2025 Rodney A. Sparapani
 
 ## This file is part of nftbart.
 ## tsvs.R
@@ -22,7 +22,7 @@
 tsvs = function(
                ## data
                x.train, times, delta=NULL,
-               rm.const=TRUE, rm.dupe=TRUE,
+               rm.const=TRUE, rm.dupe=TRUE, right.max=Inf,
                ##tsvs args
                K=20, a.=1, b.=0.5, C=0.5,
                rds.file='tsvs.rds', pdf.file='tsvs.pdf',
@@ -107,6 +107,7 @@ tsvs = function(
         xicuts.=xicuts
         for(j in P:1) if(!pick[j]) xicuts.[[j]]=NULL
         post=nft(x.train=t(x.train.), times=times, delta=delta,
+                 right.max = right.max,
                  ##rm.const=TRUE, rm.dupe=TRUE,
                  ## multi-threading
                  tc=tc, ##OpenMP thread count
@@ -142,12 +143,16 @@ tsvs = function(
         M=nrow(post$f.varcount)
         for(j in 1:P) {
             if(S[i, j]==1) {
-                h=which(namesX[j]==namesf)
-                l=post$f.varcount[M, h]+post$s.varcount[M, h]
-                if(l>0) {
-                    varcount[i, j]=l
-                    gamma[i, j]=1
+                h=c(which(namesX[j]==namesf), 0)[1]
+                if(h == 0) {
+                    l <- 0
+                } else {
+                    l=post$f.varcount[M, h]+post$s.varcount[M, h]
+                    if(length(l) == 0) print(str(post))
                 }
+                varcount[i, j]=l
+                gamma[i, j]=0
+                if(l>0) gamma[i, j]=1
                 a[i, j]=a[i, j]+gamma[i, j]
                 b[i, j]=b[i, j]+1-gamma[i, j]
             } else {

@@ -1,4 +1,4 @@
-## Copyright (C) 2022 Rodney A. Sparapani
+## Copyright (C) 2022-2025 Rodney A. Sparapani
 
 ## This file is part of nftbart.
 ## nft2.R
@@ -23,7 +23,7 @@ nft2 = function(## data
                xftrain, xstrain, times, delta=NULL, 
                xftest=matrix(nrow=0, ncol=0),
                xstest=matrix(nrow=0, ncol=0),
-               rm.const=TRUE, rm.dupe=TRUE, right.max = Inf,
+               rm.const=TRUE, rm.dupe=TRUE, right.max=Inf,
                ##edraws2=matrix(nrow=0, ncol=0),
                ##zdraws2=matrix(nrow=0, ncol=0),
                ##impute.bin=NULL, impute.prob=NULL,
@@ -208,7 +208,7 @@ nft2 = function(## data
     if(take.logs) {
         y=log(times)-fmu
         if(K>0) events=log(events)
-        right.max <- log(right.max)
+        right.max <- log(right.max)-fmu
     } else {
         y=times-fmu
     }
@@ -390,7 +390,8 @@ if(K>0) {
     res$xiscuts=xiscuts
     ##res$fmu = fmu
     res$NFT=list(total.lambda = total.lambda, total.nu = total.nu,
-                 fmu=fmu, tau=tau, k=k) ## , sigmaf=sigmaf)
+                 fmu=fmu, tau=tau, k=k, right.max = right.max+fmu)
+    ## , sigmaf=sigmaf)
 
     if(drawDPM>0) {
         ## res$prior = prior

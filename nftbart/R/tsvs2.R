@@ -1,4 +1,4 @@
-## Copyright (C) 2021-2022 Rodney A. Sparapani
+## Copyright (C) 2021-2025 Rodney A. Sparapani
 
 ## This file is part of nftbart.
 ## tsvs2.R
@@ -22,7 +22,7 @@
 tsvs2 = function(
                  ## data
                  xftrain, xstrain, times, delta=NULL,
-                 rm.const=TRUE, rm.dupe=TRUE,
+                 rm.const=TRUE, rm.dupe=TRUE, right.max=Inf,
                  ##tsvs args
                  K=20, a.=1, b.=0.5, C=0.5,
                  rds.file='tsvs2.rds', pdf.file='tsvs2.pdf',
@@ -162,6 +162,7 @@ tsvs2 = function(
 
         post=nft2(xftrain=t(xftrain.), xstrain=t(xstrain.),
                   times=times, delta=delta, 
+                  right.max = right.max,
                   ## multi-threading
                   tc=tc, ##OpenMP thread count
                   ##MCMC
@@ -199,14 +200,17 @@ tsvs2 = function(
             M=nrow(post$f.varcount)
             for(j in 1:Pf) {
                 if(Sf[i, j]==1) {
-                    h=which(Namesf[j]==namesf)
-                    l=post$f.varcount[M, h]
+                    h=c(which(Namesf[j]==namesf), 0)[1]
+                    if(h == 0) {
+                        l <- 0
+                    } else {
+                        l=post$f.varcount[M, h]
+                    }
+                    varcountf[i, j]=l
+                    gammaf[i, j]=0
                     ## if(length(l)==0) print(str(post))
                     ## else
-                    if(l>0) {
-                        varcountf[i, j]=l
-                        gammaf[i, j]=1
-                    }
+                    if(l>0) gammaf[i, j]=1
                     Af[i, j]=Af[i, j]+gammaf[i, j]
                     Bf[i, j]=Bf[i, j]+1-gammaf[i, j]
                 } else {
@@ -220,14 +224,17 @@ tsvs2 = function(
             M=nrow(post$s.varcount)
             for(j in 1:Ps) {
                 if(Ss[i, j]==1) {
-                    h=which(Namess[j]==namess)
-                    l=post$s.varcount[M, h]
+                    h=c(which(Namess[j]==namess), 0)[1]
+                    if(h == 0) {
+                        l <- 0
+                    } else {
+                        l=post$s.varcount[M, h]
+                    }
+                    varcounts[i, j]=l
+                    gammas[i, j]=0
                     ## if(length(l)==0) print(str(post))
                     ## else
-                    if(l>0) {
-                        varcounts[i, j]=l
-                        gammas[i, j]=1
-                    }
+                    if(l>0) gammas[i, j]=1
                     As[i, j]=As[i, j]+gammas[i, j]
                     Bs[i, j]=Bs[i, j]+1-gammas[i, j]
                 } else {
