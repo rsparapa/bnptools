@@ -329,28 +329,46 @@ argument \code{type} to specify a logit BART model.
    essentially a list. % assigned class \sQuote{bart}.
    In the numeric \eqn{y} case, the list has components:
 
+   \item{offset}{The data centering value for the BART prior.}
+   \item{x.train}{The training data returned with any updates
+     due to missing value imputation, factor expansion, etc.}
    \item{yhat.train}{
-   A matrix with ndpost rows and nrow(x.train) columns.
+   A matrix with \code{ndpost} rows and \code{nrow(x.train)} columns.
    Each row corresponds to a draw \eqn{f^*}{f*} from the posterior of \eqn{f}
    and each column corresponds to a row of x.train.
    The \eqn{(i,j)} value is \eqn{f^*(x)}{f*(x)} for the \eqn{i^{th}}{i\^th} kept draw of \eqn{f}
    and the \eqn{j^{th}}{j\^th} row of x.train.\cr
    Burn-in is dropped.
    }
-
-   \item{yhat.test}{Same as yhat.train but now the x's are the rows of the test data.}
-   \item{yhat.train.mean}{train data fits = mean of yhat.train columns.}
-   \item{yhat.test.mean}{test data fits = mean of yhat.test columns.}
+   \item{yhat.test}{Same as yhat.train but now with \code{x.test} data.}
+   \item{yhat.*.mean}{mean of \code{yhat.train/test} fit.}
+   \item{yhat.*.lower}{lower quantile of \code{yhat.train/test} fit.}
+   \item{yhat.*.upper}{upper quantile of \code{yhat.train/test} fit.}
+   \item{prob.train/test}{produced for dichotomous outcomes.}
+   \item{prob.*.mean}{mean of \code{prob.train/test} fit.}
+   \item{prob.*.lower}{lower quantile of \code{prob.train/test} fit.}
+   \item{prob.*.upper}{upper quantile of \code{prob.train/test} fit.}
    \item{sigma}{all draws of sigma including burn-in.}
    \item{sigma.}{only kept draws of sigma with burn-in discarded.}
-   \item{varcount}{a matrix with ndpost rows and nrow(x.train) columns.
+   \item{sigest}{
+   The rough error standard deviation (\eqn{\sigma}{sigma}) used in the prior.
+ }
+ \item{treedraws}{A list containing the tree draws.}
+   \item{varcount}{matrix with \code{ndpost} rows and \code{nrow(x.train)} columns.
    Each row is for a draw. For each variable (corresponding to the columns),
    the total count of the number of times
    that variable is used in a tree decision rule (over all trees) is given.}
-
-   \item{sigest}{
-   The rough error standard deviation (\eqn{\sigma}{sigma}) used in the prior.
-   }
+   \item{varprob}{instead of counts, this is the probability that each
+   variable is chosen.}
+ \item{var*.mean}{The \code{varcount/prob} mean of its posterior.}
+ \item{accept}{the accept probability from Metropolis-Hastings step
+   within Gibbs.}
+ \item{chains}{The number of MCMC chains.}
+ \item{grp}{The grouping variable for grouped variables with the
+   DART sparse prior.}
+ \item{proc.time}{The time elapsed as returned by \code{proc.time()}.}
+ \item{LPML}{The Log Pseudo-Marginal Likelihood.  Beware for
+   nonparametric models like BART, this quantity can be unstable.}
 }
 %% \references{
 %% Chipman, H., George, E., and McCulloch R. (2010)
