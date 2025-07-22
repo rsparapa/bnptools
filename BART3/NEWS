@@ -13,6 +13,13 @@ Main differences between BART (stable) and BART3 (development)
         especially for DART where it is the most sorely needed
 
 
+Changes and New Features in 5.6 (2025-07-22):
+	* fix zero-length warning in gbart
+
+	* resolve gbart documentation issues
+
+	* add new zsum method for creating time-dependent covariates
+	
 Changes and New Features in 5.5 (2024-12-14):
 	* rename FPDK to the more accurate description
 	of SRS for simple random sampling marginal

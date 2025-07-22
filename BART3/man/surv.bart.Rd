@@ -45,7 +45,7 @@ response case, \eqn{f} is the sum of many tree models.  }
 surv.bart( x.train=matrix(0,0,0),
            y.train=NULL, times=NULL, delta=NULL,
            x.test=matrix(0,0,0),
-           K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
+           K=NULL, events=NULL, ztimes=NULL, zdelta=NULL, zsum=NULL,
            sparse=FALSE, theta=0, omega=1,
            a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
            xinfo=matrix(0,0,0), usequants=FALSE,
@@ -72,7 +72,7 @@ surv.bart( x.train=matrix(0,0,0),
 mc.surv.bart( x.train=matrix(0,0,0),
               y.train=NULL, times=NULL, delta=NULL, 
               x.test=matrix(0,0,0), 
-              K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
+              K=NULL, events=NULL, ztimes=NULL, zdelta=NULL, zsum=NULL,
               sparse=FALSE, theta=0, omega=1,
               a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
               xinfo=matrix(0,0,0), usequants=FALSE,
@@ -155,6 +155,10 @@ that the definition of \code{x.train} is dependent on whether
      They will be transformed into time-dependent covariate binary events.
    }
 
+   \item{zsum}{ A list containing vectors for indices to sum over
+     creating new variables.  Particularly useful for creating
+     time-dependent covariates.  }
+   
    \item{sparse}{Whether to perform variable selection based on a
      sparse Dirichlet prior rather than simply uniform; see Linero 2016.}
    \item{theta}{Set \eqn{theta} parameter; zero means random.}

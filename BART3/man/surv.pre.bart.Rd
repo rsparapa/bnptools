@@ -8,7 +8,7 @@ suitable for the BART survival analysis model; see \code{surv.bart} for more det
 \usage{
 surv.pre.bart( times, delta, x.train=NULL, x.test=NULL,
                K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
-               rm.const=TRUE, numcut=100, grp=NULL,
+               zsum=NULL, rm.const=TRUE, numcut=100, grp=NULL,
                xinfo=matrix(0, 0, 0), usequants=FALSE )
 }
 \arguments{
@@ -51,6 +51,11 @@ surv.pre.bart( times, delta, x.train=NULL, x.test=NULL,
      \code{x.test} if any) are the delta for time-dependent covariates.
      They will be transformed into time-dependent covariate binary events.
    }
+
+   \item{zsum}{ A list containing vectors for indices to sum over
+     creating new variables.  Particularly useful for creating
+     time-dependent covariates.  }
+   
       \item{xinfo}{ You can provide the cutpoints to BART or let BART
      choose them for you.  To provide them, use the \code{xinfo}
      argument to specify a list (matrix) where the items (rows) are the

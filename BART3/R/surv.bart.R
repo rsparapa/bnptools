@@ -22,7 +22,7 @@ surv.bart <- function(
     x.train = matrix(0,0,0),
     y.train=NULL, times=NULL, delta=NULL,
     x.test = matrix(0,0,0),
-    K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
+    K=NULL, events=NULL, ztimes=NULL, zdelta=NULL, zsum = NULL,
     sparse=FALSE, theta=0, omega=1,
     a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
     xinfo=matrix(0,0,0), usequants=FALSE,
@@ -78,7 +78,7 @@ surv.bart <- function(
         ## x.test = hot$x.test
 
         pre <- surv.pre.bart(times, delta, x.train, x.test, K=K,
-                             events=events, ztimes=ztimes, zdelta=zdelta,
+                             events=events, ztimes=ztimes, zdelta=zdelta, zsum = zsum,
                              rm.const=rm.const, numcut=numcut, grp=grp, 
                              xinfo=xinfo, usequants=usequants)
 

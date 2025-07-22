@@ -29,49 +29,27 @@
 
 }
 
-\format{A data frame with 110 subjects on the following 20 variables.
+\format{A data frame with 105 subjects on the following 17 variables.
 \describe{
+\item{\code{DFS}}{an indicator for disease-free survival: 1=event, 0=censoring}
+\item{\code{DFS_Time}}{time-to-event in months}
 \item{\code{Age}}{age in years}
-\item{\code{Sex}}{sex: a factor with levels \code{Female} and \code{Male}}
-\item{\code{Race}}{race: a factor with levels \code{White}, \code{Black}
-  and \code{Asian}}
+\item{\code{Gender}}{sex: a factor with levels \code{Female} and \code{Male}}
+\item{\code{Race}}{race: a factor with levels \code{White}, \code{Black} and \code{Asian}}
 \item{\code{Smoking}}{history of 10 or more pack-years: a factor with levels \code{Yes} and \code{No}}	
-\item{\code{Alcohol}}{consumption of 5 or more drinks per week:
-  a factor with levels \code{Yes} and \code{No}}	
+\item{\code{Alcohol}}{consumption of 5 or more drinks per week: a factor with levels \code{Yes} and \code{No}}	
 \item{\code{Prior_Chemo}}{a factor with levels \code{Yes} and \code{No}}
-\item{\code{Primary_Disease_Site}}{a factor with levels
-  \code{Larynx}, \code{Oral Cavity} and \code{Oropharynx}}
-\item{\code{P16}}{expression of the protein p16 INK4A:
-  a factor with levels \code{Positive},
-  \code{Negative} and blank for missing}	
-\item{\code{ECS}}{extracapsular spread from lymph nodes:
-  a factor with levels \code{Yes},
-  \code{No} and blank for missing}	
-\item{\code{Positive_M}}{positive surgical margins:
-  a factor with levels \code{Yes},
-  \code{No} and blank for missing}
-\item{\code{Close_M}}{<=5mm space between cut tissue edge and invasive tumor:
-  a factor with levels \code{Yes},
-  \code{No} and blank for missing}
-\item{\code{PNI}}{perineural invasion: a factor with levels \code{Yes},
-  \code{No} and blank for missing}
-\item{\code{LVI}}{lymphovascular invasion: a factor with levels \code{Yes},
-  \code{No} and blank for missing}
+\item{\code{Primary_Disease_Site}}{a factor with levels \code{Larynx}, \code{Oral Cavity} and \code{Oropharynx}}
+\item{\code{ECS}}{extracapsular spread from lymph nodes: a factor with levels \code{Yes}, \code{No} and blank for missing}	
+\item{\code{Positve_M}}{positive surgical margins: a factor with levels \code{Yes}, \code{No} and blank for missing}
+\item{\code{PNI}}{perineural invasion: a factor with levels \code{Yes}, \code{No} and blank for missing}
+\item{\code{LVI}}{lymphovascular invasion: a factor with levels \code{Yes}, \code{No} and blank for missing}
 \item{\code{Risk_Stratification}}{a factor with levels \code{High Risk}
   (positive surgical margins and extranodal extension),
   \code{Not High Risk} and blank for missing}
-\item{\code{DFS}}{an indicator for disease-free survival: 1=event,
-  0=censoring}
-\item{\code{Lymph_Nodes_Involved_2}}{involvement of >2 lymph nodes:
-  a factor with levels
-    \code{Yes}, \code{No} and blank for missing}
-\item{\code{DFS_months}}{time-to-event in months}
-\item{\code{study}}{a factor with levels \code{new} (trial population)
-  and \code{old} (historical controls)}
-\item{\code{Initial_Diagnosis_Date}}{a factor with levels 
-\code{YYYY-MM-DD}: convert to a date with \code{as.Date} function}
-\item{\code{Surgery_date}}{a factor with levels 
-\code{YYYY-MM-DD}: convert to a date with \code{as.Date} function}
+\item{\code{Lymph_Nodes_Involved_2}}{involvement of >2 lymph nodes: a factor with levels \code{Yes}, \code{No} and blank for missing}
+\item{\code{Study}}{\code{1} (trial population) and \code{0} (historical controls)}
+\item{\code{diag_year}}{\code{1} and \code{2}}
 }
 }
 

@@ -48,6 +48,9 @@ surv.pre.bart <- function(
                       zdelta=NULL,
                       ## column numbers of (ztimes, zdelta) time-dependent pairs
 
+                      zsum = NULL,
+                      ## list of time-dependent covariates to sum
+
                       rm.const=TRUE,
                       numcut=100,
                       grp=NULL, 
@@ -138,6 +141,7 @@ surv.pre.bart <- function(
         n <- 1
 
         X.train <- matrix(nrow=m, ncol=1, dimnames=list(NULL, 't'))
+        Z <- 0
     } else {
         temp = bartModelMatrix(x.train, numcut=numcut, usequants=usequants,
                                xinfo=xinfo, rm.const=rm.const)
@@ -170,11 +174,16 @@ surv.pre.bart <- function(
         ##     n <- nrow(x.test)
         ## }
 
-        X.train <- matrix(nrow=m, ncol=p+1)
+        Z <- length(zsum)
+
+        X.train <- matrix(nrow=m, ncol=p+Z+1)
+
+        znames <- names(zsum)
+        if(Z>0 && length(znames) == 0) znames <- paste0('zsum', 1:Z)
 
         if(length(dimnames(x.train)[[2]])>0)
-            dimnames(X.train)[[2]] <- c('times', dimnames(x.train)[[2]])
-        else dimnames(X.train)[[2]] <- c('times', paste0('x', 1:p))
+            dimnames(X.train)[[2]] <- c('times', dimnames(x.train)[[2]], znames)
+        else dimnames(X.train)[[2]] <- c('times', paste0('x', 1:p), znames)
     }
 
     k <- 1
@@ -182,17 +191,17 @@ surv.pre.bart <- function(
     for(i in 1:N) for(j in 1:K) if(events[j] <= times[i]) {
         ##if(makeU) U.train[k] <- u.train[i]
         if(p==0) X.train[k, ] <- c(events[j])
-        else X.train[k, ] <- c(events[j], x.train[i, ])
+        else X.train[k, ] <- c(events[j], x.train[i, ], rep(0, Z))
 
         k <- k+1
     }
 
     if(p==0 | length(x.test)>0) {
-        X.test <- matrix(nrow=K*n, ncol=p+1, dimnames=dimnames(X.train))
+        X.test <- matrix(nrow=K*n, ncol=p+Z+1, dimnames=dimnames(X.train))
 
         for(i in 1:n) for(j in 1:K) {
             if(p==0) X.test[j, ] <- c(events[j])
-            else X.test[(i-1)*K+j, ] <- c(events[j], x.test[i, ])
+            else X.test[(i-1)*K+j, ] <- c(events[j], x.test[i, ], rep(0, Z))
         }
     }
     else X.test <- matrix(nrow=0, ncol=0)*0
@@ -212,6 +221,13 @@ surv.pre.bart <- function(
             }
         }
     }
+
+    if(Z>0) 
+        for(l in 1:Z) {
+            z <- 1+zsum[[l]]
+            X.train[ , 1+p+l] <- apply(X.train[ , z], 1, sum)
+            X.test[ , 1+p+l] <- apply(X.test[ , z], 1, sum)
+        }
 
     return(list(y.train=y.train, tx.train=X.train, tx.test=X.test,
                 times=events, K=K,
