@@ -640,8 +640,8 @@ RcppExport SEXP cpsambrt_predict(
    ret["f.train"]=trdraw;
    ret["s.train"]=trdrawh;
    if(np>0) {
-     ret["mdraws"]=tedraw;
-     ret["sdraws"]=tedrawh;
+     ret["f.test"]=tedraw;
+     ret["s.test"]=tedrawh;
    }
 
    if(f) delete [] f;

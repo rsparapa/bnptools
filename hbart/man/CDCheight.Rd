@@ -16,6 +16,10 @@ data(CDCheight)
     age:\tab Age in years\cr
     sex:\tab 1=male, 2=female\cr
     height.XXX:\tab Height XXXth percentile in cm\cr
+    M:\tab mean\cr
+    S:\tab coefficient of variation\cr
+    L:\tab Box-Cox power transformation\cr
+    SD:\tab SD=mean X coefficient of variation\cr
   }
 }
 
