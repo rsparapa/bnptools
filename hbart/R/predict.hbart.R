@@ -41,17 +41,17 @@ predict.hbart = function(
         res$s.train.mean=apply(res$s.train,2,mean)
         res$s.mean=sqrt(mean(res$s.train.mean^2))
         if(np>0) {
-            res$mdraws=res$mdraws+fmean
-            res$mmean=apply(res$mdraws,2,mean)
-            res$msd=apply(res$mdraws,2,sd)
-            ##res$m.q2=apply(res$mdraws,2,quantile,0.5)
-            res$m.lower=apply(res$mdraws,2,quantile,q.lower)
-            res$m.upper=apply(res$mdraws,2,quantile,q.upper)
-            res$smean=apply(res$sdraws,2,mean)
-            res$ssd=apply(res$sdraws,2,sd)
-            ##res$s.q2=apply(res$sdraws,2,quantile,0.5)
-            res$s.lower=apply(res$sdraws,2,quantile,q.lower)
-            res$s.upper=apply(res$sdraws,2,quantile,q.upper)
+            res$f.test=res$f.test+fmean
+            res$f.test.mean=apply(res$f.test,2,mean)
+            res$f.test.sd=apply(res$f.test,2,sd)
+            ##res$m.q2=apply(res$f.test,2,quantile,0.5)
+            res$f.test.lower=apply(res$f.test,2,quantile,q.lower)
+            res$f.test.upper=apply(res$f.test,2,quantile,q.upper)
+            res$s.test.mean=apply(res$s.test,2,mean)
+            res$s.test.sd=apply(res$s.test,2,sd)
+            ##res$s.q2=apply(res$s.test,2,quantile,0.5)
+            res$s.test.lower=apply(res$s.test,2,quantile,q.lower)
+            res$s.test.upper=apply(res$s.test,2,quantile,q.upper)
         }
     } else {
         res=list()
@@ -66,9 +66,9 @@ predict.hbart = function(
                    )
         if(XPtr) {
             res.$s.test.mean=apply(res.$s.test,2,mean)
-            fit=lm(log(res$smean)~res.$s.test.mean)
+            fit=lm(log(res$s.test.mean)~res.$s.test.mean)
             if(length(soffset)==0) soffset=-coef(fit)[1]
-            ## fit=lm(log(res$smean)~0+I(res.$s.test.mean-mh))
+            ## fit=lm(log(res$s.mean)~0+I(res.$s.test.mean-mh))
             ## if(length(soffset)==0) soffset=coef(fit)[1]
         } else {
             if(length(soffset)==0) soffset=mh

@@ -19,11 +19,11 @@ hbartqqplot=function(y,rbmod,nunif=10000,linecolor="red",linewd=3,...) {
    }
 
    ##dims
-   nd = nrow(rbmod$mdraws)
-   np = ncol(rbmod$mdraws)
+   nd = nrow(rbmod$f.test)
+   np = ncol(rbmod$f.test)
 
    ##draw from predictive
-   pdraw = rbmod$mdraws + rbmod$sdraws * matrix(rnorm(nd*np),nrow=nd)
+   pdraw = rbmod$f.test + rbmod$s.test * matrix(rnorm(nd*np),nrow=nd)
 
    ## predictive qqplot
    yquantile = qsamp(y,pdraw)

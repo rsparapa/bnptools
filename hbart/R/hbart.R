@@ -176,12 +176,40 @@ res$xicuts=xicuts
 ## res$treedraws$s.trees=res$s.trees
 ## res$s.trees=NULL
 
-attr(res, 'class') <- 'hbart'
+attr(res, 'class') <- 'hbart' ## must be before predict
 
-    res$pred=predict(res, res$x.train, soffset=0)
-    res$soffset=0.5*log(mean(res$pred$s.test.mean^2)/
-                   mean(res$pred$s.train.mean^2)) ## for stability
+    pred=predict(res, res$x.train, soffset=0)
+    res$soffset=0.5*log(mean(pred$s.test.mean^2)/
+                   mean(pred$s.train.mean^2)) ## for stability
     ##if(!is.finite(res$b0)) res$b0=NA
+    
+    probs <- pred$probs
+
+    res$f.mean <- pred$f.mean
+    res$f.train <- pred$f.train
+    res$f.train.mean <- pred$f.train.mean
+    res$f.train.lower <- apply(res$f.train, 2, quantile, probs[1])
+    res$f.train.upper <- apply(res$f.train, 2, quantile, probs[2])
+
+    res$s.mean <- pred$s.mean
+    res$s.train <- pred$s.train
+    res$s.train.mean <- pred$s.train.mean
+    res$s.train.lower <- apply(res$s.train, 2, quantile, probs[1])
+    res$s.train.upper <- apply(res$s.train, 2, quantile, probs[2])
+
+    if(np>0) {
+        pred=predict(res, x.test)
+
+        res$f.test <- pred$f.test
+        res$f.test.mean <- pred$f.test.mean
+        res$f.test.lower <- apply(res$f.test, 2, quantile, probs[1])
+        res$f.test.upper <- apply(res$f.test, 2, quantile, probs[2])
+        
+        res$s.test <- pred$s.test
+        res$s.test.mean <- pred$s.test.mean
+        res$s.test.lower <- apply(res$s.test, 2, quantile, probs[1])
+        res$s.test.upper <- apply(res$s.test, 2, quantile, probs[2])
+    }
     
 return(res)
 }
