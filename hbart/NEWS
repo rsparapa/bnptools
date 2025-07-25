@@ -1,12 +1,13 @@
 
-Changes and New Features in 1.0 (2021-02-04):
-	* Importing rbart CRAN package to make it C++ header-only
+Changes and New Features in 1.6 (2025-07-25):
+	* from hbart() return x.test predictions as well as x.train
 
+	* from predict() return x.test predictions as f.test/s.test
 
 Changes and New Features in 1.5 (2023-05-23):
 	* better automation to detect OpenMP
 
-	* adding CDC stature by age percentiles data set
+	* adding CDC stature/weight by age percentiles data set
 
 Changes and New Features in 1.4 (2021-10-30):
 	* fixing Makevars.win and adding Makevars
@@ -22,3 +23,6 @@ Changes and New Features in 1.2 (2021-03-11):
 
 Changes and New Features in 1.1 (2021-02-23):
 	* Fix varcount uninitialized bug
+
+Changes and New Features in 1.0 (2021-02-04):
+	* Importing rbart CRAN package to make it C++ header-only
