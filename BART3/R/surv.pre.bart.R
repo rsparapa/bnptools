@@ -156,8 +156,10 @@ surv.pre.bart <- function(
                 x.test = cbind(x.test[ , temp$rm.const])
             n <- nrow(x.test)
         }
-        rm.const <- c(1, temp$rm.const+1)
-        if(length(grp)==0) grp <- c(1, temp$grp)
+        rm.const <- temp$rm.const
+        if(length(grp)==0) grp <- temp$grp
+        ##rm.const <- c(1, temp$rm.const+1)
+        ##if(length(grp)==0) grp <- c(1, temp$grp)
         rm(temp)
 
         temp = bartModelMatrix(cbind(times), numcut=numcut, usequants=usequants)
@@ -185,6 +187,9 @@ surv.pre.bart <- function(
             dimnames(X.train)[[2]] <- c('times', dimnames(x.train)[[2]], znames)
         else dimnames(X.train)[[2]] <- c('times', paste0('x', 1:p), znames)
     }
+
+    if(length(grp)==p) grp <- c(1, grp, rep(1, Z))
+    if(length(grp)<p) grp <- rep(1, p+Z+1)
 
     k <- 1
     

@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017-2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2025 Robert McCulloch and Rodney Sparapani
 ## mc.surv.bart.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -251,7 +251,7 @@ mc.surv.bart <- function(
             post$surv.test.mean <- apply(post$surv.test, 2, mean)
 
         post$varcount.mean <- apply(post$varcount, 2, mean)
-        post$varprob.mean <- apply(post$varprob, 2, mean)
+        post$varprob.mean  <- apply(post$varprob, 2, mean)
 
         attr(post, 'class') <- 'survbart'
 
