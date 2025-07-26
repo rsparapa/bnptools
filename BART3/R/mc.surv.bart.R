@@ -40,7 +40,7 @@ mc.surv.bart <- function(
                          ndpost = 1000L, nskip = 250L, keepevery = 10L,
                          ##nkeeptrain=ndpost, nkeeptest=ndpost,
                          ##nkeeptreedraws=ndpost,
-                         printevery=100L,
+                         printevery=100L, probs=c(0.025, 0.975),
                          ##treesaslists=FALSE,
                          ##keeptrainfits=TRUE,
                          id = NULL,     ## only used by surv.bart
@@ -161,7 +161,7 @@ mc.surv.bart <- function(
                           ##nkeeptrain=mc.ndpost, nkeeptest=mc.ndpost,
                           ##nkeeptestmean=mc.ndpost,
                           ##nkeeptreedraws=mc.ndpost,
-                          printevery=printevery)},
+                          printevery=printevery, probs = probs)},
                 silent=(i!=1))
             ## to avoid duplication of output
             ## capture stdout from first posterior only
@@ -247,8 +247,12 @@ mc.surv.bart <- function(
         ## if(length(post$yhat.test.mean)>0)
         ##     post$yhat.test.mean <- apply(post$yhat.test, 2, mean)
 
-        if(length(tx.test)>0)
+        if(length(tx.test)>0) {
             post$surv.test.mean <- apply(post$surv.test, 2, mean)
+            probs <- sort(probs)
+            post$surv.test.lower <- apply(post$surv.test, 2, quantile, probs[1])
+            post$surv.test.upper <- apply(post$surv.test, 2, quantile, probs[2])
+        }
 
         post$varcount.mean <- apply(post$varcount, 2, mean)
         post$varprob.mean  <- apply(post$varprob, 2, mean)

@@ -61,8 +61,8 @@ surv.bart( x.train=matrix(0,0,0),
            %nkeeptest=ndpost,
            %nkeeptestmean=ndpost,
            %nkeeptreedraws=ndpost,
-           printevery=100L, %treesaslists=FALSE,
-           %keeptrainfits=TRUE,
+           printevery=100L, probs=c(0.025, 0.975),
+          %treesaslists=FALSE, %keeptrainfits=TRUE,
            id=NULL,    ## surv.bart only
            seed=99,    ## mc.surv.bart only
            mc.cores=2, ## mc.surv.bart only
@@ -83,12 +83,12 @@ mc.surv.bart( x.train=matrix(0,0,0),
               k=2, power=2, base=.95,
               offset=NULL, tau.num=c(NA, 3, 6)[ntype], %binaryOffset=NULL,
               ntree=50, numcut=100, ndpost=1000, nskip=250,
-              keepevery = 10L,
+              keepevery = 10L, 
               %nkeeptrain=ndpost,
               %nkeeptest=ndpost,
               %nkeeptestmean=ndpost,
               %nkeeptreedraws=ndpost,
-              printevery=100L, %treesaslists=FALSE,
+              printevery=100L, probs=c(0.025, 0.975), %treesaslists=FALSE,
               %keeptrainfits=TRUE,
               id=NULL,    ## surv.bart only
               seed=99,    ## mc.surv.bart only
@@ -301,6 +301,8 @@ that the definition of \code{x.train} is dependent on whether
    %%   specify \code{treesaslists=TRUE}, then the trees will be returned
    %%   as a list as well.
    %% }
+   \item{probs}{ The lower and upper quantiles to summarize:
+     the default is \code{c(0.025, 0.975)}.}
 
    \item{id}{
      \code{surv.bart} only: unique identifier added to returned list.

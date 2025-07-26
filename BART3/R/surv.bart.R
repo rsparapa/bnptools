@@ -39,7 +39,7 @@ surv.bart <- function(
     ndpost = 1000L, nskip = 250L, keepevery = 10L,
     ##nkeeptrain=ndpost, nkeeptest=ndpost,
     ##nkeeptreedraws=ndpost,
-    printevery=100L,
+    printevery=100L, probs=c(0.025, 0.975),
     ##keeptrainfits=TRUE,
     id = NULL,     ## only used by surv.bart
     seed = 99L,    ## only used by mc.surv.bart
@@ -157,7 +157,7 @@ surv.bart <- function(
                   ##nkeeptrain=nkeeptrain, nkeeptest=nkeeptest,
                   ##nkeeptestmean=nkeeptestmean,
                   ##nkeeptreedraws=nkeeptreedraws,
-                  printevery=printevery,
+                  printevery=printevery, probs = probs,
                   transposed=TRUE)
 
     if(type!=attr(post, 'class')) return(post)
@@ -203,6 +203,9 @@ surv.bart <- function(
             }
 
         post$surv.test.mean <- apply(post$surv.test, 2, mean)
+        probs <- sort(probs)
+        post$surv.test.lower <- apply(post$surv.test, 2, quantile, probs[1])
+        post$surv.test.upper <- apply(post$surv.test, 2, quantile, probs[2])
     }
 
     attr(post, 'class') <- 'survbart'
