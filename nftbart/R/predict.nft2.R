@@ -77,8 +77,7 @@ predict.nft2 = function(
     } else if(K>0) {
         if(length(events)==0) {
             ##events = unique(quantile(object$z.train.mean,
-            events = unique(quantile(object$times,
-                                      probs=(1:K)/(K+1)))
+            events = unique(quantile(object$times, probs=(1:K)/(K+1)))
             attr(events, 'names') = NULL
             take.logs=FALSE
             K = length(events)
@@ -262,15 +261,19 @@ predict.nft2 = function(
                 
                 res$surv.fpd.mean=apply(cbind(res$surv.fpd), 2, mean)
                 res$surv.fpd.lower=
-                    apply(cbind(res$surv.fpd), 2, quantile, probs=q.lower)
+                    apply(cbind(res$surv.fpd), 2, quantile, 
+                          probs=q.lower,na.rm=na.rm)
                 res$surv.fpd.upper=
-                    apply(cbind(res$surv.fpd), 2, quantile, probs=q.upper)
+                    apply(cbind(res$surv.fpd), 2, quantile, 
+                          probs=q.upper,na.rm=na.rm)
                 res$haz.fpd=cbind(res$pdf.fpd/res$surv.fpd)
                     res$haz.fpd.mean =apply(cbind(res$haz.fpd), 2, mean)
                     res$haz.fpd.lower=
-                        apply(cbind(res$haz.fpd), 2, quantile, probs=q.lower)
+                        apply(cbind(res$haz.fpd), 2, quantile, 
+                              probs=q.lower,na.rm=na.rm)
                     res$haz.fpd.upper=
-                        apply(cbind(res$haz.fpd), 2, quantile, probs=q.upper)
+                        apply(cbind(res$haz.fpd), 2, quantile, 
+                              probs=q.upper,na.rm=na.rm)
                 res$pdf.fpd.mean =apply(cbind(res$pdf.fpd), 2, mean)
                 res$f.fpd=f.fpd
                 res$s.fpd=s.fpd
@@ -310,20 +313,20 @@ predict.nft2 = function(
                 }
                 res$surv.test.mean=apply(res$surv.test, 2, mean)
                 res$surv.test.lower=apply(res$surv.test, 2, quantile,
-                                          probs=q.lower)
+                                          probs=q.lower, na.rm = na.rm)
                 res$surv.test.upper=apply(res$surv.test, 2, quantile,
-                                          probs=q.upper)
+                                          probs=q.upper, na.rm = na.rm)
                 res$pdf.test.mean=apply(res$pdf.test, 2, mean)
                 res$pdf.test.lower=apply(res$pdf.test, 2, quantile,
-                                          probs=q.lower)
+                                          probs=q.lower, na.rm = na.rm)
                 res$pdf.test.upper=apply(res$pdf.test, 2, quantile,
-                                          probs=q.upper)
+                                          probs=q.upper, na.rm = na.rm)
                 res$haz.test=res$pdf.test/res$surv.test
                 res$haz.test.mean =apply(res$haz.test, 2, mean)
                 res$haz.test.lower=apply(res$haz.test, 2, quantile,
-                                          probs=q.lower)
+                                          probs=q.lower, na.rm = na.rm)
                 res$haz.test.upper=apply(res$haz.test, 2, quantile,
-                                          probs=q.upper)
+                                          probs=q.upper, na.rm = na.rm)
             }
 
             if(take.logs) res$events=exp(events)
@@ -380,14 +383,16 @@ predict.nft2 = function(
                 for(h in 1:H) 
                     res$RMST.fpd[ , h]=apply(res$RMST.test[ , (h-1)*n+1:n], 1, mean)
                 res$RMST.fpd.mean =apply(res$RMST.fpd, 2, mean)
-                res$RMST.fpd.lower=apply(res$RMST.fpd, 2, quantile, probs=q.lower)
-                res$RMST.fpd.upper=apply(res$RMST.fpd, 2, quantile, probs=q.upper)
+                res$RMST.fpd.lower=apply(res$RMST.fpd, 2, quantile, 
+                                         probs=q.lower,na.rm=na.rm)
+                res$RMST.fpd.upper=apply(res$RMST.fpd, 2, quantile, 
+                                         probs=q.upper,na.rm=na.rm)
             } else {
             res$RMST.test.mean=apply(res$RMST.test, 2, mean)
             res$RMST.test.lower=
-                apply(res$RMST.test, 2, quantile, probs=q.lower)
+                apply(res$RMST.test, 2, quantile, probs=q.lower,na.rm=na.rm)
             res$RMST.test.upper=
-                apply(res$RMST.test, 2, quantile, probs=q.upper)
+                apply(res$RMST.test, 2, quantile, probs=q.upper,na.rm=na.rm)
             }
         }
     } else {

@@ -4,7 +4,8 @@ rm -f config.log config.status src/Makevars
 
 for i in *~ src/*.o src/*.so src/symbols.rds src/BROWSE src/TAGS \
 	    demo/*.pdf demo/.Rhistory demo/*.Rout demo/*.rds demo/core.* \
-	    demo/*.sh demo/*.o* demo/*.e* demo/*.csv demo/bmx.R
+	    demo/*.sh demo/*.o* demo/*.e* demo/*.csv demo/bmx.R \
+	    demo/lung-noise.R demo/nox.R
 do
     if [ -e $i ]
        then rm -rf $i

@@ -19,3 +19,4 @@ importFrom("stats", coef, cor, dnorm, pnorm, predict,
 importFrom("graphics", abline, lines, par, points, text)
 importFrom("grDevices", dev.off, pdf)
 importFrom("lattice", ltext, panel.number, panel.xyplot, xyplot) 
+importFrom("utils", "str")
