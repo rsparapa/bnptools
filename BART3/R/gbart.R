@@ -164,9 +164,9 @@ gbart=function(
         }
         else if(is.na(lambda)) {
             if(is.na(sigest)) {
+                ##if((p < n) && all(!is.na(c(x.train)))) 
                 if(p < n) 
-                    sigest =
-                        summary(lm(y.train~.,
+                    sigest = summary(lm(y.train~.,
                                    data.frame(t(x.train),y.train)))$sigma
                 if(is.na(sigest)) sigest = sd(y.train)
             }

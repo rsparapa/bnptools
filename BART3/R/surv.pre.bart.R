@@ -60,6 +60,9 @@ surv.pre.bart <- function(
                       ) {
     ##binaryOffset <- qnorm(1-exp(-sum(delta)/sum(times)))
 
+    if(length(numcut) == 1) numcut. <- numcut
+    else numcut. <- 100
+
     N <- length(times)
 
     if(N!=length(delta))
@@ -190,6 +193,7 @@ surv.pre.bart <- function(
 
     if(length(grp)==p) grp <- c(1, grp, rep(1, Z))
     if(length(grp)<p) grp <- rep(1, p+Z+1)
+    if(length(rm.const) == p) rm.const <- c(1, rm.const+1)
 
     k <- 1
     
@@ -225,6 +229,11 @@ surv.pre.bart <- function(
                 X.test[ , i]=X.test[ , 1]-X.test[ , j]*X.test[ , i]
             }
         }
+
+        temp <- bartModelMatrix(cbind(X.train[,(p+2):(Z+p+1)]), numcut=numcut.)
+        numcut <- c(numcut, temp$numcut)
+        xinfo <- rbind(xinfo, temp$xinfo)
+        rm.const <- c(rm.const, p+1+temp$rm.const)
     }
 
     if(Z>0) 

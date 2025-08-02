@@ -144,8 +144,8 @@ mc.surv.bart <- function(
         for(i in 1:mc.cores) {
             parallel::mcparallel({psnice(value=nice);
                 surv.bart(x.train=x.train, y.train=y.train, x.test=x.test,
-                          times=times, delta=delta, K=K,
-                          events=events, ##ztimes=ztimes, zdelta=zdelta, zsum=zsum,
+                          times=times, delta=delta, K=K, events=events, 
+                          ztimes=ztimes, zdelta=zdelta, zsum=zsum,
                           sparse=sparse, theta=theta, omega=omega,
                           a=a, b=b, augment=augment, rho=rho, grp=grp,
                           xinfo=xinfo, usequants=usequants,
