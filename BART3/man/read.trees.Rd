@@ -23,20 +23,23 @@ read.trees(treedraws, ## treedraws item returned from BART
   was used in the BART fit.  However, it may be from a different
   reference population that is similarly representative.}
 \item{call}{Whether to call the R or C++ implementation.
-  \code{FALSE} defaults to calling R.
+  \code{FALSE} defaults to calling R.  Surprisingly, there
+  seems to be little, if any, speed benefit for C++ here.
 }
 \item{cutpoints}{A substitute set of cutpoints if provided.}
 \item{trees}{A substitute ASCII string for the trees if provided.}
 }
 
 \details{ An object for the trees is returned that is appropriate for
-  the \code{EXPVALUE} function.  Returns a 4-dimensional array.  The
-  first index is for MCMC draws.  The second is for trees.  The third is
-  for the node number.  The fourth is encoded for the type of data as
-  follows. (1) node type: 0 for not present, 1 for a branch and 2 for a
-  leaf.  (2) variable: R index starting at 1.  (3) cut-point: R index.
-  (4) leaf value, if any. (5) the number of training subjects passing
-  through this node: this is often called coverage.  }
+  the \code{EXPVALUE} function (AKA the \code{TreeMarginal}).  Returns a
+  4-dimensional array of indices: MCMC draws, trees, the node number and
+  a code for the type of numeric data present.  The fourth index is
+  encoded as follows. (1) node type: 0 for not present, 1 for a branch
+  and 2 for a leaf.  (2) variable: R index starting at 1 (0 for not
+  applicable).  (3) cut-point: 0 for not applicable, but it may be a
+  valid value.  (4) leaf value: 0 for not applicable. (5) the number of
+  training subjects passing through this node: this is typically called
+  coverage.  }
 
 \seealso{
    \code{\link{EXPVALUE}}
