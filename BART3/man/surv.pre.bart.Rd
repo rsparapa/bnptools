@@ -50,6 +50,7 @@ surv.pre.bart( times, delta, x.train=NULL, x.test=NULL,
      If provided, then these columns of \code{x.train} (and
      \code{x.test} if any) are the delta for time-dependent covariates.
      They will be transformed into time-dependent covariate binary events.
+     Zero is no event while greater than zero is an event.
    }
 
    \item{zsum}{ A list containing vectors for indices to sum over

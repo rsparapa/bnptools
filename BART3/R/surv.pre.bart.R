@@ -222,11 +222,15 @@ surv.pre.bart <- function(
         for(l in 1:L) {
             i=ztimes[l]
             j=zdelta[l]
-            X.train[ , j]=X.train[ , j]*(X.train[ , 1]>=X.train[ , i])
-            X.train[ , i]=X.train[ , 1]-X.train[ , j]*X.train[ , i]
+            X.train[ , j]=(X.train[ , j]>0)*(X.train[ , 1]>=X.train[ , i])
+            X.train[ , i]=X.train[ , 1]-(X.train[ , j]>0)*X.train[ , i]
+            ##X.train[ , j]=X.train[ , j]*(X.train[ , 1]>=X.train[ , i])
+            ##X.train[ , i]=X.train[ , 1]-X.train[ , j]*X.train[ , i]
             if(length(x.test)>0) {
-                X.test[ , j]=X.test[ , j]*(X.test[ , 1]>=X.test[ , i])
-                X.test[ , i]=X.test[ , 1]-X.test[ , j]*X.test[ , i]
+                X.test[ , j]=(X.test[ , j]>0)*(X.test[ , 1]>=X.test[ , i])
+                X.test[ , i]=X.test[ , 1]-(X.test[ , j]>0)*X.test[ , i]
+                ##X.test[ , j]=X.test[ , j]*(X.test[ , 1]>=X.test[ , i])
+                ##X.test[ , i]=X.test[ , 1]-X.test[ , j]*X.test[ , i]
             }
         }
 
