@@ -222,30 +222,35 @@ surv.pre.bart <- function(
         for(l in 1:L) {
             i=ztimes[l]
             j=zdelta[l]
-            X.train[ , j]=(X.train[ , j]>0)*(X.train[ , 1]>=X.train[ , i])
+            X.train[ , j]=X.train[ , j]*(X.train[ , 1]>=X.train[ , i])
+            ##X.train[ , j]=(X.train[ , j]>0)*(X.train[ , 1]>=X.train[ , i])
             X.train[ , i]=X.train[ , 1]-(X.train[ , j]>0)*X.train[ , i]
-            ##X.train[ , j]=X.train[ , j]*(X.train[ , 1]>=X.train[ , i])
             ##X.train[ , i]=X.train[ , 1]-X.train[ , j]*X.train[ , i]
             if(length(x.test)>0) {
-                X.test[ , j]=(X.test[ , j]>0)*(X.test[ , 1]>=X.test[ , i])
+                X.test[ , j]=X.test[ , j]*(X.test[ , 1]>=X.test[ , i])
+                ##X.test[ , j]=(X.test[ , j]>0)*(X.test[ , 1]>=X.test[ , i])
                 X.test[ , i]=X.test[ , 1]-(X.test[ , j]>0)*X.test[ , i]
-                ##X.test[ , j]=X.test[ , j]*(X.test[ , 1]>=X.test[ , i])
                 ##X.test[ , i]=X.test[ , 1]-X.test[ , j]*X.test[ , i]
             }
         }
 
-        temp <- bartModelMatrix(cbind(X.train[,(p+2):(Z+p+1)]), numcut=numcut.)
-        numcut <- c(numcut, temp$numcut)
-        xinfo <- rbind(xinfo, temp$xinfo)
-        rm.const <- c(rm.const, p+1+temp$rm.const)
+        ## temp <- bartModelMatrix(cbind(X.train[,(p+2):(Z+p+1)]), numcut=numcut.)
+        ## numcut <- c(numcut, temp$numcut)
+        ## xinfo <- rbind(xinfo, temp$xinfo)
+        ## rm.const <- c(rm.const, p+1+temp$rm.const)
     }
 
-    if(Z>0) 
+    if(Z>0) {
         for(l in 1:Z) {
             z <- 1+zsum[[l]]
             X.train[ , 1+p+l] <- apply(X.train[ , z], 1, sum)
             X.test[ , 1+p+l] <- apply(X.test[ , z], 1, sum)
         }
+        temp <- bartModelMatrix(cbind(X.train[,(p+2):(Z+p+1)]), numcut=numcut.)
+        numcut <- c(numcut, temp$numcut)
+        xinfo <- rbind(xinfo, temp$xinfo)
+        rm.const <- c(rm.const, p+1+temp$rm.const)
+    }
 
     return(list(y.train=y.train, tx.train=X.train, tx.test=X.test,
                 times=events, K=K,

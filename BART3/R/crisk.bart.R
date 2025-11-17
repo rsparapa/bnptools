@@ -20,8 +20,9 @@
 crisk.bart <- function(
     x.train=matrix(0,0,0), y.train=NULL,
     x.train2=x.train, y.train2=NULL,
-    times=NULL, delta=NULL, K=NULL,
+    times=NULL, delta=NULL, K=NULL, events = NULL,
     x.test=matrix(0,0,0), x.test2=x.test, cond=NULL,
+    zdelta = NULL, ztimes = NULL, zsum = NULL,
     sparse=FALSE, theta=0, omega=1,
     a=0.5, b=1, augment=FALSE, rho=0, grp=NULL, rho2=0, grp2=NULL,
     xinfo=matrix(0,0,0), xinfo2=matrix(0,0,0), usequants=FALSE,
@@ -73,7 +74,8 @@ crisk.bart <- function(
         ## x.test2 = hot$x.test
         
         pre <- crisk.pre.bart(times, delta, x.train, x.test,
-                              x.train2, x.test2, K=K,
+                              x.train2, x.test2, K=K, events = events,
+                              zdelta = zdelta, ztimes = ztimes, zsum = zsum,
                              rm.const=rm.const, numcut=numcut, grp=grp, 
                              xinfo=xinfo, usequants=usequants)
 

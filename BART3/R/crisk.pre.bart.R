@@ -49,6 +49,16 @@ crisk.pre.bart <- function(
                       K=NULL,
                       ## if specified, then use K quantiles for time grid
                       
+                      events=NULL,
+                      ## if specified, then use events for time grid
+
+                      ztimes=NULL,
+                      zdelta=NULL,
+                      ## column numbers of (ztimes, zdelta) time-dependent pairs
+
+                      zsum = NULL,
+                      ## list of time-dependent covariates to sum
+
                       rm.const=TRUE,
                       numcut=100,
                       grp=NULL, 
@@ -74,15 +84,17 @@ crisk.pre.bart <- function(
     if(length(x.test)>0 && length(x.test2)>0 && nrow(x.test)!=nrow(x.test2))
         stop('number of rows in x.test and x.test2 must be equal')
 
-    pre <- surv.pre.bart(times=times, 1*(delta==1), K=K,
+    pre <- surv.pre.bart(times=times, 1*(delta==1), K=K, events = events,
                          x.train=x.train, x.test=x.test,
+                         zdelta = zdelta, ztimes = ztimes, zsum = zsum,
                          rm.const=rm.const, numcut=numcut, grp=grp,
                          xinfo=xinfo, usequants=usequants)
 
     pre$cond <- which(pre$y.train==0)
 
-    pre2 <- surv.pre.bart(times=times, 1*(delta==2), K=K,
-                         x.train=x.train2, x.test=x.test2)
+    pre2 <- surv.pre.bart(times=times, 1*(delta==2), K=pre$K, events = pre$times,
+                         x.train=x.train2, x.test=x.test2,
+                         zdelta = zdelta, ztimes = ztimes, zsum = zsum)
 
     pre$tx.train2 <- pre2$tx.train
     pre$tx.test2 <- pre2$tx.test

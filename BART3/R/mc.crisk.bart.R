@@ -20,8 +20,9 @@
 mc.crisk.bart <- function(
     x.train = matrix(0,0,0), y.train=NULL,
     x.train2 = x.train, y.train2=NULL,
-    times=NULL, delta=NULL, K=NULL,
+    times=NULL, delta=NULL, K=NULL, events = NULL,
     x.test = matrix(0,0,0), x.test2 = x.test, cond=NULL,
+    zdelta = NULL, ztimes = NULL, zsum = NULL,
     sparse=FALSE, theta=0, omega=1,
     a=0.5, b=1, augment=FALSE,
     rho=0, grp=NULL, rho2=0, grp2=NULL,
@@ -65,7 +66,7 @@ mc.crisk.bart <- function(
 
     if(length(y.train)==0) {
         pre <- crisk.pre.bart(times, delta, x.train, x.test,
-                              x.train2, x.test2, K=K)
+                              x.train2, x.test2, K=K, events = events)
 
         ## y.train <- pre$y.train
         ## x.train <- pre$tx.train
@@ -130,7 +131,8 @@ mc.crisk.bart <- function(
               crisk.bart(x.train=x.train, y.train=y.train,
                          x.train2=x.train2, y.train2=y.train2,
                          x.test=x.test, x.test2=x.test2, cond=cond,
-                         times=times, delta=delta,
+                         times=times, delta=delta, K = K, events = events,
+                         zdelta = zdelta, ztimes = ztimes, zsum = zsum,
                          sparse=sparse, theta=theta, omega=omega,
                          a=a, b=b, augment=augment,
                          rho=rho, rho2=rho2,
