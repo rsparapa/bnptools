@@ -274,11 +274,17 @@ public:
 };
 
 // a dinfo iterator, of sorts.
-class diterator : public std::iterator<std::input_iterator_tag, size_t>
+class diterator //: public std::iterator<std::input_iterator_tag, size_t>
 {
 	size_t i, end;
 	dinfo di;
 public:
+using iterator_category = std::input_iterator_tag;    
+using value_type        = size_t;    
+using difference_type   = std::ptrdiff_t;    
+using pointer           = size_t*;    
+using reference         = size_t&;
+
   diterator(dinfo* d) : i(0),end((*d).n),di(*d) {}  //copy of d, helps OPENMP speed apparently.
   diterator(const diterator& dit) : i(dit.i),end(dit.end),di(dit.di) {}
   diterator(dinfo* d, size_t first, size_t last) : i(first),end(last),di(*d) {}

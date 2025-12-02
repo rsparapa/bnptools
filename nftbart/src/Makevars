@@ -1,5 +1,6 @@
 
-CXX_STD = CXX14
+##CXX_STD = CXX14
+CXX_STD = CXX17
 PKG_CPPFLAGS = -fopenmp
 PKG_LIBS = -fopenmp
 ##PKG_LIBS = -fopenmp -lprofiler
