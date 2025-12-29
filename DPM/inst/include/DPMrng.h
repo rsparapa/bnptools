@@ -64,6 +64,7 @@ namespace DPM {
       Rcpp::IntegerVector x(K);
       R::rmultinom(1, &p[0], K, &x[0]);
       for(int j=0; j<K; ++j) if(x[j]==1) return j;
+      return -1; // to suppress warning on previous return above
     }
 
 /*

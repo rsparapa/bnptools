@@ -1,3 +1,6 @@
+Changes and New Features in 1.4 (2025-12-29):
+	* adding fleabeetle data
+
 Changes and New Features in 1.1 (2019-11-19):
 	* fit object is now a list of matrices and vectors
 	for convenience rather than a list of lists
