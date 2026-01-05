@@ -10,6 +10,7 @@
 /* .Call calls */
 extern SEXP call_mutau(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP call_NoGa(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP call_jnNoGa(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP call_rcat(SEXP);
 extern SEXP call_rgamma(SEXP, SEXP, SEXP);
 extern SEXP call_rlgamma(SEXP, SEXP);
@@ -22,6 +23,7 @@ extern SEXP call_sort(SEXP);
 static const R_CallMethodDef CallEntries[] = {
   {"call_mutau",       (DL_FUNC) &call_mutau,       7},
   {"call_NoGa",        (DL_FUNC) &call_NoGa,        7},
+  {"call_jnNoGa",      (DL_FUNC) &call_jnNoGa,      7},
   {"call_rcat",        (DL_FUNC) &call_rcat,        1},
   {"call_rgamma",      (DL_FUNC) &call_rgamma,      3},
   {"call_rlgamma",     (DL_FUNC) &call_rlgamma,     2},

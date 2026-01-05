@@ -2,7 +2,7 @@ Package: DPM
 Type: Package
 Title: Dirichlet Process Mixtures With Low Information Omnibus Prior
 Version: 1.4
-Date: 2025-12-29
+Date: 2026-01-03
 Authors@R: c(person('Rodney', 'Sparapani', role=c('aut', 'cre'), 
   email='rsparapa@mcw.edu'))
 Authors: Rodney Sparapani [aut, cre]

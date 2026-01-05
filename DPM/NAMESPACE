@@ -2,7 +2,7 @@ useDynLib(DPM, .registration=TRUE)
 ##import(RcppEigen)
 importFrom(Rcpp, evalCpp)
 importFrom(survival, survfit, Surv, survreg)
-export(mutau, normwrapper, NoGa)
+export(mutau, normwrapper, NoGa, jnNoGa)
 export(rcat, .rgamma, rlgamma, rtnorm, .quantile, Quantile,
        .floor, .ceiling, .sort)
 importFrom(DPpackage, DPdensity)

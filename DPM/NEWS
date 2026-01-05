@@ -1,6 +1,9 @@
 Changes and New Features in 1.4 (2025-12-29):
 	* adding fleabeetle data
 
+	* and the corresponding model from Jain and Neal 2007
+	which is called here jnNoGa
+
 Changes and New Features in 1.1 (2019-11-19):
 	* fit object is now a list of matrices and vectors
 	for convenience rather than a list of lists

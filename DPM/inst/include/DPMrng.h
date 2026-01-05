@@ -88,6 +88,15 @@ namespace DPM {
     virtual double rexp(double rate=1.) {return R::rexp(rate);}
 
     virtual double rgamma(double shape, double rate=1., double small=0.1) {
+// in R, the argument order is rgamma(shape, rate)
+// and the same is true for rng::rgamma
+// E[y]=shape/rate
+// V[y]=shape/(rate^2)
+// rate=b0=1/R 
+// however in Rmath and Rcpp it is defined differently
+// y=rgamma(shape, scale) where scale=1/rate
+// E[y]=shape*scale 
+// V[y]=shape*scale^2
       if(shape<=small) {
 	double z;
 	do { z=exp(this->rlgamma(shape)-log(rate)); } while (z==0.);
