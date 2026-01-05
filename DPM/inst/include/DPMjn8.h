@@ -41,11 +41,11 @@ namespace DPM {
 
     double
       alpha=Rcpp::as<double>(hyper["alpha"]),
+      alpha_a=Rcpp::as<double>(prior["alpha.a"]), 
+      alpha_b=Rcpp::as<double>(prior["alpha.b"]), 
       a0=Rcpp::as<double>(prior["a0"]), 
       b0=Rcpp::as<double>(hyper["b0"]);
 /*
-      alpha_a=Rcpp::as<double>(prior["alpha.a"]), 
-      alpha_b=Rcpp::as<double>(prior["alpha.b"]), 
       m0=Rcpp::as<double>(prior["m0"]), 
       k0=Rcpp::as<double>(hyper["k0"]), 
       k0_a=Rcpp::as<double>(prior["k0.a"]), 
@@ -54,11 +54,11 @@ namespace DPM {
       b0_b=Rcpp::as<double>(prior["b0.b"]); 
 */
 
-    int k=Rcpp::max(C)+1; // number of states
+    int k=Rcpp::max(C)+1, // number of states
+      alpha_draw=Rcpp::as<int>(hyper["alpha.draw"]); 
 /*
       k0_draw=Rcpp::as<int>(hyper["k0.draw"]), 
       b0_draw=Rcpp::as<int>(hyper["b0.draw"]), 
-      alpha_draw=Rcpp::as<int>(hyper["alpha.draw"]); 
 
     if(M==3) { // right censoring
       Rcpp::NumericVector prob(k);
@@ -219,13 +219,12 @@ namespace DPM {
 	(*P0) (c, Rcpp::wrap(y), _phi, m0, k0, a0, b0, eng);
       }
     }
-/*
+
     if(alpha_draw) {
       double eta=eng.rbeta(alpha, N);
       alpha=eng.rgamma(alpha_a+k, alpha_b-log(eta)); 
       hyper["alpha"]=alpha;
     }
-*/
   }
 }
 

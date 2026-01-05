@@ -87,11 +87,11 @@ namespace DPM {
       m=Rcpp::as<int>(prior["m"]);
 
     double alpha=Rcpp::as<double>(hyper["alpha"]),
+      alpha_a=Rcpp::as<double>(prior["alpha.a"]), 
+      alpha_b=Rcpp::as<double>(prior["alpha.b"]), 
       a0=Rcpp::as<double>(prior["a0"]), 
       b0=Rcpp::as<double>(hyper["b0"]); 
 /*
-      alpha_a=Rcpp::as<double>(prior["alpha.a"]), 
-      alpha_b=Rcpp::as<double>(prior["alpha.b"]), 
       m0=Rcpp::as<double>(prior["m0"]), 
       k0=Rcpp::as<double>(hyper["k0"]), 
       k0_a=Rcpp::as<double>(prior["k0.a"]), 
