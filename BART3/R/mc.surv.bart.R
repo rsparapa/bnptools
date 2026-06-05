@@ -73,7 +73,7 @@ mc.surv.bart <- function(
         stop("The number of multinomial columns must be greater than 1\nConvert a binary into two columns")
 
     if(length(y.train)==0) {
-        pre <- surv.pre.bart(times, delta, x.train, x.test, K=K,
+        pre <- surv.pre.bart(times, delta, x.train, x.test, K=K, rm.const=rm.const,
                              events=events, ztimes=ztimes, zdelta=zdelta, zsum=zsum)
 
         tx.train <- pre$tx.train
