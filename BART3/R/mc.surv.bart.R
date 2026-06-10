@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017-2025 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2026 Robert McCulloch and Rodney Sparapani
 ## mc.surv.bart.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,8 @@ mc.surv.bart <- function(
                          x.train = matrix(0,0,0),
                          y.train=NULL, times=NULL, delta=NULL,
                          x.test = matrix(0,0,0),
-                         K=NULL, events=NULL, ztimes=NULL, zdelta=NULL, zsum=NULL,
+                         K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
+                         zsum=NULL, sojourn=TRUE, z.train=NULL, z.test=NULL,
                          sparse=FALSE, theta=0, omega=1,
                          a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
                          xinfo=matrix(0,0,0), usequants=FALSE,
@@ -74,7 +75,8 @@ mc.surv.bart <- function(
 
     if(length(y.train)==0) {
         pre <- surv.pre.bart(times, delta, x.train, x.test, K=K, rm.const=rm.const,
-                             events=events, ztimes=ztimes, zdelta=zdelta, zsum=zsum)
+                         events=events, ztimes=ztimes, zdelta=zdelta, zsum=zsum,
+                             sojourn=sojourn, z.train=z.train, z.test=z.test)
 
         tx.train <- pre$tx.train
         tx.test  <- pre$tx.test
@@ -144,8 +146,9 @@ mc.surv.bart <- function(
         for(i in 1:mc.cores) {
             parallel::mcparallel({psnice(value=nice);
                 surv.bart(x.train=x.train, y.train=y.train, x.test=x.test,
-                          times=times, delta=delta, K=K, events=events, 
+                          times=times, delta=delta, K=K, events=events,
                           ztimes=ztimes, zdelta=zdelta, zsum=zsum,
+                          sojourn=sojourn, z.train=z.train, z.test=z.test,
                           sparse=sparse, theta=theta, omega=omega,
                           a=a, b=b, augment=augment, rho=rho, grp=grp,
                           xinfo=xinfo, usequants=usequants,

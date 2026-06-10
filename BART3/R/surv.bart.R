@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017-2020 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2026 Robert McCulloch and Rodney Sparapani
 ## surv.bart.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,8 @@ surv.bart <- function(
     x.train = matrix(0,0,0),
     y.train=NULL, times=NULL, delta=NULL,
     x.test = matrix(0,0,0),
-    K=NULL, events=NULL, ztimes=NULL, zdelta=NULL, zsum = NULL,
+    K=NULL, events=NULL, ztimes=NULL, zdelta=NULL, zsum=NULL,
+    sojourn=TRUE, z.train=NULL, z.test=NULL,
     sparse=FALSE, theta=0, omega=1,
     a=0.5, b=1, augment=FALSE, rho=0, grp=NULL,
     xinfo=matrix(0,0,0), usequants=FALSE,
@@ -72,14 +73,15 @@ surv.bart <- function(
     if(length(y.train)==0) {
         ## times.=times
         ## times.[delta==0]=times.[delta==0]+max(times[delta==1])
-    
+
         ## hot = HDimpute(x.train, times., x.test)
         ## x.train = hot$x.train
         ## x.test = hot$x.test
 
         pre <- surv.pre.bart(times, delta, x.train, x.test, K=K,
-                             events=events, ztimes=ztimes, zdelta=zdelta, zsum = zsum,
-                             rm.const=rm.const, numcut=numcut, grp=grp, 
+                         events=events, ztimes=ztimes, zdelta=zdelta, zsum=zsum,
+                             sojourn=sojourn, z.train=z.train, z.test=z.test,
+                             rm.const=rm.const, numcut=numcut, grp=grp,
                              xinfo=xinfo, usequants=usequants)
 
         y.train <- pre$y.train

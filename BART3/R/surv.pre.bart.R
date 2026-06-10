@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2017-2025 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2017-2026 Robert McCulloch and Rodney Sparapani
 
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -48,12 +48,18 @@ surv.pre.bart <- function(
                       zdelta=NULL,
                       ## column numbers of (ztimes, zdelta) time-dependent pairs
 
+                      sojourn=TRUE,
+                      z.train=NULL,
+                      z.test=NULL,
+                      ## sojourn=FALSE means sojourn times are not covariates
+                      ## so supply z.train and z.test accordingly
+
                       zsum = NULL,
                       ## list of time-dependent covariates to sum
 
                       rm.const=TRUE,
                       numcut=100,
-                      grp=NULL, 
+                      grp=NULL,
                       xinfo=matrix(0,0,0),
                       usequants=FALSE
                       ## parameters for bartModelMatrix
@@ -152,7 +158,7 @@ surv.pre.bart <- function(
         nc = temp$numcut
         xinfo = temp$xinfo
         p <- ncol(x.train)
-        
+
         if(length(x.test)>0) {
             x.test = (bartModelMatrix(x.test))
             if(class(rm.const)[1]=='logical' && rm.const)
@@ -169,7 +175,7 @@ surv.pre.bart <- function(
 
         xinfo = rbind(temp$xinfo, xinfo)
         numcut = c(temp$numcut, nc)
-        
+
         ## if(class(x.train)[1]=='data.frame') x.train=bartModelMatrix(x.train)
 
         ## p <- ncol(x.train)
@@ -196,7 +202,7 @@ surv.pre.bart <- function(
     if(length(rm.const) == p) rm.const <- c(1, rm.const+1)
 
     k <- 1
-    
+
     for(i in 1:N) for(j in 1:K) if(events[j] <= times[i]) {
         ##if(makeU) U.train[k] <- u.train[i]
         if(p==0) X.train[k, ] <- c(events[j])
@@ -216,21 +222,28 @@ surv.pre.bart <- function(
     else X.test <- matrix(nrow=0, ncol=0)*0
 
     if(L>0) {
-        ztimes=ztimes+1
         zdelta=zdelta+1
 
-        for(l in 1:L) {
-            i=ztimes[l]
-            j=zdelta[l]
-            X.train[ , j]=X.train[ , j]*(X.train[ , 1]>=X.train[ , i])
-            ##X.train[ , j]=(X.train[ , j]>0)*(X.train[ , 1]>=X.train[ , i])
-            X.train[ , i]=X.train[ , 1]-(X.train[ , j]>0)*X.train[ , i]
-            ##X.train[ , i]=X.train[ , 1]-X.train[ , j]*X.train[ , i]
-            if(length(x.test)>0) {
-                X.test[ , j]=X.test[ , j]*(X.test[ , 1]>=X.test[ , i])
-                ##X.test[ , j]=(X.test[ , j]>0)*(X.test[ , 1]>=X.test[ , i])
-                X.test[ , i]=X.test[ , 1]-(X.test[ , j]>0)*X.test[ , i]
-                ##X.test[ , i]=X.test[ , 1]-X.test[ , j]*X.test[ , i]
+        if(sojourn) {
+            ztimes=ztimes+1
+            for(l in 1:L) {
+                i=ztimes[l]
+                j=zdelta[l]
+                X.train[ , j]=X.train[ , j]*(X.train[ , 1]>=X.train[ , i])
+                X.train[ , i]=X.train[ , 1]-(X.train[ , j]>0)*X.train[ , i]
+                if(length(x.test)>0) {
+                    X.test[ , j]=X.test[ , j]*(X.test[ , 1]>=X.test[ , i])
+                    X.test[ , i]=X.test[ , 1]-(X.test[ , j]>0)*X.test[ , i]
+                }
+            }
+        } else {
+            for(l in 1:L) {
+                i=ztimes[l]
+                j=zdelta[l]
+                X.train[ , j]=X.train[ , j]*(X.train[ , 1]>=z.train[ , i])
+                if(length(x.test)>0) {
+                    X.test[ , j]=X.test[ , j]*(X.test[ , 1]>=z.test[ , i])
+                }
             }
         }
 
