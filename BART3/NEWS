@@ -10,8 +10,18 @@ Main differences between BART (stable) and BART3 (development)
 	* better automated detection of OpenMP on Windows and macOS
 
         * better support for factors in data.frames 
-        especially for DART where it is the most sorely needed
+          especially for DART where it is the most sorely needed
 
+	* and the development of many new features: see below
+	
+	
+Changes and New Features in 5.7 (2026-06-11):
+	* bug-fix mc.surv.bart: propagate rm.const into surv.pre.bart
+
+	* new feature surv.bart/mc.surv.bart/surv.pre.bart:
+	setting sojourn=FALSE removes the sojourn times from the covariate list
+	yet, that info is still needed to generate the time-dependents of zdelta
+	so they can now be provided as matrices: z.train and z.test accordingly
 
 Changes and New Features in 5.6 (2025-07-22):
 	* fix zero-length warning in gbart

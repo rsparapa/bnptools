@@ -8,6 +8,7 @@ suitable for the BART survival analysis model; see \code{surv.bart} for more det
 \usage{
 surv.pre.bart( times, delta, x.train=NULL, x.test=NULL,
                K=NULL, events=NULL, ztimes=NULL, zdelta=NULL,
+               sojourn=TRUE, z.train=NULL, z.test=NULL,
                zsum=NULL, rm.const=TRUE, numcut=100, grp=NULL,
                xinfo=matrix(0, 0, 0), usequants=FALSE )
 }
@@ -56,6 +57,16 @@ surv.pre.bart( times, delta, x.train=NULL, x.test=NULL,
    \item{zsum}{ A list containing vectors for indices to sum over
      creating new variables.  Particularly useful for creating
      time-dependent covariates.  }
+
+   \item{sojourn}{The default is to include sojourn times as covariates.
+     Meanwhile, \code{FALSE}, excludes them; yet the info is still
+     needed to generate the time-dependents for \code{zdelta}.  Therefore,
+     you can provide that information as matrices by \code{z.train} and
+     \code{z.test} accordingly.
+   }
+
+   \item{z.train}{The sojourn times for the training.}
+   \item{z.test}{The sojourn times for the testing.}
    
       \item{xinfo}{ You can provide the cutpoints to BART or let BART
      choose them for you.  To provide them, use the \code{xinfo}
