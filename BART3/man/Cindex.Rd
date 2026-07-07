@@ -7,7 +7,7 @@
   performance.  }
 
 \usage{
-Cindex(risk, times, delta=NULL)
+Cindex(risk, times, delta=NULL, ties=FALSE)
 }
 
 \arguments{
@@ -17,6 +17,8 @@ Cindex(risk, times, delta=NULL)
 \item{times}{A vector of the survival times.}
 \item{delta}{An event indicator: 1, event; 0, censoring.  Defaults to
   all events.}
+\item{ties}{\code{FALSE} treats ties as non-informative
+  while \code{TRUE} is worst-case. }
 }
 
 \details{ The C index is returned.  }

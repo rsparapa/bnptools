@@ -1,6 +1,6 @@
 
 ## BART: Bayesian Additive Regression Trees
-## Copyright (C) 2024 Robert McCulloch and Rodney Sparapani
+## Copyright (C) 2024-2026 Robert McCulloch and Rodney Sparapani
 ## Cindex.R
 
 ## This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 ## along with this program; if not, a copy is available at
 ## https://www.R-project.org/Licenses/GPL-2
 
-Cindex=function(risk, times, delta=NULL)
+Cindex=function(risk, times, delta=NULL, ties = FALSE)
 {   
     N=length(risk)
     if(N!=length(times))
@@ -29,6 +29,13 @@ Cindex=function(risk, times, delta=NULL)
     l=0
     k=0
     for(i in 1:N) {
+        if(ties) {
+            h=which(times[i]==times & delta[i] == delta)
+            if(length(h)>0) {
+                l=l+length(h)/2
+                k=k+length(h)
+            }
+        }
         h=which((times[i]==times & delta[i]>delta) |
                 (times[i]<times & delta[i]>0))
         if(length(h)>0) {
