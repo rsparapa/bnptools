@@ -30,7 +30,7 @@ nft = function(## data
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100,
-               chv = NULL,
+               chv = NULL, poly = FALSE,
                method="spearman", use="pairwise.complete.obs",
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
@@ -67,7 +67,7 @@ res=nft2(## data
                ##MCMC
                nskip=nskip, ndpost=ndpost, 
                nadapt=nadapt, adaptevery=adaptevery, 
-               chvf = chv, chvs = chv,
+               chvf = chv, chvs = chv, poly = poly,
                method=method, use=use,
                pbd=pbd, pb=pb,
                stepwpert=stepwpert, probchv=probchv,

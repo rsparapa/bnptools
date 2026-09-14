@@ -1,4 +1,4 @@
-## Copyright (C) 2022-2025 Rodney A. Sparapani
+## Copyright (C) 2022-2026 Rodney A. Sparapani
 
 ## This file is part of nftbart.
 ## nft2.R
@@ -32,7 +32,7 @@ nft2 = function(## data
                ##MCMC
                nskip=1000, ndpost=2000, 
                nadapt=1000, adaptevery=100, 
-               chvf = NULL, chvs = NULL,
+               chvf = NULL, chvs = NULL, poly = FALSE,
                method="spearman", use="pairwise.complete.obs",
                pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
                stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
@@ -159,6 +159,50 @@ nft2 = function(## data
     
     pf=nrow(xftrain)
     ps=nrow(xstrain)
+
+    if((poly) & (n>numcut)) {
+        if(pf>1) {
+            for(i in 1:(pf-1)) 
+                for(j in (i+1):pf) {
+                    if((length(xifcuts[[i]])<numcut) & 
+                       (length(xifcuts[[j]])<numcut)) {
+                        chvf[i, j] <- polychor(xftrain[i, ], xftrain[j, ], TRUE) 
+                        chvf[j, i] <- chvf[i, j]
+                    } else if((length(xifcuts[[i]]) == numcut) & 
+                              (length(xifcuts[[j]])<numcut)) {
+                        chvf[i, j] <- polyserial(rank(xftrain[i, ]), xftrain[j, ], TRUE) 
+                        chvf[j, i] <- chvf[i, j]
+                    } else if((length(xifcuts[[i]])<numcut) & 
+                              (length(xifcuts[[j]]) == numcut)) {
+                        chvf[i, j] <- polyserial(rank(xftrain[j, ]), xftrain[i, ], TRUE) 
+                        chvf[j, i] <- chvf[i, j]
+                    }
+                }
+        }
+        if(ps>1) {
+            if(pf == ps && all(xftrain == xstrain)) { chvs <- chvf }
+            else {
+            for(i in 1:(ps-1)) 
+                for(j in (i+1):ps) {
+                    if((length(xiscuts[[i]])<numcut) & 
+                       (length(xiscuts[[j]])<numcut)) {
+                        chvs[i, j] <- polychor(xstrain[i, ], xstrain[j, ], TRUE) 
+                        chvs[j, i] <- chvs[i, j]
+                    } else if((length(xiscuts[[i]]) == numcut) & 
+                              (length(xiscuts[[j]])<numcut)) {
+                        chvs[i, j] <- polyserial(rank(xstrain[i, ]), xstrain[j, ], TRUE) 
+                        chvs[j, i] <- chvs[i, j]
+                    } else if((length(xiscuts[[i]])<numcut) & 
+                              (length(xiscuts[[j]]) == numcut)) {
+                        chvs[i, j] <- polyserial(rank(xstrain[j, ]), xstrain[i, ], TRUE) 
+                        chvs[j, i] <- chvs[i, j]
+                    }
+                }
+            }
+        }
+    }
+
+##return(list(chvf = chvf, chvs = chvs, xifcuts = xifcuts, numcut = numcut))
 
     if(np>0) {
         if(pf!=nrow(xftest))

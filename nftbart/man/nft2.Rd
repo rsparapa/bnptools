@@ -20,7 +20,7 @@ nft2(
     tc=getOption("mc.cores", 1), 
     ##MCMC
     nskip=1000, ndpost=2000, nadapt=1000, adaptevery=100,
-    chvf=NULL, chvs=NULL,
+    chvf=NULL, chvs=NULL, poly=FALSE,
     method="spearman", use="pairwise.complete.obs",
     pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
     stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
@@ -54,7 +54,7 @@ nft(
     tc=getOption("mc.cores", 1), 
     ##MCMC
     nskip=1000, ndpost=2000, nadapt=1000, adaptevery=100,
-    chv=NULL,
+    chv=NULL, poly=FALSE,
     method="spearman", use="pairwise.complete.obs",
     pbd=c(0.7, 0.7), pb=c(0.5, 0.5),
     stepwpert=c(0.1, 0.1), probchv=c(0.1, 0.1),
@@ -103,6 +103,8 @@ nft(
   \item{nadapt}{Number of MCMC iterations for adaptation prior to burn-in.}
   \item{adaptevery}{Adapt MCMC proposal distributions every \code{adaptevery} iteration.}
     \item{chvf,chvs,chv}{Predictor correlation matrix used as a pre-conditioner for MCMC change-of-variable proposals.}
+    \item{poly}{Whether to substitute polyserial/polychoric correlations
+      for Spearman's rank-correlation as appropriate.}
   \item{method,use}{Correlation options for change-of-variable proposal
     pre-conditioner.}
   \item{pbd}{Probability of performing a birth/death proposal, otherwise perform a rotate proposal.}
