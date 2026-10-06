@@ -45,15 +45,18 @@ xicuts = function(x.train, transposed=FALSE, numcut=100) {
     xicuts.=list()
     for(i in 1:p) {
         numcut.[i]=length(grid[[i]])-1
-        if(numcut.[i]==0)
+        if(numcut.[i]==0) {
             warning(paste0('The following column is constant:', i))
-        if(numcut.[i]>=numcut || numcut.[i]==(n-1)) {
-            xinc=(grid[[i]][numcut.[i]+1]-grid[[i]][1])/(numcut+1)
-            xicuts.[[i]]=(1:numcut)*xinc+grid[[i]][1]
-        } else {
-            xicuts.[[i]]=double(numcut.[i])
-            for(j in 1:numcut.[i])
-                xicuts.[[i]][j]=mean(grid[[i]][c(j, j+1)])
+            xicuts.[[i]] <- x[1, i] ## workaround for rm.const=FALSE
+        } else { ## workaround for rm.const=FALSE
+            if(numcut.[i]>=numcut || numcut.[i]==(n-1)) {
+                xinc=(grid[[i]][numcut.[i]+1]-grid[[i]][1])/(numcut+1)
+                xicuts.[[i]]=(1:numcut)*xinc+grid[[i]][1]
+            } else {
+                xicuts.[[i]]=double(numcut.[i])
+                for(j in 1:numcut.[i])
+                    xicuts.[[i]][j]=mean(grid[[i]][c(j, j+1)])
+            }
         }
     }
     names(xicuts.)=names.

@@ -1,5 +1,8 @@
 
-Changes and New Features in 2.4 (2026-09-14):
+Changes and New Features in 2.4 (2026-10-06):
+	* AFT fits from NFT with a single column constant xstrain/xstest
+	and rm.const=FALSE by requiring xicuts to now return the constant
+
         * adding polyserial() and polychor() from John Fox (polycor package)
 	requiring an additional dependency: the mvtnorm R package
 
