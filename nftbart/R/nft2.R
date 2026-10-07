@@ -378,7 +378,13 @@ if(K>0) {
         res$s.varcount=cbind(res$s.varcount[s.train.mask, ])
         dimnames(res$s.varcount)[[2]]=names(xiscuts)
         res$s.varcount.mean=apply(res$s.varcount, 2, mean)
-        res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
+        ##res$s.varprob=res$s.varcount.mean/sum(res$s.varcount.mean)
+        res$s.varprob=sum(res$s.varcount.mean)
+        if(res$s.varprob>0) {
+            res$s.varprob=res$s.varcount.mean/res$s.varprob
+        } else { ## AFT models have tree roots only: no branches
+            res$s.varprob=res$s.varcount.mean
+        }
     }
 
     if(TSVS) return(res)
