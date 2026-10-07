@@ -382,7 +382,7 @@ if(K>0) {
         res$s.varprob=sum(res$s.varcount.mean)
         if(res$s.varprob>0) {
             res$s.varprob=res$s.varcount.mean/res$s.varprob
-        } else { ## AFT models have tree roots only: no branches
+        } else { ## e.g., AFT models have tree roots only: no branches
             res$s.varprob=res$s.varcount.mean
         }
     }
