@@ -257,7 +257,9 @@ nft2 = function(## data
         y=times-fmu
     }
 
-    if(is.na(total.lambda)) total.lambda = (aft$scale^2)
+    ## workaround: only the log scale is relevant
+    if(is.na(total.lambda)) total.lambda = 2*log(aft$scale)
+    ##if(is.na(total.lambda)) total.lambda = (aft$scale^2)
 
     ## tau
     if(is.na(tau)) {
@@ -268,7 +270,7 @@ nft2 = function(## data
         ## }
     }
 
-    if(drawDPM==1) {
+##    if(drawDPM==1) {
         C=rep(1, n)
         C=as.integer(C-1) ## C/C++ indexing
         states=as.integer(c(n, rep(0, n-1)))
@@ -281,7 +283,7 @@ nft2 = function(## data
         phi=matrix(c(0, prior$b0.b), nrow=n, ncol=2, byrow=TRUE)
         hyper=list(alpha=alpha, alpha.draw=alpha.draw,
                k0=k0, b0=b0, k0.draw=k0.draw, b0.draw=b0.draw)
-    }
+##    } 
 
     ## check = length(impute.bin)
     ## if(!(check %in% 0:1))
