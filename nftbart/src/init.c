@@ -14,6 +14,7 @@ extern SEXP cpsambrt_predict2(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SE
 extern SEXP cprnft2(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 //extern SEXP cnft(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP cnft2(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP crtnorm(SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
 //    {"cpsambrt_predict", (DL_FUNC) &cpsambrt_predict,  7},
@@ -22,6 +23,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"cprnft2",          (DL_FUNC) &cprnft2,           6},
 //    {"cnft",             (DL_FUNC) &cnft,             32},
     {"cnft2",            (DL_FUNC) &cnft2,            34},
+    {"crtnorm",          (DL_FUNC) &crtnorm,           4},
     {NULL, NULL, 0}
 };
 

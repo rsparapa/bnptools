@@ -264,4 +264,17 @@ void DPMtau_P0(size_t row_c, SEXP _Y, SEXP _phi,
 		    double a0, double b0, rn &gen);
 */
 
+#ifndef NotInR
+
+RcppExport SEXP crtnorm(SEXP n, SEXP tau, SEXP mean, SEXP sd) {
+  rrn gen;
+  size_t N = Rcpp::as<int>(n);
+  Rcpp::NumericVector z(N), b(tau), a(mean), c(sd);
+  size_t A=a.size(), B=b.size(), C=c.size();
+  for(size_t i=0; i<N; ++i) z[i]=gen.rtnorm(b[i%B], a[i%A], c[i%C]);
+  return Rcpp::wrap(z);
+}
+
+#endif
+
 #endif
