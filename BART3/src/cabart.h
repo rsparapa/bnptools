@@ -1,6 +1,6 @@
 /*
  *  BART: Bayesian Additive Regression Trees
- *  Copyright (C) 2018 Robert McCulloch and Rodney Sparapani
+ *  Copyright (C) 2018-2026 Robert McCulloch and Rodney Sparapani
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ RcppExport SEXP cabart(
    SEXP _irho,          //param rho for sparsity prior (default to p)
    SEXP _iaug,          //categorical strategy: true(1)=data augment false(0)=degenerate trees
    SEXP _inprintevery,
-   SEXP _Xinfo
+   SEXP _Xinfo          //, SEXP _stable
 )
 {
    //process args
@@ -99,6 +99,7 @@ RcppExport SEXP cabart(
    double theta = Rcpp::as<double>(_itheta);
    double omega = Rcpp::as<double>(_iomega);
    Rcpp::IntegerVector _grp(_igrp);
+//   int stable = Rcpp::as<int>(_stable);
 //   int *grp = &_grp[0];
    size_t nkeeptrain = nd/thin;     //Rcpp::as<int>(_inkeeptrain);
    size_t nkeeptest = nd/thin;      //Rcpp::as<int>(_inkeeptest);
@@ -285,15 +286,27 @@ if(type==1) {
       //draw bart
       bm.draw(svec,gen);
 
-      if(type==1) {
+//      if(type==1) {
       //draw sigma
 	double rss=0.;
-	for(size_t k=0;k<n;k++) rss += pow((iy[k]-bm.f(k))/(iw[k]), 2.); 
+	for(size_t k=0;k<n;k++) rss += pow((z[k]-bm.f(k))/(iw[k]), 2.); 
 	sigma = sqrt((nu*lambda + rss)/gen.chi_square(df));
 	sdraw[i]=sigma;
-      }
+//      }
 
       for(size_t k=0; k<n; k++) {
+	if(delta[k]==0) {
+	svec[k]=iw[k]*sigma;
+	z[k]=rtnorm(bm.f(k), iy[k], svec[k], gen);
+/*
+	if(stable==0) z[k]=rtnorm(bm.f(k), iy[k], svec[k], gen);
+	else {
+	    z[k]=bm.f(k)+gen.normal()*svec[k];
+	    if(z[k]<iy[k]) z[k]=rtnorm(bm.f(k), iy[k], svec[k], gen);
+	  }
+*/
+	}
+/* continuous outcome: type is always 1
 	if(type==1) {
 	  svec[k]=iw[k]*sigma;
 	  if(delta[k]==0) z[k]= rtnorm(bm.f(k), iy[k], svec[k], gen);
@@ -303,6 +316,7 @@ if(type==1) {
 	  if(type==3) 
 	    svec[k]=sqrt(draw_lambda_i(pow(svec[k], 2.), sign[k]*bm.f(k), 1000, 1, gen));
 	  }
+*/
       }
       if(i>=burn) {
          if(nkeeptrain && (((i-burn+1) % skiptr) ==0)) {

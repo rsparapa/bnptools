@@ -23,7 +23,7 @@ abart=function(
                sparse=FALSE, theta=0, omega=1,
                a=0.5, b=1, augment=FALSE, rho=NULL,
                xinfo=matrix(0,0,0), usequants=FALSE,
-               rm.const=TRUE,
+               rm.const=TRUE, ##stable=FALSE,
                sigest=NA, sigdf=3, sigquant=0.90,
                k=2, power=2, base=0.95,
                ##sigmaf=NA,
@@ -150,10 +150,12 @@ abart=function(
                 rho,
                 augment,
                 printevery,
-                xinfo
+                xinfo ##, stable*1
                 )
 
     res$proc.time <- proc.time()-ptm
+    res$lambda <- lambda
+    res$sigest <- sigest
     if(nskip>0) nskip.=1:nskip
     else nskip. = 0
     if(keepevery>1) res$sigma = c(res$sigma[nskip.],

@@ -14,14 +14,16 @@ Main differences between BART (stable) and BART3 (development)
 
 	* and the development of many new features: see below
 	
+Changes and New Features in 5.8 (2026-11-14):
+	* abart: bug-fix variance draw based on augmented times
 	
 Changes and New Features in 5.7 (2026-06-11):
 	* bug-fix mc.surv.bart: propagate rm.const into surv.pre.bart
 
 	* new feature surv.bart/mc.surv.bart/surv.pre.bart:
-	setting sojourn=FALSE removes the sojourn times from the covariate list
-	yet, that info is still needed to generate the time-dependents of zdelta
-	so they can now be provided as matrices: z.train and z.test accordingly
+	sojourn=FALSE removes the sojourn times from the covariate list
+	yet, info still needed to generate the time-dependents of zdelta
+	then provide with matrices: z.train and z.test accordingly
 
 Changes and New Features in 5.6 (2025-07-22):
 	* fix zero-length warning in gbart
