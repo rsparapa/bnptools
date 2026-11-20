@@ -15,10 +15,10 @@ Main differences between BART (stable) and BART3 (development)
 	* and the development of many new features: see below
 	
 Changes and New Features in 5.8 (2026-11-14):
-	* abart: bug-fix variance draw based on augmented times
+	* abart bug-fix: variance draw based on augmented times
 	
 Changes and New Features in 5.7 (2026-06-11):
-	* bug-fix mc.surv.bart: propagate rm.const into surv.pre.bart
+	* mc.surv.bart bug-fix: propagate rm.const into surv.pre.bart
 
 	* new feature surv.bart/mc.surv.bart/surv.pre.bart:
 	sojourn=FALSE removes the sojourn times from the covariate list
